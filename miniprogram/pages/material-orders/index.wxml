@@ -1,0 +1,52 @@
+<!-- 我的选材申请列表 -->
+<view class="page">
+  <!-- ready 之前仅背景色 -->
+  <block wx:if="{{ready}}">
+    <view wx:if="{{loading}}" class="page-loading">
+      <view class="loading-spinner"></view>
+      <text class="loading-text">加载中...</text>
+    </view>
+
+    <view wx:elif="{{error}}" class="page-error" bindtap="onRetry">
+      <text class="error-icon">⚠️</text>
+      <text class="error-msg">加载失败</text>
+      <text class="error-hint">点击重试</text>
+    </view>
+
+    <block wx:else>
+      <block wx:if="{{orders.length > 0}}">
+        <view class="list">
+          <view wx:for="{{orders}}" wx:key="order_no" class="order-card"
+            data-order-no="{{item.order_no}}" bindtap="onOrderTap">
+            <view class="card-header">
+              <text class="order-no">{{item.order_no}}</text>
+              <view class="status-tag {{item.statusColor}}">
+                <text>{{item.statusIcon}} {{item.statusLabel}}</text>
+              </view>
+            </view>
+            <view class="card-body">
+              <text class="property-name">{{item.property_name}}</text>
+              <text class="room-number">{{item.room_number}}</text>
+              <view wx:if="{{item.construction_status && item.construction_status !== 'not_started'}}" class="construction-status-line">
+                <text class="construction-badge {{item.construction_status === 'completed' ? 'tag-green' : 'tag-blue'}}">
+                  {{item.construction_status === 'completed' ? '已竣工' : '施工中 ' + item.current_phase_order + '/5'}}
+                </text>
+              </view>
+            </view>
+            <view class="card-footer">
+              <text class="order-time">{{item.created_at}}</text>
+              <text class="order-arrow">查看详情 ›</text>
+            </view>
+          </view>
+        </view>
+        <loading-more loading="{{loadingMore}}" hasMore="{{hasMore}}" count="{{orders.length}}"/>
+      </block>
+
+      <view wx:if="{{orders.length === 0}}" class="empty-state">
+        <text class="empty-icon">📋</text>
+        <text class="empty-title">暂无申请记录</text>
+        <text class="empty-desc">快去选择楼盘开始选材吧</text>
+      </view>
+    </block>
+  </block>
+</view>

@@ -1,0 +1,243 @@
+<!--
+  设计师中心
+  个人信息 + 统计 + 快捷入口 + 编辑资料
+-->
+<view class="page">
+
+  <!-- ═══ 头部名片 ═══ -->
+  <view class="header-card">
+    <view class="avatar-section">
+      <!-- 头像（可点击预览大图） -->
+      <view class="avatar-wrap" bindtap="onPreviewAvatar">
+        <image
+          wx:if="{{userInfo.avatar_url}}"
+          class="avatar-img"
+          src="{{userInfo.avatar_url}}"
+          mode="aspectFill"
+        />
+        <text wx:else class="avatar-placeholder">👤</text>
+        <view wx:if="{{userInfo.avatar_url}}" class="avatar-hint-badge">
+          <text>🔍</text>
+        </view>
+        <!-- 头像审核中标记 -->
+        <view wx:if="{{userInfo.avatar_review_status === 'pending'}}" class="avatar-pending-badge">
+          <text>⏳</text>
+        </view>
+      </view>
+
+      <text class="name-text">{{userInfo.name || '未设置'}}</text>
+      <!-- 头像审核状态提示 -->
+      <text wx:if="{{userInfo.avatar_review_status === 'pending'}}" class="avatar-pending-text">头像审核中…</text>
+      <text wx:if="{{userInfo.phone}}" class="phone-text">{{userInfo.phone}}</text>
+
+      <!-- 从业年限标签 -->
+      <view wx:if="{{userInfo.years_of_exp > 0}}" class="exp-badge">
+        <text>🏗️ 从业 {{userInfo.years_of_exp}} 年</text>
+      </view>
+
+      <!-- 状态标签 -->
+      <view class="status-badge">
+        <view class="tag {{userInfo.status === 'active' ? 'tag-green' : 'tag-red'}}">
+          <text>{{userInfo.status === 'active' ? '✅ 已启用' : '⛔ 已禁用'}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- ═══ 数据概览 ═══ -->
+  <view class="stats-row">
+    <view wx:for="{{statsText}}" wx:key="label" class="stat-box">
+      <text class="stat-num {{item.color}}">{{item.value}}</text>
+      <text class="stat-label">{{item.label}}</text>
+    </view>
+  </view>
+
+  <!-- ═══ 快捷入口 ═══ -->
+  <view class="quick-actions">
+    <view class="action-card action-primary" bindtap="onGoUpload">
+      <text class="action-icon">📤</text>
+      <text class="action-label">上传作品</text>
+      <text class="action-desc">新的装修案例</text>
+    </view>
+    <view class="action-card action-secondary" bindtap="onGoWorks">
+      <text class="action-icon">📋</text>
+      <text class="action-label">管理作品</text>
+      <text class="action-desc">{{stats.total}} 个作品</text>
+    </view>
+  </view>
+
+  <!-- ═══ 查看模式 ═══ -->
+  <view wx:if="{{!editing}}" class="info-card card">
+    <view class="card-header">
+      <text class="card-title">个人信息</text>
+      <text class="edit-btn" bindtap="onEdit">✏️ 编辑</text>
+    </view>
+
+    <view class="info-list">
+      <!-- 姓名 -->
+      <view class="info-row">
+        <view class="info-label-wrap">
+          <text class="info-icon">👤</text>
+          <text class="info-label">姓名</text>
+        </view>
+        <text class="info-value">{{userInfo.name || '未设置'}}</text>
+      </view>
+
+      <!-- 手机号 -->
+      <view class="info-row">
+        <view class="info-label-wrap">
+          <text class="info-icon">📱</text>
+          <text class="info-label">手机号</text>
+        </view>
+        <text class="info-value">{{userInfo.phone || '未设置'}}</text>
+      </view>
+
+      <!-- 从业经验 -->
+      <view class="info-row">
+        <view class="info-label-wrap">
+          <text class="info-icon">🏗️</text>
+          <text class="info-label">从业经验</text>
+        </view>
+        <text class="info-value">
+          {{userInfo.years_of_exp ? userInfo.years_of_exp + ' 年' : '未设置'}}
+        </text>
+      </view>
+
+      <!-- 注册时间 -->
+      <view class="info-row" wx:if="{{userInfo.created_at}}">
+        <view class="info-label-wrap">
+          <text class="info-icon">📅</text>
+          <text class="info-label">注册时间</text>
+        </view>
+        <text class="info-value">{{userInfo.created_at}}</text>
+      </view>
+    </view>
+
+    <!-- 个人简介 -->
+    <view class="bio-section">
+      <view class="bio-header">
+        <text class="info-icon">💬</text>
+        <text class="bio-title">个人简介</text>
+      </view>
+      <view wx:if="{{userInfo.bio}}" class="bio-content">
+        <text>{{userInfo.bio}}</text>
+      </view>
+      <view wx:else class="bio-empty">
+        <text>这个人很懒，还没写简介…</text>
+        <text class="bio-empty-hint" bindtap="onEdit">写一句</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- ═══ 编辑模式 ═══ -->
+  <view wx:else class="edit-card card">
+    <view class="card-header">
+      <text class="card-title">编辑资料</text>
+      <text class="cancel-btn" bindtap="onCancelEdit">取消</text>
+    </view>
+
+    <!-- 头像编辑 -->
+    <view class="edit-avatar" bindtap="onChooseAvatar">
+      <image
+        wx:if="{{editForm.avatar_url}}"
+        class="edit-avatar-img"
+        src="{{editForm.avatar_url}}"
+        mode="aspectFill"
+      />
+      <view wx:else class="edit-avatar-placeholder">
+        <text class="edit-avatar-icon">📷</text>
+      </view>
+      <text class="edit-avatar-hint">点击更换头像</text>
+    </view>
+
+    <!-- 表单 -->
+    <view class="edit-form">
+      <!-- 姓名 -->
+      <view class="form-item">
+        <view class="form-label-row">
+          <text class="form-label">姓名</text>
+          <text class="form-required">*</text>
+        </view>
+        <input
+          class="form-input"
+          value="{{editForm.name}}"
+          data-field="name"
+          bindinput="onFieldChange"
+          placeholder="请输入姓名"
+        />
+      </view>
+
+      <!-- 手机号 -->
+      <view class="form-item">
+        <view class="form-label-row">
+          <text class="form-label">手机号</text>
+        </view>
+        <input
+          class="form-input"
+          type="number"
+          maxlength="11"
+          value="{{editForm.phone}}"
+          data-field="phone"
+          bindinput="onFieldChange"
+          placeholder="请输入手机号"
+        />
+      </view>
+
+      <!-- 从业年限 -->
+      <view class="form-item">
+        <view class="form-label-row">
+          <text class="form-label">从业经验（年）</text>
+        </view>
+        <view class="exp-stepper">
+          <view class="exp-dot {{editForm.years_of_exp >= 1 ? 'active' : ''}}" />
+          <view class="exp-line {{editForm.years_of_exp >= 2 ? 'active' : ''}}" />
+          <view class="exp-dot {{editForm.years_of_exp >= 2 ? 'active' : ''}}" />
+          <view class="exp-line {{editForm.years_of_exp >= 3 ? 'active' : ''}}" />
+          <view class="exp-dot {{editForm.years_of_exp >= 3 ? 'active' : ''}}" />
+          <view class="exp-line {{editForm.years_of_exp >= 5 ? 'active' : ''}}" />
+          <view class="exp-dot {{editForm.years_of_exp >= 5 ? 'active' : ''}}" />
+          <view class="exp-line {{editForm.years_of_exp >= 8 ? 'active' : ''}}" />
+          <view class="exp-dot {{editForm.years_of_exp >= 8 ? 'active' : ''}}" />
+          <view class="exp-line {{editForm.years_of_exp >= 10 ? 'active' : ''}}" />
+          <view class="exp-dot {{editForm.years_of_exp >= 10 ? 'active' : ''}}" />
+        </view>
+        <input
+          class="form-input"
+          type="number"
+          value="{{editForm.years_of_exp}}"
+          data-field="years_of_exp"
+          bindinput="onFieldChange"
+          placeholder="如：5"
+        />
+      </view>
+
+      <!-- 个人简介 -->
+      <view class="form-item">
+        <view class="form-label-row">
+          <text class="form-label">个人简介</text>
+          <text class="form-counter">{{editForm.bioLength || 0}}/200</text>
+        </view>
+        <textarea
+          class="form-textarea"
+          value="{{editForm.bio}}"
+          data-field="bio"
+          bindinput="onFieldChange"
+          placeholder="简单介绍一下自己，让客户更了解你…"
+          maxlength="200"
+        />
+      </view>
+    </view>
+
+    <button class="btn btn-primary btn-block save-btn" bindtap="onSave" disabled="{{saving}}">
+      {{saving ? '保存中...' : '💾 保存资料'}}
+    </button>
+
+    <!-- 提示 -->
+    <view class="edit-notice">
+      <text>📌 手机号变更后下次登录需使用新手机号</text>
+    </view>
+  </view>
+
+  <!-- 底部安全区 -->
+  <view class="safe-bottom"></view>
+</view>

@@ -1,0 +1,34 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "migrate": "knex migrate:latest --knexfile knexfile.js",
+    "migrate:rollback": "knex migrate:rollback --knexfile knexfile.js",
+    "migrate:reset": "knex migrate:rollback --knexfile knexfile.js && knex migrate:latest --knexfile knexfile.js && knex seed:run --knexfile knexfile.js",
+    "seed": "knex seed:run --knexfile knexfile.js",
+    "test:api": "bash tests/api_test.sh",
+    "db:reset": "knex migrate:rollback --knexfile knexfile.js && knex migrate:latest --knexfile knexfile.js && knex seed:run --knexfile knexfile.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "better-sqlite3": "^12.10.0",
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "knex": "^3.2.10",
+    "morgan": "^1.11.0",
+    "multer": "^2.1.1",
+    "sharp": "^0.34.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}

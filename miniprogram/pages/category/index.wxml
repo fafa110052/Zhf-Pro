@@ -1,0 +1,150 @@
+<!-- 分类筛选页 -->
+<view class="page">
+  <!-- ═══ 维度 Tab 栏 ═══ -->
+  <view class="tab-bar">
+    <view
+      wx:for="{{tabs}}"
+      wx:key="key"
+      class="tab-item {{activeTabKey === item.key ? 'tab-active' : ''}}"
+      data-key="{{item.key}}"
+      bindtap="onTabTap"
+    >
+      <text class="tab-text">{{item.label}}</text>
+      <view wx:if="{{activeTabKey === item.key}}" class="tab-indicator"></view>
+    </view>
+  </view>
+
+  <!-- ═══ 搜索关键词提示 ═══ -->
+  <view wx:if="{{keyword}}" class="keyword-bar">
+    <text class="keyword-icon">🔍</text>
+    <text class="keyword-text">"{{keyword}}"</text>
+    <text class="keyword-count">{{works.length}} 个结果</text>
+    <view class="keyword-clear" bindtap="onClearKeyword">
+      <text>✕</text>
+    </view>
+  </view>
+
+  <!-- ═══ 标签云 ═══ -->
+  <view class="tag-section">
+    <scroll-view scroll-y class="tag-cloud-wrap">
+      <view class="tag-cloud">
+        <view
+          wx:for="{{activeTags}}"
+          wx:key="id"
+          class="tag-chip {{item.selected ? 'tag-chip-active' : ''}}"
+          data-id="{{item.id}}"
+          bindtap="onTagTap"
+        >
+          <text>{{item.name}}</text>
+        </view>
+      </view>
+    </scroll-view>
+
+    <!-- 分类加载失败 -->
+    <view wx:if="{{categoryError}}" class="tag-empty tag-error">
+      <text>⚠️ 分类加载失败</text>
+      <text class="tag-error-hint">请检查网络后下拉刷新</text>
+    </view>
+    <!-- 无分类时的占位 -->
+    <view wx:elif="{{activeTags.length === 0 && !categoryError}}" class="tag-empty">
+      <text>暂无分类数据</text>
+    </view>
+  </view>
+
+  <!-- ═══ 已选筛选条 ═══ -->
+  <view wx:if="{{hasAnyFilter}}" class="filter-bar">
+    <scroll-view scroll-x class="filter-scroll">
+      <view class="filter-chips">
+        <view
+          wx:for="{{selectedFilters}}"
+          wx:key="paramKey"
+          class="filter-chip"
+          data-param-key="{{item.paramKey}}"
+          bindtap="onRemoveFilter"
+        >
+          <text class="filter-chip-label">{{item.dimLabel}}:</text>
+          <text class="filter-chip-name">{{item.name}}</text>
+          <text class="filter-chip-close">✕</text>
+        </view>
+        <view class="filter-clear" bindtap="onClearFilter">
+          <text>清除全部</text>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- ═══ 排序栏 ═══ -->
+  <view class="sort-bar">
+    <view class="sort-left">
+      <text class="sort-count">{{works.length}} 个作品</text>
+    </view>
+    <view class="sort-right">
+      <view
+        class="sort-item {{sortBy === 'newest' ? 'sort-active' : ''}}"
+        data-sort="newest"
+        bindtap="onSortTap"
+      >
+        <text>最新</text>
+      </view>
+      <view
+        class="sort-item {{sortBy === 'popular' ? 'sort-active' : ''}}"
+        data-sort="popular"
+        bindtap="onSortTap"
+      >
+        <text>最热</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- ═══ 两列瀑布流 ═══ -->
+  <view wx:if="{{!loading}}" class="works-area">
+    <view wx:if="{{works.length > 0}}" class="waterfall-grid">
+      <view class="waterfall-col">
+        <block wx:for="{{works}}" wx:key="id">
+          <view wx:if="{{index % 2 === 0}}" class="waterfall-item">
+            <work-card work="{{item}}" showStyle="{{true}}" bindtap="onWorkTap"/>
+          </view>
+        </block>
+      </view>
+      <view class="waterfall-col">
+        <block wx:for="{{works}}" wx:key="id">
+          <view wx:if="{{index % 2 === 1}}" class="waterfall-item">
+            <work-card work="{{item}}" showStyle="{{true}}" bindtap="onWorkTap"/>
+          </view>
+        </block>
+      </view>
+    </view>
+
+    <!-- 空状态 -->
+    <empty-state
+      wx:if="{{works.length === 0}}"
+      icon="🔍"
+      title="暂无作品"
+      desc="试试切换筛选条件或清除筛选"
+      showAction="{{hasAnyFilter}}"
+      actionText="清除筛选"
+      bindaction="onClearFilter"
+    />
+
+    <!-- 加载更多 -->
+    <loading-more
+      wx:if="{{works.length > 0}}"
+      loading="{{loadingMore}}"
+      hasMore="{{hasMore}}"
+      count="{{works.length}}"
+    />
+  </view>
+
+  <!-- 首次加载中 -->
+  <view wx:if="{{loading}}" class="loading-first">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <!-- 加载失败 -->
+  <view wx:elif="{{error && works.length === 0}}" class="error-state" bindtap="onRetry">
+    <text class="error-icon">⚠️</text>
+    <text class="error-msg">加载失败</text>
+    <text class="error-hint">点击重试</text>
+  </view>
+</view>

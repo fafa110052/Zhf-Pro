@@ -1,0 +1,35 @@
+<!-- 作品卡片 -->
+<view class="work-card" bindtap="onTap">
+  <!-- 封面图 -->
+  <view class="card-cover">
+    <image
+      wx:if="{{work.cover_url}}"
+      class="cover-img"
+      src="{{work.cover_url}}"
+      mode="widthFix"
+      lazy-load
+    />
+    <view wx:else class="cover-placeholder">
+      <text class="placeholder-icon">🖼️</text>
+    </view>
+    <!-- 风格标签（右上角） -->
+    <view wx:if="{{showStyle && work.style_category_name}}" class="style-tag">
+      <text>{{work.style_category_name}}</text>
+    </view>
+  </view>
+
+  <!-- 信息 -->
+  <view class="card-body">
+    <text class="card-title line-2">{{work.title || '未命名作品'}}</text>
+
+    <view wx:if="{{showMeta}}" class="card-meta">
+      <text wx:if="{{work.area_text}}" class="meta-text">{{work.area_text}}</text>
+      <text wx:if="{{work.area_text && work.budget_text}}" class="meta-dot">·</text>
+      <text wx:if="{{work.budget_text}}" class="meta-text">{{work.budget_text}}</text>
+      <view wx:if="{{work.view_count !== undefined}}" class="meta-views">
+        <text class="views-icon">👁</text>
+        <text class="views-num">{{work.view_count}}</text>
+      </view>
+    </view>
+  </view>
+</view>

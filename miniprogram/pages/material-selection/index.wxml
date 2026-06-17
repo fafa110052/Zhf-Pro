@@ -1,0 +1,91 @@
+<!-- 楼盘专属选材页 -->
+<view class="page">
+  <!-- ready 之前：仅背景色，不渲染任何可见内容，消除过渡期视觉跳变 -->
+  <block wx:if="{{ready}}">
+    <!-- Loading -->
+    <view wx:if="{{loading}}" class="page-loading">
+      <view class="loading-spinner"></view>
+      <text class="loading-text">加载中...</text>
+    </view>
+
+    <!-- Error -->
+    <view wx:elif="{{error}}" class="page-error" bindtap="onRetry">
+      <text class="error-icon">⚠️</text>
+      <text class="error-msg">加载失败</text>
+      <text class="error-hint">点击重试</text>
+    </view>
+
+    <!-- 内容 -->
+    <block wx:else>
+      <view class="property-header">
+        <image wx:if="{{propertyCover}}" class="property-cover-bg" src="{{propertyCover}}" mode="aspectFill"/>
+        <view class="property-header-mask"></view>
+        <view class="property-header-content">
+          <text class="property-name">{{propertyName}}</text>
+          <text class="property-hint">每类材料限选一项</text>
+        </view>
+      </view>
+
+      <view class="search-bar">
+        <view class="search-box">
+          <text class="search-icon">🔍</text>
+          <input class="search-input" placeholder="搜索材料名称" value="{{keyword}}"
+            bindinput="onSearchInput" bindconfirm="onSearchConfirm" confirm-type="search"/>
+          <view wx:if="{{keyword}}" class="search-clear" bindtap="onClearSearch"><text>✕</text></view>
+        </view>
+      </view>
+
+      <scroll-view scroll-y class="scroll-body {{selectedCount > 0 ? 'has-bottom-bar' : ''}}">
+        <block wx:if="{{categories.length > 0}}">
+          <view wx:for="{{categories}}" wx:for-index="catIndex" wx:key="category_id" class="category-section">
+            <view class="category-header" data-index="{{catIndex}}" bindtap="onCategoryToggle">
+              <view class="category-title-row">
+                <text class="category-icon">{{item.expanded ? '▼' : '▶'}}</text>
+                <text class="category-name">{{item.category_name}}</text>
+                <text class="category-count">{{item.materials.length}}种</text>
+              </view>
+            </view>
+
+            <view wx:if="{{item.expanded && item.materials.length > 0}}" class="material-list">
+              <view wx:for="{{item.materials}}" wx:for-index="matIndex" wx:for-item="m" wx:key="id"
+                class="material-card {{m.selected ? 'material-selected' : ''}} {{!m.in_stock ? 'material-out-of-stock' : ''}}"
+                data-cat-index="{{catIndex}}" data-mat-index="{{matIndex}}" bindtap="onMaterialSelect">
+                <view wx:if="{{!m.in_stock}}" class="material-stock-badge"><text>库存不足</text></view>
+                <view class="material-radio">
+                  <view class="radio-circle {{m.selected ? 'radio-checked' : ''}}">
+                    <text wx:if="{{m.selected}}" class="radio-dot">●</text>
+                  </view>
+                </view>
+                <image wx:if="{{m.image_url}}" class="material-image" src="{{m.image_url}}" mode="aspectFill"/>
+                <view wx:else class="material-image-placeholder"><text>📦</text></view>
+                <view class="material-info">
+                  <text class="material-name">{{m.name}}</text>
+                  <text class="material-brand">{{m.brand}}</text>
+                  <text wx:if="{{m.description}}" class="material-desc">{{m.description}}</text>
+                </view>
+                <view class="material-price">
+                  <text class="price-value">¥{{m.unit_price}}</text>
+                  <text class="price-unit">{{m.price_unit}}</text>
+                </view>
+              </view>
+            </view>
+          </view>
+        </block>
+
+        <view wx:if="{{categories.length === 0}}" class="empty-state">
+          <text class="empty-icon">📦</text>
+          <text class="empty-title">暂无材料</text>
+          <text class="empty-desc">该楼盘暂未上架材料</text>
+        </view>
+
+        <view class="scroll-bottom-spacer"></view>
+      </scroll-view>
+    </block>
+  </block>
+</view>
+
+<!-- 底部提交栏 -->
+<view wx:if="{{ready && selectedCount > 0 && !loading}}" class="bottom-bar">
+  <view class="bottom-info"><text class="bottom-count">已选 {{selectedCount}} 种材料</text></view>
+  <view class="bottom-btn" bindtap="onSubmit"><text class="bottom-btn-text">提交申请</text></view>
+</view>

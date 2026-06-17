@@ -1,0 +1,270 @@
+/**
+ * 设计师登录页样式 — 微信快捷登录 + 手动登录
+ */
+
+.page {
+  min-height: 100vh;
+  background: #f8fafc;
+  padding: 0 40rpx;
+}
+
+/* ═══ 头部 ═══ */
+.login-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 80rpx 0 40rpx;
+}
+
+.login-icon {
+  font-size: 72rpx;
+  margin-bottom: 16rpx;
+}
+
+.login-title {
+  font-size: 44rpx;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.login-subtitle {
+  margin-top: 12rpx;
+  font-size: 28rpx;
+  color: #94a3b8;
+}
+
+.dev-badge {
+  margin-top: 16rpx;
+  padding: 6rpx 20rpx;
+  background: #fef3c7;
+  border: 2rpx solid #fcd34d;
+  border-radius: 8rpx;
+}
+
+.dev-badge text {
+  font-size: 22rpx;
+  color: #92400e;
+  font-weight: 500;
+}
+
+/* ═══ 协议（置于快捷登录下方） ═══ */
+.terms-section {
+  padding: 36rpx 0 20rpx;
+}
+
+.terms-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.checkbox {
+  width: 36rpx;
+  height: 36rpx;
+  border: 2rpx solid #cbd5e1;
+  border-radius: 8rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 24rpx;
+  margin-top: 4rpx;
+  flex-shrink: 0;
+  background: #fff;
+}
+
+.checkbox.checked {
+  background: #07c160;
+  border-color: #07c160;
+}
+
+.check-mark {
+  font-size: 24rpx;
+  color: #fff;
+  font-weight: 700;
+}
+
+.terms-text {
+  font-size: 26rpx;
+  color: #64748b;
+  line-height: 40rpx;
+}
+
+.terms-link {
+  font-size: 26rpx;
+  color: #576b95;
+  line-height: 40rpx;
+  text-decoration: underline;
+  padding: 0 2rpx;
+}
+
+/* ═══ 微信快捷登录按钮 ═══ */
+.quick-login-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 0 32rpx;
+}
+
+.wechat-phone-btn {
+  width: 100%;
+  height: 96rpx;
+  background: #07c160;
+  color: #fff;
+  font-size: 32rpx;
+  font-weight: 600;
+  border-radius: 16rpx;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+  box-shadow: 0 4rpx 16rpx rgba(7, 193, 96, 0.3);
+}
+
+.wechat-phone-btn:active {
+  opacity: 0.9;
+  transform: scale(0.99);
+}
+
+.wechat-phone-btn.btn-disabled {
+  background: #a8e6c1;
+  box-shadow: none;
+}
+
+.quick-login-hint {
+  margin-top: 18rpx;
+  font-size: 22rpx;
+  color: #94a3b8;
+  text-align: center;
+}
+
+/* ═══ 分隔线 ═══ */
+.divider-section {
+  display: flex;
+  align-items: center;
+  padding: 16rpx 0 28rpx;
+  gap: 16rpx;
+}
+
+.divider-line {
+  flex: 1;
+  height: 2rpx;
+  background: #e2e8f0;
+}
+
+.divider-text {
+  font-size: 24rpx;
+  color: #94a3b8;
+  white-space: nowrap;
+  padding: 0 8rpx;
+}
+
+/* ═══ 手动输入区域（可折叠） ═══ */
+.manual-section {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+.manual-section.section-open {
+  max-height: 800rpx;
+  opacity: 1;
+}
+
+/* ═══ 表单卡片 ═══ */
+.form-card {
+  background: #fff;
+  border-radius: 20rpx;
+  padding: 36rpx 32rpx;
+  box-shadow: 0 4rpx 24rpx rgba(0, 0, 0, 0.06);
+}
+
+.form-item {
+  margin-bottom: 24rpx;
+}
+
+.form-label {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #0f172a;
+  margin-bottom: 14rpx;
+}
+
+.form-input {
+  width: 100%;
+  height: 92rpx;
+  padding: 0 24rpx;
+  background: #f8fafc;
+  border: 2rpx solid #e2e8f0;
+  border-radius: 14rpx;
+  font-size: 30rpx;
+  color: #0f172a;
+  box-sizing: border-box;
+}
+
+.form-input:focus {
+  border-color: #3b82f6;
+  background: #fff;
+}
+
+.placeholder {
+  color: #cbd5e1;
+}
+
+/* 登录按钮 */
+.login-btn {
+  width: 100%;
+  height: 92rpx;
+  background: #1e293b;
+  color: #fff;
+  font-size: 32rpx;
+  font-weight: 600;
+  border-radius: 14rpx;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-btn:active {
+  opacity: 0.85;
+}
+
+.login-btn[disabled] {
+  opacity: 0.6;
+}
+
+/* ═══ 提示卡片 ═══ */
+.tips-card {
+  margin-top: 32rpx;
+  padding: 24rpx 28rpx;
+  background: #fffbeb;
+  border-radius: 14rpx;
+  border: 2rpx solid #fef3c7;
+}
+
+.tips-title {
+  display: block;
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #92400e;
+  margin-bottom: 10rpx;
+}
+
+.tips-text {
+  display: block;
+  font-size: 24rpx;
+  color: #a16207;
+  line-height: 2;
+}
+
+/* ═══ 底部链接 ═══ */
+.bottom-link {
+  text-align: center;
+  padding: 40rpx 0;
+  font-size: 28rpx;
+  color: #64748b;
+}

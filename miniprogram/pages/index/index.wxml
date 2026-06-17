@@ -1,0 +1,98 @@
+<!-- 首页 -->
+<view class="page">
+  <!-- ═══ 搜索栏 ═══ -->
+  <view class="search-bar">
+    <view class="search-box">
+      <text class="search-icon" bindtap="onSearchConfirm">🔍</text>
+      <input
+        class="search-input"
+        type="text"
+        value="{{searchKeyword}}"
+        placeholder="搜索装修作品..."
+        placeholder-class="search-placeholder"
+        confirm-type="search"
+        bindinput="onSearchInput"
+        bindconfirm="onSearchConfirm"
+      />
+      <text
+        wx:if="{{searchKeyword}}"
+        class="search-clear"
+        bindtap="onSearchClear"
+      >✕</text>
+    </view>
+  </view>
+
+  <!-- ═══ 轮播 Banner ═══ -->
+  <view wx:if="{{!bannerLoading && banners.length > 0}}" class="banner-section">
+    <swiper-banner banners="{{banners}}" bindtap="onBannerTap"/>
+  </view>
+  <view wx:elif="{{!bannerLoading && banners.length === 0}}" class="banner-empty">
+    <text class="banner-empty-text">🏠 住好房装修展示平台</text>
+  </view>
+
+  <!-- ═══ 分类快捷入口 ═══ -->
+  <view class="quick-section">
+    <view class="quick-list">
+      <view
+        wx:for="{{quickCats}}"
+        wx:key="key"
+        class="quick-item"
+        data-key="{{item.key}}"
+        bindtap="onQuickCatTap"
+      >
+        <view class="quick-icon-wrap">
+          <text class="quick-icon">{{item.icon}}</text>
+        </view>
+        <text class="quick-label">{{item.label}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- ═══ 热门推荐 ═══ -->
+  <view class="section">
+    <view class="section-header">
+      <text class="section-title">🔥 热门推荐</text>
+      <text class="section-more" bindtap="onMoreHot">更多 ›</text>
+    </view>
+
+    <!-- 加载中 -->
+    <view wx:if="{{hotLoading}}" class="section-loading">
+      <text>加载中...</text>
+    </view>
+
+    <!-- 加载失败 -->
+    <view wx:elif="{{hotError}}" class="section-error" bindtap="onRetryHot">
+      <text class="error-icon">⚠️</text>
+      <text class="error-text">加载失败，点击重试</text>
+    </view>
+
+    <!-- 热门作品瀑布流 -->
+    <view wx:elif="{{hotWorks.length > 0}}" class="hot-grid">
+      <view class="hot-col">
+        <block wx:for="{{hotWorks}}" wx:key="id">
+          <view wx:if="{{index % 2 === 0}}" class="hot-item">
+            <work-card work="{{item}}" showStyle="{{true}}" bindtap="onWorkTap"/>
+          </view>
+        </block>
+      </view>
+      <view class="hot-col">
+        <block wx:for="{{hotWorks}}" wx:key="id">
+          <view wx:if="{{index % 2 === 1}}" class="hot-item">
+            <work-card work="{{item}}" showStyle="{{true}}" bindtap="onWorkTap"/>
+          </view>
+        </block>
+      </view>
+    </view>
+
+    <!-- 暂无热门 -->
+    <empty-state
+      wx:elif="{{hotWorks.length === 0}}"
+      icon="🔥"
+      title="暂无热门推荐"
+      desc="管理员正在精选优质作品"
+    />
+  </view>
+
+  <!-- 底部安全区 -->
+  <view class="safe-bottom"></view>
+</view>

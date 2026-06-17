@@ -1,0 +1,60 @@
+/**
+ * 全局常量
+ */
+
+// 后端 API 基础地址
+// 开发期使用 localhost；真机预览请改为电脑的局域网 IP（如 http://192.168.1.x:3000）
+const BASE_URL = 'http://192.168.2.57:3000'; // 真机测试
+
+// API 版本前缀
+const API_PREFIX = '/api/v1';
+
+// 请求超时（毫秒）
+const REQUEST_TIMEOUT = 15000;
+
+// 分页默认配置
+const PAGE_SIZE_DEFAULT = 12;
+const PAGE_SIZE_MAX = 50;
+
+// 图片上传限制
+const UPLOAD_MAX_COUNT = 9;       // 单次最多上传 9 张
+const UPLOAD_MAX_SIZE = 10 * 1024 * 1024;  // 单张最大 10MB
+
+// 作品状态映射
+const WORK_STATUS_MAP = {
+  draft: { label: '草稿', colorClass: 'tag-gray' },
+  pending: { label: '审核中', colorClass: 'tag-yellow' },
+  approved: { label: '已通过', colorClass: 'tag-green' },
+  rejected: { label: '已驳回', colorClass: 'tag-red' },
+  offline: { label: '已下架', colorClass: 'tag-orange' },
+  archived: { label: '已归档', colorClass: 'tag-gray' },
+};
+
+// 设计师状态映射
+const DESIGNER_STATUS_MAP = {
+  active: { label: '已启用', colorClass: 'tag-green' },
+  inactive: { label: '已禁用', colorClass: 'tag-red' },
+};
+
+// V1.1 — 选材申请状态映射
+const ORDER_STATUS_MAP = {
+  pending:   { label: '待审核',  colorClass: 'tag-yellow', icon: '⏳' },
+  approved:  { label: '已通过',  colorClass: 'tag-green',  icon: '✅' },
+  rejected:  { label: '已驳回',  colorClass: 'tag-red',    icon: '❌' },
+  completed: { label: '待验收',  colorClass: 'tag-blue',   icon: '🎉' },
+  accepted:  { label: '已验收',  colorClass: 'tag-green',  icon: '🏆' },
+  disputed:  { label: '异议中',  colorClass: 'tag-orange', icon: '🔄' },
+};
+
+module.exports = {
+  BASE_URL,
+  API_PREFIX,
+  REQUEST_TIMEOUT,
+  PAGE_SIZE_DEFAULT,
+  PAGE_SIZE_MAX,
+  UPLOAD_MAX_COUNT,
+  UPLOAD_MAX_SIZE,
+  WORK_STATUS_MAP,
+  DESIGNER_STATUS_MAP,
+  ORDER_STATUS_MAP,
+};

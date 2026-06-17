@@ -1,0 +1,16 @@
+<view class="banner-wrap" style="height:{{height}}rpx;">
+  <swiper style="height:{{height}}rpx;"
+    indicator-dots="{{dots && banners.length > 1}}"
+    indicator-color="rgba(255,255,255,0.5)"
+    indicator-active-color="#ffffff"
+    autoplay="{{autoplay}}"
+    interval="{{interval}}"
+    circular="{{banners.length > 1}}"
+    bindchange="onSwiperChange">
+    <swiper-item wx:for="{{banners}}" wx:key="id">
+      <image class="banner-img" src="{{item.image}}" mode="aspectFill"
+        data-index="{{index}}" bindtap="onBannerTap"/>
+      <view wx:if="{{item.title}}" class="banner-title">{{item.title}}</view>
+    </swiper-item>
+  </swiper>
+</view>

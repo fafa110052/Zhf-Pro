@@ -1,0 +1,11 @@
+<!-- 空状态占位 -->
+<view class="empty-wrap">
+  <text class="empty-icon">{{icon}}</text>
+  <text class="empty-title">{{title}}</text>
+  <text wx:if="{{desc}}" class="empty-desc">{{desc}}</text>
+  <button
+    wx:if="{{showAction}}"
+    class="empty-action"
+    bindtap="onAction"
+  >{{actionText}}</button>
+</view>

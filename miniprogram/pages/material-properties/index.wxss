@@ -1,0 +1,197 @@
+/* 楼盘筛选页样式 */
+.page {
+  min-height: 100vh;
+  background: #f8fafc;
+}
+
+/* ═══ 搜索栏 ═══ */
+.search-bar {
+  padding: 16rpx 24rpx;
+  background: #fff;
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  background: #f1f5f9;
+  border-radius: 16rpx;
+  padding: 12rpx 20rpx;
+}
+
+.search-icon {
+  font-size: 28rpx;
+  margin-right: 12rpx;
+}
+
+.search-input {
+  flex: 1;
+  font-size: 28rpx;
+  color: #1e293b;
+}
+
+.search-clear {
+  padding: 4rpx 12rpx;
+  font-size: 24rpx;
+  color: #94a3b8;
+}
+
+/* ═══ 楼盘列表 ═══ */
+.property-list {
+  padding: 20rpx 24rpx;
+}
+
+.property-card {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border-radius: 16rpx;
+  margin-bottom: 20rpx;
+  padding: 20rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
+}
+
+.property-cover {
+  width: 140rpx;
+  height: 140rpx;
+  border-radius: 12rpx;
+  flex-shrink: 0;
+}
+
+.property-cover-placeholder {
+  width: 140rpx;
+  height: 140rpx;
+  border-radius: 12rpx;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.placeholder-icon {
+  font-size: 56rpx;
+}
+
+.property-info {
+  flex: 1;
+  margin-left: 20rpx;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.property-name {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 8rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.property-address {
+  font-size: 24rpx;
+  color: #64748b;
+  margin-bottom: 12rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.property-badge {
+  align-self: flex-start;
+  background: #eff6ff;
+  border: 1rpx solid #bfdbfe;
+  border-radius: 8rpx;
+  padding: 4rpx 16rpx;
+}
+
+.badge-text {
+  font-size: 22rpx;
+  color: #3b82f6;
+}
+
+.property-arrow {
+  font-size: 40rpx;
+  color: #cbd5e1;
+  margin-left: 12rpx;
+}
+
+/* ═══ 空状态 ═══ */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 120rpx 48rpx;
+}
+
+.empty-icon {
+  font-size: 80rpx;
+  margin-bottom: 24rpx;
+}
+
+.empty-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 12rpx;
+}
+
+.empty-desc {
+  font-size: 26rpx;
+  color: #94a3b8;
+  text-align: center;
+  line-height: 1.6;
+}
+
+/* ═══ 加载状态 ═══ */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 200rpx 48rpx;
+}
+
+.loading-spinner {
+  width: 56rpx;
+  height: 56rpx;
+  border: 4rpx solid #e2e8f0;
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-text {
+  margin-top: 20rpx;
+  font-size: 26rpx;
+  color: #94a3b8;
+}
+
+/* ═══ 错误状态 ═══ */
+.error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 200rpx 48rpx;
+}
+
+.error-icon {
+  font-size: 80rpx;
+  margin-bottom: 24rpx;
+}
+
+.error-msg {
+  font-size: 28rpx;
+  color: #ef4444;
+  margin-bottom: 12rpx;
+}
+
+.error-hint {
+  font-size: 24rpx;
+  color: #3b82f6;
+}

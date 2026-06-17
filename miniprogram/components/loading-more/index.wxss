@@ -1,0 +1,51 @@
+/**
+ * 加载更多组件样式
+ */
+.load-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 32rpx 0 48rpx;
+}
+
+/* ─── 加载中 ─── */
+.loading-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.spinner {
+  width: 28rpx;
+  height: 28rpx;
+  border: 3rpx solid #e2e8f0;
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.load-text {
+  font-size: 24rpx;
+  color: #94a3b8;
+}
+
+/* ─── 已加载全部 ─── */
+.end-row {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.end-line {
+  width: 48rpx;
+  height: 2rpx;
+  background: #e2e8f0;
+}
+
+.end-text {
+  font-size: 24rpx;
+  color: #cbd5e1;
+}

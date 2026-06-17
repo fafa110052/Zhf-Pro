@@ -1,0 +1,10 @@
+{
+  "usingComponents": {
+    "work-card": "/components/work-card/index",
+    "loading-more": "/components/loading-more/index",
+    "empty-state": "/components/empty-state/index"
+  },
+  "navigationBarTitleText": "分类筛选",
+  "enablePullDownRefresh": true,
+  "onReachBottomDistance": 100
+}

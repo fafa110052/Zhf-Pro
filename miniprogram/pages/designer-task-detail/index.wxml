@@ -1,0 +1,72 @@
+<!-- 设计师上传设计图 -->
+<view class="page">
+  <block wx:if="{{ready}}">
+    <view wx:if="{{loading}}" class="page-loading">
+      <view class="loading-dot-pulse"><view class="dot"></view><view class="dot"></view><view class="dot"></view></view>
+      <text class="loading-hint">加载中...</text>
+    </view>
+    <view wx:elif="{{error}}" class="page-error" bindtap="onRetry">
+      <text class="error-icon">⚠️</text><text class="error-msg">加载失败</text><text class="error-hint">点击重试</text>
+    </view>
+    <block wx:elif="{{phase}}">
+      <!-- 状态头 -->
+      <view class="status-header">
+        <view class="status-tag {{PHASE_STATUS_MAP[phase.status].colorClass}}">
+          <text>{{PHASE_STATUS_MAP[phase.status].label}}</text>
+        </view>
+        <text class="order-no">阶段{{phase.phase_order}} · {{PHASE_TYPE_MAP[phase.phase_type].label}}</text>
+      </view>
+
+      <!-- 驳回原因 -->
+      <view wx:if="{{phase.design_director_reject_reason}}" class="reject-box">
+        <text class="reject-label">设计总监驳回原因</text>
+        <text class="reject-text">{{phase.design_director_reject_reason}}</text>
+      </view>
+
+      <!-- 已上传的设计图 -->
+      <view wx:if="{{phase.design_images && phase.design_images.length > 0}}" class="section">
+        <view class="section-title"><text>已上传设计图（{{phase.design_images.length}}张）</text></view>
+        <view class="image-grid">
+          <image wx:for="{{phase.design_images}}" wx:key="index" src="{{item}}" mode="aspectFill"
+            class="image-thumb" bindtap="onPreview" data-url="{{item}}" />
+        </view>
+      </view>
+
+      <!-- 审核结果 -->
+      <view wx:if="{{phase.status === 'design_director_approved' || phase.status === 'design_admin_approved' || phase.status === 'construction_confirmed' || phase.status === 'owner_accepted'}}" class="section">
+        <view class="section-title"><text>审核状态</text></view>
+        <view class="info-row"><text class="info-label">当前状态</text><text class="info-value">{{PHASE_STATUS_MAP[phase.status].label}}</text></view>
+      </view>
+
+      <!-- 上传区 -->
+      <view wx:if="{{phase.status === 'assigned' || phase.status === 'design_director_rejected'}}" class="section">
+        <view class="section-title"><text>上传设计图</text></view>
+        <!-- 已选图片 -->
+        <view wx:if="{{selectedImages.length > 0}}" class="image-grid">
+          <block wx:for="{{selectedImages}}" wx:key="path">
+            <view class="image-item">
+              <image src="{{item}}" mode="aspectFill" class="image-thumb" />
+              <view class="image-remove" bindtap="onRemoveImage" data-index="{{index}}">✕</view>
+            </view>
+          </block>
+          <view wx:if="{{selectedImages.length < 9}}" class="image-add" bindtap="onChooseImages">
+            <text class="add-icon">+</text>
+          </view>
+        </view>
+        <view wx:else class="image-add-large" bindtap="onChooseImages">
+          <text class="add-icon">+</text>
+          <text class="add-text">选择图片</text>
+        </view>
+      </view>
+
+      <view class="bottom-spacer"></view>
+    </block>
+  </block>
+
+  <!-- 底部提交 -->
+  <view wx:if="{{ready && phase && (phase.status === 'assigned' || phase.status === 'design_director_rejected')}}" class="action-bar">
+    <button class="action-btn accept-btn" bindtap="onSubmit" loading="{{uploading}}" disabled="{{uploading}}">
+      {{uploading ? '上传中...' : '提交设计图'}}
+    </button>
+  </view>
+</view>

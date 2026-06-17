@@ -1,0 +1,257 @@
+<!--
+  作品上传 / 编辑
+  表单 + 分类选择 + 图片上传 + 保存/提交
+-->
+<view class="page">
+
+  <!-- ═══ Loading ═══ -->
+  <view wx:if="{{loading}}" class="page-loading">
+    <view class="loading-spinner" />
+    <text>加载中...</text>
+  </view>
+
+  <!-- ═══ 表单 ═══ -->
+  <block wx:else>
+    <view class="form-section">
+
+      <!-- ─── 图片上传区 ─── -->
+      <view class="image-upload-section">
+        <view class="image-grid">
+          <!-- 已上传图片（服务器） -->
+          <view
+            wx:for="{{images}}"
+            wx:key="id"
+            class="image-cell"
+            data-index="{{index}}"
+            bindtap="onSetCover"
+          >
+            <image class="image-thumb" src="{{item.url}}" mode="aspectFill" />
+            <view
+              class="image-remove"
+              data-type="server"
+              data-index="{{index}}"
+              catchtap="onRemoveImage"
+            >
+              <text>✕</text>
+            </view>
+            <!-- 封面标记 -->
+            <view wx:if="{{index === coverImageIndex}}" class="cover-badge">
+              <text>封面</text>
+            </view>
+            <view wx:if="{{index !== coverImageIndex}}" class="set-cover-hint">
+              <text>设封面</text>
+            </view>
+          </view>
+
+          <!-- 本地待上传图片 -->
+          <view
+            wx:for="{{localImages}}"
+            wx:key="*this"
+            class="image-cell"
+            data-index="{{images.length + index}}"
+            bindtap="onSetCover"
+          >
+            <image class="image-thumb" src="{{item}}" mode="aspectFill" />
+            <view
+              class="image-remove"
+              data-type="local"
+              data-index="{{index}}"
+              catchtap="onRemoveImage"
+            >
+              <text>✕</text>
+            </view>
+            <!-- 封面标记 -->
+            <view wx:if="{{images.length + index === coverImageIndex}}" class="cover-badge">
+              <text>封面</text>
+            </view>
+            <view wx:if="{{images.length + index !== coverImageIndex}}" class="set-cover-hint">
+              <text>设封面</text>
+            </view>
+          </view>
+
+          <!-- 添加按钮 -->
+          <view
+            wx:if="{{images.length + localImages.length < 9}}"
+            class="image-cell image-add"
+            bindtap="onChooseImage"
+          >
+            <text class="add-icon">+</text>
+            <text class="add-text">添加图片</text>
+          </view>
+        </view>
+        <text class="image-hint">📷 最多 9 张，点击图片可设为封面。支持拍照或相册选择</text>
+      </view>
+
+      <!-- ─── 基本信息 ─── -->
+      <view class="form-group">
+        <text class="group-title">基本信息</text>
+
+        <view class="form-item">
+          <text class="form-label">
+            作品标题 <text class="required-star">*</text>
+          </text>
+          <input
+            class="form-input"
+            value="{{form.title}}"
+            data-field="title"
+            bindinput="onFieldInput"
+            placeholder="如：现代简约三居室"
+            maxlength="50"
+          />
+          <text class="form-counter">{{form.title.length || 0}}/50</text>
+        </view>
+
+        <view class="form-item">
+          <text class="form-label">设计说明</text>
+          <textarea
+            class="form-textarea"
+            value="{{form.description}}"
+            data-field="description"
+            bindinput="onFieldInput"
+            placeholder="描述设计理念、使用材料、施工要点等..."
+            maxlength="500"
+          />
+          <text class="form-counter">{{form.description.length || 0}}/500</text>
+        </view>
+      </view>
+
+      <!-- ─── 分类标签 ─── -->
+      <view class="form-group">
+        <text class="group-title">分类标签</text>
+
+        <!-- 户型 -->
+        <view class="form-item">
+          <text class="form-label">
+            户型 <text class="required-star">*</text>
+          </text>
+          <picker
+            mode="selector"
+            range="{{categories.house_type}}"
+            range-key="name"
+            value="{{houseTypeIndex}}"
+            data-type="house_type"
+            bindchange="onCategoryChange"
+          >
+            <view class="picker-input">
+              <view class="picker-text {{form.house_type_id ? '' : 'picker-placeholder'}}">
+                {{categories.house_type[houseTypeIndex] ? categories.house_type[houseTypeIndex].name : '请选择户型'}}
+              </view>
+              <text class="picker-arrow">▼</text>
+            </view>
+          </picker>
+        </view>
+
+        <!-- 装修部位 -->
+        <view class="form-item">
+          <text class="form-label">
+            装修部位 <text class="required-star">*</text>
+          </text>
+          <picker
+            mode="selector"
+            range="{{categories.area}}"
+            range-key="name"
+            value="{{areaCategoryIndex}}"
+            data-type="area"
+            bindchange="onCategoryChange"
+          >
+            <view class="picker-input">
+              <view class="picker-text {{form.area_category_id ? '' : 'picker-placeholder'}}">
+                {{categories.area[areaCategoryIndex] ? categories.area[areaCategoryIndex].name : '请选择部位'}}
+              </view>
+              <text class="picker-arrow">▼</text>
+            </view>
+          </picker>
+        </view>
+
+        <!-- 装修风格 -->
+        <view class="form-item">
+          <text class="form-label">
+            装修风格 <text class="required-star">*</text>
+          </text>
+          <picker
+            mode="selector"
+            range="{{categories.style}}"
+            range-key="name"
+            value="{{styleCategoryIndex}}"
+            data-type="style"
+            bindchange="onCategoryChange"
+          >
+            <view class="picker-input">
+              <view class="picker-text {{form.style_category_id ? '' : 'picker-placeholder'}}">
+                {{categories.style[styleCategoryIndex] ? categories.style[styleCategoryIndex].name : '请选择风格'}}
+              </view>
+              <text class="picker-arrow">▼</text>
+            </view>
+          </picker>
+        </view>
+      </view>
+
+      <!-- ─── 面积与预算 ─── -->
+      <view class="form-group">
+        <text class="group-title">面积与预算（选填）</text>
+
+        <view class="form-row">
+          <view class="form-item form-half">
+            <text class="form-label">面积（㎡）</text>
+            <input
+              class="form-input"
+              type="digit"
+              value="{{form.area_sqm}}"
+              data-field="area_sqm"
+              bindinput="onFieldInput"
+              placeholder="如：120"
+            />
+          </view>
+          <view class="form-item form-half">
+            <text class="form-label">最低预算（万）</text>
+            <input
+              class="form-input"
+              type="digit"
+              value="{{form.budget_min}}"
+              data-field="budget_min"
+              bindinput="onFieldInput"
+              placeholder="如：15"
+            />
+          </view>
+        </view>
+
+        <view class="form-item">
+          <text class="form-label">最高预算（万）</text>
+          <input
+            class="form-input"
+            type="digit"
+            value="{{form.budget_max}}"
+            data-field="budget_max"
+            bindinput="onFieldInput"
+            placeholder="如：30（选填）"
+          />
+        </view>
+      </view>
+
+      <!-- ─── 操作按钮 ─── -->
+      <view class="form-actions safe-area-bottom">
+        <button
+          class="btn btn-outline btn-block action-btn"
+          bindtap="onSaveDraft"
+          disabled="{{saving || submitting}}"
+        >
+          {{saving ? '保存中...' : '📝 保存草稿'}}
+        </button>
+        <button
+          class="btn btn-primary btn-block action-btn"
+          bindtap="onSubmit"
+          disabled="{{saving || submitting}}"
+        >
+          {{submitting ? '提交中...' : '✅ 保存并提交审核'}}
+        </button>
+      </view>
+
+      <!-- 提示信息 -->
+      <view class="form-notice">
+        <text>💡 草稿仅自己可见，提交审核后由管理员审核发布</text>
+      </view>
+
+    </view>
+  </block>
+
+</view>

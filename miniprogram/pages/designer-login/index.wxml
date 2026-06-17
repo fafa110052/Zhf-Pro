@@ -1,0 +1,85 @@
+<!-- 设计师登录页 — 微信快捷登录 + 手机号手动登录 -->
+<view class="page">
+  <!-- ═══ 头部 ═══ -->
+  <view class="login-header">
+    <text class="login-icon">🏠</text>
+    <text class="login-title">住好房</text>
+    <text class="login-subtitle">微信授权登录后浏览更多精彩作品</text>
+    <view wx:if="{{devMode}}" class="dev-badge">
+      <text>🛠️ 开发模式</text>
+    </view>
+  </view>
+
+  <!-- ═══ 微信手机号快捷登录 ═══ -->
+  <view class="quick-login-section">
+    <button
+      class="wechat-phone-btn {{agreeTerms ? '' : 'btn-disabled'}}"
+      open-type="{{agreeTerms ? 'getPhoneNumber' : ''}}"
+      bindgetphonenumber="onGetPhoneNumber"
+      loading="{{quickLoginLoading}}"
+      disabled="{{!agreeTerms || quickLoginLoading}}"
+    >
+      <text>{{quickLoginLoading ? '登录中...' : '快捷登录'}}</text>
+    </button>
+    <text class="quick-login-hint">点击上方按钮，授权微信绑定手机号即可快速登录</text>
+  </view>
+
+  <!-- ═══ 分隔线 ═══ -->
+  <view class="divider-section">
+    <view class="divider-line"></view>
+    <text class="divider-text" bindtap="onToggleManual">{{showManual ? '收起其他方式' : '其他方式登录'}}</text>
+    <view class="divider-line"></view>
+  </view>
+
+  <!-- ═══ 手机号手动输入（可折叠） ═══ -->
+  <view class="manual-section {{showManual ? 'section-open' : ''}}">
+    <view class="form-card">
+      <view class="form-item">
+        <text class="form-label">手机号</text>
+        <input
+          class="form-input"
+          type="number"
+          maxlength="11"
+          placeholder="请输入手机号"
+          placeholder-class="placeholder"
+          value="{{phone}}"
+          bindinput="onPhoneInput"
+        />
+      </view>
+
+      <button
+        class="login-btn {{loading ? 'btn-loading' : ''}}"
+        bindtap="onLogin"
+        disabled="{{loading}}"
+        loading="{{loading}}"
+      >
+        {{loading ? '登录中...' : '立即登录'}}
+      </button>
+    </view>
+
+    <view class="tips-card">
+      <text class="tips-title">💡 提示</text>
+      <text class="tips-text">• 使用您在管理后台登记的手机号登录</text>
+      <text class="tips-text">• 首次登录将自动注册为游客</text>
+      <text class="tips-text">• 设计师需由管理员预设手机号</text>
+    </view>
+  </view>
+
+  <!-- ═══ 协议勾选（置于快捷登录下方） ═══ -->
+  <view class="terms-section">
+    <view class="terms-row" bindtap="onAgreeToggle">
+      <view class="checkbox {{agreeTerms ? 'checked' : ''}}">
+        <text wx:if="{{agreeTerms}}" class="check-mark">✓</text>
+      </view>
+      <text class="terms-text">已阅读并同意</text>
+      <text class="terms-link" bindtap="onOpenAgreement" catchtap="onOpenAgreement">《用户协议》</text>
+      <text class="terms-text">和</text>
+      <text class="terms-link" bindtap="onOpenPrivacy" catchtap="onOpenPrivacy">《隐私政策》</text>
+    </view>
+  </view>
+
+  <!-- 底部 -->
+  <view class="bottom-link" bindtap="onBack">
+    <text>返回</text>
+  </view>
+</view>

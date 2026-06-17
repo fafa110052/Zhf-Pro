@@ -1,0 +1,363 @@
+<!-- 我的页面 -->
+<view class="page">
+
+  <!-- ═══ 未登录 ═══ -->
+  <block wx:if="{{!isLoggedIn && !loading}}">
+    <view class="guest-header">
+      <view class="guest-avatar-wrap">
+        <text class="guest-avatar-icon">👤</text>
+      </view>
+      <text class="guest-title">未登录</text>
+      <text class="guest-subtitle">登录后享受更多精彩功能</text>
+      <view class="guest-login-btn" bindtap="onGoLogin">
+        <text>手机号登录</text>
+      </view>
+    </view>
+
+    <view class="menu-section">
+      <view class="menu-item" bindtap="onGoLogin">
+        <text class="menu-icon">🔑</text>
+        <text class="menu-label">登录 / 注册</text>
+        <text class="menu-arrow">›</text>
+      </view>
+      <view class="menu-item" bindtap="onContact">
+        <text class="menu-icon">📞</text>
+        <text class="menu-label">联系客服</text>
+        <text class="menu-arrow">›</text>
+      </view>
+    </view>
+  </block>
+
+  <!-- ═══ 已登录（游客）═══ -->
+  <block wx:elif="{{isLoggedIn && isGuest}}">
+    <view class="profile-card">
+      <view class="profile-row">
+        <view class="profile-avatar-wrap">
+          <image
+            wx:if="{{userInfo.avatar_url}}"
+            class="profile-avatar"
+            src="{{userInfo.avatar_url}}"
+            mode="aspectFill"
+          />
+          <text wx:else class="profile-avatar-placeholder">👤</text>
+          <view wx:if="{{userInfo.avatar_review_status === 'pending'}}" class="avatar-pending-tag">
+            <text>⏳</text>
+          </view>
+        </view>
+        <view class="profile-body">
+          <text class="profile-name">{{userInfo.name || '游客'}}</text>
+          <text wx:if="{{userInfo.phone}}" class="profile-phone">{{userInfo.phone}}</text>
+        </view>
+        <!-- 游客标签 -->
+        <view class="role-badge role-guest">
+          <text>游客</text>
+        </view>
+      </view>
+
+      <!-- 申请设计师入口 -->
+      <view class="apply-designer-bar" bindtap="onApplyDesigner">
+        <text class="apply-icon">✋</text>
+        <text class="apply-text">申请成为设计师</text>
+        <text class="apply-arrow">›</text>
+      </view>
+    </view>
+
+    <view class="menu-section">
+      <view class="menu-group-title">服务</view>
+      <view class="menu-item" bindtap="onApplyDesigner">
+        <text class="menu-icon">🎨</text>
+        <text class="menu-label">申请成为设计师</text>
+        <text class="menu-arrow">›</text>
+      </view>
+      <view class="menu-item" bindtap="onContact">
+        <text class="menu-icon">📞</text>
+        <text class="menu-label">联系客服</text>
+        <text class="menu-arrow">›</text>
+      </view>
+      <view class="menu-item menu-item-danger" bindtap="onLogout">
+        <text class="menu-icon">🚪</text>
+        <text class="menu-label menu-label-danger">退出登录</text>
+        <text class="menu-arrow">›</text>
+      </view>
+    </view>
+
+    <view class="menu-section">
+      <view class="menu-group-title">V1.1 选材</view>
+      <view class="menu-item" bindtap="onGoMaterialOrders">
+        <text class="menu-icon">🛠️</text>
+        <text class="menu-label">我的选材申请</text>
+        <text class="menu-arrow">›</text>
+      </view>
+    </view>
+  </block>
+
+  <!-- ═══ 已登录（业主）═══ -->
+  <block wx:elif="{{isLoggedIn && isOwner}}">
+    <view class="profile-card">
+      <view class="profile-row">
+        <view class="profile-avatar-wrap">
+          <image
+            wx:if="{{userInfo.avatar_url}}"
+            class="profile-avatar"
+            src="{{userInfo.avatar_url}}"
+            mode="aspectFill"
+          />
+          <text wx:else class="profile-avatar-placeholder">👤</text>
+        </view>
+        <view class="profile-body">
+          <text class="profile-name">{{userInfo.name || '业主'}}</text>
+          <text wx:if="{{userInfo.phone}}" class="profile-phone">{{userInfo.phone}}</text>
+        </view>
+        <view class="role-badge role-owner">
+          <text>业主</text>
+        </view>
+      </view>
+      <!-- 楼盘信息 -->
+      <view class="owner-property-info">
+        <view class="owner-property-row">
+          <text class="owner-property-label">所属楼盘</text>
+          <text class="owner-property-value">{{userInfo.property_name || '未分配'}}</text>
+        </view>
+        <view wx:if="{{userInfo.building || userInfo.room}}" class="owner-property-row">
+          <text class="owner-property-label">房号</text>
+          <text class="owner-property-value">{{userInfo.building || ''}}{{userInfo.room || ''}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="menu-section">
+      <view class="menu-group-title">业主功能</view>
+      <view class="menu-item" bindtap="onGoMaterialOrders">
+        <text class="menu-icon">🛠️</text>
+        <text class="menu-label">我的选材申请</text>
+        <text class="menu-arrow">›</text>
+      </view>
+    </view>
+
+    <view class="menu-section">
+      <view class="menu-group-title">其他</view>
+      <view class="menu-item" bindtap="onContact">
+        <text class="menu-icon">📞</text>
+        <text class="menu-label">联系客服</text>
+        <text class="menu-arrow">›</text>
+      </view>
+      <view class="menu-item menu-item-danger" bindtap="onLogout">
+        <text class="menu-icon">🚪</text>
+        <text class="menu-label menu-label-danger">退出登录</text>
+        <text class="menu-arrow">›</text>
+      </view>
+    </view>
+  </block>
+
+  <!-- ═══ 已登录（设计师）═══ -->
+  <block wx:elif="{{isLoggedIn && isDesigner}}">
+    <view class="profile-card">
+      <view class="profile-row">
+        <view class="profile-avatar-wrap">
+          <image
+            wx:if="{{userInfo.avatar_url}}"
+            class="profile-avatar"
+            src="{{userInfo.avatar_url}}"
+            mode="aspectFill"
+          />
+          <text wx:else class="profile-avatar-placeholder">👤</text>
+          <view wx:if="{{userInfo.avatar_review_status === 'pending'}}" class="avatar-pending-tag">
+            <text>⏳</text>
+          </view>
+        </view>
+        <view class="profile-body">
+          <text class="profile-name">{{userInfo.name || '设计师'}}</text>
+          <text wx:if="{{userInfo.phone}}" class="profile-phone">{{userInfo.phone}}</text>
+        </view>
+        <view class="role-badge role-designer" bindtap="onGoDesignerCenter">
+          <text>设计师</text>
+        </view>
+      </view>
+
+      <!-- 数据统计 -->
+      <view wx:if="{{statsText}}" class="stats-grid">
+        <view wx:for="{{statsText}}" wx:key="label" class="stats-item">
+          <text class="stats-value">{{item.value}}</text>
+          <text class="stats-label">{{item.label}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="menu-section">
+      <view class="menu-group-title">设计师功能</view>
+      <view class="menu-item" bindtap="onGoWorks">
+        <text class="menu-icon">📋</text>
+        <text class="menu-label">我的作品</text>
+        <text class="menu-arrow">›</text>
+      </view>
+      <view class="menu-item" bindtap="onGoDesignerCenter">
+        <text class="menu-icon">📊</text>
+        <text class="menu-label">设计师中心</text>
+        <text class="menu-arrow">›</text>
+      </view>
+    </view>
+
+    <view class="menu-section">
+      <view class="menu-group-title">V1.1 选材</view>
+      <view class="menu-item" bindtap="onGoMaterialOrders">
+        <text class="menu-icon">🛠️</text>
+        <text class="menu-label">我的选材申请</text>
+        <text class="menu-arrow">›</text>
+      </view>
+    </view>
+
+    <view class="menu-section">
+      <view class="menu-group-title">其他</view>
+      <view class="menu-item" bindtap="onContact">
+        <text class="menu-icon">📞</text>
+        <text class="menu-label">联系客服</text>
+        <text class="menu-arrow">›</text>
+      </view>
+      <view class="menu-item menu-item-danger" bindtap="onLogout">
+        <text class="menu-icon">🚪</text>
+        <text class="menu-label menu-label-danger">退出登录</text>
+        <text class="menu-arrow">›</text>
+      </view>
+    </view>
+  </block>
+
+  <!-- ═══ 已登录（设计总监）═══ -->
+  <block wx:elif="{{isLoggedIn && isDesignDirector}}">
+    <view class="profile-card">
+      <view class="profile-row">
+        <view class="profile-avatar-wrap">
+          <image wx:if="{{userInfo.avatar_url}}" class="profile-avatar" src="{{userInfo.avatar_url}}" mode="aspectFill"/>
+          <text wx:else class="profile-avatar-placeholder">👤</text>
+        </view>
+        <view class="profile-body">
+          <text class="profile-name">{{userInfo.name || '设计总监'}}</text>
+          <text wx:if="{{userInfo.phone}}" class="profile-phone">{{userInfo.phone}}</text>
+        </view>
+        <view class="role-badge role-design-director"><text>设计总监</text></view>
+      </view>
+    </view>
+    <view class="menu-section">
+      <view class="menu-group-title">施工管理</view>
+      <view class="menu-item" bindtap="onGoDesignDirectorReviews">
+        <text class="menu-icon">✅</text>
+        <text class="menu-label">待审核设计</text>
+        <text wx:if="{{taskCount > 0}}" class="menu-badge">{{taskCount}}</text>
+        <text class="menu-arrow">›</text>
+      </view>
+      <view class="menu-item" bindtap="onGoMyProjects">
+        <text class="menu-icon">📁</text>
+        <text class="menu-label">全部项目</text>
+        <text class="menu-arrow">›</text>
+      </view>
+    </view>
+    <view class="menu-section">
+      <view class="menu-group-title">其他</view>
+      <view class="menu-item" bindtap="onContact">
+        <text class="menu-icon">📞</text>
+        <text class="menu-label">联系客服</text>
+        <text class="menu-arrow">›</text>
+      </view>
+      <view class="menu-item menu-item-danger" bindtap="onLogout">
+        <text class="menu-icon">🚪</text>
+        <text class="menu-label menu-label-danger">退出登录</text>
+        <text class="menu-arrow">›</text>
+      </view>
+    </view>
+  </block>
+
+  <!-- ═══ 已登录（工程师）═══ -->
+  <block wx:elif="{{isLoggedIn && isEngineer}}">
+    <view class="profile-card">
+      <view class="profile-row">
+        <view class="profile-avatar-wrap">
+          <image wx:if="{{userInfo.avatar_url}}" class="profile-avatar" src="{{userInfo.avatar_url}}" mode="aspectFill"/>
+          <text wx:else class="profile-avatar-placeholder">👤</text>
+        </view>
+        <view class="profile-body">
+          <text class="profile-name">{{userInfo.name || '工程师'}}</text>
+          <text wx:if="{{userInfo.phone}}" class="profile-phone">{{userInfo.phone}}</text>
+        </view>
+        <view class="role-badge role-engineer"><text>工程师</text></view>
+      </view>
+    </view>
+    <view class="menu-section">
+      <view class="menu-group-title">施工管理</view>
+      <view class="menu-item" bindtap="onGoEngineerTasks">
+        <text class="menu-icon">🔧</text>
+        <text class="menu-label">我的任务</text>
+        <text wx:if="{{taskCount > 0}}" class="menu-badge">{{taskCount}}</text>
+        <text class="menu-arrow">›</text>
+      </view>
+      <view class="menu-item" bindtap="onGoMyProjects">
+        <text class="menu-icon">📁</text>
+        <text class="menu-label">全部项目</text>
+        <text class="menu-arrow">›</text>
+      </view>
+    </view>
+    <view class="menu-section">
+      <view class="menu-group-title">其他</view>
+      <view class="menu-item" bindtap="onContact">
+        <text class="menu-icon">📞</text>
+        <text class="menu-label">联系客服</text>
+        <text class="menu-arrow">›</text>
+      </view>
+      <view class="menu-item menu-item-danger" bindtap="onLogout">
+        <text class="menu-icon">🚪</text>
+        <text class="menu-label menu-label-danger">退出登录</text>
+        <text class="menu-arrow">›</text>
+      </view>
+    </view>
+  </block>
+
+  <!-- ═══ 已登录（工程总监）═══ -->
+  <block wx:elif="{{isLoggedIn && isEngineeringDirector}}">
+    <view class="profile-card">
+      <view class="profile-row">
+        <view class="profile-avatar-wrap">
+          <image wx:if="{{userInfo.avatar_url}}" class="profile-avatar" src="{{userInfo.avatar_url}}" mode="aspectFill"/>
+          <text wx:else class="profile-avatar-placeholder">👤</text>
+        </view>
+        <view class="profile-body">
+          <text class="profile-name">{{userInfo.name || '工程总监'}}</text>
+          <text wx:if="{{userInfo.phone}}" class="profile-phone">{{userInfo.phone}}</text>
+        </view>
+        <view class="role-badge role-engineering-director"><text>工程总监</text></view>
+      </view>
+    </view>
+    <view class="menu-section">
+      <view class="menu-group-title">施工管理</view>
+      <view class="menu-item" bindtap="onGoEngineeringDirectorReviews">
+        <text class="menu-icon">✅</text>
+        <text class="menu-label">待审核完工</text>
+        <text wx:if="{{taskCount > 0}}" class="menu-badge">{{taskCount}}</text>
+        <text class="menu-arrow">›</text>
+      </view>
+      <view class="menu-item" bindtap="onGoMyProjects">
+        <text class="menu-icon">📁</text>
+        <text class="menu-label">全部项目</text>
+        <text class="menu-arrow">›</text>
+      </view>
+    </view>
+    <view class="menu-section">
+      <view class="menu-group-title">其他</view>
+      <view class="menu-item" bindtap="onContact">
+        <text class="menu-icon">📞</text>
+        <text class="menu-label">联系客服</text>
+        <text class="menu-arrow">›</text>
+      </view>
+      <view class="menu-item menu-item-danger" bindtap="onLogout">
+        <text class="menu-icon">🚪</text>
+        <text class="menu-label menu-label-danger">退出登录</text>
+        <text class="menu-arrow">›</text>
+      </view>
+    </view>
+  </block>
+
+  <!-- ═══ 加载中 ═══ -->
+  <view wx:if="{{loading}}" class="page-loading">
+    <text>加载中...</text>
+  </view>
+
+  <!-- 底部安全区 -->
+  <view class="safe-bottom"></view>
+</view>

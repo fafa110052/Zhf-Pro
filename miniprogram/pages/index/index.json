@@ -1,0 +1,9 @@
+{
+  "usingComponents": {
+    "swiper-banner": "/components/swiper-banner/index",
+    "work-card": "/components/work-card/index",
+    "empty-state": "/components/empty-state/index"
+  },
+  "navigationBarTitleText": "住好房装修",
+  "enablePullDownRefresh": true
+}

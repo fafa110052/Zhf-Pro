@@ -1,0 +1,109 @@
+<!--
+  作品管理列表（设计师端）
+  状态筛选 → 作品列表 → 编辑/删除/提交
+-->
+<view class="page">
+
+  <!-- ═══ 状态 Tab ═══ -->
+  <view class="tab-scroll">
+    <scroll-view scroll-x class="tab-scroll-view">
+      <view class="tab-list">
+        <text
+          wx:for="{{statusTabs}}"
+          wx:key="key"
+          class="tab-item {{activeStatus === item.key ? 'active' : ''}}"
+          data-key="{{item.key}}"
+          bindtap="onStatusTap"
+        >{{item.label}}</text>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- ═══ 初始 Loading ═══ -->
+  <view wx:if="{{initialLoading}}" class="page-loading">
+    <text>加载中...</text>
+  </view>
+
+  <!-- ═══ 错误 ═══ -->
+  <view wx:elif="{{error}}" class="error-state" bindtap="onPullDownRefresh">
+    <text class="error-icon">⚠️</text>
+    <text class="error-text">加载失败，点击重试</text>
+  </view>
+
+  <!-- ═══ 作品列表 ═══ -->
+  <block wx:else>
+    <view wx:if="{{works.length > 0}}" class="work-list">
+      <view
+        wx:for="{{works}}"
+        wx:key="id"
+        class="work-item {{item.review_status !== 'approved' ? 'work-item-locked' : ''}}"
+        data-id="{{item.id}}"
+        data-status="{{item.review_status}}"
+        bindtap="onWorkTap"
+      >
+        <!-- 预览图 -->
+        <view class="work-cover">
+          <image
+            wx:if="{{item.cover_url}}"
+            class="cover-img"
+            src="{{item.cover_url}}"
+            mode="aspectFill"
+            lazy-load
+          />
+          <text wx:else class="cover-placeholder">🖼️</text>
+        </view>
+
+        <!-- 信息 -->
+        <view class="work-content">
+          <view class="work-top">
+            <text class="work-title line-1">{{item.title || '未命名作品'}}</text>
+            <text class="tag {{item.status_class}}">{{item.status_label}}</text>
+          </view>
+          <text class="work-date">{{item.created_at_text}}</text>
+
+          <!-- 操作按钮 → 仅草稿/已驳回显示 -->
+          <view
+            wx:if="{{item.review_status === 'draft' || item.review_status === 'rejected'}}"
+            class="work-actions"
+          >
+            <view class="action-btn action-edit" data-id="{{item.id}}" catchtap="onEdit">
+              <text class="action-icon">✏️</text>
+              <text>编辑</text>
+            </view>
+            <view class="action-btn action-submit" data-id="{{item.id}}" catchtap="onSubmit">
+              <text class="action-icon">📤</text>
+              <text>提交审核</text>
+            </view>
+            <view class="action-btn action-delete" data-id="{{item.id}}" catchtap="onDelete">
+              <text class="action-icon">🗑️</text>
+              <text>删除</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 加载更多 -->
+    <view wx:if="{{loading}}" class="loading-more">
+      <text>加载中...</text>
+    </view>
+    <view wx:elif="{{!hasMore && works.length > 0}}" class="loading-more">
+      <text class="text-tertiary text-sm">— 已加载全部 —</text>
+    </view>
+
+    <!-- 空状态 -->
+    <view wx:if="{{!loading && works.length === 0}}" class="empty-state">
+      <text class="empty-icon">📋</text>
+      <text class="empty-text">暂无作品</text>
+      <button class="btn btn-accent btn-sm" style="margin-top:24rpx" bindtap="onCreate">
+        发布新作品
+      </button>
+    </view>
+  </block>
+
+  <!-- ═══ 底部新建按钮 ═══ -->
+  <view wx:if="{{works.length > 0}}" class="create-fab" bindtap="onCreate">
+    <text class="fab-icon">+</text>
+  </view>
+
+</view>

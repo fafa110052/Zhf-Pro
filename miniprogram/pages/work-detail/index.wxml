@@ -1,0 +1,144 @@
+<!-- 作品详情页 -->
+<view class="page">
+
+  <!-- ═══ Loading ═══ -->
+  <view wx:if="{{loading}}" class="page-loading">
+    <view class="loading-dot-pulse">
+      <view class="dot"></view><view class="dot"></view><view class="dot"></view>
+    </view>
+    <text class="loading-hint">加载中...</text>
+  </view>
+
+  <!-- ═══ Error ═══ -->
+  <empty-state
+    wx:elif="{{error}}"
+    icon="⚠️"
+    title="加载失败"
+    desc="请检查网络后重试"
+    showAction="{{true}}"
+    actionText="重新加载"
+    bindaction="onRetry"
+  />
+
+  <!-- ═══ 内容（ready 确保页面过渡动画完成后再渲染）═══ -->
+  <block wx:elif="{{ready && work}}">
+
+    <!-- ─── 图片轮播区 ─── -->
+    <view class="image-section">
+      <swiper
+        wx:if="{{images.length > 0}}"
+        class="image-swiper"
+        indicator-dots="{{images.length > 1}}"
+        indicator-color="rgba(255,255,255,0.4)"
+        indicator-active-color="#ffffff"
+        autoplay="{{false}}"
+        current="{{currentSwiper}}"
+        duration="300"
+        bindchange="onSwiperChange"
+      >
+        <swiper-item wx:for="{{images}}" wx:key="id">
+          <image
+            class="swiper-image"
+            src="{{item.image_url}}"
+            mode="aspectFill"
+            lazy-load
+            bindtap="onPreviewImage"
+          />
+        </swiper-item>
+      </swiper>
+
+      <!-- 无图片占位 -->
+      <view wx:else class="no-image">
+        <text class="no-image-icon">🖼️</text>
+        <text class="no-image-text">暂无图片</text>
+        <image
+          wx:if="{{work.cover_image}}"
+          class="swiper-image"
+          src="{{work.cover_image}}"
+          mode="aspectFill"
+        />
+      </view>
+
+      <!-- 返回按钮 -->
+      <view class="back-btn" bindtap="onBack">
+        <text class="back-icon">‹</text>
+      </view>
+
+      <!-- 图片计数器 -->
+      <view wx:if="{{images.length > 1}}" class="image-counter">
+        <text>{{currentSwiper + 1}} / {{images.length}}</text>
+      </view>
+
+      <!-- 点击提示 -->
+      <view wx:if="{{images.length > 0}}" class="preview-hint" bindtap="onPreviewImage">
+        <text class="preview-hint-text">🔍 点击查看大图</text>
+      </view>
+    </view>
+
+    <!-- ─── 作品信息卡片 ─── -->
+    <view class="info-card card">
+      <!-- 标题 -->
+      <text class="work-title">{{work.title}}</text>
+
+      <!-- 分类标签 -->
+      <view class="work-tags">
+        <text wx:if="{{work.house_type_name}}" class="tag tag-blue">{{work.house_type_name}}</text>
+        <text wx:if="{{work.area_category_name}}" class="tag tag-green">{{work.area_category_name}}</text>
+        <text wx:if="{{work.style_category_name}}" class="tag tag-yellow">{{work.style_category_name}}</text>
+      </view>
+
+      <!-- 数据项 -->
+      <view class="meta-grid">
+        <view class="meta-item">
+          <text class="meta-label">面积</text>
+          <text class="meta-value">{{work.area_text || '未填写'}}</text>
+        </view>
+        <view class="meta-item">
+          <text class="meta-label">预算</text>
+          <text class="meta-value">{{work.budget_text || '未填写'}}</text>
+        </view>
+        <view class="meta-item">
+          <text class="meta-label">浏览量</text>
+          <text class="meta-value">{{work.view_count}} 次</text>
+        </view>
+        <view class="meta-item">
+          <text class="meta-label">发布时间</text>
+          <text class="meta-value">{{work.created_at_text}}</text>
+        </view>
+      </view>
+
+      <!-- 设计说明 -->
+      <view wx:if="{{work.description}}" class="desc-section">
+        <text class="desc-title">设计说明</text>
+        <text class="desc-content">{{work.description}}</text>
+      </view>
+    </view>
+
+    <!-- ─── 设计师名片 ─── -->
+    <view wx:if="{{designer}}" class="designer-card card">
+      <text class="section-label">设计师</text>
+      <view class="designer-row">
+        <view class="avatar-wrap">
+          <image
+            wx:if="{{designer.avatar_url}}"
+            class="avatar-img"
+            src="{{designer.avatar_url}}"
+            mode="aspectFill"
+          />
+          <text wx:else class="avatar-placeholder">👤</text>
+        </view>
+        <view class="designer-body">
+          <text class="designer-name">{{designer.name}}</text>
+          <text wx:if="{{designer.years_of_exp}}" class="designer-meta">
+            {{designer.years_of_exp}} 年设计经验
+          </text>
+        </view>
+      </view>
+      <text wx:if="{{designer.bio}}" class="designer-bio">{{designer.bio}}</text>
+    </view>
+
+    <!-- 底部安全区 -->
+    <view class="safe-bottom"></view>
+
+  </block>
+</view>

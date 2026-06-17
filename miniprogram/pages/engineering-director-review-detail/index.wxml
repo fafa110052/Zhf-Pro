@@ -1,0 +1,27 @@
+<view class="page"><block wx:if="{{ready}}">
+<view wx:if="{{loading}}" class="page-loading"><view class="loading-dot-pulse"><view class="dot"></view><view class="dot"></view><view class="dot"></view></view><text class="loading-hint">加载中...</text></view>
+<view wx:elif="{{error}}" class="page-error" bindtap="onRetry"><text class="error-icon">⚠️</text><text class="error-msg">加载失败</text><text class="error-hint">点击重试</text></view>
+<block wx:elif="{{phase}}"><view class="status-header">
+<view class="status-tag {{PHASE_STATUS_MAP[phase.status].colorClass}}"><text>{{PHASE_STATUS_MAP[phase.status].label}}</text></view>
+<text class="order-no">阶段{{phase.phase_order}} · {{PHASE_TYPE_MAP[phase.phase_type].label}}</text></view>
+<view wx:if="{{phase.construction_images && phase.construction_images.length > 0}}" class="section">
+<view class="section-title"><text>完工图（{{phase.construction_images.length}}张）</text></view>
+<view class="image-grid"><image wx:for="{{phase.construction_images}}" wx:key="index" src="{{item}}" mode="aspectFill" class="image-thumb" bindtap="onPreview" data-url="{{item}}"/></view></view>
+<view wx:if="{{phase.design_images && phase.design_images.length > 0}}" class="section">
+<view class="section-title"><text>设计图（{{phase.design_images.length}}张）</text></view>
+<view class="image-grid"><image wx:for="{{phase.design_images}}" wx:key="index" src="{{item}}" mode="aspectFill" class="image-thumb-small" bindtap="onPreview" data-url="{{item}}"/></view></view>
+<view class="section"><view class="section-title"><text>项目信息</text></view>
+<view wx:if="{{phase.engineer}}" class="info-row"><text class="info-label">工程师</text><text class="info-value">{{phase.engineer.name}}</text></view>
+<view wx:if="{{phase.designer}}" class="info-row"><text class="info-label">设计师</text><text class="info-value">{{phase.designer.name}}</text></view></view>
+<view class="bottom-spacer"></view></block></block>
+<view wx:if="{{ready && phase && phase.status === 'construction_uploaded'}}" class="action-bar">
+<button class="action-btn dispute-btn" bindtap="onOpenReject" disabled="{{acting}}">❌ 驳回</button>
+<button class="action-btn accept-btn" bindtap="onApprove" loading="{{acting}}" disabled="{{acting}}">✅ 通过</button></view>
+<view wx:if="{{rejectOpen}}" class="modal-mask" bindtap="onCloseReject"></view>
+<view wx:if="{{rejectOpen}}" class="modal-panel"><view class="modal-header"><text class="modal-title">驳完工</text><text class="modal-close" bindtap="onCloseReject">✕</text></view>
+<view class="modal-body"><view class="modal-field"><text class="modal-label">驳回原因 *</text>
+<textarea class="modal-textarea" placeholder="请描述完工存在的问题..." value="{{rejectReason}}" bindinput="onReasonInput" maxlength="500"/>
+<text class="modal-count">{{rejectReason.length}}/500</text></view></view>
+<view class="modal-footer"><button class="modal-cancel" bindtap="onCloseReject" disabled="{{rejecting}}">取消</button>
+<button class="modal-submit" bindtap="onSubmitReject" loading="{{rejecting}}" disabled="{{rejecting}}">{{rejecting ? '提交中...' : '确认驳回'}}</button></view></view>
+</view>

@@ -1,0 +1,39 @@
+<!-- 提交成功页 -->
+<view class="page">
+  <view class="result-card">
+    <!-- 成功图标 -->
+    <view class="result-icon-wrap">
+      <text class="result-icon">🎉</text>
+    </view>
+
+    <text class="result-title">提交成功</text>
+    <text class="result-desc">您的选材申请已提交，请耐心等待审核</text>
+
+    <!-- 订单信息 -->
+    <view class="order-info">
+      <view class="order-row">
+        <text class="order-label">订单编号</text>
+        <text class="order-value order-no">{{orderNo}}</text>
+      </view>
+      <view class="order-row">
+        <text class="order-label">当前状态</text>
+        <view class="status-tag tag-yellow">
+          <text>⏳ 待审核</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 操作按钮 -->
+  <view class="action-area">
+    <button class="action-btn action-btn-primary" bindtap="onViewOrders">
+      查看申请详情
+    </button>
+    <button class="action-btn action-btn-secondary" bindtap="onContinueSelect">
+      继续选材
+    </button>
+    <button class="action-btn action-btn-ghost" bindtap="onGoHome">
+      返回首页
+    </button>
+  </view>
+</view>

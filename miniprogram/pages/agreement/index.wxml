@@ -1,0 +1,53 @@
+<!-- 用户协议页 -->
+<view class="page">
+  <view class="content">
+    <text class="title">住好房装修展示平台 用户协议</text>
+    <text class="update-date">更新日期：2026年6月10日\n生效日期：2026年6月10日</text>
+
+    <text class="section-title">一、总则</text>
+    <text class="body-text">1.1 欢迎使用住好房装修展示平台（以下简称"本平台"）。本平台由住好房团队开发并运营，致力于为用户提供优质的装修作品展示与浏览服务。</text>
+    <text class="body-text">1.2 本协议是您（以下简称"用户"）与本平台之间关于使用本平台服务所订立的协议。请您仔细阅读本协议的全部内容。您勾选"已阅读并同意"并完成登录，即视为您已充分阅读、理解并接受本协议的全部条款。</text>
+    <text class="body-text">1.3 本平台有权根据法律法规及运营需要，不时修改本协议内容。修改后的协议将在平台公布后立即生效。如您不同意修改内容，请停止使用本平台服务。</text>
+
+    <text class="section-title">二、账号注册与管理</text>
+    <text class="body-text">2.1 您通过微信授权手机号登录本平台时，即自动创建账号。您应保证提供的手机号真实、准确，因手机号变更导致账号无法使用的，本平台不承担责任。</text>
+    <text class="body-text">2.2 您的账号仅限您本人使用，不得将账号转让、出租或出借给他人使用。因账号保管不善导致的损失由您自行承担。</text>
+    <text class="body-text">2.3 设计师账号需由平台管理员预设手机号后方可激活设计师权限。普通用户登录后默认为游客身份。</text>
+    <text class="body-text">2.4 本平台有权对违反本协议或法律法规的用户账号进行限制、暂停或永久封禁。</text>
+
+    <text class="section-title">三、服务内容</text>
+    <text class="body-text">3.1 本平台为装修行业内容展示平台，提供以下服务：\n（1）装修作品浏览与搜索；\n（2）设计师信息展示；\n（3）设计师上传与管理装修作品；\n（4）其他本平台不时提供的功能。</text>
+    <text class="body-text">3.2 本平台有权根据运营需要调整服务内容。服务内容的增减、变更将在平台上予以公告。</text>
+    <text class="body-text">3.3 本平台的部分功能可能需要连接网络，由此产生的流量费用由您的网络运营商收取。</text>
+
+    <text class="section-title">四、用户行为规范</text>
+    <text class="body-text">4.1 您在使用本平台服务时，应遵守中华人民共和国相关法律法规，不得利用本平台从事以下行为：\n（1）发布、传播违法信息或损害国家利益的内容；\n（2）侵犯他人知识产权、肖像权、隐私权等合法权益；\n（3）上传含有病毒、木马等恶意程序的内容；\n（4）以任何方式干扰本平台正常运营；\n（5）利用本平台从事欺诈、虚假宣传等不正当行为。</text>
+    <text class="body-text">4.2 设计师上传的作品图片应为其原创作品或已获得合法授权的作品。上传侵权内容引发的法律纠纷由设计师自行承担。</text>
+    <text class="body-text">4.3 用户在本平台的言行应文明、友善，不得进行人身攻击、侮辱、诽谤等行为。</text>
+
+    <text class="section-title">五、知识产权</text>
+    <text class="body-text">5.1 本平台的软件、界面设计、文字、图片、视频等内容的著作权、商标权等知识产权归本平台或相关权利人所有。</text>
+    <text class="body-text">5.2 设计师上传的作品图片，其知识产权仍归设计师或原作者所有。设计师上传作品即视为授予本平台在平台范围内展示、推广该作品的权利。</text>
+    <text class="body-text">5.3 未经本平台或权利人书面许可，任何人不得复制、修改、传播、商业使用本平台的内容。</text>
+
+    <text class="section-title">六、隐私保护</text>
+    <text class="body-text">6.1 本平台重视用户隐私保护，详细隐私政策请参阅《隐私政策》。</text>
+    <text class="body-text">6.2 您同意本平台按照《隐私政策》收集、使用和保护您的个人信息。</text>
+
+    <text class="section-title">七、免责声明</text>
+    <text class="body-text">7.1 本平台按"现状"提供服务，不对服务的及时性、准确性、完整性作任何明示或默示的保证。</text>
+    <text class="body-text">7.2 因不可抗力、网络故障、系统维护等原因导致的服务中断，本平台不承担责任，但将尽合理努力及时修复。</text>
+    <text class="body-text">7.3 本平台对用户上传内容的合法性、真实性不承担责任，但有权对违规内容进行审核和处理。</text>
+
+    <text class="section-title">八、法律适用与争议解决</text>
+    <text class="body-text">8.1 本协议适用中华人民共和国法律。</text>
+    <text class="body-text">8.2 因本协议引起的争议，双方应友好协商解决；协商不成的，提交本平台所在地有管辖权的法院处理。</text>
+
+    <text class="section-title">九、联系我们</text>
+    <text class="body-text">9.1 如对本协议有任何疑问或建议，请联系我们：</text>
+    <text class="body-text">联系邮箱：zhuhaofang@example.com</text>
+    <text class="body-text">联系电话：400-000-0000</text>
+
+    <view class="bottom-space"></view>
+  </view>
+</view>

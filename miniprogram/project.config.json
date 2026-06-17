@@ -1,0 +1,16 @@
+{
+  "description": "住好房装修展示平台",
+  "setting": {
+    "urlCheck": false,
+    "es6": true,
+    "postcss": true,
+    "minified": true,
+    "enhance": true
+  },
+  "compileType": "miniprogram",
+  "libVersion": "3.5.7",
+  "appid": "wx45a2339808c171aa",
+  "projectname": "zhuhaofang",
+  "condition": {},
+  "simulatorPluginLibVersion": {}
+}

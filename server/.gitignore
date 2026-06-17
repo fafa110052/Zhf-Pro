@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+
+# Database (local SQLite)
+data/*.sqlite
+data/*.sqlite-journal
+data/*.sqlite-wal
+
+# Uploaded files (keep directory structure)
+uploads/originals/*
+uploads/thumbnails/*
+!uploads/originals/.gitkeep
+!uploads/thumbnails/.gitkeep
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db

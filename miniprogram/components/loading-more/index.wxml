@@ -1,0 +1,12 @@
+<!-- 加载更多指示器 -->
+<view wx:if="{{loading || (count > 0 && !hasMore)}}" class="load-wrap">
+  <view wx:if="{{loading}}" class="loading-row">
+    <view class="spinner"></view>
+    <text class="load-text">加载中...</text>
+  </view>
+  <view wx:elif="{{!hasMore}}" class="end-row">
+    <view class="end-line"></view>
+    <text class="end-text">已加载全部</text>
+    <view class="end-line"></view>
+  </view>
+</view>

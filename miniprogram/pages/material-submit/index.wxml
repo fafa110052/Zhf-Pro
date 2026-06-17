@@ -1,0 +1,58 @@
+<!-- 选材申请提交页 -->
+<view class="page">
+  <!-- 标题 -->
+  <view class="header">
+    <text class="header-title">{{propertyName}}</text>
+    <text class="header-sub">共选择 {{totalCount}} 种材料</text>
+  </view>
+
+  <!-- 已选材料清单 -->
+  <view class="section">
+    <view class="section-title"><text>已选材料清单</text></view>
+    <view wx:for="{{summary}}" wx:key="material_name" class="summary-item">
+      <text class="summary-name">{{item.material_name}}</text>
+      <text class="summary-brand">{{item.brand}}</text>
+      <text class="summary-price">¥{{item.unit_price}}{{item.price_unit}}</text>
+    </view>
+  </view>
+
+  <!-- 联系信息 -->
+  <view class="section">
+    <view class="section-title"><text>联系信息</text></view>
+
+    <view class="form-group">
+      <text class="form-label">联系人<text class="required">*</text></text>
+      <input class="form-input" placeholder="请输入姓名" value="{{applicant_name}}"
+        bindinput="onNameInput" maxlength="32"/>
+    </view>
+
+    <view class="form-group">
+      <text class="form-label">联系电话<text class="required">*</text></text>
+      <input class="form-input" type="number" placeholder="请输入手机号" value="{{applicant_phone}}"
+        bindinput="onPhoneInput" maxlength="11"/>
+    </view>
+
+    <view class="form-group">
+      <text class="form-label">房号<text class="required">*</text></text>
+      <input wx:if="{{!roomLocked}}" class="form-input" placeholder="如：3栋1单元1001" value="{{room_number}}"
+        bindinput="onRoomInput" maxlength="64"/>
+      <input wx:else class="form-input form-input-locked" value="{{room_number}}" disabled="true" maxlength="64"/>
+      <text wx:if="{{roomLocked}}" class="form-hint">房号由系统自动填充</text>
+    </view>
+
+    <view class="form-group">
+      <text class="form-label">备注</text>
+      <textarea class="form-textarea" placeholder="选装要求、特殊需求等（选填）" value="{{remark}}"
+        bindinput="onRemarkInput" maxlength="200" auto-height/>
+    </view>
+  </view>
+
+  <!-- 提交按钮 -->
+  <view class="submit-area">
+    <button class="submit-btn {{submitting ? 'btn-disabled' : ''}}" bindtap="onSubmit"
+      loading="{{submitting}}" disabled="{{submitting}}">
+      提交申请
+    </button>
+    <text class="submit-hint">提交后将有专人与您联系</text>
+  </view>
+</view>

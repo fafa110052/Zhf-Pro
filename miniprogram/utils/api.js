@@ -1,0 +1,442 @@
+/**
+ * API 接口模块
+ *
+ * 按业务模块组织所有 API 调用，便于管理和复用。
+ * 每个函数返回 Promise，调用方可直接 await 获取结果。
+ */
+const http = require('./request');
+
+// ═══════════════════════════════════════════
+// 分类 API（公开）
+// ═══════════════════════════════════════════
+
+/**
+ * 获取所有启用分类（按 type 分组）
+ * @returns {Promise<{house_type:[], area_category:[], style_category:[]}>}
+ */
+function getCategories() {
+  return http.get('/categories');
+}
+
+// ═══════════════════════════════════════════
+// 作品 API（公开 — 小程序访客端）
+// ═══════════════════════════════════════════
+
+/**
+ * 作品列表（多维筛选 + 分页）
+ * @param {object} params — { house_type_id, area_category_id, style_category_id, keyword, budget_min, budget_max, area_min, area_max, sort_by, page, page_size }
+ * @returns {Promise<{list:[], pagination:{}}>}
+ */
+function getWorks(params = {}) {
+  return http.get('/works', params);
+}
+
+/**
+ * 热门推荐列表
+ * @param {number} limit — 数量，默认 6
+ * @returns {Promise<Array>}
+ */
+function getHotWorks(limit = 6) {
+  return http.get('/works/hot', { limit });
+}
+
+/**
+ * 作品详情（浏览量自动 +1）
+ * @param {number} id
+ * @returns {Promise<object>} — 含 images, designer, house_type/area_category/style_category 名称
+ */
+function getWorkDetail(id) {
+  return http.get(`/works/${id}`);
+}
+
+// ═══════════════════════════════════════════
+// 首页配置 API（公开）
+// ═══════════════════════════════════════════
+
+/**
+ * 获取首页配置（banner 轮播 + 热门推荐位）
+ * @returns {Promise<{banner:[], hot_works:[]}>}
+ */
+function getHomepageConfig() {
+  return http.get('/homepage/config');
+}
+
+// ═══════════════════════════════════════════
+// 认证 API
+// ═══════════════════════════════════════════
+
+/**
+ * 设计师微信登录（正式环境 — openid + 手机号）
+ * @param {string} openid — wx.login 获取的 openid
+ * @param {string} phone  — 手机号
+ * @returns {Promise<{token:string, designer:object}>}
+ */
+function designerLogin(openid, phone) {
+  return http.post('/auth/designer/login', { openid, phone });
+}
+
+/**
+ * 微信手机号快捷登录
+ * @param {string} wxCode    — wx.login 返回的 code
+ * @param {string} phoneCode — getPhoneNumber 按钮返回的 code
+ * @returns {Promise<{token:string, user:object}>}
+ */
+function wechatPhoneLogin(wxCode, phoneCode) {
+  return http.post('/auth/designer/wechat-phone', { wxCode, phoneCode });
+}
+
+/**
+ * 设计师开发模式登录（仅需手机号，自动生成 mock openid）
+ * @param {string} phone — 手机号
+ * @returns {Promise<{token:string, designer:object}>}
+ */
+function designerLoginDev(phone) {
+  return http.post('/auth/designer/login/dev', { phone });
+}
+
+/**
+ * 获取当前登录设计师信息
+ * @returns {Promise<object>}
+ */
+function getDesignerProfile() {
+  return http.get('/auth/designer/me', {}, { auth: true });
+}
+
+/**
+ * 校验登录态是否有效
+ * @returns {Promise<boolean>}
+ */
+async function checkLogin() {
+  try {
+    await http.get('/auth/designer/me', {}, { auth: true });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// ═══════════════════════════════════════════
+// 设计师端 — 作品管理 API
+// ═══════════════════════════════════════════
+
+/**
+ * 我的作品列表
+ * @param {object} params — { status, keyword, page, page_size }
+ */
+function getMyWorks(params = {}) {
+  return http.get('/designer/works', params, { auth: true });
+}
+
+/**
+ * 我的作品详情
+ * @param {number} id
+ */
+function getMyWorkDetail(id) {
+  return http.get(`/designer/works/${id}`, {}, { auth: true });
+}
+
+/**
+ * 创建作品（草稿）
+ * @param {object} data — { title, description, house_type_id, area_category_id, style_category_id, area, budget, images }
+ */
+function createWork(data) {
+  return http.post('/designer/works', data, { auth: true, loading: true });
+}
+
+/**
+ * 编辑作品
+ * @param {number} id
+ * @param {object} data
+ */
+function updateWork(id, data) {
+  return http.put(`/designer/works/${id}`, data, { auth: true, loading: true });
+}
+
+/**
+ * 删除作品
+ * @param {number} id
+ */
+function deleteWork(id) {
+  return http.del(`/designer/works/${id}`, {}, { auth: true });
+}
+
+/**
+ * 提交审核
+ * @param {number} id
+ */
+/**
+ * 设置作品封面图
+ * @param {number} workId
+ * @param {string} imageUrl — 图片 URL（相对路径）
+ */
+function setWorkCover(workId, imageUrl) {
+  return http.patch(`/designer/works/${workId}/cover`, { image_url: imageUrl }, { auth: true });
+}
+
+function submitWork(id) {
+  return http.post(`/designer/works/${id}/submit`, {}, { auth: true, loading: true });
+}
+
+// ═══════════════════════════════════════════
+// 设计师端 — 个人统计
+// ═══════════════════════════════════════════
+
+/**
+ * 个人数据统计
+ * @returns {Promise<{total:int, draft:int, pending:int, approved:int, rejected:int, total_views:int}>}
+ */
+function getMyStats() {
+  return http.get('/designer/stats', {}, { auth: true });
+}
+
+// ═══════════════════════════════════════════
+// 文件上传 API
+// ═══════════════════════════════════════════
+
+/**
+ * 上传单张图片
+ * @param {string} filePath — 本地文件路径
+ * @returns {Promise<{id:int, url:string, thumbnail_url:string}>}
+ */
+function uploadImage(filePath) {
+  // 先压缩再上传，减少流量
+  return compressAndUpload(filePath);
+}
+
+/**
+ * 压缩图片后上传
+ */
+function compressAndUpload(filePath) {
+  const { compressImage } = require('./imageCompress');
+
+  return compressImage(filePath).then((compressedPath) => {
+    return new Promise((resolve, reject) => {
+      const app = getApp();
+      const token = app.globalData.token;
+
+      wx.uploadFile({
+        url: `${app.globalData.baseUrl}/api/v1/upload`,
+        filePath: compressedPath,
+      name: 'file',
+      header: token ? { Authorization: `Bearer ${token}` } : {},
+      success(res) {
+        try {
+          const data = JSON.parse(res.data);
+          if (data.success) {
+            resolve(data.data);
+          } else {
+            wx.showToast({ title: data.error?.message || '上传失败', icon: 'none' });
+            reject(new Error(data.error?.message || '上传失败'));
+          }
+        } catch {
+          reject(new Error('解析上传结果失败'));
+        }
+      },
+      fail(err) {
+        wx.showToast({ title: '上传失败，请检查网络', icon: 'none' });
+        reject(err);
+      },
+    });
+  });
+});
+}
+
+/**
+ * 批量上传图片
+ * @param {string[]} filePaths
+ * @returns {Promise<Array>}
+ */
+async function uploadImages(filePaths) {
+  const results = [];
+  for (const filePath of filePaths) {
+    try {
+      const res = await uploadImage(filePath);
+      results.push(res);
+    } catch (err) {
+      console.error('上传失败:', filePath, err);
+      // 继续上传剩余图片
+    }
+  }
+  return results;
+}
+
+// ═══════════════════════════════════════════
+// V1.1 — 选材 API
+// ═══════════════════════════════════════════
+
+/**
+ * 已开通选材的楼盘列表（公开）
+ * @param {string} keyword — 楼盘名称模糊搜索
+ */
+function getProperties(keyword) {
+  return http.get('/properties', keyword ? { keyword } : {});
+}
+
+/**
+ * 某楼盘的材料列表（按分类分组，公开）
+ * @param {number} propertyId
+ * @param {string} keyword — 材料名称模糊搜索
+ */
+function getPropertyMaterials(propertyId, keyword) {
+  return http.get(`/properties/${propertyId}/materials`, keyword ? { keyword } : {});
+}
+
+/**
+ * 提交选材申请
+ * @param {object} data — { property_id, room_number, applicant_name, applicant_phone, remark?, items }
+ */
+function submitMaterialOrder(data) {
+  return http.post('/material-orders', data, { auth: true, loading: true });
+}
+
+/**
+ * 我的选材申请列表
+ * @param {object} params — { page, page_size }
+ */
+function getMyMaterialOrders(params = {}) {
+  return http.get('/material-orders/my', params, { auth: true });
+}
+
+/**
+ * 我的选材申请详情
+ * @param {string} orderNo
+ */
+function getMyMaterialOrderDetail(orderNo) {
+  return http.get(`/material-orders/detail/${orderNo}`, {}, { auth: true });
+}
+
+/**
+ * 检查当前用户是否是指定楼盘的业主
+ * @param {number} propertyId
+ * @returns {Promise<{is_owner: boolean, building: string|null, room: string|null}>}
+ */
+function getOwnerCheck(propertyId) {
+  return http.get(`/properties/${propertyId}/owner-check`, {}, { auth: true });
+}
+
+// ═══════════════════════════════════════════
+// V1.3 — 施工阶段 API
+// ═══════════════════════════════════════════
+
+/** 获取订单全部阶段 */
+function getOrderPhases(orderNo) {
+  return http.get(`/material-orders/${orderNo}/phases`, {}, { auth: true });
+}
+
+/** 获取阶段详情 */
+function getPhaseDetail(phaseId) {
+  return http.get(`/construction-phases/${phaseId}`, {}, { auth: true });
+}
+
+// 设计师
+function getDesignerPhases() {
+  return http.get('/designer/construction-phases', {}, { auth: true });
+}
+function uploadDesignImages(phaseId, images) {
+  return http.put(`/construction-phases/${phaseId}/upload-design`, { images }, { auth: true });
+}
+
+// 设计总监
+function getDesignDirectorPhases() {
+  return http.get('/director/design/phases', {}, { auth: true });
+}
+function approveDesignDirector(phaseId) {
+  return http.post(`/construction-phases/${phaseId}/approve-design-director`, {}, { auth: true });
+}
+function rejectDesignDirector(phaseId, reason) {
+  return http.post(`/construction-phases/${phaseId}/reject-design-director`, { reason }, { auth: true });
+}
+
+// 工程师
+function getEngineerPhases() {
+  return http.get('/engineer/construction-phases', {}, { auth: true });
+}
+function confirmDesign(phaseId) {
+  return http.post(`/construction-phases/${phaseId}/confirm-design`, {}, { auth: true });
+}
+function uploadConstructionImages(phaseId, images) {
+  return http.put(`/construction-phases/${phaseId}/upload-construction`, { images }, { auth: true });
+}
+
+// 工程总监
+function getEngineeringDirectorPhases() {
+  return http.get('/director/engineering/phases', {}, { auth: true });
+}
+function approveEngineeringDirector(phaseId) {
+  return http.post(`/construction-phases/${phaseId}/approve-engineering-director`, {}, { auth: true });
+}
+function rejectEngineeringDirector(phaseId, reason) {
+  return http.post(`/construction-phases/${phaseId}/reject-engineering-director`, { reason }, { auth: true });
+}
+
+// 业主审核设计图
+function approveOwnerDesign(phaseId) {
+  return http.post(`/construction-phases/${phaseId}/owner-approve-design`, {}, { auth: true });
+}
+function disputeOwnerDesign(phaseId, data) {
+  return http.post(`/construction-phases/${phaseId}/owner-dispute-design`, data, { auth: true });
+}
+
+// 业主验收
+function acceptPhase(phaseId) {
+  return http.post(`/construction-phases/${phaseId}/accept`, {}, { auth: true });
+}
+function disputePhase(phaseId, data) {
+  return http.post(`/construction-phases/${phaseId}/dispute`, data, { auth: true });
+}
+
+module.exports = {
+  // 分类
+  getCategories,
+  // 作品（公开）
+  getWorks,
+  getHotWorks,
+  getWorkDetail,
+  // 首页配置
+  getHomepageConfig,
+  // 认证
+  designerLogin,
+  designerLoginDev,
+  wechatPhoneLogin,
+  getDesignerProfile,
+  checkLogin,
+  // 设计师作品
+  getMyWorks,
+  getMyWorkDetail,
+  createWork,
+  updateWork,
+  deleteWork,
+  setWorkCover,
+  submitWork,
+  // 统计
+  getMyStats,
+  // 上传
+  uploadImage,
+  uploadImages,
+  // V1.1 选材
+  getProperties,
+  getPropertyMaterials,
+  submitMaterialOrder,
+  getMyMaterialOrders,
+  getMyMaterialOrderDetail,
+  // 业主
+  getOwnerCheck,
+  // V1.3 施工阶段
+  getOrderPhases,
+  getPhaseDetail,
+  getDesignerPhases,
+  uploadDesignImages,
+  getDesignDirectorPhases,
+  approveDesignDirector,
+  rejectDesignDirector,
+  getEngineerPhases,
+  confirmDesign,
+  uploadConstructionImages,
+  getEngineeringDirectorPhases,
+  approveEngineeringDirector,
+  rejectEngineeringDirector,
+  approveOwnerDesign,
+  disputeOwnerDesign,
+  acceptPhase,
+  disputePhase,
+};
