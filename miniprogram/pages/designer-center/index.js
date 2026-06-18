@@ -227,6 +227,13 @@ Page({
   },
 
   /**
+   * 快捷入口 — 施工任务
+   */
+  onGoTasks() {
+    wx.navigateTo({ url: '/pages/designer-tasks/index' });
+  },
+
+  /**
    * 快捷入口 — 上传新作品
    */
   onGoUpload() {
