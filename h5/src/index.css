@@ -1,0 +1,57 @@
+@import "tailwindcss";
+
+/* ─── 全局基础样式 ─── */
+html {
+  font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  @apply bg-gray-50 text-gray-900 antialiased;
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ─── 移动端安全区域 ─── */
+@layer utilities {
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .pt-safe {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+  /* 隐藏滚动条但可滚动 */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+/* ─── Swiper 分页样式调整 ─── */
+.swiper-pagination-fraction {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  left: auto;
+  bottom: auto;
+  width: auto;
+  background: rgba(0, 0, 0, 0.4);
+  color: #fff;
+  font-size: 12px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  line-height: 1.6;
+}
+.swiper-pagination-bullets {
+  bottom: 8px !important;
+}
+.swiper-pagination-bullet {
+  background: rgba(255, 255, 255, 0.6) !important;
+  opacity: 1 !important;
+}
+.swiper-pagination-bullet-active {
+  background: #fff !important;
+}
