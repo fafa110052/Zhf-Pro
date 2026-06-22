@@ -15,10 +15,7 @@ import Materials from '../pages/Materials';
 import MaterialOrders from '../pages/MaterialOrders';
 
 const router = createBrowserRouter([
-  {
-    path: '/login',
-    element: <Login />,
-  },
+  { path: '/login', element: <Login /> },
   {
     path: '/',
     element: <ProtectedLayout />,
@@ -38,10 +35,7 @@ const router = createBrowserRouter([
       { path: 'material-orders', element: <MaterialOrders /> },
     ],
   },
-  {
-    path: '*',
-    element: <Navigate to="/dashboard" replace />,
-  },
-]);
+  { path: '*', element: <Navigate to="/dashboard" replace /> },
+], { basename: '/admin' });
 
 export default router;

@@ -25,8 +25,8 @@ client.interceptors.response.use(
         localStorage.removeItem('admin_token');
         localStorage.removeItem('admin_user');
         // 跳转登录页（避免在登录页重复跳转）
-        if (window.location.pathname !== '/login') {
-          window.location.href = '/login';
+        if (window.location.pathname !== '/admin/login') {
+          window.location.href = '/admin/login';
         }
       }
       return Promise.reject(data?.error || { message: '请求失败', status });
