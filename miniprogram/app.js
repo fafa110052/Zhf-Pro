@@ -7,14 +7,14 @@
  *   - role: 用户角色（guest | designer | admin，null = 未登录）
  */
 const { checkLogin } = require('./utils/api');
+const { BASE_URL } = require('./utils/constants');
 
 App({
   globalData: {
     userInfo: null,       // 用户信息对象
     token: null,           // JWT token
     role: null,            // guest | designer | admin
-    // baseUrl: 'http://localhost:3000',  // 本地模拟器
-    baseUrl: 'http://192.168.1.8:3000',  // 真机测试（与 constants.js 保持一致）
+    baseUrl: BASE_URL,     // 从 constants.js 读取，保持一致
     isOnline: true,       // 网络状态
   },
 
