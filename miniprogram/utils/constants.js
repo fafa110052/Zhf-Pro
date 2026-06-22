@@ -3,8 +3,7 @@
  */
 
 // 后端 API 基础地址
-// 开发期使用 localhost；真机预览请改为电脑的局域网 IP（如 http://192.168.1.x:3000）
-const BASE_URL = 'http://192.168.1.10:3000'; // 真机测试
+const BASE_URL = 'http://119.28.42.102:8081'; // 测试环境
 
 // API 版本前缀
 const API_PREFIX = '/api/v1';
