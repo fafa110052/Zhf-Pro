@@ -32,6 +32,10 @@
 
   <!-- ═══ 作品列表 ═══ -->
   <block wx:else>
+    <!-- 节点回收提示 -->
+    <view wx:if="{{trimmedCount > 0}}" class="trimmed-notice">
+      <text>已折叠 {{trimmedCount}} 个较早作品（优化浏览流畅度）</text>
+    </view>
     <view wx:if="{{works.length > 0}}" class="work-list">
       <view
         wx:for="{{works}}"

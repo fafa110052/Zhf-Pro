@@ -26,6 +26,10 @@ const DIMENSION_PARAM_MAP = {
   style: 'style_category_id',
 };
 
+// 渲染窗口：最多保留 48 个作品节点，超出自动回收，防止 DOM 堆积导致卡顿
+var MAX_RENDERED = 48;
+var EST_ITEM_HEIGHT = 280; // 瀑布流单卡估算高度（px），用于回收后滚动补偿
+
 Page({
   data: {
     // Tab
@@ -66,6 +70,14 @@ Page({
 
     // 分类加载失败标记
     categoryError: false,
+
+    // 渲染窗口：已折叠的旧作品数
+    trimmedCount: 0,
+  },
+
+  // 跟踪滚动位置（节点回收后补偿用）
+  onPageScroll(e) {
+    this._scrollTop = e.scrollTop;
   },
 
   // ═══════════════════════════════════════════
@@ -198,14 +210,27 @@ Page({
           hasMore: (pagination.page || 1) < (pagination.total_pages || 1),
         });
       } else {
-        var newWorks = this.data.works.concat(list);
+        var allWorks = this.data.works.concat(list);
+        var trimmed = 0;
+        if (allWorks.length > MAX_RENDERED) {
+          trimmed = allWorks.length - MAX_RENDERED;
+          allWorks = allWorks.slice(-MAX_RENDERED);
+        }
         this.setData({
-          works: newWorks,
+          works: allWorks,
           page: pagination.page || page,
           totalPages: pagination.total_pages || 1,
           loadingMore: false,
           hasMore: (pagination.page || page) < (pagination.total_pages || 1),
-        });
+          trimmedCount: (this.data.trimmedCount || 0) + trimmed,
+        }, function () {
+          // 回收节点后补偿滚动位置，防止画面跳动
+          if (trimmed > 0 && this._scrollTop > 0) {
+            var removedRows = Math.ceil(trimmed / 2);
+            var compensation = removedRows * EST_ITEM_HEIGHT;
+            wx.pageScrollTo({ scrollTop: Math.max(0, this._scrollTop - compensation), duration: 0 });
+          }
+        }.bind(this));
       }
     } catch (err) {
       console.error('加载作品失败:', err);

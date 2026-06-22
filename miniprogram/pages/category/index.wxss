@@ -223,6 +223,22 @@
   font-weight: 600;
 }
 
+/* ═══ 节点回收提示 ═══ */
+.trimmed-notice {
+  display: flex;
+  justify-content: center;
+  padding: 16rpx 24rpx;
+  margin-bottom: 12rpx;
+  background: #fefce8;
+  border-radius: 8rpx;
+  border: 2rpx solid #fde68a;
+}
+
+.trimmed-notice text {
+  font-size: 22rpx;
+  color: #a16207;
+}
+
 /* ═══ 瀑布流 ═══ */
 .works-area {
   flex: 1;

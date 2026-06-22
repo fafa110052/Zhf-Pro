@@ -6,6 +6,22 @@
   padding-bottom: 120rpx;
 }
 
+/* ═══ 节点回收提示 ═══ */
+.trimmed-notice {
+  display: flex;
+  justify-content: center;
+  padding: 16rpx 24rpx;
+  margin: 16rpx 24rpx 0;
+  background: #fefce8;
+  border-radius: 8rpx;
+  border: 2rpx solid #fde68a;
+}
+
+.trimmed-notice text {
+  font-size: 22rpx;
+  color: #a16207;
+}
+
 /* ═══ 状态 Tab ═══ */
 .tab-scroll {
   background: var(--bg-card);

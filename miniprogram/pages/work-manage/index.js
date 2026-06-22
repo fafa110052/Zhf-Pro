@@ -12,6 +12,10 @@ var { getMyWorks, deleteWork, submitWork } = require('../../utils/api');
 var { fullImageUrl, formatTime, showConfirm } = require('../../utils/util');
 var { WORK_STATUS_MAP } = require('../../utils/constants');
 
+// 渲染窗口：最多保留 60 个作品节点，超出自动回收
+var MAX_RENDERED = 60;
+var EST_ITEM_HEIGHT = 220; // 管理列表单卡估算高度（px）
+
 Page({
   data: {
     // 状态 Tab
@@ -34,6 +38,14 @@ Page({
 
     // 操作中
     operating: false,
+
+    // 渲染窗口：已折叠的旧作品数
+    trimmedCount: 0,
+  },
+
+  // 跟踪滚动位置（节点回收后补偿用）
+  onPageScroll(e) {
+    this._scrollTop = e.scrollTop;
   },
 
   onShow() {
@@ -95,14 +107,38 @@ Page({
         };
       });
 
-      this.setData({
-        works: reset ? formatted : [...this.data.works, ...formatted],
-        page: page + 1,
-        hasMore: (result.list || []).length >= 20,
-        loading: false,
-        initialLoading: false,
-        error: false,
-      });
+      if (reset) {
+        this.setData({
+          works: formatted,
+          page: page + 1,
+          hasMore: (result.list || []).length >= 20,
+          loading: false,
+          initialLoading: false,
+          error: false,
+          trimmedCount: 0,
+        });
+      } else {
+        var allWorks = [...this.data.works, ...formatted];
+        var trimmed = 0;
+        if (allWorks.length > MAX_RENDERED) {
+          trimmed = allWorks.length - MAX_RENDERED;
+          allWorks = allWorks.slice(-MAX_RENDERED);
+        }
+        this.setData({
+          works: allWorks,
+          page: page + 1,
+          hasMore: (result.list || []).length >= 20,
+          loading: false,
+          initialLoading: false,
+          error: false,
+          trimmedCount: (this.data.trimmedCount || 0) + trimmed,
+        }, function () {
+          if (trimmed > 0 && this._scrollTop > 0) {
+            var compensation = trimmed * EST_ITEM_HEIGHT;
+            wx.pageScrollTo({ scrollTop: Math.max(0, this._scrollTop - compensation), duration: 0 });
+          }
+        }.bind(this));
+      }
     } catch (err) {
       console.error('作品列表加载失败:', err);
       this.setData({
