@@ -3,7 +3,7 @@
  */
 
 // 后端 API 基础地址
-const BASE_URL = 'http://43.136.71.64:8080'; // 广州服务器
+const BASE_URL = 'http://43.136.71.64:8081'; // 测试环境
 
 // API 版本前缀
 const API_PREFIX = '/api/v1';
