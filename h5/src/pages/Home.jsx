@@ -18,6 +18,17 @@ export default function Home() {
   const [hotWorks, setHotWorks] = useState([]);
   const [hotLoading, setHotLoading] = useState(true);
   const [hotError, setHotError] = useState(false);
+  const [searchInput, setSearchInput] = useState('');
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    const kw = searchInput.trim();
+    if (kw) {
+      navigate(`/category?q=${encodeURIComponent(kw)}`);
+    } else {
+      navigate('/category');
+    }
+  };
 
   const loadData = async () => {
     setLoading(true);
@@ -56,15 +67,27 @@ export default function Home() {
       <SwiperBanner banners={banners} loading={loading} />
 
       {/* ─── 搜索栏 ─── */}
-      <div className="px-4">
-        <div
-          onClick={() => navigate('/category')}
-          className="flex items-center gap-2 bg-white rounded-full shadow-sm border border-gray-100 px-4 py-3 active:bg-gray-50 cursor-pointer"
-        >
+      <form onSubmit={handleSearch} className="px-4">
+        <div className="flex items-center gap-2 bg-white rounded-full shadow-sm border border-gray-100 px-4 py-2">
           <span className="text-gray-400">🔍</span>
-          <span className="text-sm text-gray-400">搜索作品</span>
+          <input
+            type="text"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            placeholder="搜索作品"
+            className="flex-1 text-sm bg-transparent outline-none text-gray-900 placeholder:text-gray-300"
+          />
+          {searchInput && (
+            <button
+              type="button"
+              onClick={() => setSearchInput('')}
+              className="text-gray-300 active:text-gray-500"
+            >
+              ✕
+            </button>
+          )}
         </div>
-      </div>
+      </form>
 
       {/* ─── 快捷分类入口 ─── */}
       <div className="px-4">

@@ -61,7 +61,7 @@ export default function Category() {
     if (paramsConsumed) return;
     const tab = searchParams.get('tab');
     const sort = searchParams.get('sort');
-    const kw = searchParams.get('keyword');
+    const kw = searchParams.get('keyword') || searchParams.get('q');
 
     let changed = false;
     if (tab && DIMENSION_TABS.find((t) => t.key === tab)) {
@@ -84,6 +84,7 @@ export default function Category() {
       newParams.delete('tab');
       newParams.delete('sort');
       newParams.delete('keyword');
+      newParams.delete('q');
       setSearchParams(newParams, { replace: true });
     }
     setParamsConsumed(true);
@@ -247,11 +248,21 @@ export default function Category() {
     loadWorks(true, { selected: empty, sortBy: 'newest', keyword: '' });
   };
 
-  // 搜索提交
+  // 搜索提交 — 同步到 URL 参数
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     const kw = searchInput.trim();
     setKeyword(kw);
+
+    // 更新浏览器地址栏（不刷新页面）
+    const newParams = new URLSearchParams(searchParams);
+    if (kw) {
+      newParams.set('q', kw);
+    } else {
+      newParams.delete('q');
+    }
+    setSearchParams(newParams, { replace: true });
+
     loadWorks(true, { keyword: kw });
   };
 
