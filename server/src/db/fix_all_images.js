@@ -8,7 +8,7 @@
 const db = require('./connection');
 
 // picsum.photos — 真实照片，每个 ID 对应一张固定的 Unsplash 照片
-const P = (id, w = 400, h = 400) => `https://picsum.photos/id/${id}/${w}/${h}`;
+const P = (id, w = 400, h = 400) => `/api/v1/placeholder/${id}/${w}/${h}`;
 
 // 精选 ID 分布，确保照片多样性
 const IMG_IDS = {

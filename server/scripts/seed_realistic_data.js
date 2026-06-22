@@ -13,7 +13,7 @@ const bcrypt = require('bcryptjs');
 // 模拟装修图片 URL（使用 picsum 固定种子保证一致性）
 // ══════════════════════════════════════════
 function interiorImg(seed, w = 800, h = 600) {
-  return `https://picsum.photos/seed/${seed}/${w}/${h}`;
+  return `/api/v1/placeholder/${seed}/${w}/${h}`;
 }
 
 // 每组作品 3-6 张不同图片种子
@@ -295,7 +295,7 @@ async function seed() {
     {
       config_type: 'banner',
       config_value: JSON.stringify({
-        image_url: 'https://picsum.photos/seed/banner-decoration-1/800/400',
+        image_url: '/api/v1/placeholder/banner-decoration-1/800/400',
         title: '2026 夏季装修节 — 全屋定制低至 7 折',
         link: '/pages/category/index',
       }),
@@ -304,7 +304,7 @@ async function seed() {
     {
       config_type: 'banner',
       config_value: JSON.stringify({
-        image_url: 'https://picsum.photos/seed/banner-decoration-2/800/400',
+        image_url: '/api/v1/placeholder/banner-decoration-2/800/400',
         title: '轻奢风格特辑 — 精选 50 套大理石案例',
         link: String(workIds[4]), // 轻奢大理石大平层
       }),
@@ -313,7 +313,7 @@ async function seed() {
     {
       config_type: 'banner',
       config_value: JSON.stringify({
-        image_url: 'https://picsum.photos/seed/banner-decoration-3/800/400',
+        image_url: '/api/v1/placeholder/banner-decoration-3/800/400',
         title: '小户型改造王 — 38㎡ 变两居的魔术',
         link: String(workIds[7]), // 小户型魔术
       }),

@@ -92,7 +92,7 @@ exports.seed = async function (knex) {
   // ══════════════════════════════════════
   // 3. 首页 Banner
   // ══════════════════════════════════════
-  const B = (id) => `https://picsum.photos/id/${id}/750/400`;
+  const B = (id) => `/api/v1/placeholder/${id}/750/400`;
   await knex('homepage_config').insert([
     { config_type: 'banner', config_value: JSON.stringify({ image_url: B(30), title: '精选设计案例 · 一站式装修展示', link: '' }), sort_order: 1 },
     { config_type: 'banner', config_value: JSON.stringify({ image_url: B(55), title: '现代简约 · 轻奢 · 新中式 · 北欧', link: '' }), sort_order: 2 },
@@ -143,7 +143,7 @@ exports.seed = async function (knex) {
     [455, 460, 465, 470, 478], [485, 490, 495, 500, 508],
   ];
 
-  const C = (id) => `https://picsum.photos/id/${id}/600/400`;
+  const C = (id) => `/api/v1/placeholder/${id}/600/400`;
 
   for (let wi = 0; wi < works.length; wi++) {
     const w = works[wi];

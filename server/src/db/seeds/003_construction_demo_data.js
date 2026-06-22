@@ -42,7 +42,7 @@ exports.seed = async function (knex) {
   for (const [code, name] of [['01', '碧桂园·翡翠湾'], ['02', '万科·金域华府'], ['03', '保利·天悦'], ['04', '中海·锦城']]) {
     let p = await knex('properties').where('property_code', code).first();
     if (!p) {
-      const [id] = await knex('properties').insert({ name, address: `${name}（测试地址）`, property_code: code, cover_image: `https://picsum.photos/id/${10 + parseInt(code)}/400/300`, material_enabled: 1 });
+      const [id] = await knex('properties').insert({ name, address: `${name}（测试地址）`, property_code: code, cover_image: `/api/v1/placeholder/${10 + parseInt(code)}/400/300`, material_enabled: 1 });
       p = { id, name, property_code: code };
     }
     props[p.property_code] = p;
@@ -91,7 +91,7 @@ exports.seed = async function (knex) {
 
   // ═══ 4. 创建施工阶段 ═══
   const phaseTypes = ['demolition', 'water_electric', 'painting', 'material_install', 'completion'];
-  const IMG = (n) => `https://picsum.photos/id/${(n % 100) + 10}/400/300`;
+  const IMG = (n) => `/api/v1/placeholder/${(n % 100) + 10}/400/300`;
 
   // 种子状态矩阵：[phase1_status, phase2_status, phase3_status, phase4_status, phase5_status]
   const matrix = [

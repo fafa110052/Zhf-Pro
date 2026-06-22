@@ -7,7 +7,7 @@ exports.seed = async function (knex) {
   await knex('properties').del();
 
   // Lorem Picsum — Unsplash 真实照片的稳定缓存，Cloudflare CDN 全球可访问
-  const P = (id, w, h) => `https://picsum.photos/id/${id}/${w}/${h}`;
+  const P = (id, w, h) => `/api/v1/placeholder/${id}/${w}/${h}`;
 
   // ==========================================
   // 1. Material categories (7 built-in)
