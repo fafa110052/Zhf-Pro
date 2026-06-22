@@ -1,24 +1,27 @@
 #!/bin/bash
 # 一键部署到服务器 43.136.71.64（广州）
 # 用法：
-#   ./deploy.sh          → 部署到测试环境（8081）
+#   ./deploy.sh          → 部署到 env.config.json 中 active 指定的环境
+#   ./deploy.sh test     → 部署到测试环境（8081）
 #   ./deploy.sh prod     → 部署到生产环境（8080）
+#
+# 所有服务器信息、端口号均从 env.config.json 读取（唯一配置入口）
 
-SERVER="root@43.136.71.64"
+set -e
 
-if [ "$1" = "prod" ]; then
-  PROJECT="/root/Zhf-Pro"
-  PORT="8080"
-  PM2_NAME="zhf-server"
-  BACKEND_PORT="3000"
-  echo "🚀 部署到 【生产环境】 ${PORT}"
-else
-  PROJECT="/root/Zhf-Pro-test"
-  PORT="8081"
-  PM2_NAME="zhf-server-test"
-  BACKEND_PORT="3001"
-  echo "🚀 部署到 【测试环境】 ${PORT}"
-fi
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+CONFIG="$SCRIPT_DIR/env.config.json"
+
+# ═══ 从 env.config.json 读取配置 ═══
+SERVER=$(node -e "console.log(require('$CONFIG').server.ssh)")
+TARGET="${1:-$(node -e "console.log(require('$CONFIG').active)")}"
+
+PORT=$(node -e "console.log(require('$CONFIG').environments['$TARGET'].port)")
+BACKEND_PORT=$(node -e "console.log(require('$CONFIG').environments['$TARGET'].backend_port)")
+PM2_NAME=$(node -e "console.log(require('$CONFIG').environments['$TARGET'].pm2_name)")
+PROJECT=$(node -e "console.log(require('$CONFIG').environments['$TARGET'].project_path)")
+
+echo "🚀 部署到 【${TARGET}环境】 ${PORT}"
 
 ssh $SERVER << REMOTE
 cd $PROJECT
@@ -41,11 +44,13 @@ systemctl reload nginx
 echo "✅ 部署完成！"
 REMOTE
 
+SERVER_IP=$(node -e "console.log(require('$CONFIG').server.ip)")
+
 echo ""
-if [ "$1" = "prod" ]; then
-  echo "📱 H5:      http://43.136.71.64:8080"
-  echo "🖥️  后台:    http://43.136.71.64:8080/admin"
+if [ "$TARGET" = "prod" ]; then
+  echo "📱 H5:      http://${SERVER_IP}:${PORT}"
+  echo "🖥️  后台:    http://${SERVER_IP}:${PORT}/admin"
 else
-  echo "📱 H5(测试): http://43.136.71.64:8081"
-  echo "🖥️  后台(测): http://43.136.71.64:8081/admin"
+  echo "📱 H5(测试): http://${SERVER_IP}:${PORT}"
+  echo "🖥️  后台(测): http://${SERVER_IP}:${PORT}/admin"
 fi

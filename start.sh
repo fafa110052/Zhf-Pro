@@ -92,47 +92,50 @@ detect_network() {
 }
 
 # ═══════════════════════════════════════════
-# 自动修复 constants.js BASE_URL
+# 自动生成本地环境配置（env.config.local.json）
+# 不再直接修改 constants.js，而是生成 gitignored 的覆盖文件
 # ═══════════════════════════════════════════
 
 auto_fix_constants() {
   local primary_ip="${1:-}"
-  local mp_config="${SCRIPT_DIR}/miniprogram/utils/constants.js"
+  local local_config="${SCRIPT_DIR}/env.config.local.json"
 
   [ -z "$primary_ip" ] && return 1
-  [ ! -f "$mp_config" ] && return 1
 
   local new_url="http://${primary_ip}:3000"
-  local current_base=$(grep "BASE_URL" "$mp_config" 2>/dev/null | grep -o "http[s]*://[^']*" | head -1)
 
-  if [ -z "$current_base" ]; then
-    return 1
+  # 检查是否已存在且正确
+  if [ -f "$local_config" ]; then
+    local existing_url=$(node -e "const c=require('${local_config}');console.log('http://'+c.server.ip+':'+c.environments.local.port)" 2>/dev/null)
+    if [ "$existing_url" = "$new_url" ]; then
+      echo "  ✅ 本地环境配置已正确：$new_url"
+      return 0
+    fi
   fi
 
-  if [[ "$current_base" == "$new_url" ]]; then
-    echo "  ✅ constants.js BASE_URL 已正确：$new_url"
-    return 0
-  fi
-
-  # IP 不匹配 → 自动修复
   echo ""
-  echo "  ⚠️  IP 发生变化！"
-  echo "     当前 BASE_URL: $current_base"
-  echo "     实际本机 IP:   $new_url"
-  echo ""
+  echo "  📝 生成本地环境配置 → $new_url"
 
-  # 备份原文件
-  cp "$mp_config" "${mp_config}.bak"
+  cat > "$local_config" << EOF
+{
+  "server": {
+    "ip": "${primary_ip}",
+    "ssh": ""
+  },
+  "environments": {
+    "local": {
+      "port": 3000,
+      "backend_port": 3000,
+      "pm2_name": "",
+      "project_path": ""
+    }
+  },
+  "active": "local"
+}
+EOF
 
-  # 用 sed 替换（兼容 macOS 和 Linux）
-  if [[ "$OSTYPE" == "darwin"* ]]; then
-    sed -i '' "s|${current_base}|${new_url}|g" "$mp_config"
-  else
-    sed -i "s|${current_base}|${new_url}|g" "$mp_config"
-  fi
-
-  echo "  ✅ 已自动更新 constants.js BASE_URL → $new_url"
-  echo "     (原文件备份至 constants.js.bak)"
+  echo "  ✅ 已生成本地环境配置 env.config.local.json"
+  echo "     (退出时自动清理，或手动删除恢复远程环境)"
   echo ""
   return 0
 }
@@ -158,7 +161,6 @@ show_device_guide() {
 
   local test_url="http://${primary_ip}:${port}/api/network-check"
   local api_url="http://${primary_ip}:${port}"
-  local mp_config="${SCRIPT_DIR}/miniprogram/utils/constants.js"
 
   # ─── Step 1: 连通性测试 ───
   echo "  ─── 连通性测试 ───"
@@ -191,7 +193,7 @@ show_device_guide() {
     return
   fi
 
-  # ─── Step 2: 自动修复 constants.js ───
+  # ─── Step 2: 本地环境配置 ───
   auto_fix_constants "$primary_ip"
 
   # ─── Step 3: 操作指引 ───
@@ -379,6 +381,7 @@ else
   cleanup() {
     echo ""
     echo "🛑 正在停止所有服务..."
+    rm -f "${SCRIPT_DIR}/env.config.local.json"
     kill $BACKEND_PID 2>/dev/null || true
     kill $FRONTEND_PID 2>/dev/null || true
     pkill -P $BACKEND_PID 2>/dev/null || true

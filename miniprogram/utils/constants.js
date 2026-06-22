@@ -1,9 +1,25 @@
 /**
  * 全局常量
+ *
+ * ⚠️ 环境切换：只需修改 ../../env.config.json 中的 active 字段（test / prod）
+ *    本地开发时 start.sh 会自动生成 env.config.local.json（gitignored），优先级更高
  */
 
-// 后端 API 基础地址
-const BASE_URL = 'http://43.136.71.64:8081'; // 测试环境
+// ─── 环境配置读取 ───
+let envConfig;
+try {
+  // 优先使用本地覆盖（start.sh 自动生成，gitignored）
+  envConfig = require('../../env.config.local.json');
+} catch (e) {
+  // 未覆盖时使用正式配置
+  envConfig = require('../../env.config.json');
+}
+
+const ACTIVE_ENV = envConfig.active;
+const ENV = envConfig.environments[ACTIVE_ENV];
+
+// 后端 API 基础地址（从 env.config.json 自动生成）
+const BASE_URL = `http://${envConfig.server.ip}:${ENV.port}`;
 
 // API 版本前缀
 const API_PREFIX = '/api/v1';
