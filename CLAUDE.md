@@ -22,6 +22,36 @@
 
 ---
 
+## 环境配置（⚠️ 唯一入口）
+
+**所有环境相关配置集中在根目录 `env.config.json`**，切换环境只改 `active` 字段：
+
+```json
+{
+  "server": { "ip": "43.136.71.64", "ssh": "root@43.136.71.64" },
+  "environments": {
+    "test": { "port": 8081, "backend_port": 3001, "pm2_name": "zhf-server-test", "project_path": "/root/Zhf-Pro-test" },
+    "prod": { "port": 8080, "backend_port": 3000, "pm2_name": "zhf-server", "project_path": "/root/Zhf-Pro" }
+  },
+  "active": "test"
+}
+```
+
+| 模块 | 读取方式 | 说明 |
+|------|---------|------|
+| 小程序 | `constants.js` 通过 `require('../../env.config.json')` 读取，自动拼出 `BASE_URL` | 切换环境后需重新编译 |
+| deploy.sh | 通过 `node -e "require('./env.config.json')"` 读取 | `./deploy.sh`=test，`./deploy.sh prod`=prod |
+| 本地开发 | `start.sh` 生成 `env.config.local.json`（gitignored），`constants.js` 优先读取它 | 退出自动清理 |
+
+**关键规则**：
+- 小程序 `BASE_URL` **只有一处**：`miniprogram/utils/constants.js`，它从 `env.config.json` 生成
+- 小程序其他文件（`request.js`、`api.js`、`util.js`、`app.js`）都从 `constants.js` 或 `app.globalData.baseUrl` 获取，**不要硬编码**
+- Admin/H5 的 API 客户端使用相对路径 `/api/v1`，不依赖环境配置
+- 改 IP 或端口 → 只改 `env.config.json`；切环境 → 只改 `active`
+- 不要在小程序代码中写 `192.168.x.x` 或 `43.136.71.64` 等 IP 地址
+
+---
+
 ## 用户体系（关键 — 两个独立维度）
 
 `designers` 表存储所有用户：
