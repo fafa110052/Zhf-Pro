@@ -40,6 +40,23 @@ Page({
       if (phase.design_images) {
         phase.design_images = phase.design_images.map(url => fullImageUrl(url));
       }
+      // 加载项目进度（所有阶段）
+      if (phase.order_no) {
+        try {
+          const orderPhases = await api.getOrderPhases(phase.order_no);
+          phase.progress = (orderPhases.list || []).map(p => ({
+            phase_order: p.phase_order,
+            label: (PHASE_TYPE_MAP[p.phase_type] || {}).label || p.phase_type,
+            status: p.status,
+            statusLabel: (PHASE_STATUS_MAP[p.status] || {}).label || p.status,
+            isCurrent: p.id == phase.id,
+            dotClass: p.id == phase.id ? 'active' :
+              (p.status === 'owner_accepted' ? 'done' :
+               p.status && p.status !== 'assigned' ? 'started' : 'pending'),
+            lineClass: p.status === 'owner_accepted' ? 'done' : '',
+          }));
+        } catch (_) { /* 静默 */ }
+      }
       const pageData = { phase, loading: false };
       if (this._readyFired) {
         this.setData(Object.assign({ ready: true }, pageData));

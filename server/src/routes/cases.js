@@ -355,4 +355,24 @@ router.post('/admin/works/:id/archive', authenticate, requireRole('admin'), asyn
   }
 });
 
+/**
+ * POST /api/v1/admin/works
+ * 管理端直接创建作品（跳过草稿状态，直接审核通过）
+ * Body: { title, description, house_type_id, area_category_id, style_category_id,
+ *         area_sqm, budget_min, budget_max, designer_id, cover_image, images }
+ */
+router.post('/admin/works', authenticate, requireRole('admin'), async (req, res, next) => {
+  try {
+    const { designer_id, ...data } = req.body;
+    const actualDesignerId = designer_id || req.user.id;
+    // 创建（draft）→ 提交（pending）→ 审核通过（approved）
+    const work = await caseService.create(actualDesignerId, data);
+    await caseService.submit(actualDesignerId, work.id);
+    const approved = await caseService.approve(work.id, req.user.id);
+    res.status(201).json({ success: true, data: approved });
+  } catch (err) {
+    next(err);
+  }
+});
+
 module.exports = router;

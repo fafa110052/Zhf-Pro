@@ -51,12 +51,6 @@
         "selectedIconPath": "images/tab-category-active.png"
       },
       {
-        "pagePath": "pages/material-properties/index",
-        "text": "在线选材",
-        "iconPath": "images/tab-material.png",
-        "selectedIconPath": "images/tab-material-active.png"
-      },
-      {
         "pagePath": "pages/mine/index",
         "text": "我的",
         "iconPath": "images/tab-mine.png",

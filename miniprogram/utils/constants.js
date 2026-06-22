@@ -4,7 +4,7 @@
 
 // 后端 API 基础地址
 // 开发期使用 localhost；真机预览请改为电脑的局域网 IP（如 http://192.168.1.x:3000）
-const BASE_URL = 'http://192.168.1.5:3000'; // 真机测试
+const BASE_URL = 'http://192.168.1.10:3000'; // 真机测试
 
 // API 版本前缀
 const API_PREFIX = '/api/v1';
@@ -65,6 +65,7 @@ const PHASE_STATUS_MAP = {
   design_admin_approved:       { label: '待业主审设计', colorClass: 'tag-green' },
   design_admin_rejected:       { label: '设计二审驳回', colorClass: 'tag-red' },
   owner_design_reviewed:       { label: '待施工', colorClass: 'tag-green' },
+  engineer_design_confirmed:  { label: '待总监确认设计', colorClass: 'tag-blue' },
   owner_design_disputed:       { label: '业主驳回设计', colorClass: 'tag-orange' },
   construction_confirmed:      { label: '施工中', colorClass: 'tag-blue' },
   construction_uploaded:       { label: '待审完工', colorClass: 'tag-blue' },

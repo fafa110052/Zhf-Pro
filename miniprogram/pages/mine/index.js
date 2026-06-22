@@ -53,20 +53,21 @@ Page({
       return;
     }
 
-    var isDesigner = app.isDesigner();
+    // isDesigner 现在只指 personnel_type === 'designer'（实际设计师岗位）
+    var isDesigner = app.isDesignerPersonnel();
     var isGuest = app.isGuest();
     var isOwner = app.isOwner();
     var isDesignDirector = app.isDesignDirector();
     var isEngineer = app.isEngineer();
     var isEngineeringDirector = app.isEngineeringDirector();
+    var isEmployee = app.isDesigner(); // role === 'designer' — 所有员工（含设计师/设计总监/工程师/工程总监）
     var personnelType = app.globalData.personnelType || null;
 
-    // 从服务端拉取最新数据（含头像审核状态）
+    // 从服务端拉取最新数据（所有员工角色）
     var userInfo = app.globalData.userInfo;
-    if (isDesigner) {
+    if (isEmployee) {
       try {
-        var profile = await api.getDesignerProfile();
-        // 头像审核：优先显示待审核头像
+        var profile = await api.getDesignerProfile({ silent: true });
         var displayAvatar = profile.pending_avatar_url && profile.avatar_review_status === 'pending'
           ? profile.pending_avatar_url
           : profile.avatar_url;
@@ -81,10 +82,11 @@ Page({
           years_of_exp: profile.years_of_exp || 0,
           status: profile.status,
           role: profile.role,
+          personnel_type: profile.personnel_type,
         };
-        // 同步到全局
         app.globalData.userInfo = userInfo;
         app.globalData.role = userInfo.role;
+        app.globalData.personnelType = userInfo.personnel_type;
         wx.setStorageSync('userInfo', userInfo);
       } catch (err) {
         console.error('刷新个人信息失败:', err);
@@ -95,16 +97,16 @@ Page({
     // 业主：拉取个人资料（含楼盘信息）
     if (isOwner) {
       try {
-        var profile = await api.getDesignerProfile();
+        var ownerProfile = await api.getDesignerProfile({ silent: true });
         userInfo = Object.assign({}, app.globalData.userInfo, {
-          id: profile.id,
-          name: profile.name,
-          phone: profile.phone,
-          avatar_url: util.fullImageUrl(profile.avatar_url),
-          role: profile.role,
-          property_name: profile.property_name || '未分配',
-          building: profile.building || '',
-          room: profile.room || '',
+          id: ownerProfile.id,
+          name: ownerProfile.name,
+          phone: ownerProfile.phone,
+          avatar_url: util.fullImageUrl(ownerProfile.avatar_url),
+          role: ownerProfile.role,
+          property_name: ownerProfile.property_name || '未分配',
+          building: ownerProfile.building || '',
+          room: ownerProfile.room || '',
         });
         app.globalData.userInfo = userInfo;
         wx.setStorageSync('userInfo', userInfo);
@@ -127,38 +129,32 @@ Page({
       loading: true,
     });
 
-    // 仅设计师加载统计数据
-    if (isDesigner) {
+    // 仅设计师（personnel_type=designer）加载统计数据
+    // isDesigner 不包括业主（即使 personnel_type 误设，role 优先）
+    if (isDesigner && !isOwner) {
       try {
-        var stats = await api.getMyStats();
+        var stats = await api.getMyStats({ silent: true });
         this.setData({
           stats: stats,
           statsText: formatStats(stats),
         });
       } catch (err) {
         console.error('加载统计数据失败:', err);
-        var msg = err.message || '';
-        if (msg.indexOf('401') !== -1 || msg.indexOf('403') !== -1) {
-          app.clearLogin();
-          this.setData({
-            isLoggedIn: false,
-            isDesigner: false,
-            isGuest: false,
-          });
-        }
-        // 权限不足时静默处理（游客调设计师接口会 403）
       }
     }
 
-    // V1.3 施工角色 — 获取待办数
-    if (isDesignDirector || isEngineer || isEngineeringDirector || isDesigner) {
+    // V1.3 施工角色 — 获取待办数（仅进行中）
+    // isEmployee 已排除业主（role !== 'designer'），此处加 isOwner 双重保险
+    if (isEmployee && !isOwner) {
       try {
         var taskRes = null;
-        if (isDesigner) taskRes = await api.getDesignerPhases();
-        else if (isDesignDirector) taskRes = await api.getDesignDirectorPhases();
-        else if (isEngineer) taskRes = await api.getEngineerPhases();
-        else if (isEngineeringDirector) taskRes = await api.getEngineeringDirectorPhases();
-        this.setData({ taskCount: (taskRes && taskRes.list) ? taskRes.list.length : 0 });
+        if (isDesigner) taskRes = await api.getDesignerPhases({ silent: true });
+        else if (isDesignDirector) taskRes = await api.getDesignDirectorPhases({ silent: true });
+        else if (isEngineer) taskRes = await api.getEngineerPhases({ silent: true });
+        else if (isEngineeringDirector) taskRes = await api.getEngineeringDirectorPhases({ silent: true });
+        var allList = (taskRes && taskRes.list) ? taskRes.list : [];
+        var activeList = allList.filter(function(item) { return isActivePhase(item.status); });
+        this.setData({ taskCount: activeList.length });
       } catch (_) { /* 静默 */ }
     }
 
@@ -214,12 +210,17 @@ Page({
     wx.navigateTo({ url: '/pages/material-orders/index' });
   },
 
-  // V1.3 施工角色导航
-  onGoDesignerTasks() { wx.navigateTo({ url: '/pages/designer-tasks/index' }); },
-  onGoDesignDirectorReviews() { wx.navigateTo({ url: '/pages/design-director-reviews/index' }); },
-  onGoEngineerTasks() { wx.navigateTo({ url: '/pages/engineer-tasks/index' }); },
-  onGoEngineeringDirectorReviews() { wx.navigateTo({ url: '/pages/engineering-director-reviews/index' }); },
-  onGoMyProjects() { wx.navigateTo({ url: '/pages/material-orders/index' }); },
+  // V1.3 施工角色导航 — mode=active（进行中）/ mode=all（全部项目）
+  onGoDesignerTasks() { wx.navigateTo({ url: '/pages/designer-tasks/index?mode=active' }); },
+  onGoDesignDirectorReviews() { wx.navigateTo({ url: '/pages/design-director-reviews/index?mode=active' }); },
+  onGoEngineerTasks() { wx.navigateTo({ url: '/pages/engineer-tasks/index?mode=active' }); },
+  onGoEngineeringDirectorReviews() { wx.navigateTo({ url: '/pages/engineering-director-reviews/index?mode=active' }); },
+  onGoMyProjects() {
+    if (this.data.isDesigner) wx.navigateTo({ url: '/pages/designer-tasks/index?mode=all' });
+    else if (this.data.isDesignDirector) wx.navigateTo({ url: '/pages/design-director-reviews/index?mode=all' });
+    else if (this.data.isEngineer) wx.navigateTo({ url: '/pages/engineer-tasks/index?mode=all' });
+    else if (this.data.isEngineeringDirector) wx.navigateTo({ url: '/pages/engineering-director-reviews/index?mode=all' });
+  },
 
   /** 联系客服 */
   onContact() {
@@ -240,4 +241,14 @@ function formatStats(stats) {
     { label: '审核中', value: stats.pending || 0 },
     { label: '浏览量', value: util.formatNumber(stats.total_views) },
   ];
+}
+
+/** 是否进行中（未验收、未驳回） */
+function isActivePhase(status) {
+  return ![
+    'owner_accepted',
+    'design_director_rejected', 'design_admin_rejected',
+    'engineering_director_rejected', 'construction_admin_rejected',
+    'owner_design_disputed', 'owner_disputed',
+  ].includes(status);
 }

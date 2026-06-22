@@ -326,6 +326,260 @@ function RejectModal({ open, work, loading, onClose, onConfirm }) {
 }
 
 // ═══════════════════════════════════
+// 创建作品弹窗
+// ═══════════════════════════════════
+
+function CreateModal({ open, onClose, onCreated }) {
+  const toast = useToast();
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [designerId, setDesignerId] = useState('');
+  const [houseTypeId, setHouseTypeId] = useState('');
+  const [areaId, setAreaId] = useState('');
+  const [styleId, setStyleId] = useState('');
+  const [areaSqm, setAreaSqm] = useState('');
+  const [budgetMin, setBudgetMin] = useState('');
+  const [budgetMax, setBudgetMax] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [formError, setFormError] = useState('');
+
+  // 图片
+  const [uploadedImages, setUploadedImages] = useState([]); // { id, image_url, thumb_url }
+  const [coverImage, setCoverImage] = useState('');
+  const [uploading, setUploading] = useState(false);
+
+  // 下拉数据
+  const [designers, setDesigners] = useState([]);
+  const [categories, setCategories] = useState(null); // { house_type:[], area:[], style:[] }
+
+  // 打开时加载数据
+  useEffect(() => {
+    if (!open) return;
+    setFormError('');
+    Promise.all([
+      client.get('/admin/designers').then(r => setDesigners(r.data.list || [])).catch(() => {}),
+      client.get('/categories').then(r => setCategories(r.data)).catch(() => {}),
+    ]);
+  }, [open]);
+
+  const handleUpload = async (e) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      for (let i = 0; i < Math.min(files.length, 9); i++) {
+        formData.append('files', files[i]);
+      }
+      const res = await client.post('/upload/multiple', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      const newImages = res.data.uploaded || [];
+      setUploadedImages(prev => {
+        const all = [...prev, ...newImages];
+        // 自动选第一张为封面
+        if (!coverImage && all.length > 0) setCoverImage(all[0].image_url);
+        return all;
+      });
+    } catch (err) {
+      toast.error(err?.message || '上传失败');
+    } finally { setUploading(false); }
+  };
+
+  const removeImage = (id) => {
+    setUploadedImages(prev => {
+      const next = prev.filter(img => img.id !== id);
+      if (coverImage && !next.find(img => img.image_url === coverImage)) {
+        setCoverImage(next[0]?.image_url || '');
+      }
+      return next;
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setFormError('');
+
+    if (!title.trim()) { setFormError('请输入作品标题'); return; }
+    if (!designerId) { setFormError('请选择设计师'); return; }
+    if (!houseTypeId) { setFormError('请选择户型'); return; }
+    if (!areaId) { setFormError('请选择部位'); return; }
+    if (!styleId) { setFormError('请选择风格'); return; }
+
+    setLoading(true);
+    try {
+      await client.post('/admin/works', {
+        title: title.trim(),
+        description: description.trim(),
+        designer_id: Number(designerId),
+        house_type_id: Number(houseTypeId),
+        area_category_id: Number(areaId),
+        style_category_id: Number(styleId),
+        area_sqm: areaSqm ? Number(areaSqm) : null,
+        budget_min: budgetMin ? Number(budgetMin) : null,
+        budget_max: budgetMax ? Number(budgetMax) : null,
+        cover_image: coverImage || null,
+        images: uploadedImages.map(img => ({ id: img.id })),
+      });
+      toast.success('作品创建成功');
+      onCreated();
+    } catch (err) {
+      setFormError(err?.message || '创建失败');
+    } finally { setLoading(false); }
+  };
+
+  // 重置表单
+  const resetForm = () => {
+    setTitle(''); setDescription(''); setDesignerId('');
+    setHouseTypeId(''); setAreaId(''); setStyleId('');
+    setAreaSqm(''); setBudgetMin(''); setBudgetMax('');
+    setUploadedImages([]); setCoverImage(''); setFormError('');
+  };
+
+  const handleClose = () => {
+    resetForm();
+    onClose();
+  };
+
+  if (!open) return null;
+
+  const selectClass = "px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent";
+  const inputClass = "px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent";
+
+  return (
+    <div className="fixed inset-0 z-[60] flex items-start justify-center p-4 bg-black/40 overflow-y-auto">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl my-8">
+        {/* 头部 */}
+        <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white rounded-t-2xl z-10">
+          <h3 className="text-base font-semibold text-gray-900">创建作品</h3>
+          <button onClick={handleClose} className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="px-6 py-4 space-y-5">
+          {/* 错误提示 */}
+          {formError && (
+            <div className="bg-red-50 text-red-600 text-sm px-3 py-2 rounded-lg">{formError}</div>
+          )}
+
+          {/* 基本信息 */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">作品标题 <span className="text-red-400">*</span></label>
+            <input type="text" value={title} onChange={e => setTitle(e.target.value)}
+              className={`w-full ${inputClass}`} placeholder="如：碧桂园翡翠湾 · 现代简约三居" />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">设计说明</label>
+            <textarea rows={3} value={description} onChange={e => setDescription(e.target.value)}
+              className={`w-full ${inputClass} resize-none`} placeholder="描述设计理念、用材、风格特点..." />
+          </div>
+
+          {/* 设计师 + 分类 */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">设计师 <span className="text-red-400">*</span></label>
+              <select value={designerId} onChange={e => setDesignerId(e.target.value)} className={`w-full ${selectClass}`}>
+                <option value="">请选择</option>
+                {designers.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">面积 (㎡)</label>
+              <input type="number" value={areaSqm} onChange={e => setAreaSqm(e.target.value)}
+                className={`w-full ${inputClass}`} placeholder="120" />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-3 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">户型 <span className="text-red-400">*</span></label>
+              <select value={houseTypeId} onChange={e => setHouseTypeId(e.target.value)} className={`w-full ${selectClass}`}>
+                <option value="">请选择</option>
+                {categories?.house_type?.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">部位 <span className="text-red-400">*</span></label>
+              <select value={areaId} onChange={e => setAreaId(e.target.value)} className={`w-full ${selectClass}`}>
+                <option value="">请选择</option>
+                {categories?.area?.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">风格 <span className="text-red-400">*</span></label>
+              <select value={styleId} onChange={e => setStyleId(e.target.value)} className={`w-full ${selectClass}`}>
+                <option value="">请选择</option>
+                {categories?.style?.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+              </select>
+            </div>
+          </div>
+
+          {/* 预算 */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">预算下限 (元)</label>
+              <input type="number" value={budgetMin} onChange={e => setBudgetMin(e.target.value)}
+                className={`w-full ${inputClass}`} placeholder="100000" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">预算上限 (元)</label>
+              <input type="number" value={budgetMax} onChange={e => setBudgetMax(e.target.value)}
+                className={`w-full ${inputClass}`} placeholder="150000" />
+            </div>
+          </div>
+
+          {/* 图片上传 */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">作品图片</label>
+            <div className="grid grid-cols-4 gap-2 mb-2">
+              {uploadedImages.map(img => (
+                <div key={img.id} className={`relative aspect-square rounded-lg bg-gray-100 overflow-hidden border-2 ${
+                  coverImage === img.image_url ? 'border-slate-900' : 'border-transparent'
+                }`}>
+                  <img src={img.thumb_url || img.image_url} alt="" className="w-full h-full object-cover"
+                    onClick={() => setCoverImage(img.image_url)} />
+                  <button type="button" onClick={() => removeImage(img.id)}
+                    className="absolute top-0.5 right-0.5 w-5 h-5 bg-black/50 text-white rounded-full text-[10px] flex items-center justify-center">✕</button>
+                  {coverImage === img.image_url && (
+                    <span className="absolute bottom-0 left-0 right-0 bg-slate-900 text-white text-[10px] text-center py-0.5">封面</span>
+                  )}
+                </div>
+              ))}
+              {/* 上传按钮 */}
+              <label className="aspect-square rounded-lg border-2 border-dashed border-gray-300 flex flex-col items-center justify-center cursor-pointer hover:border-gray-400 transition-colors text-gray-400 hover:text-gray-500">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                <span className="text-[10px] mt-1">{uploading ? '上传中...' : '上传图片'}</span>
+                <input type="file" accept="image/jpeg,image/png" multiple onChange={handleUpload}
+                  disabled={uploading} className="hidden" />
+              </label>
+            </div>
+            <p className="text-xs text-gray-400">支持 JPG/PNG，最多 9 张。点击图片设为封面。</p>
+          </div>
+
+          {/* 按钮 */}
+          <div className="flex space-x-3 pt-2 pb-2">
+            <button type="button" onClick={handleClose}
+              className="flex-1 py-2.5 text-sm text-gray-600 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors">
+              取消
+            </button>
+            <button type="submit" disabled={loading}
+              className="flex-1 py-2.5 text-sm text-white bg-slate-900 rounded-xl hover:bg-slate-800 disabled:opacity-50 transition-colors flex items-center justify-center gap-2">
+              {loading ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />创建中...</> : '创建作品'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════
 // 主组件
 // ═══════════════════════════════════
 
@@ -358,6 +612,9 @@ export default function Works() {
   const [batchRejectReason, setBatchRejectReason] = useState('');
   const [batchRejectCustom, setBatchRejectCustom] = useState('');
   const [batchLoading, setBatchLoading] = useState(false);
+
+  // 创建作品
+  const [createModalOpen, setCreateModalOpen] = useState(false);
 
   // ═══ 加载列表 ═══
   const fetchList = useCallback(async (params = {}) => {
@@ -566,6 +823,12 @@ export default function Works() {
             className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
             {STATUS_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
           </select>
+          <button
+            onClick={() => setCreateModalOpen(true)}
+            className="px-4 py-2 bg-slate-900 text-white text-sm font-medium rounded-lg hover:bg-slate-800 transition-colors"
+          >
+            ＋ 创建作品
+          </button>
         </div>
       </div>
 
@@ -762,6 +1025,16 @@ export default function Works() {
           </div>
         </div>
       )}
+
+      {/* ═══ 创建作品弹窗 ═══ */}
+      <CreateModal
+        open={createModalOpen}
+        onClose={() => setCreateModalOpen(false)}
+        onCreated={() => {
+          setCreateModalOpen(false);
+          refresh();
+        }}
+      />
     </div>
   );
 }

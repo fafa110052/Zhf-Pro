@@ -19,9 +19,43 @@ Page({
       const phase = await api.getPhaseDetail(this.data.phaseId);
       if (phase.construction_images) phase.construction_images = phase.construction_images.map(url => fullImageUrl(url));
       if (phase.design_images) phase.design_images = phase.design_images.map(url => fullImageUrl(url));
+      if (phase.order_no) {
+        try {
+          const orderPhases = await api.getOrderPhases(phase.order_no);
+          phase.progress = (orderPhases.list || []).map(p => ({
+            phase_order: p.phase_order,
+            label: (PHASE_TYPE_MAP[p.phase_type] || {}).label || p.phase_type,
+            status: p.status,
+            statusLabel: (PHASE_STATUS_MAP[p.status] || {}).label || p.status,
+            isCurrent: p.id == phase.id,
+            dotClass: p.id == phase.id ? 'active' :
+              (p.status === 'owner_accepted' ? 'done' :
+               p.status && p.status !== 'assigned' ? 'started' : 'pending'),
+            lineClass: p.status === 'owner_accepted' ? 'done' : '',
+          }));
+        } catch (_) { /* 静默 */ }
+      }
       const pageData = { phase, loading: false };
       if (this._readyFired) { this.setData(Object.assign({ ready: true }, pageData)); } else { this._pageData = pageData; }
     } catch (err) { this.setData({ loading: false, error: true, ready: true }); }
+  },
+
+  // 确认设计图
+  async onConfirmDesign() {
+    wx.showModal({
+      title: '确认设计图', content: '确认设计图无误，进入施工阶段？', confirmText: '确认',
+      success: async (res) => {
+        if (!res.confirm) return;
+        this.setData({ acting: true });
+        try {
+          await api.directorConfirmDesign(this.data.phaseId);
+          wx.requestSubscribeMessage({ tmplIds: [], success: () => {}, fail: () => {} });
+          wx.showToast({ title: '已确认', icon: 'success' });
+          setTimeout(() => wx.navigateBack(), 1000);
+        } catch (err) { wx.showToast({ title: err?.message || '失败', icon: 'none' }); }
+        finally { this.setData({ acting: false }); }
+      },
+    });
   },
 
   async onApprove() {

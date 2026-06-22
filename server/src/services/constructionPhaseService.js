@@ -3,7 +3,7 @@
  *
  * 全流程（5 个阶段均需设计师 + 设计总监参与）：
  *   unassigned → assigned → design_uploaded → design_director_approved → design_admin_approved
- *   → owner_design_reviewed → construction_confirmed → construction_uploaded
+ *   → owner_design_reviewed → engineer_design_confirmed → construction_confirmed → construction_uploaded
  *   → engineering_director_approved → construction_admin_approved → owner_accepted
  *
  * 驳回路径见各方法注释
@@ -631,6 +631,10 @@ const constructionPhaseService = {
 
   // ═══════ 工程师确认设计 ═══════
 
+  /**
+   * 工程师确认设计图 → engineer_design_confirmed
+   * 等待工程总监二次确认后进入施工
+   */
   async confirmDesign(userId, phaseId) {
     const phase = await findPhase(phaseId);
     if (phase.engineer_id !== userId) {
@@ -640,12 +644,57 @@ const constructionPhaseService = {
 
     const now = new Date().toISOString();
     await db('construction_phases').where('id', phaseId).update({
+      status: 'engineer_design_confirmed',
+      updated_at: db.fn.now(),
+    });
+
+    await logAction(phaseId, 'engineer_design_confirm', userId, '工程师确认设计图无误，等待工程总监确认');
+
+    // 推送给工程总监
+    const projectLabel = await getProjectLabel(phase.order_id);
+    const directorOpenid = await getUserOpenid(phase.engineering_director_id);
+    await tryPush(directorOpenid, config.subscribeMessage.templates.todoNotify, {
+      thing1: { value: projectLabel },
+      thing2: { value: PHASE_LABELS[phase.phase_type] },
+      thing3: { value: '工程师已确认设计图，请审核确认' },
+      time4: { value: now.slice(0, 10) },
+    }, `pages/engineering-director-review-detail/index?phaseId=${phaseId}`);
+
+    return db('construction_phases').where('id', phaseId).first();
+  },
+
+  // ═══════ 工程总监确认设计 ═══════
+
+  /**
+   * 工程总监确认设计图 → construction_confirmed
+   * 确认后工程师可开始施工
+   */
+  async directorConfirmDesign(userId, phaseId) {
+    const phase = await findPhase(phaseId);
+    if (phase.engineering_director_id !== userId) {
+      throw Object.assign(new Error('您不是该阶段指派的工程总监'), { status: 403 });
+    }
+    requireStatus(phase, 'engineer_design_confirmed');
+
+    const now = new Date().toISOString();
+    await db('construction_phases').where('id', phaseId).update({
       status: 'construction_confirmed',
       construction_confirmed_at: now,
       updated_at: db.fn.now(),
     });
 
-    await logAction(phaseId, 'construction_confirm', userId, '工程师确认设计图，开始施工');
+    await logAction(phaseId, 'director_design_confirm', userId, '工程总监确认设计图，进入施工阶段');
+
+    // 推送给工程师开始施工
+    const projectLabel = await getProjectLabel(phase.order_id);
+    const engineerOpenid = await getUserOpenid(phase.engineer_id);
+    await tryPush(engineerOpenid, config.subscribeMessage.templates.todoNotify, {
+      thing1: { value: projectLabel },
+      thing2: { value: PHASE_LABELS[phase.phase_type] },
+      thing3: { value: '设计已通过总监确认，请开始施工并上传完工图' },
+      time4: { value: now.slice(0, 10) },
+    }, `pages/engineer-task-detail/index?phaseId=${phaseId}`);
+
     return db('construction_phases').where('id', phaseId).first();
   },
 
@@ -952,7 +1001,11 @@ const constructionPhaseService = {
 
   /** 单阶段详情（含日志 + 人员名称） */
   async getPhaseDetail(phaseId) {
-    const phase = await db('construction_phases').where('id', phaseId).first();
+    const phase = await db('construction_phases')
+      .select('construction_phases.*', 'material_orders.order_no', 'material_orders.current_phase_order')
+      .leftJoin('material_orders', 'construction_phases.order_id', 'material_orders.id')
+      .where('construction_phases.id', phaseId)
+      .first();
     if (!phase) {
       throw Object.assign(new Error('施工阶段不存在'), { status: 404 });
     }

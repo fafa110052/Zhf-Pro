@@ -5,6 +5,7 @@
  */
 const api = require('../../utils/api');
 const { ORDER_STATUS_MAP, PHASE_STATUS_MAP, PHASE_TYPE_MAP } = require('../../utils/constants');
+const { fullImageUrl } = require('../../utils/util');
 
 Page({
   data: {
@@ -12,6 +13,15 @@ Page({
     detail: null,
     phases: [],
     activePhase: null,         // 当前活跃阶段
+
+    // 施工进度模块显示控制
+    showConstruction: false,
+
+    // 人员信息（用于设计阶段 / 施工进度展示）
+    designDesigner: null,
+    designDirector: null,
+    constructionEngineer: null,
+    constructionEngineeringDirector: null,
 
     loading: true,
     error: false,
@@ -57,21 +67,71 @@ Page({
       const detail = await api.getMyMaterialOrderDetail(this.data.orderNo);
       let phases = [];
       let activePhase = null;
+      let designPhase = null; // 设计阶段（独立于施工）
 
-      // 尝试加载施工阶段数据
+      // 转换施工阶段中的图片 URL
+      if (detail.construction && detail.construction.phases) {
+        detail.construction.phases = detail.construction.phases.map(p => ({
+          ...p,
+          design_images: (p.design_images || []).map(url => fullImageUrl(url)),
+          construction_images: (p.construction_images || []).map(url => fullImageUrl(url)),
+        }));
+      }
+
+      // 尝试加载施工阶段数据（取 activePhase 用于操作区 + 取 designPhase 用于设计阶段展示）
       try {
         const phaseResult = await api.getOrderPhases(this.data.orderNo);
-        phases = phaseResult.phases || [];
-        // 找到当前需要操作的阶段
+        const rawPhases = phaseResult.phases || [];
+        phases = rawPhases.map(p => ({
+          ...p,
+          design_images: (p.design_images || []).map(url => fullImageUrl(url)),
+          construction_images: (p.construction_images || []).map(url => fullImageUrl(url)),
+        }));
+        // 找到当前需要业主操作的阶段
         activePhase = phases.find(p =>
           p.status === 'design_admin_approved' ||
           p.status === 'construction_admin_approved'
         ) || null;
+        // 找到设计阶段（有设计图或处于设计审核流程中的阶段）
+        designPhase = phases.find(p =>
+          p.design_images && p.design_images.length > 0 &&
+          ['design_uploaded','design_director_approved','design_admin_approved',
+           'design_director_rejected','design_admin_rejected','owner_design_reviewed',
+           'engineer_design_confirmed','owner_design_disputed'].includes(p.status)
+        ) || null;
+        // 如果找到了 activePhase（design_admin_approved），它也就是设计阶段
+        if (!designPhase && activePhase && activePhase.status === 'design_admin_approved') {
+          designPhase = activePhase;
+        }
       } catch (_) {
         // 无施工数据则忽略
       }
 
-      const pageData = { detail, phases, activePhase, loading: false };
+      // 是否已进入施工阶段：设计已由业主确认，或有阶段进入施工状态
+      const constructionStatuses = [
+        'owner_design_reviewed', 'engineer_design_confirmed', 'construction_confirmed', 'construction_uploaded',
+        'engineering_director_approved', 'engineering_director_rejected',
+        'construction_admin_approved', 'construction_admin_rejected',
+        'owner_accepted', 'owner_disputed',
+      ];
+      const showConstruction = (designPhase && constructionStatuses.includes(designPhase.status))
+        || phases.some(p => constructionStatuses.includes(p.status));
+
+      // 人员信息：设计阶段 → 设计师 + 设计总监；施工阶段 → 工程师 + 工程总监
+      const designDesigner = designPhase?.designer || null;
+      const designDirector = designPhase?.design_director || null;
+      const engPhase = phases.find(p => p.engineer) || {};
+      const constructionEngineer = engPhase.engineer || null;
+      const dirPhase = phases.find(p => p.engineering_director) || {};
+      const constructionEngineeringDirector = dirPhase.engineering_director || null;
+
+      const pageData = {
+        detail, phases, activePhase, designPhase,
+        showConstruction,
+        designDesigner, designDirector,
+        constructionEngineer, constructionEngineeringDirector,
+        loading: false,
+      };
       if (this._readyFired) {
         this.setData(Object.assign({ ready: true }, pageData));
       } else {

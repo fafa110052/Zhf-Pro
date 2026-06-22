@@ -207,12 +207,33 @@ Page({
   _handleLoginSuccess(result) {
     app.setLogin(result.user, result.token);
 
+    var personnelType = result.user.personnel_type;
     var role = result.user.role;
-    if (role === 'designer') {
+
+    // 业主优先判断（role 是主身份标识，避免 personnel_type 误设导致业主误入员工流程）
+    if (role === 'owner') {
+      wx.showToast({ title: '业主登录成功', icon: 'success' });
+      setTimeout(function () { wx.switchTab({ url: '/pages/mine/index' }); }, 800);
+    } else if (personnelType === 'designer') {
+      // 设计师：首次登录 → 设计师中心，后续登录 → 我的页面
+      var hasSetup = wx.getStorageSync('designer_has_setup');
       wx.showToast({ title: '设计师登录成功', icon: 'success' });
       setTimeout(function () {
-        wx.redirectTo({ url: '/pages/designer-center/index' });
+        if (hasSetup) {
+          wx.switchTab({ url: '/pages/mine/index' });
+        } else {
+          wx.redirectTo({ url: '/pages/designer-center/index' });
+        }
       }, 800);
+    } else if (personnelType === 'design_director') {
+      wx.showToast({ title: '设计总监登录成功', icon: 'success' });
+      setTimeout(function () { wx.switchTab({ url: '/pages/mine/index' }); }, 800);
+    } else if (personnelType === 'engineer') {
+      wx.showToast({ title: '工程师登录成功', icon: 'success' });
+      setTimeout(function () { wx.switchTab({ url: '/pages/mine/index' }); }, 800);
+    } else if (personnelType === 'engineering_director') {
+      wx.showToast({ title: '工程总监登录成功', icon: 'success' });
+      setTimeout(function () { wx.switchTab({ url: '/pages/mine/index' }); }, 800);
     } else {
       wx.showToast({ title: '登录成功', icon: 'success' });
       setTimeout(function () {

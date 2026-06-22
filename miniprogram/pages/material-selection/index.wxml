@@ -18,7 +18,7 @@
     <!-- 内容 -->
     <block wx:else>
       <view class="property-header">
-        <image wx:if="{{propertyCover}}" class="property-cover-bg" src="{{propertyCover}}" mode="aspectFill"/>
+        <image lazy-load wx:if="{{propertyCover}}" class="property-cover-bg" src="{{propertyCover}}" mode="aspectFill"/>
         <view class="property-header-mask"></view>
         <view class="property-header-content">
           <text class="property-name">{{propertyName}}</text>
@@ -56,7 +56,7 @@
                     <text wx:if="{{m.selected}}" class="radio-dot">●</text>
                   </view>
                 </view>
-                <image wx:if="{{m.image_url}}" class="material-image" src="{{m.image_url}}" mode="aspectFill"/>
+                <image lazy-load wx:if="{{m.image_url}}" class="material-image" src="{{m.image_url}}" mode="aspectFill"/>
                 <view wx:else class="material-image-placeholder"><text>📦</text></view>
                 <view class="material-info">
                   <text class="material-name">{{m.name}}</text>

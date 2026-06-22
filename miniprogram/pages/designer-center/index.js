@@ -31,7 +31,7 @@ Page({
   },
 
   onShow() {
-    // 角色守卫：仅设计师可访问
+    // 角色守卫：员工角色可访问
     if (!app.isDesigner()) {
       wx.showToast({ title: '仅设计师可访问', icon: 'none' });
       setTimeout(function () {
@@ -39,6 +39,9 @@ Page({
       }, 1000);
       return;
     }
+
+    // 标记已访问过设计师中心（用于首次登录引导）
+    wx.setStorageSync('designer_has_setup', true);
 
     this.loadProfile();
     this.loadStats();
@@ -224,13 +227,6 @@ Page({
    */
   onGoWorks() {
     wx.navigateTo({ url: '/pages/work-manage/index' });
-  },
-
-  /**
-   * 快捷入口 — 施工任务
-   */
-  onGoTasks() {
-    wx.navigateTo({ url: '/pages/designer-tasks/index' });
   },
 
   /**

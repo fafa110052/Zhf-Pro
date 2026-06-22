@@ -78,9 +78,26 @@
 .phase-line-pending { background: #e2e8f0; }
 .phase-labels { display: flex; justify-content: space-between; margin-top: 6rpx; }
 .phase-label-text { font-size: 20rpx; color: #94a3b8; }
+.phase-label-current { color: #1e293b; font-weight: 600; }
 .phase-info-card { margin-top: 16rpx; padding: 16rpx; background: #f8fafc; border-radius: 10rpx; }
 .phase-info-title { font-size: 24rpx; font-weight: 600; color: #334155; margin-bottom: 6rpx; }
-.phase-persons { font-size: 22rpx; color: #64748b; line-height: 1.6; }
+.phase-persons { font-size: 22rpx; color: #64748b; line-height: 1.6; display: flex; flex-wrap: wrap; gap: 6rpx; }
+.person-sep-block { color: #cbd5e1; margin: 0 6rpx; }
+.person-none { color: #94a3b8; font-style: italic; }
+.phase-images-mini { display: flex; flex-wrap: wrap; gap: 10rpx; margin: 10rpx 0; }
+.phase-img-mini { width: 120rpx; height: 120rpx; border-radius: 8rpx; border: 1rpx solid #e2e8f0; }
+
+/* 人员信息条 */
+.phase-persons-bar { display: flex; align-items: center; gap: 12rpx; margin-top: 16rpx; padding: 16rpx 20rpx; background: #f8fafc; border-radius: 10rpx; font-size: 24rpx; color: #475569; line-height: 1.5; }
+.person-sep { color: #cbd5e1; }
+
+/* 设计阶段状态 */
+.design-status-row { margin-top: 12rpx; }
+.design-status-tag { display: inline-flex; padding: 8rpx 20rpx; border-radius: 20rpx; font-size: 26rpx; font-weight: 600; }
+.design-status-tag.tag-blue { background: #dbeafe; color: #1e40af; }
+.design-status-tag.tag-green { background: #dcfce7; color: #166534; }
+.design-status-tag.tag-orange { background: #fff7ed; color: #9a3412; }
+.design-status-tag.tag-red { background: #fee2e2; color: #991b1b; }
 
 .bottom-spacer { height: 60rpx; }
 .bottom-spacer-action { height: 160rpx; }

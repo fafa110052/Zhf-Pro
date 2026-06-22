@@ -98,8 +98,8 @@ function designerLoginDev(phone) {
  * 获取当前登录设计师信息
  * @returns {Promise<object>}
  */
-function getDesignerProfile() {
-  return http.get('/auth/designer/me', {}, { auth: true });
+function getDesignerProfile(opts = {}) {
+  return http.get('/auth/designer/me', {}, Object.assign({ auth: true }, opts));
 }
 
 /**
@@ -108,7 +108,8 @@ function getDesignerProfile() {
  */
 async function checkLogin() {
   try {
-    await http.get('/auth/designer/me', {}, { auth: true });
+    // silent: 仅后台校验，不弹 toast，不触发 clearLogin（防止竞态条件清掉刚登录的 token）
+    await http.get('/auth/designer/me', {}, { auth: true, silent: true });
     return true;
   } catch {
     return false;
@@ -185,8 +186,8 @@ function submitWork(id) {
  * 个人数据统计
  * @returns {Promise<{total:int, draft:int, pending:int, approved:int, rejected:int, total_views:int}>}
  */
-function getMyStats() {
-  return http.get('/designer/stats', {}, { auth: true });
+function getMyStats(opts = {}) {
+  return http.get('/designer/stats', {}, Object.assign({ auth: true }, opts));
 }
 
 // ═══════════════════════════════════════════
@@ -329,16 +330,16 @@ function getPhaseDetail(phaseId) {
 }
 
 // 设计师
-function getDesignerPhases() {
-  return http.get('/designer/construction-phases', {}, { auth: true });
+function getDesignerPhases(opts = {}) {
+  return http.get('/designer/construction-phases', {}, Object.assign({ auth: true }, opts));
 }
 function uploadDesignImages(phaseId, images) {
   return http.put(`/construction-phases/${phaseId}/upload-design`, { images }, { auth: true });
 }
 
 // 设计总监
-function getDesignDirectorPhases() {
-  return http.get('/director/design/phases', {}, { auth: true });
+function getDesignDirectorPhases(opts = {}) {
+  return http.get('/director/design/phases', {}, Object.assign({ auth: true }, opts));
 }
 function approveDesignDirector(phaseId) {
   return http.post(`/construction-phases/${phaseId}/approve-design-director`, {}, { auth: true });
@@ -348,8 +349,8 @@ function rejectDesignDirector(phaseId, reason) {
 }
 
 // 工程师
-function getEngineerPhases() {
-  return http.get('/engineer/construction-phases', {}, { auth: true });
+function getEngineerPhases(opts = {}) {
+  return http.get('/engineer/construction-phases', {}, Object.assign({ auth: true }, opts));
 }
 function confirmDesign(phaseId) {
   return http.post(`/construction-phases/${phaseId}/confirm-design`, {}, { auth: true });
@@ -359,14 +360,17 @@ function uploadConstructionImages(phaseId, images) {
 }
 
 // 工程总监
-function getEngineeringDirectorPhases() {
-  return http.get('/director/engineering/phases', {}, { auth: true });
+function getEngineeringDirectorPhases(opts = {}) {
+  return http.get('/director/engineering/phases', {}, Object.assign({ auth: true }, opts));
 }
 function approveEngineeringDirector(phaseId) {
   return http.post(`/construction-phases/${phaseId}/approve-engineering-director`, {}, { auth: true });
 }
 function rejectEngineeringDirector(phaseId, reason) {
   return http.post(`/construction-phases/${phaseId}/reject-engineering-director`, { reason }, { auth: true });
+}
+function directorConfirmDesign(phaseId) {
+  return http.post(`/construction-phases/${phaseId}/director-confirm-design`, {}, { auth: true });
 }
 
 // 业主审核设计图
@@ -435,6 +439,7 @@ module.exports = {
   getEngineeringDirectorPhases,
   approveEngineeringDirector,
   rejectEngineeringDirector,
+  directorConfirmDesign,
   approveOwnerDesign,
   disputeOwnerDesign,
   acceptPhase,

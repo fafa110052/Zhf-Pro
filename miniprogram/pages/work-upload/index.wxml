@@ -25,7 +25,7 @@
             data-index="{{index}}"
             bindtap="onSetCover"
           >
-            <image class="image-thumb" src="{{item.url}}" mode="aspectFill" />
+            <image lazy-load class="image-thumb" src="{{item.url}}" mode="aspectFill" />
             <view
               class="image-remove"
               data-type="server"
@@ -51,7 +51,7 @@
             data-index="{{images.length + index}}"
             bindtap="onSetCover"
           >
-            <image class="image-thumb" src="{{item}}" mode="aspectFill" />
+            <image lazy-load class="image-thumb" src="{{item}}" mode="aspectFill" />
             <view
               class="image-remove"
               data-type="local"

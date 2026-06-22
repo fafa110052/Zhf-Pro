@@ -4,17 +4,23 @@
 <block wx:elif="{{phase}}"><view class="status-header">
 <view class="status-tag {{PHASE_STATUS_MAP[phase.status].colorClass}}"><text>{{PHASE_STATUS_MAP[phase.status].label}}</text></view>
 <text class="order-no">阶段{{phase.phase_order}} · {{PHASE_TYPE_MAP[phase.phase_type].label}}</text></view>
+<view wx:if="{{phase.progress && phase.progress.length > 0}}" class="progress-section"><view class="section-title"><text>项目进度</text></view><view class="progress-bar"><block wx:for="{{phase.progress}}" wx:key="phase_order"><view class="progress-step"><view class="progress-dot {{item.dotClass}}"><view wx:if="{{item.isCurrent}}" class="progress-dot-inner"></view></view><text class="progress-label {{item.isCurrent ? 'active' : ''}}">{{item.label}}</text><text class="progress-status-text">{{item.statusLabel}}</text></view><view wx:if="{{index < phase.progress.length - 1}}" class="progress-line {{item.lineClass}}"></view></block></view></view>
 <view wx:if="{{phase.construction_images && phase.construction_images.length > 0}}" class="section">
 <view class="section-title"><text>完工图（{{phase.construction_images.length}}张）</text></view>
-<view class="image-grid"><image wx:for="{{phase.construction_images}}" wx:key="index" src="{{item}}" mode="aspectFill" class="image-thumb" bindtap="onPreview" data-url="{{item}}"/></view></view>
+<view class="image-grid"><image lazy-load wx:for="{{phase.construction_images}}" wx:key="index" src="{{item}}" mode="aspectFill" class="image-thumb" bindtap="onPreview" data-url="{{item}}"/></view></view>
 <view wx:if="{{phase.design_images && phase.design_images.length > 0}}" class="section">
 <view class="section-title"><text>设计图（{{phase.design_images.length}}张）</text></view>
-<view class="image-grid"><image wx:for="{{phase.design_images}}" wx:key="index" src="{{item}}" mode="aspectFill" class="image-thumb-small" bindtap="onPreview" data-url="{{item}}"/></view></view>
+<view class="image-grid"><image lazy-load wx:for="{{phase.design_images}}" wx:key="index" src="{{item}}" mode="aspectFill" class="image-thumb" bindtap="onPreview" data-url="{{item}}"/></view></view>
 <view class="section"><view class="section-title"><text>项目信息</text></view>
 <view wx:if="{{phase.engineer}}" class="info-row"><text class="info-label">工程师</text><text class="info-value">{{phase.engineer.name}}</text></view>
 <view wx:if="{{phase.designer}}" class="info-row"><text class="info-label">设计师</text><text class="info-value">{{phase.designer.name}}</text></view></view>
 <view class="bottom-spacer"></view></block></block>
-<view wx:if="{{ready && phase && phase.status === 'construction_uploaded'}}" class="action-bar">
+<view wx:if="{{ready && phase && phase.status === 'engineer_design_confirmed'}}" class="action-bar">
+    <button class="action-btn accept-btn" bindtap="onConfirmDesign" loading="{{acting}}" disabled="{{acting}}">
+      ✅ 确认设计图，进入施工
+    </button>
+  </view>
+  <view wx:if="{{ready && phase && phase.status === 'construction_uploaded'}}" class="action-bar">
 <button class="action-btn dispute-btn" bindtap="onOpenReject" disabled="{{acting}}">❌ 驳回</button>
 <button class="action-btn accept-btn" bindtap="onApprove" loading="{{acting}}" disabled="{{acting}}">✅ 通过</button></view>
 <view wx:if="{{rejectOpen}}" class="modal-mask" bindtap="onCloseReject"></view>

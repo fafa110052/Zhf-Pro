@@ -104,8 +104,9 @@ router.get('/designer/construction-phases', authenticate, requirePersonnelType('
       .where('construction_phases.designer_id', req.user.id)
       .whereIn('construction_phases.status', ['assigned', 'design_uploaded', 'design_director_rejected',
         'design_director_approved', 'design_admin_approved', 'design_admin_rejected',
-        'construction_confirmed', 'construction_uploaded', 'engineering_director_approved',
-        'engineering_director_rejected', 'construction_admin_approved', 'construction_admin_rejected',
+        'engineer_design_confirmed', 'construction_confirmed', 'construction_uploaded',
+        'engineering_director_approved', 'engineering_director_rejected',
+        'construction_admin_approved', 'construction_admin_rejected',
         'owner_accepted', 'owner_disputed'])
       .orderBy('construction_phases.updated_at', 'desc');
 
@@ -136,7 +137,8 @@ router.get('/director/design/phases', authenticate, requirePersonnelType('design
       .leftJoin('properties', 'material_orders.property_id', 'properties.id')
       .where('construction_phases.design_director_id', req.user.id)
       .whereIn('construction_phases.status', ['design_uploaded', 'design_director_approved', 'design_director_rejected',
-        'design_admin_approved', 'design_admin_rejected', 'construction_confirmed', 'construction_uploaded',
+        'design_admin_approved', 'design_admin_rejected', 'engineer_design_confirmed',
+        'construction_confirmed', 'construction_uploaded',
         'engineering_director_approved', 'engineering_director_rejected', 'construction_admin_approved',
         'construction_admin_rejected', 'owner_accepted', 'owner_disputed'])
       .orderBy('construction_phases.updated_at', 'desc');
@@ -176,7 +178,7 @@ router.get('/engineer/construction-phases', authenticate, requirePersonnelType('
       .leftJoin('properties', 'material_orders.property_id', 'properties.id')
       .where('construction_phases.engineer_id', req.user.id)
       .whereIn('construction_phases.status', ['design_admin_approved', 'owner_design_reviewed',
-        'owner_design_disputed', 'construction_confirmed',
+        'owner_design_disputed', 'engineer_design_confirmed', 'construction_confirmed',
         'construction_uploaded', 'engineering_director_approved', 'engineering_director_rejected',
         'construction_admin_approved', 'construction_admin_rejected', 'owner_accepted', 'owner_disputed'])
       .orderBy('construction_phases.updated_at', 'desc');
@@ -215,12 +217,21 @@ router.get('/director/engineering/phases', authenticate, requirePersonnelType('e
       .leftJoin('material_orders', 'construction_phases.order_id', 'material_orders.id')
       .leftJoin('properties', 'material_orders.property_id', 'properties.id')
       .where('construction_phases.engineering_director_id', req.user.id)
-      .whereIn('construction_phases.status', ['construction_uploaded', 'engineering_director_approved',
-        'engineering_director_rejected', 'construction_admin_approved', 'construction_admin_rejected',
+      .whereIn('construction_phases.status', ['engineer_design_confirmed', 'construction_uploaded',
+        'engineering_director_approved', 'engineering_director_rejected',
+        'construction_admin_approved', 'construction_admin_rejected',
         'owner_accepted', 'owner_disputed'])
       .orderBy('construction_phases.updated_at', 'desc');
 
     res.json({ success: true, data: { list: phases } });
+  } catch (err) { next(err); }
+});
+
+/** POST /api/v1/construction-phases/:phaseId/director-confirm-design */
+router.post('/construction-phases/:phaseId/director-confirm-design', authenticate, async (req, res, next) => {
+  try {
+    const result = await svc.directorConfirmDesign(req.user.id, Number(req.params.phaseId));
+    res.json({ success: true, data: result });
   } catch (err) { next(err); }
 });
 

@@ -201,18 +201,6 @@
   border: 2rpx solid var(--border-color);
 }
 
-.action-accent {
-  background: linear-gradient(135deg, #f59e0b, #d97706);
-}
-
-.action-accent .action-label {
-  color: #fff;
-}
-
-.action-accent .action-desc {
-  color: rgba(255,255,255,0.7);
-}
-
 .action-icon {
   font-size: 40rpx;
   margin-bottom: 10rpx;

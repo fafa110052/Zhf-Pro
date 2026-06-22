@@ -21,7 +21,7 @@ const { BASE_URL, API_PREFIX, REQUEST_TIMEOUT } = require('./constants');
  * @param {boolean} options.loading — 是否显示 loading，默认 false
  * @returns {Promise<any>}           — 返回 response.data（已取 data 字段）
  */
-function request({ url, method = 'GET', data = {}, auth = false, loading = false }) {
+function request({ url, method = 'GET', data = {}, auth = false, loading = false, silent = false }) {
   return new Promise((resolve, reject) => {
     if (loading) {
       wx.showLoading({ title: '加载中...', mask: true });
@@ -57,7 +57,7 @@ function request({ url, method = 'GET', data = {}, auth = false, loading = false
         } else {
           // 业务错误
           const errMsg = res.data?.error?.message || res.data?.message || '请求失败';
-          handleError(res.statusCode, errMsg, reject);
+          handleError(res.statusCode, errMsg, reject, silent);
         }
       },
       fail(err) {
@@ -80,23 +80,25 @@ function request({ url, method = 'GET', data = {}, auth = false, loading = false
 /**
  * 统一错误处理
  */
-function handleError(statusCode, message, reject) {
-  switch (statusCode) {
-    case 401:
-      // token 过期 → 清除登录态并跳转
-      const app = getApp();
-      app.clearLogin();
-      wx.showToast({ title: '登录已过期，请重新登录', icon: 'none', duration: 2000 });
-      break;
-    case 403:
-      wx.showToast({ title: message || '无权限操作', icon: 'none', duration: 2000 });
-      break;
-    case 404:
-      wx.showToast({ title: message || '数据不存在', icon: 'none', duration: 2000 });
-      break;
-    default:
-      wx.showToast({ title: message || '操作失败', icon: 'none', duration: 2000 });
-      break;
+function handleError(statusCode, message, reject, silent) {
+  if (!silent) {
+    switch (statusCode) {
+      case 401:
+        // token 过期 → 清除登录态并跳转
+        const app = getApp();
+        app.clearLogin();
+        wx.showToast({ title: '登录已过期，请重新登录', icon: 'none', duration: 2000 });
+        break;
+      case 403:
+        wx.showToast({ title: message || '无权限操作', icon: 'none', duration: 2000 });
+        break;
+      case 404:
+        wx.showToast({ title: message || '数据不存在', icon: 'none', duration: 2000 });
+        break;
+      default:
+        wx.showToast({ title: message || '操作失败', icon: 'none', duration: 2000 });
+        break;
+    }
   }
   reject(new Error(message));
 }

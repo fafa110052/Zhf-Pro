@@ -14,7 +14,7 @@ App({
     token: null,           // JWT token
     role: null,            // guest | designer | admin
     // baseUrl: 'http://localhost:3000',  // 本地模拟器
-    baseUrl: 'http://192.168.1.5:3000',  // 真机测试
+    baseUrl: 'http://192.168.1.8:3000',  // 真机测试（与 constants.js 保持一致）
     isOnline: true,       // 网络状态
   },
 
@@ -38,8 +38,11 @@ App({
       this.globalData.role = userInfo.role || null;
 
       // 异步校验 token 有效性
+      // 记录发起校验时的 token，防止竞态条件：用户重新登录后旧校验结果清掉新登录态
+      var tokenAtCheck = token;
       checkLogin().then(function (valid) {
-        if (!valid) {
+        // 仅当 token 未被替换时才清理（用户可能已重新登录）
+        if (!valid && this.globalData.token === tokenAtCheck) {
           this.clearLogin();
         }
       }.bind(this)).catch(function () {

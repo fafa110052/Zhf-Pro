@@ -307,6 +307,7 @@ export default function MaterialOrders() {
     unassigned: '未派单', assigned: '已派单', design_uploaded: '待审设计', design_director_approved: '待二审设计',
     design_director_rejected: '设计已驳回', design_admin_approved: '待业主审设计', design_admin_rejected: '设计二审驳回',
     owner_design_reviewed: '待施工', owner_design_disputed: '业主已驳回设计',
+    engineer_design_confirmed: '待总监确认设计',
     construction_confirmed: '施工中', construction_uploaded: '待审完工', engineering_director_approved: '待二审完工',
     engineering_director_rejected: '完工已驳回', construction_admin_approved: '待验收', construction_admin_rejected: '完工二审驳回',
     owner_accepted: '已验收', owner_disputed: '业主已驳回', locked: '未解锁',
@@ -319,6 +320,7 @@ export default function MaterialOrders() {
     if (status.includes('rejected') || status === 'owner_disputed') return 'bg-red-100 text-red-700';
     if (status === 'owner_design_reviewed') return 'bg-green-100 text-green-700';
     if (status === 'owner_design_disputed') return 'bg-orange-100 text-orange-700';
+    if (status === 'engineer_design_confirmed') return 'bg-blue-100 text-blue-700';
     if (status.includes('approved') || status === 'construction_confirmed') return 'bg-green-100 text-green-700';
     if (status.includes('uploaded') || status === 'assigned') return 'bg-blue-100 text-blue-700';
     return 'bg-gray-100 text-gray-500';
@@ -448,7 +450,11 @@ export default function MaterialOrders() {
                       <td className="px-4 py-3 text-center text-xs text-gray-500">
                         {o.construction_status === 'completed' ? (<span className="text-emerald-600 font-medium">已竣工</span>) :
                          o.construction_status === 'in_progress' ? (<span className="text-blue-600 font-medium">{o.current_phase_order}/5 施工中</span>) :
-                         o.construction_status === 'design_phase' ? (<span className="text-purple-600 font-medium">设计阶段</span>) :
+                         o.construction_status === 'design_phase' ? (
+                           o.phase1_status === 'owner_design_reviewed'
+                             ? (<span className="text-emerald-600 font-medium">待施工</span>)
+                             : (<span className="text-purple-600 font-medium">设计阶段</span>)
+                         ) :
                          (<span className="text-gray-400">—</span>)}
                       </td>
                       <td className="px-4 py-3 text-gray-400 text-xs">{o.created_at?.slice(0, 10)}</td>
@@ -615,7 +621,7 @@ export default function MaterialOrders() {
                 <div style={{display: activeTab === 'design' ? 'block' : 'none'}}>
                   {detail.construction?.phases?.length > 0 ? (() => {
                     const dp = detail.construction.phases[0];
-                    const afterConstruction = ['construction_confirmed','construction_uploaded','engineering_director_approved','engineering_director_rejected','construction_admin_approved','construction_admin_rejected','owner_accepted','owner_disputed'];
+                    const afterConstruction = ['engineer_design_confirmed','construction_confirmed','construction_uploaded','engineering_director_approved','engineering_director_rejected','construction_admin_approved','construction_admin_rejected','owner_accepted','owner_disputed'];
                     const designDone = dp.status === 'owner_design_reviewed' || afterConstruction.includes(dp.status);
 
                     // 状态 → 下一步待处理步骤（1-5 = 哪个步骤在等待操作，5 = 全部完成）

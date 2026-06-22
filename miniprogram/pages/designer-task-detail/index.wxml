@@ -17,6 +17,23 @@
         <text class="order-no">阶段{{phase.phase_order}} · {{PHASE_TYPE_MAP[phase.phase_type].label}}</text>
       </view>
 
+      <!-- 项目进度 -->
+      <view wx:if="{{phase.progress && phase.progress.length > 0}}" class="progress-section">
+        <view class="section-title"><text>项目进度</text></view>
+        <view class="progress-bar">
+          <block wx:for="{{phase.progress}}" wx:key="phase_order">
+            <view class="progress-step">
+              <view class="progress-dot {{item.dotClass}}">
+                <view wx:if="{{item.isCurrent}}" class="progress-dot-inner"></view>
+              </view>
+              <text class="progress-label {{item.isCurrent ? 'active' : ''}}">{{item.label}}</text>
+              <text class="progress-status-text">{{item.statusLabel}}</text>
+            </view>
+            <view wx:if="{{index < phase.progress.length - 1}}" class="progress-line {{item.lineClass}}"></view>
+          </block>
+        </view>
+      </view>
+
       <!-- 驳回原因 -->
       <view wx:if="{{phase.design_director_reject_reason}}" class="reject-box">
         <text class="reject-label">设计总监驳回原因</text>
@@ -27,13 +44,14 @@
       <view wx:if="{{phase.design_images && phase.design_images.length > 0}}" class="section">
         <view class="section-title"><text>已上传设计图（{{phase.design_images.length}}张）</text></view>
         <view class="image-grid">
-          <image wx:for="{{phase.design_images}}" wx:key="index" src="{{item}}" mode="aspectFill"
-            class="image-thumb" bindtap="onPreview" data-url="{{item}}" />
+          <view wx:for="{{phase.design_images}}" wx:key="index" class="image-item">
+            <image lazy-load src="{{item}}" mode="aspectFill" class="image-thumb" bindtap="onPreview" data-url="{{item}}" />
+          </view>
         </view>
       </view>
 
       <!-- 审核结果 -->
-      <view wx:if="{{phase.status === 'design_director_approved' || phase.status === 'design_admin_approved' || phase.status === 'construction_confirmed' || phase.status === 'owner_accepted'}}" class="section">
+      <view wx:if="{{phase.status === 'design_director_approved' || phase.status === 'design_admin_approved' || phase.status === 'engineer_design_confirmed' || phase.status === 'construction_confirmed' || phase.status === 'owner_accepted'}}" class="section">
         <view class="section-title"><text>审核状态</text></view>
         <view class="info-row"><text class="info-label">当前状态</text><text class="info-value">{{PHASE_STATUS_MAP[phase.status].label}}</text></view>
       </view>
@@ -45,7 +63,7 @@
         <view wx:if="{{selectedImages.length > 0}}" class="image-grid">
           <block wx:for="{{selectedImages}}" wx:key="path">
             <view class="image-item">
-              <image src="{{item}}" mode="aspectFill" class="image-thumb" />
+              <image lazy-load src="{{item}}" mode="aspectFill" class="image-thumb" />
               <view class="image-remove" bindtap="onRemoveImage" data-index="{{index}}">✕</view>
             </view>
           </block>

@@ -60,45 +60,69 @@
         <view wx:if="{{detail.supervisor}}" class="info-row"><text class="info-label">监理</text><text class="info-value">{{detail.supervisor.name}}  {{detail.supervisor.phone}}</text></view>
       </view>
 
-      <!-- V1.3 施工进度 -->
-      <view wx:if="{{detail.construction && detail.construction.phases && detail.construction.phases.length > 0}}" class="section">
-        <view class="section-title"><text>施工进度</text></view>
-        <view class="phase-progress">
-          <block wx:for="{{detail.construction.phases}}" wx:key="phase_order">
-            <view class="phase-dot {{item.status === 'owner_accepted' ? 'phase-dot-done' : item.status === 'locked' ? 'phase-dot-locked' : 'phase-dot-active'}}">{{item.phase_order}}</view>
-            <view wx:if="{{index < 4}}" class="phase-line {{item.status === 'owner_accepted' ? 'phase-line-done' : 'phase-line-pending'}}"></view>
-          </block>
-        </view>
-        <view class="phase-labels">
-          <text wx:for="{{detail.construction.phases}}" wx:key="phase_order" class="phase-label-text">{{item.phase_type === 'demolition' ? '打拆' : item.phase_type === 'water_electric' ? '水电' : item.phase_type === 'painting' ? '油工' : item.phase_type === 'material_install' ? '主材' : '竣工'}}</text>
-        </view>
-        <!-- 当前阶段信息 -->
-        <block wx:for="{{detail.construction.phases}}" wx:key="phase_order">
-          <view wx:if="{{item.status !== 'locked'}}" class="phase-info-card">
-            <view class="phase-info-title">{{item.phase_type === 'demolition' ? '打拆' : item.phase_type === 'water_electric' ? '水电' : item.phase_type === 'painting' ? '油工' : item.phase_type === 'material_install' ? '主材安装' : '竣工'}} · {{item.status === 'owner_accepted' ? '已完成' : item.status === 'assigned' ? '待派单' : item.status === 'design_admin_approved' ? '待施工' : item.status === 'construction_admin_approved' ? '待验收' : item.status.includes('rejected') || item.status === 'owner_disputed' ? '已驳回' : '进行中'}}</view>
-            <view wx:if="{{item.designer || item.design_director || item.engineer || item.engineering_director}}" class="phase-persons">
-              <text wx:if="{{item.designer}}">设计师：{{item.designer.name}}  </text>
-              <text wx:if="{{item.design_director}}">设计总监：{{item.design_director.name}}  </text>
-              <text wx:if="{{item.engineer}}">工程师：{{item.engineer.name}}  </text>
-              <text wx:if="{{item.engineering_director}}">工程总监：{{item.engineering_director.name}}</text>
-            </view>
+      <!-- 🎨 设计阶段（整屋设计，独立于施工） -->
+      <view wx:if="{{designPhase}}" class="section">
+        <view class="section-title"><text>🎨 设计阶段</text></view>
+        <view class="design-status-row">
+          <view class="design-status-tag {{designPhase.status === 'design_admin_approved' ? 'tag-blue' : designPhase.status === 'engineer_design_confirmed' ? 'tag-blue' : designPhase.status.includes('rejected') || designPhase.status === 'owner_design_disputed' ? 'tag-red' : designPhase.status === 'owner_design_reviewed' ? 'tag-green' : 'tag-orange'}}">
+            <text>{{designPhase.status === 'design_uploaded' ? '待设计总监审核' : designPhase.status === 'design_director_approved' ? '待管理员审核' : designPhase.status === 'design_admin_approved' ? '待业主审核' : designPhase.status === 'design_director_rejected' ? '设计总监已驳回' : designPhase.status === 'design_admin_rejected' ? '管理员已驳回' : designPhase.status === 'owner_design_reviewed' ? '设计已确认' : designPhase.status === 'owner_design_disputed' ? '业主已驳回' : PHASE_STATUS_MAP[designPhase.status].label}}</text>
           </view>
-        </block>
-      </view>
-
-      <!-- 🔍 审核设计图（业主） -->
-      <view wx:if="{{activePhase && activePhase.status === 'design_admin_approved'}}" class="section">
-        <view class="section-title"><text>🔍 审核设计图</text></view>
-        <view wx:if="{{activePhase.design_images && activePhase.design_images.length > 0}}" class="image-grid">
-          <image wx:for="{{activePhase.design_images}}" wx:key="*this"
-            class="image-thumb" src="{{item}}" mode="aspectFill"
-            data-url="{{item}}" bindtap="onPreviewDesignImage" />
         </view>
-        <view wx:else class="empty-hint"><text>暂无设计图</text></view>
-        <view class="action-row">
+        <!-- 设计人员 -->
+        <view class="phase-persons-bar">
+          <text>设计师：{{designDesigner ? designDesigner.name : '暂无分配'}}</text>
+          <text class="person-sep">|</text>
+          <text>设计总监：{{designDirector ? designDirector.name : '暂无分配'}}</text>
+        </view>
+        <!-- 设计图 -->
+        <view wx:if="{{designPhase.design_images && designPhase.design_images.length > 0}}" class="image-grid" style="margin-top:20rpx;">
+          <view wx:for="{{designPhase.design_images}}" wx:key="*this" class="image-item">
+            <image lazy-load class="image-thumb" src="{{item}}" mode="aspectFill"
+              data-url="{{item}}" bindtap="onPreviewDesignImage" />
+          </view>
+        </view>
+        <!-- 业主操作：通过/驳回设计 -->
+        <view wx:if="{{designPhase.status === 'design_admin_approved'}}" class="action-row">
           <button class="btn-dispute" bindtap="onOpenDesignReject" disabled="{{designActing}}">驳回设计</button>
           <button class="btn-accept" bindtap="onApproveDesign" disabled="{{designActing}}" loading="{{designActing}}">通过设计</button>
         </view>
+      </view>
+
+      <!-- 🔨 施工进度（5阶段）— 仅进入施工阶段后显示 -->
+      <view wx:if="{{showConstruction}}" class="section">
+        <view class="section-title"><text>🔨 施工进度</text></view>
+        <view class="phase-progress">
+          <block wx:for="{{detail.construction.phases}}" wx:key="phase_order">
+            <view class="phase-dot {{item.status === 'owner_accepted' ? 'phase-dot-done' : item.phase_order < detail.current_phase_order ? 'phase-dot-done' : item.phase_order === detail.current_phase_order ? 'phase-dot-active' : 'phase-dot-locked'}}">{{item.phase_order}}</view>
+            <view wx:if="{{index < 4}}" class="phase-line {{item.status === 'owner_accepted' || item.phase_order < detail.current_phase_order ? 'phase-line-done' : 'phase-line-pending'}}"></view>
+          </block>
+        </view>
+        <view class="phase-labels">
+          <text wx:for="{{detail.construction.phases}}" wx:key="phase_order" class="phase-label-text {{item.phase_order === detail.current_phase_order ? 'phase-label-current' : ''}}">{{item.phase_type === 'demolition' ? '打拆' : item.phase_type === 'water_electric' ? '水电' : item.phase_type === 'painting' ? '油工' : item.phase_type === 'material_install' ? '主材' : '竣工'}}</text>
+        </view>
+        <!-- 施工人员 -->
+        <view class="phase-persons-bar">
+          <text>工程师：{{constructionEngineer ? constructionEngineer.name : '暂无分配'}}</text>
+          <text class="person-sep">|</text>
+          <text>工程总监：{{constructionEngineeringDirector ? constructionEngineeringDirector.name : '暂无分配'}}</text>
+        </view>
+        <!-- 各阶段详情 -->
+        <block wx:for="{{detail.construction.phases}}" wx:key="phase_order">
+          <view wx:if="{{item.status !== 'assigned' && item.phase_order <= detail.current_phase_order}}" class="phase-info-card">
+            <view class="phase-info-title">{{item.phase_type === 'demolition' ? '打拆' : item.phase_type === 'water_electric' ? '水电' : item.phase_type === 'painting' ? '油工' : item.phase_type === 'material_install' ? '主材安装' : '竣工'}} · {{item.status === 'owner_accepted' ? '已完成' : item.status === 'construction_admin_approved' ? '待验收' : item.status.includes('rejected') || item.status === 'owner_disputed' ? '已驳回' : '进行中'}}</view>
+            <view wx:if="{{item.construction_images && item.construction_images.length > 0}}" class="phase-images-mini">
+              <image lazy-load wx:for="{{item.construction_images}}" wx:for-item="img" wx:key="*this"
+                class="phase-img-mini" src="{{img}}" mode="aspectFill"
+                data-url="{{img}}" bindtap="onPreviewImage" />
+            </view>
+            <view class="phase-persons">
+              <text wx:if="{{item.engineer}}">工程师：{{item.engineer.name}}</text>
+              <text wx:if="{{item.engineering_director}}" class="person-sep-block">|</text>
+              <text wx:if="{{item.engineering_director}}">工程总监：{{item.engineering_director.name}}</text>
+              <text wx:if="{{!item.engineer && !item.engineering_director}}" class="person-none">暂无分配 · 待派单</text>
+            </view>
+          </view>
+        </block>
       </view>
 
       <!-- 设计驳回弹窗 -->
@@ -108,7 +132,7 @@
           <textarea value="{{designRejectReason}}" placeholder="请填写驳回原因（必填）" maxlength="500"
             bindinput="onDesignReasonInput" class="reject-textarea" />
           <view class="modal-image-row">
-            <image wx:for="{{designRejectImages}}" wx:key="*this" class="modal-thumb" src="{{item}}" mode="aspectFill"
+            <image lazy-load wx:for="{{designRejectImages}}" wx:key="*this" class="modal-thumb" src="{{item}}" mode="aspectFill"
               data-index="{{index}}" bindtap="onDesignRemoveImage" />
             <view wx:if="{{designRejectImages.length < 9}}" class="modal-add-btn" bindtap="onDesignChooseImages">
               <text>+</text>
@@ -125,9 +149,10 @@
       <view wx:if="{{activePhase && activePhase.status === 'construction_admin_approved'}}" class="section">
         <view class="section-title"><text>✅ 验收</text></view>
         <view wx:if="{{activePhase.construction_images && activePhase.construction_images.length > 0}}" class="image-grid">
-          <image wx:for="{{activePhase.construction_images}}" wx:key="*this"
-            class="image-thumb" src="{{item}}" mode="aspectFill"
-            data-url="{{item}}" bindtap="onPreviewImage" />
+          <view wx:for="{{activePhase.construction_images}}" wx:key="*this" class="image-item">
+            <image lazy-load class="image-thumb" src="{{item}}" mode="aspectFill"
+              data-url="{{item}}" bindtap="onPreviewImage" />
+          </view>
         </view>
         <view wx:else class="empty-hint"><text>暂无完工图</text></view>
         <view class="action-row">
@@ -143,7 +168,7 @@
           <textarea value="{{disputeReason}}" placeholder="请描述问题（必填）" maxlength="500"
             bindinput="onDisputeReasonInput" class="reject-textarea" />
           <view class="modal-image-row">
-            <image wx:for="{{disputeImages}}" wx:key="*this" class="modal-thumb" src="{{item}}" mode="aspectFill"
+            <image lazy-load wx:for="{{disputeImages}}" wx:key="*this" class="modal-thumb" src="{{item}}" mode="aspectFill"
               data-index="{{index}}" bindtap="onDisputeRemoveImage" />
             <view wx:if="{{disputeImages.length < 9}}" class="modal-add-btn" bindtap="onDisputeChooseImages">
               <text>+</text>

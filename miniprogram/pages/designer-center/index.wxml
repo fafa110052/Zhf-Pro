@@ -64,11 +64,6 @@
       <text class="action-label">管理作品</text>
       <text class="action-desc">{{stats.total}} 个作品</text>
     </view>
-    <view class="action-card action-accent" bindtap="onGoTasks">
-      <text class="action-icon">🔨</text>
-      <text class="action-label">施工任务</text>
-      <text class="action-desc">待处理工单</text>
-    </view>
   </view>
 
   <!-- ═══ 查看模式 ═══ -->
