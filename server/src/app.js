@@ -39,6 +39,28 @@ if (fs.existsSync(adminDist)) {
   app.use(express.static(adminDist));
 }
 
+// ═══ 占位图生成（picsum.photos 国内被墙，用本地 SVG 替代）═══
+app.get('/api/v1/placeholder/:seed/:width/:height', (req, res) => {
+  const w = parseInt(req.params.width) || 600;
+  const h = parseInt(req.params.height) || 400;
+  const seed = parseInt(req.params.seed) || 1;
+  // 用 seed 决定色相，让不同图片有不同颜色
+  const hue = (seed * 47) % 360;
+  const hue2 = (hue + 30) % 360;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}">
+  <defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" style="stop-color:hsl(${hue},45%,55%)"/>
+    <stop offset="100%" style="stop-color:hsl(${hue2},40%,45%)"/>
+  </linearGradient></defs>
+  <rect width="${w}" height="${h}" fill="url(#g)"/>
+  <text x="50%" y="50%" text-anchor="middle" dy=".3em" fill="rgba(255,255,255,0.7)"
+        font-family="Arial,sans-serif" font-size="${Math.min(w,h)*0.08}px">${w}×${h}</text>
+</svg>`;
+  res.setHeader('Content-Type', 'image/svg+xml');
+  res.setHeader('Cache-Control', 'public, max-age=86400');
+  res.send(svg);
+});
+
 // ═══ 健康检查 ═══
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
