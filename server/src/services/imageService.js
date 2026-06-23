@@ -17,7 +17,9 @@ const imageService = {
     let query = db('image_library')
       .select(
         'image_library.*',
-        db.raw("COALESCE(designers.name, '系统') as uploader_name")
+        db.raw("COALESCE(designers.name, '系统') as uploader_name"),
+        // 实时引用计数（case_images 表中引用该图片的作品数）
+        db.raw("(SELECT COUNT(*) FROM case_images WHERE case_images.library_image_id = image_library.id) as reference_count")
       )
       .leftJoin('designers', 'image_library.uploaded_by', 'designers.id');
 
