@@ -41,12 +41,26 @@ router.get('/admin/images/:id', authenticate, requireRole('admin'), async (req, 
 
 /**
  * DELETE /api/v1/admin/images/:id
- * 删除图片（有作品引用时返回 409）
+ * 删除图片（有引用时需 ?force=true 强制删除，自动处理关联作品）
  */
 router.delete('/admin/images/:id', authenticate, requireRole('admin'), async (req, res, next) => {
   try {
-    await imageService.remove(Number(req.params.id));
+    const force = req.query.force === 'true';
+    await imageService.remove(Number(req.params.id), force);
     res.json({ success: true, message: '删除成功' });
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * GET /api/v1/admin/images/:id/references
+ * 查询该图片被哪些作品引用，返回每个作品是否会被连带删除
+ */
+router.get('/admin/images/:id/references', authenticate, requireRole('admin'), async (req, res, next) => {
+  try {
+    const result = await imageService.getReferences(Number(req.params.id));
+    res.json({ success: true, data: result });
   } catch (err) {
     next(err);
   }

@@ -68,24 +68,55 @@ const imageService = {
   },
 
   // ==========================================
-  // 删除图片（引用保护）
+  // 删除图片（引用保护 → force=true 时级联处理）
   // ==========================================
-  async remove(id) {
+  async remove(id, force = false) {
     const image = await db('image_library').where('id', id).first();
     if (!image) {
       throw Object.assign(new Error('图片不存在'), { status: 404 });
     }
 
-    // 检查是否被作品引用
-    const [{ count }] = await db('case_images')
+    // 检查引用
+    const refs = await db('case_images')
       .where('library_image_id', id)
-      .count('* as count');
+      .select('case_id');
 
-    if (count > 0) {
-      throw Object.assign(
-        new Error(`该图片被 ${count} 个作品引用，请先从作品中移除此图片后再删除`),
-        { status: 409 }
-      );
+    if (refs.length > 0) {
+      if (!force) {
+        throw Object.assign(
+          new Error(`该图片被 ${refs.length} 个作品引用，请先从作品中移除此图片后再删除`),
+          { status: 409 }
+        );
+      }
+
+      // 强制删除：逐个处理引用该图片的作品
+      for (const ref of refs) {
+        // 删除该图片在作品中的关联记录
+        await db('case_images').where({ case_id: ref.case_id, library_image_id: id }).del();
+
+        // 检查作品是否以该图片为封面
+        const work = await db('cases').where('id', ref.case_id).first();
+        if (work && work.cover_image === image.image_url) {
+          // 找下一张可用图片作为封面
+          const nextImage = await db('case_images')
+            .where('case_id', ref.case_id)
+            .orderBy('sort_order', 'asc')
+            .first();
+          if (nextImage) {
+            await db('cases').where('id', ref.case_id).update({ cover_image: nextImage.image_url });
+          }
+        }
+
+        // 检查作品是否还有其他图片
+        const [{ remaining }] = await db('case_images')
+          .where('case_id', ref.case_id)
+          .count('* as remaining');
+
+        if (remaining === 0) {
+          // 作品没有图片了 → 删除作品
+          await db('cases').where('id', ref.case_id).del();
+        }
+      }
     }
 
     // 删除物理文件
@@ -103,6 +134,52 @@ const imageService = {
 
     // 删除数据库记录
     await db('image_library').where('id', id).del();
+  },
+
+  // ==========================================
+  // 查询图片被哪些作品引用
+  // ==========================================
+  async getReferences(id) {
+    const image = await db('image_library').where('id', id).first();
+    if (!image) {
+      throw Object.assign(new Error('图片不存在'), { status: 404 });
+    }
+
+    // 查找引用该图片的所有作品
+    const refImages = await db('case_images')
+      .where('library_image_id', id)
+      .select('case_id');
+
+    if (refImages.length === 0) {
+      return { image, reference_count: 0, works: [] };
+    }
+
+    const works = [];
+    for (const ref of refImages) {
+      const work = await db('cases')
+        .where('id', ref.case_id)
+        .select('id', 'title', 'cover_image')
+        .first();
+      if (!work) continue;
+
+      // 该作品的总图片数
+      const [{ total }] = await db('case_images')
+        .where('case_id', ref.case_id)
+        .count('* as total');
+
+      works.push({
+        id: work.id,
+        title: work.title || '未命名作品',
+        total_images: total,
+        will_be_deleted: total <= 1,  // 仅剩这张图 → 作品也会被删除
+      });
+    }
+
+    return {
+      image: { id: image.id, original_name: image.original_name, image_url: image.image_url },
+      reference_count: works.length,
+      works,
+    };
   },
 
   // ==========================================
