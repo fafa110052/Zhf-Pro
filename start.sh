@@ -92,13 +92,13 @@ detect_network() {
 }
 
 # ═══════════════════════════════════════════
-# 自动生成本地环境配置（env.config.local.json）
+# 自动生成本地环境配置（miniprogram/env.local.js）
 # 不再直接修改 constants.js，而是生成 gitignored 的覆盖文件
 # ═══════════════════════════════════════════
 
 auto_fix_constants() {
   local primary_ip="${1:-}"
-  local local_config="${SCRIPT_DIR}/env.config.local.json"
+  local local_config="${SCRIPT_DIR}/miniprogram/env.local.js"
 
   [ -z "$primary_ip" ] && return 1
 
@@ -106,7 +106,7 @@ auto_fix_constants() {
 
   # 检查是否已存在且正确
   if [ -f "$local_config" ]; then
-    local existing_url=$(node -e "const c=require('${local_config}');console.log('http://'+c.server.ip+':'+c.environments.local.port)" 2>/dev/null)
+    local existing_url=$(node -e "console.log(require('${local_config}').BASE_URL)" 2>/dev/null)
     if [ "$existing_url" = "$new_url" ]; then
       echo "  ✅ 本地环境配置已正确：$new_url"
       return 0
@@ -114,27 +114,16 @@ auto_fix_constants() {
   fi
 
   echo ""
-  echo "  📝 生成本地环境配置 → $new_url"
+  echo "  📝 生成小程序本地环境配置 → $new_url"
 
   cat > "$local_config" << EOF
-{
-  "server": {
-    "ip": "${primary_ip}",
-    "ssh": ""
-  },
-  "environments": {
-    "local": {
-      "port": 3000,
-      "backend_port": 3000,
-      "pm2_name": "",
-      "project_path": ""
-    }
-  },
-  "active": "local"
-}
+// 自动生成（gitignored），退出时自动清理
+module.exports = {
+  BASE_URL: '${new_url}',
+};
 EOF
 
-  echo "  ✅ 已生成本地环境配置 env.config.local.json"
+  echo "  ✅ 已生成 miniprogram/env.local.js"
   echo "     (退出时自动清理，或手动删除恢复远程环境)"
   echo ""
   return 0
@@ -381,7 +370,7 @@ else
   cleanup() {
     echo ""
     echo "🛑 正在停止所有服务..."
-    rm -f "${SCRIPT_DIR}/env.config.local.json"
+    rm -f "${SCRIPT_DIR}/miniprogram/env.local.js"
     kill $BACKEND_PID 2>/dev/null || true
     kill $FRONTEND_PID 2>/dev/null || true
     pkill -P $BACKEND_PID 2>/dev/null || true
