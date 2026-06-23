@@ -2,7 +2,6 @@ import { createContext, useContext, useEffect, useRef, useState, useCallback } f
 
 const MAX_SCALE = 2;
 const DOUBLE_TAP_SCALE = 1.5;
-const ANIM_DURATION = 350;
 
 /**
  * Context：让子组件（如 Lightbox）可以禁用 ZoomProvider
@@ -13,23 +12,17 @@ export const useZoomContext = () => useContext(ZoomContext);
 /**
  * 手势缩放容器 — 接管捏合与双击缩放，兼容微信内置浏览器
  *
- * 核心思路：
- *   zoom 是"真相"——决定页面实际缩放和滚动
- *   transform 是"动画皮"——只在动画播放时覆盖视觉效果
+ * 缩放原理：
+ *   使用 CSS zoom 属性改变 #root 布局尺寸 → 浏览器自动产生滚动条
+ *   捏合/双击时同步调整 scroll 位置，使缩放始终以手指位置为中心
  *
- *   放大：zoom 瞬间到位 → transform 从 scale(1/target) 动画到 scale(1) 做出放大效果
- *   缩小：zoom 过渡回 1x
- *   捏合：以当前尺寸为基础实时跟随，最大 2x，最小 1x（保持原始尺寸）
- *
- * 放大后 #root 设 min-height:100vh 确保内容高度足够产生纵向滚动，
- * 配合原生 window.scroll 实现上下左右任意方向拖动。
- *
- * 当子组件通过 useZoomContext().setDisabled(true) 禁用时，
- * 所有触摸处理跳过，让子组件自行管理缩放（如 Lightbox 全屏预览）。
+ * - 捏合：以当前尺寸为基础，最大 2x，最小 1x（保持原始尺寸）
+ * - 双击：1.5x / 还原，以触摸点为中心
+ * - 放大后：原生滚动实现上下左右拖动
  */
 export default function ZoomProvider({ children }) {
   const [disabled, setDisabled] = useState(false);
-  const disabledRef = useRef(false); // 事件回调中读 ref 避免闭包过期
+  const disabledRef = useRef(false);
 
   const setDisabledWrapped = useCallback((v) => {
     disabledRef.current = v;
@@ -39,9 +32,15 @@ export default function ZoomProvider({ children }) {
   const stateRef = useRef({
     scale: 1,
     lastTapTime: 0,
+    // 捏合状态
     pinchStartDist: 0,
     pinchStartScale: 1,
+    pinchCenterX: 0,      // 捏合起始时双指中点（屏幕坐标）
+    pinchCenterY: 0,
+    pinchStartScrollX: 0, // 捏合起始时的滚动位置
+    pinchStartScrollY: 0,
     pinchLocked: false,
+    // 双击还原动画定时器
     animTimer: null,
   });
 
@@ -67,57 +66,30 @@ export default function ZoomProvider({ children }) {
       root.style.minHeight = scale > 1.01 ? '100vh' : '';
     };
 
-    // ── 捏合：zoom 实时跟随（以当前尺寸为基础） ──
-    const pinchTo = (scale) => {
+    // ── 应用缩放 + 调整滚动使目标文档坐标保持在目标屏幕位置 ──
+    // docX/docY: 需要保持不动的文档坐标（1x 基准）
+    // screenX/screenY: 该文档坐标应出现的屏幕位置
+    const applyScaleWithAnchor = (newScale, docX, docY, screenX, screenY) => {
       cancelAnim();
-      s.scale = scale;
-      root.style.zoom = scale;
-      setMinHeight(scale);
+      s.scale = newScale;
+      root.style.zoom = newScale;
+      setMinHeight(newScale);
+      window.scrollTo(
+        docX * newScale - screenX,
+        docY * newScale - screenY,
+      );
     };
 
-    // ── 双击放大（1.5x）──
-    // zoom 瞬间到位（保证状态稳定），transform 做视觉动画
+    // ── 文档坐标：将屏幕坐标转为 1x 基准的文档坐标 ──
+    const toDocCoords = (clientX, clientY) => ({
+      x: (clientX + window.scrollX) / s.scale,
+      y: (clientY + window.scrollY) / s.scale,
+    });
+
+    // ── 双击放大（1.5x，以触摸点为中心）──
     const zoomIn = (clientX, clientY) => {
-      cancelAnim();
-
-      const oldScale = s.scale;
-      const targetScale = DOUBLE_TAP_SCALE;
-
-      // 触摸点在文档中的坐标（1x 基准）
-      const docX = (clientX + window.scrollX) / oldScale;
-      const docY = (clientY + window.scrollY) / oldScale;
-
-      // Step 1: zoom 瞬间到位
-      s.scale = targetScale;
-      root.style.zoom = targetScale;
-      setMinHeight(targetScale);
-
-      // Step 2: 滚动使触摸点保持在原位
-      window.scrollTo(
-        docX * targetScale - clientX,
-        docY * targetScale - clientY,
-      );
-
-      // Step 3: 盖一层 transform 动画——从视觉 oldScale 过渡到 targetScale
-      const startScale = oldScale / targetScale;
-      root.style.transformOrigin = `${docX}px ${docY}px`;
-      root.style.transform = `scale(${startScale})`;
-      root.style.transition = 'none';
-
-      // 强制渲染初始帧
-      void root.offsetHeight;
-
-      // 启动动画
-      root.style.transition = `transform ${ANIM_DURATION}ms cubic-bezier(0.25,0.46,0.45,0.94)`;
-      root.style.transform = 'scale(1)';
-
-      // 动画结束后清理
-      s.animTimer = setTimeout(() => {
-        root.style.transition = 'none';
-        root.style.transform = '';
-        root.style.transformOrigin = '';
-        s.animTimer = null;
-      }, ANIM_DURATION);
+      const doc = toDocCoords(clientX, clientY);
+      applyScaleWithAnchor(DOUBLE_TAP_SCALE, doc.x, doc.y, clientX, clientY);
     };
 
     // ── 双击还原 ──
@@ -125,15 +97,14 @@ export default function ZoomProvider({ children }) {
       cancelAnim();
       s.scale = 1;
       setMinHeight(1);
-      // ⚠️ 先设 transition 再改 zoom，否则浏览器不会触发过渡动画
-      root.style.transition = `zoom ${ANIM_DURATION}ms cubic-bezier(0.25,0.46,0.45,0.94)`;
+      root.style.transition = `zoom 350ms cubic-bezier(0.25,0.46,0.45,0.94)`;
       root.style.zoom = 1;
       window.scrollTo(0, 0);
 
       s.animTimer = setTimeout(() => {
         root.style.transition = 'none';
         s.animTimer = null;
-      }, ANIM_DURATION);
+      }, 350);
     };
 
     const getDist = (t1, t2) => {
@@ -146,8 +117,13 @@ export default function ZoomProvider({ children }) {
       if (disabledRef.current) return;
 
       if (e.touches.length === 2) {
+        // ── 捏合开始：记录初始距离、缩放、双指中点、滚动位置 ──
         s.pinchStartDist = getDist(e.touches[0], e.touches[1]);
         s.pinchStartScale = s.scale;
+        s.pinchStartScrollX = window.scrollX;
+        s.pinchStartScrollY = window.scrollY;
+        s.pinchCenterX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+        s.pinchCenterY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
         s.pinchLocked = true;
       } else if (e.touches.length === 1 && !s.pinchLocked) {
         const now = Date.now();
@@ -174,10 +150,21 @@ export default function ZoomProvider({ children }) {
 
       if (e.touches.length === 2 && s.pinchStartDist > 0) {
         e.preventDefault();
+
         const dist = getDist(e.touches[0], e.touches[1]);
         const ratio = dist / s.pinchStartDist;
         const newScale = Math.min(MAX_SCALE, Math.max(1, s.pinchStartScale * ratio));
-        pinchTo(newScale);
+
+        // 当前双指中点（屏幕坐标）
+        const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+        const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+
+        // 捏合起始时，双指中点对应的文档坐标（1x 基准）
+        const docX = (s.pinchCenterX + s.pinchStartScrollX) / s.pinchStartScale;
+        const docY = (s.pinchCenterY + s.pinchStartScrollY) / s.pinchStartScale;
+
+        // 让该文档坐标始终出现在当前双指中点位置
+        applyScaleWithAnchor(newScale, docX, docY, midX, midY);
       }
     };
 
@@ -209,7 +196,7 @@ export default function ZoomProvider({ children }) {
       root.style.transition = '';
       root.style.minHeight = '';
     };
-  }, []); // disabledRef 在回调中通过 ref 读取，不需要重绑事件
+  }, []);
 
   return (
     <ZoomContext.Provider value={{ disabled, setDisabled: setDisabledWrapped }}>

@@ -165,6 +165,10 @@ function ZoomableImage({ src, alt }) {
     lastTap: 0,
     pinchStartDist: 0,
     pinchStartScale: 1,
+    pinchMidClientX: 0,   // 捏合起始双指中点（视口坐标）
+    pinchMidClientY: 0,
+    pinchImgLocalX: 0,    // 捏合起始时，手指指向的图片本地坐标（1x 基准）
+    pinchImgLocalY: 0,
     pinchLocked: false,
   });
 
@@ -173,6 +177,8 @@ function ZoomableImage({ src, alt }) {
     if (!img) return;
 
     const s = stateRef.current;
+    // 容器是 img 的父级 div（overflow:auto 的那个）
+    const container = img.parentElement;
 
     const getDist = (t1, t2) => {
       const dx = t1.clientX - t2.clientX;
@@ -183,34 +189,117 @@ function ZoomableImage({ src, alt }) {
     const applyZoom = (scale) => {
       s.scale = scale;
       img.style.zoom = scale;
-      // 放大时移除 max 约束，让 overflow:auto 容器产生滚动
       img.style.maxWidth = scale > 1.01 ? 'none' : '';
       img.style.maxHeight = scale > 1.01 ? 'none' : '';
     };
 
+    // 捏合时：以手指中点为中心缩放
+    const pinchZoom = (newScale, midClientX, midClientY) => {
+      applyZoom(newScale);
+
+      if (!container || newScale <= 1.01) return;
+
+      const containerRect = container.getBoundingClientRect();
+      const cw = containerRect.width;
+      const ch = containerRect.height;
+      const nw = img.naturalWidth || cw;
+      const nh = img.naturalHeight || ch;
+
+      // 图片居中后的左上角在容器内的位置（考虑滚动）
+      const imgLeft = (cw - nw * newScale) / 2;
+      const imgTop = (ch - nh * newScale) / 2;
+
+      // 当前手指在容器内的位置
+      const fx = midClientX - containerRect.left;
+      const fy = midClientY - containerRect.top;
+
+      // 让图片本地坐标 (pinchImgLocalX, pinchImgLocalY) 对齐到当前手指位置
+      container.scrollLeft = imgLeft + s.pinchImgLocalX * newScale - fx;
+      container.scrollTop = imgTop + s.pinchImgLocalY * newScale - fy;
+    };
+
     const onTouchStart = (e) => {
       if (e.touches.length === 2) {
-        // 双指：接管，不让 Swiper 滑动
         e.stopPropagation();
         s.pinchStartDist = getDist(e.touches[0], e.touches[1]);
         s.pinchStartScale = s.scale;
+
+        // 记录手指中点和对应的图片本地坐标
+        const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+        const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+        s.pinchMidClientX = midX;
+        s.pinchMidClientY = midY;
+
+        // 计算当前手指指向的图片本地坐标（1x 基准）
+        if (container) {
+          const containerRect = container.getBoundingClientRect();
+          const cw = containerRect.width;
+          const ch = containerRect.height;
+          const nw = img.naturalWidth || cw;
+          const nh = img.naturalHeight || ch;
+          const curScale = s.scale;
+
+          const imgLeft = (cw - nw * curScale) / 2;
+          const imgTop = (ch - nh * curScale) / 2;
+          const fx = midX - containerRect.left;
+          const fy = midY - containerRect.top;
+
+          s.pinchImgLocalX = (fx - imgLeft + container.scrollLeft) / curScale;
+          s.pinchImgLocalY = (fy - imgTop + container.scrollTop) / curScale;
+        }
+
         s.pinchLocked = true;
       } else if (e.touches.length === 1 && !s.pinchLocked) {
         const now = Date.now();
         if (now - s.lastTap < 300) {
-          // 双击切换缩放
           e.stopPropagation();
           e.preventDefault();
-          applyZoom(s.scale > 1.05 ? 1 : 1.5);
+
+          if (s.scale > 1.05) {
+            // 还原
+            applyZoom(1);
+            if (container) {
+              container.scrollLeft = 0;
+              container.scrollTop = 0;
+            }
+          } else {
+            // 双击放大到 1.5x（以触摸点为中心）
+            const touch = e.touches[0];
+            if (container) {
+              const containerRect = container.getBoundingClientRect();
+              const cw = containerRect.width;
+              const ch = containerRect.height;
+              const nw = img.naturalWidth || cw;
+              const nh = img.naturalHeight || ch;
+              const oldScale = s.scale;
+
+              // 手指在容器内的位置
+              const fx = touch.clientX - containerRect.left;
+              const fy = touch.clientY - containerRect.top;
+              // 当前手指指向的图片本地坐标
+              const imgLeft = (cw - nw * oldScale) / 2;
+              const imgTop = (ch - nh * oldScale) / 2;
+              const imgLocalX = (fx - imgLeft + container.scrollLeft) / oldScale;
+              const imgLocalY = (fy - imgTop + container.scrollTop) / oldScale;
+
+              applyZoom(1.5);
+
+              // 缩放后对齐
+              const newImgLeft = (cw - nw * 1.5) / 2;
+              const newImgTop = (ch - nh * 1.5) / 2;
+              container.scrollLeft = newImgLeft + imgLocalX * 1.5 - fx;
+              container.scrollTop = newImgTop + imgLocalY * 1.5 - fy;
+            } else {
+              applyZoom(1.5);
+            }
+          }
           s.lastTap = 0;
           return;
         }
         s.lastTap = now;
-        // 放大状态下单指：阻止 Swiper 滑动，让容器原生滚动平移
         if (s.scale > 1.01) {
           e.stopPropagation();
         }
-        // 未放大：不阻止，让 Swiper 处理左右滑动
       }
     };
 
@@ -221,9 +310,10 @@ function ZoomableImage({ src, alt }) {
         const dist = getDist(e.touches[0], e.touches[1]);
         const ratio = dist / s.pinchStartDist;
         const newScale = Math.min(2, Math.max(1, s.pinchStartScale * ratio));
-        applyZoom(newScale);
+        const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+        const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+        pinchZoom(newScale, midX, midY);
       } else if (s.scale > 1.01) {
-        // 放大态：阻止 Swiper 滑动
         e.stopPropagation();
       }
     };
@@ -231,9 +321,7 @@ function ZoomableImage({ src, alt }) {
     const onTouchEnd = (e) => {
       if (e.touches.length === 0) {
         s.pinchStartDist = 0;
-        setTimeout(() => {
-          s.pinchLocked = false;
-        }, 100);
+        setTimeout(() => { s.pinchLocked = false; }, 100);
       }
     };
 
@@ -247,7 +335,6 @@ function ZoomableImage({ src, alt }) {
       img.removeEventListener('touchmove', onTouchMove);
       img.removeEventListener('touchend', onTouchEnd);
       img.removeEventListener('touchcancel', onTouchEnd);
-      // 卸载时重置
       img.style.zoom = '';
       img.style.maxWidth = '';
       img.style.maxHeight = '';
