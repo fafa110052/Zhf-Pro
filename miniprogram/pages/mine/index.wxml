@@ -82,7 +82,7 @@
     </view>
 
     <view class="menu-section">
-      <view class="menu-group-title">V1.1 选材</view>
+      <view class="menu-group-title">在线选材</view>
       <view class="menu-item" bindtap="onGoMaterialOrders">
         <text class="menu-icon">🛠️</text>
         <text class="menu-label">我的选材申请</text>
@@ -213,7 +213,7 @@
     </view>
 
     <view class="menu-section">
-      <view class="menu-group-title">V1.1 选材</view>
+      <view class="menu-group-title">在线选材</view>
       <view class="menu-item" bindtap="onGoMaterialOrders">
         <text class="menu-icon">🛠️</text>
         <text class="menu-label">我的选材申请</text>
