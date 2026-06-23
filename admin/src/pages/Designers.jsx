@@ -82,13 +82,13 @@ export default function Designers() {
   // ═══ 搜索 ═══
   const handleSearch = (e) => {
     e.preventDefault();
-    fetchList({ keyword, status: statusFilter, page: 1, page_size: 12 });
+    fetchList({ keyword, status: statusFilter, role: roleFilter || undefined, page: 1, page_size: 12 });
   };
 
   // ═══ 分页 ═══
   const goPage = (p) => {
     if (p < 1 || p > pagination.total_pages) return;
-    fetchList({ keyword, status: statusFilter, page: p, page_size: pagination.page_size });
+    fetchList({ keyword, status: statusFilter, role: roleFilter || undefined, page: p, page_size: pagination.page_size });
   };
 
   // ═══ 打开弹窗（新增 / 编辑）═══
@@ -175,7 +175,7 @@ export default function Designers() {
         toast.success('更新成功');
       }
       closeModal();
-      fetchList({ keyword, status: statusFilter, page: pagination.page, page_size: pagination.page_size });
+      fetchList({ keyword, status: statusFilter, role: roleFilter || undefined, page: pagination.page, page_size: pagination.page_size });
     } catch (err) {
       toast.error(err?.message || '保存失败');
     } finally {
@@ -199,7 +199,7 @@ export default function Designers() {
         toast.success(designer.status === 'active' ? `${ROLE_LABEL[designer.role] || '员工'}已禁用` : `${ROLE_LABEL[designer.role] || '员工'}已启用`);
         setConfirmOpen(false);
         setConfirmAction(null);
-        fetchList({ keyword, status: statusFilter, page: pagination.page, page_size: pagination.page_size });
+        fetchList({ keyword, status: statusFilter, role: roleFilter || undefined, page: pagination.page, page_size: pagination.page_size });
       },
     });
     setConfirmOpen(true);
@@ -232,7 +232,7 @@ export default function Designers() {
               toast.success(`${ROLE_LABEL[designer.role] || '员工'}已删除`);
               setConfirmOpen(false);
               setConfirmAction(null);
-              fetchList({ keyword, status: statusFilter, page: pagination.page, page_size: pagination.page_size });
+              fetchList({ keyword, status: statusFilter, role: roleFilter || undefined, page: pagination.page, page_size: pagination.page_size });
             } catch (err) {
               toast.error(err?.message || '删除失败');
             }
@@ -262,7 +262,7 @@ export default function Designers() {
       );
       setDeleteWorksOpen(false);
       setDeleteWorksDesigner(null);
-      fetchList({ keyword, status: statusFilter, page: pagination.page, page_size: pagination.page_size });
+      fetchList({ keyword, status: statusFilter, role: roleFilter || undefined, page: pagination.page, page_size: pagination.page_size });
     } catch (err) {
       toast.error(err?.message || '删除失败');
     } finally {
@@ -332,7 +332,7 @@ export default function Designers() {
       {/* ─── 错误提示 ─── */}
       {error && (
         <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-          <ErrorState message={error} onRetry={() => { setError(''); fetchList({ keyword, status: statusFilter, page: pagination.page, page_size: pagination.page_size }); }} />
+          <ErrorState message={error} onRetry={() => { setError(''); fetchList({ keyword, status: statusFilter, role: roleFilter || undefined, page: pagination.page, page_size: pagination.page_size }); }} />
         </div>
       )}
 
