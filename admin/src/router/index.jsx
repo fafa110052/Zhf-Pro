@@ -6,7 +6,6 @@ import Works from '../pages/Works';
 import Designers from '../pages/Designers';
 import Images from '../pages/Images';
 import Categories from '../pages/Categories';
-import Accounts from '../pages/Accounts';
 import Settings from '../pages/Settings';
 import AvatarReviews from '../pages/AvatarReviews';
 import Properties from '../pages/Properties';
@@ -26,7 +25,7 @@ const router = createBrowserRouter([
       { path: 'designers', element: <Designers /> },
       { path: 'images', element: <Images /> },
       { path: 'categories', element: <Categories /> },
-      { path: 'accounts', element: <Accounts /> },
+      { path: 'accounts', element: <Navigate to="/designers" replace /> },
       { path: 'settings', element: <Settings /> },
       { path: 'avatar-reviews', element: <AvatarReviews /> },
       { path: 'properties', element: <Properties /> },

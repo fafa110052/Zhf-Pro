@@ -15,6 +15,9 @@ const STATUS_MAP = {
   inactive: { label: '禁用', cls: 'bg-gray-100 text-gray-500' },
 };
 
+// ─── 角色标签 ───
+const ROLE_LABEL = { guest: '游客', designer: '员工', owner: '业主' };
+
 export default function Designers() {
   const toast = useToast();
 
@@ -126,7 +129,7 @@ export default function Designers() {
   // ═══ 表单校验 ═══
   const validateForm = () => {
     const errs = {};
-    if (!form.name.trim()) errs.name = form.role === 'owner' ? '请输入业主姓名' : '请输入员工姓名';
+    if (!form.name.trim()) errs.name = form.role === 'owner' ? '请输入业主姓名' : form.role === 'guest' ? '请输入游客姓名' : '请输入员工姓名';
     if (!form.phone.trim()) {
       errs.phone = '请输入手机号';
     } else if (!/^1[3-9]\d{9}$/.test(form.phone.trim())) {
@@ -156,12 +159,13 @@ export default function Designers() {
         payload.owner_property_id = form.owner_property_id || null;
         payload.building = form.building.trim() || null;
         payload.room = form.room.trim() || null;
-      } else {
+      } else if (form.role === 'designer') {
         payload.years_of_exp = form.years_of_exp === '' ? 0 : Number(form.years_of_exp);
         payload.bio = form.bio.trim() || null;
         payload.personnel_type = form.personnel_type || 'designer';
         payload.employee_id = form.employee_id.trim() || null;
       }
+      // guest 角色只发送 name + phone + role，无额外字段
 
       if (modalMode === 'add') {
         await client.post('/admin/designers', payload);
@@ -184,15 +188,15 @@ export default function Designers() {
     setConfirmAction({
       type: 'toggle',
       designer,
-      title: designer.status === 'active' ? `禁用${designer.role === 'owner' ? '业主' : '员工'}` : `启用${designer.role === 'owner' ? '业主' : '员工'}`,
+      title: designer.status === 'active' ? `禁用${ROLE_LABEL[designer.role] || '员工'}` : `启用${ROLE_LABEL[designer.role] || '员工'}`,
       message: designer.status === 'active'
-        ? `确定要禁用${designer.role === 'owner' ? '业主' : '员工'}「${designer.name}」吗？禁用后将无法登录小程序。`
-        : `确定要启用${designer.role === 'owner' ? '业主' : '员工'}「${designer.name}」吗？`,
+        ? `确定要禁用${ROLE_LABEL[designer.role] || '员工'}「${designer.name}」吗？禁用后将无法登录小程序。`
+        : `确定要启用${ROLE_LABEL[designer.role] || '员工'}「${designer.name}」吗？`,
       variant: designer.status === 'active' ? 'warning' : 'default',
       confirmText: designer.status === 'active' ? '禁用' : '启用',
       action: async () => {
         await client.patch(`/admin/designers/${designer.id}/status`);
-        toast.success(designer.status === 'active' ? `${designer.role === 'owner' ? '业主' : '员工'}已禁用` : `${designer.role === 'owner' ? '业主' : '员工'}已启用`);
+        toast.success(designer.status === 'active' ? `${ROLE_LABEL[designer.role] || '员工'}已禁用` : `${ROLE_LABEL[designer.role] || '员工'}已启用`);
         setConfirmOpen(false);
         setConfirmAction(null);
         fetchList({ keyword, status: statusFilter, page: pagination.page, page_size: pagination.page_size });
@@ -218,14 +222,14 @@ export default function Designers() {
         setConfirmAction({
           type: 'delete',
           designer,
-          title: `删除${designer.role === 'owner' ? '业主' : '员工'}`,
-          message: `确定要删除${designer.role === 'owner' ? '业主' : '员工'}「${designer.name}」吗？此操作不可撤销。`,
+          title: `删除${ROLE_LABEL[designer.role] || '员工'}`,
+          message: `确定要删除${ROLE_LABEL[designer.role] || '员工'}「${designer.name}」吗？此操作不可撤销。`,
           variant: 'danger',
           confirmText: '确认删除',
           action: async () => {
             try {
               await client.delete(`/admin/designers/${designer.id}`);
-              toast.success(`${designer.role === 'owner' ? '业主' : '员工'}已删除`);
+              toast.success(`${ROLE_LABEL[designer.role] || '员工'}已删除`);
               setConfirmOpen(false);
               setConfirmAction(null);
               fetchList({ keyword, status: statusFilter, page: pagination.page, page_size: pagination.page_size });
@@ -250,7 +254,7 @@ export default function Designers() {
     try {
       const keepWorks = deleteWorksChoice === 'keep';
       await client.delete(`/admin/designers/${deleteWorksDesigner.id}?keep_works=${keepWorks}`);
-      const roleLabel = deleteWorksDesigner?.role === 'owner' ? '业主' : '员工';
+      const roleLabel = ROLE_LABEL[deleteWorksDesigner?.role] || '员工';
       toast.success(
         keepWorks
           ? `${roleLabel}已删除，${deleteWorksCount} 个作品已转移至管理员`
@@ -293,11 +297,16 @@ export default function Designers() {
             <option value="active">启用</option>
             <option value="inactive">禁用</option>
           </select>
-          {['', 'designer', 'owner'].map(r => (
-            <button key={r} type="button"
-              onClick={() => setRoleFilter(r)}
-              className={`px-3 py-2 text-sm rounded-lg transition-colors ${roleFilter === r ? 'bg-slate-900 text-white' : 'bg-white border border-gray-300 text-gray-600 hover:bg-gray-50'}`}>
-              {r === '' ? '全部' : r === 'designer' ? '员工' : '业主'}
+          {[
+            ['', '全部'],
+            ['guest', '游客'],
+            ['designer', '员工'],
+            ['owner', '业主'],
+          ].map(([value, label]) => (
+            <button key={value} type="button"
+              onClick={() => setRoleFilter(value)}
+              className={`px-3 py-2 text-sm rounded-lg transition-colors ${roleFilter === value ? 'bg-slate-900 text-white' : 'bg-white border border-gray-300 text-gray-600 hover:bg-gray-50'}`}>
+              {label}
             </button>
           ))}
           <button
@@ -369,8 +378,11 @@ export default function Designers() {
                     </td>
                     <td className="px-4 py-3 text-gray-600">{d.phone}</td>
                     <td className="px-4 py-3">
-                      <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${d.role === 'owner' ? 'bg-orange-100 text-orange-700' : 'bg-blue-100 text-blue-700'}`}>
-                        {d.role === 'owner' ? '业主' : '员工'}
+                      <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${
+                        d.role === 'owner' ? 'bg-orange-100 text-orange-700' :
+                        d.role === 'guest' ? 'bg-gray-100 text-gray-600' :
+                        'bg-blue-100 text-blue-700'}`}>
+                        {d.role === 'owner' ? '业主' : d.role === 'guest' ? '游客' : '员工'}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-gray-500 text-xs">
@@ -380,13 +392,15 @@ export default function Designers() {
                     </td>
                     <td className="px-4 py-3">
                       <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${
+                        d.role === 'guest' ? 'bg-gray-100 text-gray-600' :
                         d.personnel_type === 'supervisor' ? 'bg-purple-100 text-purple-700' :
                         d.personnel_type === 'engineer' ? 'bg-cyan-100 text-cyan-700' :
                         d.personnel_type === 'design_director' ? 'bg-indigo-100 text-indigo-700' :
                         d.personnel_type === 'engineering_director' ? 'bg-teal-100 text-teal-700' :
                         d.role === 'owner' ? 'bg-orange-100 text-orange-700' :
                         'bg-blue-100 text-blue-700'}`}>
-                        {d.role === 'owner' ? '业主' :
+                        {d.role === 'guest' ? '游客' :
+                         d.role === 'owner' ? '业主' :
                          d.personnel_type === 'supervisor' ? '监理' :
                          d.personnel_type === 'engineer' ? '工程师' :
                          d.personnel_type === 'design_director' ? '设计总监' :
@@ -541,7 +555,7 @@ export default function Designers() {
               className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                 formErrors.name ? 'border-red-300 bg-red-50' : 'border-gray-300'
               }`}
-              placeholder={form.role === 'owner' ? '请输入业主姓名' : '请输入员工姓名'}
+              placeholder={form.role === 'owner' ? '请输入业主姓名' : form.role === 'guest' ? '请输入游客姓名' : '请输入员工姓名'}
             />
             {formErrors.name && <p className="mt-1 text-xs text-red-500">{formErrors.name}</p>}
           </div>
@@ -569,10 +583,17 @@ export default function Designers() {
             <select value={form.role} onChange={(e) => {
               const newRole = e.target.value;
               setForm({ ...form, role: newRole,
-                ...(newRole === 'owner' ? { personnel_type: '', employee_id: '' } : { owner_property_id: '', building: '', room: '' })
+                // 切换角色时清除不兼容字段
+                ...(newRole === 'owner'
+                  ? { personnel_type: '', employee_id: '' }
+                  : newRole === 'guest'
+                    ? { personnel_type: '', employee_id: '', owner_property_id: '', building: '', room: '', years_of_exp: '', bio: '' }
+                    : { owner_property_id: '', building: '', room: '' }
+                )
               });
             }}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option value="guest">游客</option>
               <option value="designer">员工</option>
               <option value="owner">业主</option>
             </select>
@@ -607,7 +628,7 @@ export default function Designers() {
           )}
 
           {/* 员工专属字段 */}
-          {form.role !== 'owner' && (
+          {form.role === 'designer' && (
             <>
               {/* 人员类型 */}
               <div>
@@ -677,7 +698,7 @@ export default function Designers() {
       <Modal
         open={deleteWorksOpen}
         onClose={() => setDeleteWorksOpen(false)}
-        title={`删除${deleteWorksDesigner?.role === 'owner' ? '业主' : '员工'}`}
+        title={`删除${ROLE_LABEL[deleteWorksDesigner?.role] || '员工'}`}
         footer={
           <>
             <button
@@ -702,7 +723,7 @@ export default function Designers() {
             <span className="text-xl shrink-0">⚠️</span>
             <div>
               <p className="text-sm font-medium text-amber-800">
-                {deleteWorksDesigner?.role === 'owner' ? '业主' : '员工'}「{deleteWorksDesigner?.name}」有 {deleteWorksCount} 个作品
+                {ROLE_LABEL[deleteWorksDesigner?.role] || '员工'}「{deleteWorksDesigner?.name}」有 {deleteWorksCount} 个作品
               </p>
               <p className="text-xs text-amber-600 mt-0.5">
                 作品属于公司知识产权，请选择处理方式
@@ -753,7 +774,7 @@ export default function Designers() {
               <div>
                 <p className="text-sm font-medium text-gray-800">一并删除</p>
                 <p className="text-xs text-gray-500 mt-0.5">
-                  永久删除该员工的所有 {deleteWorksCount} 个作品及相关图片，此操作不可撤销
+                  永久删除该{ROLE_LABEL[deleteWorksDesigner?.role] || '员工'}的所有 {deleteWorksCount} 个作品及相关图片，此操作不可撤销
                 </p>
               </div>
             </label>
@@ -778,8 +799,11 @@ export default function Designers() {
                 <div>
                   <p className="text-lg font-bold text-gray-900">{detailUser.name}</p>
                   <div className="flex items-center gap-2 mt-1">
-                    <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${detailUser.role === 'owner' ? 'bg-orange-100 text-orange-700' : 'bg-blue-100 text-blue-700'}`}>
-                      {detailUser.role === 'owner' ? '业主' : '员工'}
+                    <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${
+                      detailUser.role === 'owner' ? 'bg-orange-100 text-orange-700' :
+                      detailUser.role === 'guest' ? 'bg-gray-100 text-gray-600' :
+                      'bg-blue-100 text-blue-700'}`}>
+                      {ROLE_LABEL[detailUser.role] || '员工'}
                     </span>
                     <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_MAP[detailUser.status]?.cls}`}>
                       {STATUS_MAP[detailUser.status]?.label}
@@ -790,8 +814,8 @@ export default function Designers() {
 
               <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 space-y-3">
                 <div className="flex"><span className="text-gray-400 text-sm w-24 shrink-0">手机号</span><span className="text-gray-900 text-sm">{detailUser.phone || '—'}</span></div>
-                <div className="flex"><span className="text-gray-400 text-sm w-24 shrink-0">角色</span><span className="text-gray-900 text-sm">{detailUser.role === 'owner' ? '业主' : '员工'}</span></div>
-                {detailUser.role !== 'owner' && (
+                <div className="flex"><span className="text-gray-400 text-sm w-24 shrink-0">角色</span><span className="text-gray-900 text-sm">{ROLE_LABEL[detailUser.role] || '员工'}</span></div>
+                {detailUser.role === 'designer' && (
                   <>
                     <div className="flex"><span className="text-gray-400 text-sm w-24 shrink-0">人员类型</span><span className="text-gray-900 text-sm">{
                       detailUser.personnel_type === 'supervisor' ? '监理' :
