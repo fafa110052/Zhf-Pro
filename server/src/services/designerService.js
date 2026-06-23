@@ -156,7 +156,7 @@ const designerService = {
     }
 
     // 设计师角色：personnel_type 校验
-    if (targetRole !== 'owner') {
+    if (targetRole === 'designer') {
       const pt = personnel_type || 'designer';
       if (!['designer', 'supervisor', 'engineer', 'design_director', 'engineering_director'].includes(pt)) {
         throw Object.assign(new Error('人员类型无效'), { status: 400 });
@@ -175,7 +175,7 @@ const designerService = {
     const exists = await db('designers').where('phone', phone).first();
     if (exists) {
       if (exists.role !== 'guest') {
-        throw Object.assign(new Error(`该手机号已是${exists.role === 'admin' ? '管理员' : exists.role === 'designer' ? '设计师' : '业主'}`), { status: 409 });
+        throw Object.assign(new Error(`该手机号已是${exists.role === 'admin' ? '管理员' : exists.role === 'guest' ? '游客' : exists.role === 'designer' ? '设计师' : '业主'}`), { status: 409 });
       }
       // 游客升级
       const updates = {
@@ -188,7 +188,7 @@ const designerService = {
         updates.building = building || null;
         updates.room = room || null;
         updates.personnel_type = null;
-      } else {
+      } else if (targetRole === 'designer') {
         updates.years_of_exp = years_of_exp || 0;
         updates.bio = bio || null;
         updates.personnel_type = personnel_type || 'designer';
@@ -215,7 +215,7 @@ const designerService = {
       insertData.room = room || null;
       insertData.personnel_type = null;
       insertData.employee_id = null;
-    } else {
+    } else if (targetRole === 'designer') {
       insertData.years_of_exp = years_of_exp || 0;
       insertData.bio = bio || null;
       insertData.personnel_type = personnel_type || 'designer';
@@ -255,14 +255,24 @@ const designerService = {
 
     // role 变更处理
     if (updates.role) {
-      if (!['designer', 'owner'].includes(updates.role)) {
-        throw Object.assign(new Error('角色只能设为 designer 或 owner'), { status: 400 });
+      if (!['designer', 'owner', 'guest'].includes(updates.role)) {
+        throw Object.assign(new Error('角色只能设为 游客、员工 或 业主'), { status: 400 });
       }
       // 降级为 designer 时，清除 owner 专属字段
       if (updates.role === 'designer') {
         updates.owner_property_id = null;
         updates.building = null;
         updates.room = null;
+      }
+      // 降级为 guest 时，清除所有角色专属字段
+      if (updates.role === 'guest') {
+        updates.owner_property_id = null;
+        updates.building = null;
+        updates.room = null;
+        updates.personnel_type = null;
+        updates.employee_id = null;
+        updates.years_of_exp = null;
+        updates.bio = null;
       }
       // 升级为 owner 时，清除 designer 专属字段
       if (updates.role === 'owner') {
@@ -283,7 +293,7 @@ const designerService = {
     }
 
     // personnel_type 校验（仅非 owner 角色）
-    if (updates.personnel_type && effectiveRole !== 'owner') {
+    if (updates.personnel_type && effectiveRole === 'designer') {
       if (!['designer', 'supervisor', 'engineer', 'design_director', 'engineering_director'].includes(updates.personnel_type)) {
         throw Object.assign(new Error('人员类型无效'), { status: 400 });
       }
