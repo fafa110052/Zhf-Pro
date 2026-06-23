@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination } from 'swiper/modules';
+import { useZoomContext } from './ZoomProvider';
 import 'swiper/css';
 import 'swiper/css/pagination';
 
@@ -98,6 +99,15 @@ export default function ImageSwiper({ images, currentIndex, onIndexChange, cover
  * 支持左右滑动 + 双指缩放
  */
 function Lightbox({ images, currentIndex, open, onClose, onIndexChange }) {
+  const { setDisabled } = useZoomContext();
+
+  useEffect(() => {
+    setDisabled(open);
+    return () => {
+      if (open) setDisabled(false);
+    };
+  }, [open, setDisabled]);
+
   if (!open || !images.length) return null;
 
   return (
@@ -127,12 +137,7 @@ function Lightbox({ images, currentIndex, open, onClose, onIndexChange }) {
           {images.map((img, idx) => (
             <SwiperSlide key={img.id || idx}>
               <div className="w-full h-full flex items-center justify-center overflow-auto">
-                <img
-                  src={img.image_url}
-                  alt=""
-                  className="max-w-full max-h-full object-contain"
-                  style={{ touchAction: 'pinch-zoom' }}
-                />
+                <ZoomableImage src={img.image_url} alt="" />
               </div>
             </SwiperSlide>
           ))}
@@ -144,6 +149,117 @@ function Lightbox({ images, currentIndex, open, onClose, onIndexChange }) {
         <span className="text-white/30 text-xs">双指缩放查看细节</span>
       </div>
     </div>
+  );
+}
+
+/**
+ * 灯箱内可缩放图片 — 使用 zoom 属性实现布局级缩放
+ * 2 指捏合缩放 + 双击切换 1x/2.5x
+ * 放大后单指拖动 = 原生滚动平移（overflow:auto 容器提供）
+ */
+function ZoomableImage({ src, alt }) {
+  const imgRef = useRef(null);
+  const stateRef = useRef({
+    scale: 1,
+    lastTap: 0,
+    pinchStartDist: 0,
+    pinchStartScale: 1,
+    pinchLocked: false,
+  });
+
+  useEffect(() => {
+    const img = imgRef.current;
+    if (!img) return;
+
+    const s = stateRef.current;
+
+    const getDist = (t1, t2) => {
+      const dx = t1.clientX - t2.clientX;
+      const dy = t1.clientY - t2.clientY;
+      return Math.sqrt(dx * dx + dy * dy);
+    };
+
+    const applyZoom = (scale) => {
+      s.scale = scale;
+      img.style.zoom = scale;
+      // 放大时移除 max 约束，让 overflow:auto 容器产生滚动
+      img.style.maxWidth = scale > 1.01 ? 'none' : '';
+      img.style.maxHeight = scale > 1.01 ? 'none' : '';
+    };
+
+    const onTouchStart = (e) => {
+      if (e.touches.length === 2) {
+        // 双指：接管，不让 Swiper 滑动
+        e.stopPropagation();
+        s.pinchStartDist = getDist(e.touches[0], e.touches[1]);
+        s.pinchStartScale = s.scale;
+        s.pinchLocked = true;
+      } else if (e.touches.length === 1 && !s.pinchLocked) {
+        const now = Date.now();
+        if (now - s.lastTap < 300) {
+          // 双击切换缩放
+          e.stopPropagation();
+          e.preventDefault();
+          applyZoom(s.scale > 1.05 ? 1 : 2.5);
+          s.lastTap = 0;
+          return;
+        }
+        s.lastTap = now;
+        // 放大状态下单指：阻止 Swiper 滑动，让容器原生滚动平移
+        if (s.scale > 1.01) {
+          e.stopPropagation();
+        }
+        // 未放大：不阻止，让 Swiper 处理左右滑动
+      }
+    };
+
+    const onTouchMove = (e) => {
+      if (e.touches.length === 2 && s.pinchStartDist > 0) {
+        e.stopPropagation();
+        e.preventDefault();
+        const dist = getDist(e.touches[0], e.touches[1]);
+        const ratio = dist / s.pinchStartDist;
+        const newScale = Math.min(4, Math.max(1, s.pinchStartScale * ratio));
+        applyZoom(newScale);
+      } else if (s.scale > 1.01) {
+        // 放大态：阻止 Swiper 滑动
+        e.stopPropagation();
+      }
+    };
+
+    const onTouchEnd = (e) => {
+      if (e.touches.length === 0) {
+        s.pinchStartDist = 0;
+        setTimeout(() => {
+          s.pinchLocked = false;
+        }, 100);
+      }
+    };
+
+    img.addEventListener('touchstart', onTouchStart, { passive: false });
+    img.addEventListener('touchmove', onTouchMove, { passive: false });
+    img.addEventListener('touchend', onTouchEnd);
+    img.addEventListener('touchcancel', onTouchEnd);
+
+    return () => {
+      img.removeEventListener('touchstart', onTouchStart);
+      img.removeEventListener('touchmove', onTouchMove);
+      img.removeEventListener('touchend', onTouchEnd);
+      img.removeEventListener('touchcancel', onTouchEnd);
+      // 卸载时重置
+      img.style.zoom = '';
+      img.style.maxWidth = '';
+      img.style.maxHeight = '';
+    };
+  }, []);
+
+  return (
+    <img
+      ref={imgRef}
+      src={src}
+      alt={alt}
+      className="max-w-full max-h-full object-contain"
+    />
   );
 }
 
