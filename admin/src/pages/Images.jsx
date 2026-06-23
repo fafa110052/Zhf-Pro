@@ -21,27 +21,31 @@ const PAGE_SIZE = 20;
 
 // 通用复制到剪贴板（兼容 HTTP 环境）
 // Clipboard API 仅 HTTPS/localhost 可用，HTTP 需 execCommand 回退
-async function copyToClipboard(text) {
+function copyToClipboard(text) {
   // 优先尝试 Clipboard API（HTTPS / localhost）
-  if (navigator.clipboard) {
-    try {
-      await navigator.clipboard.writeText(text);
-      return true;
-    } catch { /* 回退到 execCommand */ }
+  if (navigator.clipboard && window.isSecureContext) {
+    return navigator.clipboard.writeText(text).then(() => true).catch(() => fallback());
   }
-  // 回退方案：textarea + execCommand（HTTP 兼容）
-  const textarea = document.createElement('textarea');
-  textarea.value = text;
-  textarea.style.position = 'fixed';
-  textarea.style.left = '-9999px';
-  textarea.style.top = '-9999px';
-  textarea.setAttribute('readonly', '');
-  document.body.appendChild(textarea);
-  textarea.select();
-  textarea.setSelectionRange(0, text.length);
-  const ok = document.execCommand('copy');
-  document.body.removeChild(textarea);
-  return ok;
+  return fallback();
+
+  function fallback() {
+    try {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.style.position = 'fixed';
+      textarea.style.left = '-9999px';
+      textarea.style.top = '-9999px';
+      textarea.setAttribute('readonly', '');
+      document.body.appendChild(textarea);
+      textarea.select();
+      textarea.setSelectionRange(0, text.length);
+      const ok = document.execCommand('copy');
+      document.body.removeChild(textarea);
+      return ok;
+    } catch {
+      return false;
+    }
+  }
 }
 
 export default function Images() {
