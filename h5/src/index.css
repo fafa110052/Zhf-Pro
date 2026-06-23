@@ -4,6 +4,14 @@
 html {
   font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
   -webkit-text-size-adjust: 100%;
+  /* 允许所有触摸手势（捏合+双击缩放） */
+  touch-action: pan-x pan-y pinch-zoom;
+}
+
+body {
+  @apply bg-gray-50 text-gray-900 antialiased;
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
@@ -54,4 +62,10 @@ body {
 }
 .swiper-pagination-bullet-active {
   background: #fff !important;
+}
+
+/* ─── 修复：Swiper 阻断捏合缩放 ─── */
+.swiper-horizontal,
+.swiper-vertical {
+  touch-action: pan-x pan-y pinch-zoom !important;
 }
