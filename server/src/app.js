@@ -3,6 +3,7 @@ const cors = require('cors');
 const morgan = require('morgan');
 const path = require('path');
 const fs = require('fs');
+const { spawn } = require('child_process');
 
 // 路由模块（后续每天逐一完善）
 const authRoutes = require('./routes/auth');
@@ -41,24 +42,52 @@ if (fs.existsSync(adminDist)) {
 
 // ═══ 占位图生成（picsum.photos 国内被墙，用本地 SVG 替代）═══
 app.get('/api/v1/placeholder/:seed/:width/:height', (req, res) => {
-  const w = parseInt(req.params.width) || 600;
-  const h = parseInt(req.params.height) || 400;
+  const w = Math.max(10, Math.min(1200, parseInt(req.params.width) || 600));
+  const h = Math.max(10, Math.min(1200, parseInt(req.params.height) || 400));
   const seed = parseInt(req.params.seed) || 1;
-  // 用 seed 决定色相，让不同图片有不同颜色
   const hue = (seed * 47) % 360;
   const hue2 = (hue + 30) % 360;
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}">
-  <defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
-    <stop offset="0%" style="stop-color:hsl(${hue},45%,55%)"/>
-    <stop offset="100%" style="stop-color:hsl(${hue2},40%,45%)"/>
-  </linearGradient></defs>
-  <rect width="${w}" height="${h}" fill="url(#g)"/>
-  <text x="50%" y="50%" text-anchor="middle" dy=".3em" fill="rgba(255,255,255,0.7)"
-        font-family="Arial,sans-serif" font-size="${Math.min(w,h)*0.08}px">${w}×${h}</text>
-</svg>`;
-  res.setHeader('Content-Type', 'image/svg+xml');
-  res.setHeader('Cache-Control', 'public, max-age=86400');
-  res.send(svg);
+  const fontSize = Math.max(10, Math.floor(Math.min(w, h) * 0.08));
+
+  // 磁盘缓存（带 seed 所以不同颜色各自缓存）
+  const cacheDir = path.join(__dirname, '..', 'cache', 'placeholder');
+  const cacheFile = path.join(cacheDir, `${seed}_${w}_${h}.png`);
+
+  if (fs.existsSync(cacheFile)) {
+    res.setHeader('Content-Type', 'image/png');
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+    return fs.createReadStream(cacheFile).pipe(res);
+  }
+
+  // 生成 PNG（ImageMagick）
+  if (!fs.existsSync(cacheDir)) fs.mkdirSync(cacheDir, { recursive: true });
+
+  const color1 = `hsl(${hue},45%,55%)`;
+  const color2 = `hsl(${hue2},40%,45%)`;
+
+  const cmd = spawn('convert', [
+    '-size', `${w}x${h}`,
+    `gradient:${color1}-${color2}`,
+    '-gravity', 'center',
+    '-fill', 'rgba(255,255,255,0.7)',
+    '-font', 'Arial',
+    '-pointsize', String(fontSize),
+    '-annotate', '0', `${w}×${h}`,
+    `PNG:${cacheFile}`,
+  ]);
+
+  cmd.on('close', (code) => {
+    if (code === 0 && fs.existsSync(cacheFile)) {
+      res.setHeader('Content-Type', 'image/png');
+      res.setHeader('Cache-Control', 'public, max-age=86400');
+      fs.createReadStream(cacheFile).pipe(res);
+    } else {
+      console.error(`ImageMagick failed with code ${code}`);
+      res.status(500).end();
+    }
+  });
+
+  cmd.stderr.on('data', (d) => console.error('convert:', d.toString()));
 });
 
 // ═══ 健康检查 ═══
