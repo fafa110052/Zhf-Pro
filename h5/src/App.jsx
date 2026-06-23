@@ -1,17 +1,14 @@
 import { RouterProvider } from 'react-router-dom';
 import { ToastProvider } from './components/Toast';
-import useDoubleTapZoom from './hooks/useDoubleTapZoom';
+import ZoomProvider from './components/ZoomProvider';
 import router from './router';
-
-function AppInner() {
-  useDoubleTapZoom();
-  return <RouterProvider router={router} />;
-}
 
 function App() {
   return (
     <ToastProvider>
-      <AppInner />
+      <ZoomProvider>
+        <RouterProvider router={router} />
+      </ZoomProvider>
     </ToastProvider>
   );
 }
