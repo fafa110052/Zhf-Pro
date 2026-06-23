@@ -79,6 +79,22 @@ export default function Images() {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState('');
+  const [deleteRefInfo, setDeleteRefInfo] = useState(null);
+  const [loadingRefs, setLoadingRefs] = useState(false);
+
+  // 当选中要删除的图片且存在引用时，查询引用详情
+  useEffect(() => {
+    if (!deleteTarget || !deleteTarget.reference_count || deleteTarget.reference_count <= 0) {
+      setDeleteRefInfo(null);
+      return;
+    }
+    setLoadingRefs(true);
+    setDeleteRefInfo(null);
+    client.get(`/admin/images/${deleteTarget.id}/references`)
+      .then((res) => setDeleteRefInfo(res.data))
+      .catch(() => setDeleteRefInfo(null))
+      .finally(() => setLoadingRefs(false));
+  }, [deleteTarget]);
 
   // ─── 设计师列表（用于上传时选择）───
   const [designers, setDesigners] = useState([]);
@@ -229,9 +245,11 @@ export default function Images() {
     setDeleting(true);
     setDeleteError('');
     try {
-      await client.delete(`/admin/images/${deleteTarget.id}`);
-      toast.success('图片已删除');
+      const force = deleteTarget.reference_count > 0;
+      await client.delete(`/admin/images/${deleteTarget.id}${force ? '?force=true' : ''}`);
+      toast.success(force ? '图片及引用已清理' : '图片已删除');
       setDeleteTarget(null);
+      setDeleteRefInfo(null);
       setSelected((prev) => { const next = new Set(prev); next.delete(deleteTarget.id); return next; });
       fetchImages(pagination.page);
     } catch (err) {
@@ -630,11 +648,37 @@ export default function Images() {
       {/* ═══════════ 删除确认 ═══════════ */}
       <ConfirmDialog
         open={!!deleteTarget}
-        onClose={() => { setDeleteTarget(null); setDeleteError(''); }}
+        onClose={() => { setDeleteTarget(null); setDeleteError(''); setDeleteRefInfo(null); }}
         onConfirm={handleDelete}
         title="删除图片"
-        message={deleteError || `确定要删除「${deleteTarget?.original_name || '未命名'}」吗？此操作不可撤销。${deleteTarget?.reference_count > 0 ? `\n\n⚠ 该图片已被 ${deleteTarget.reference_count} 个作品引用，无法删除。` : ''}`}
-        confirmText={deleteTarget?.reference_count > 0 ? '无法删除' : '确认删除'}
+        message={(() => {
+          if (deleteError) return deleteError;
+          const base = `确定要删除「${deleteTarget?.original_name || '未命名'}」吗？此操作不可撤销。`;
+          if (!deleteTarget?.reference_count || deleteTarget.reference_count <= 0) return base;
+
+          if (loadingRefs) return base + '\n\n⏳ 正在检查作品引用...';
+          if (!deleteRefInfo) return base + `\n\n⚠ 该图片被 ${deleteTarget.reference_count} 个作品引用。`;
+
+          const { works } = deleteRefInfo;
+          const willLose = works.filter(w => !w.will_be_deleted);
+          const willDelete = works.filter(w => w.will_be_deleted);
+          let detail = `\n\n该图片被 ${works.length} 个作品引用。`;
+          if (willLose.length > 0) {
+            detail += `\n\n📌 将从以下作品中移除（自动顺延封面）：`;
+            willLose.forEach(w => { detail += `\n  · ${w.title}`; });
+          }
+          if (willDelete.length > 0) {
+            detail += `\n\n⚠️ 以下作品仅剩此图，将一并删除：`;
+            willDelete.forEach(w => { detail += `\n  · ${w.title}`; });
+          }
+          return base + detail;
+        })()}
+        confirmText={(() => {
+          if (deleteTarget?.reference_count > 0 && deleteRefInfo) return '确认删除（含关联作品）';
+          if (deleteTarget?.reference_count > 0 && loadingRefs) return '检查中...';
+          if (deleteTarget?.reference_count > 0) return '确认删除';
+          return '确认删除';
+        })()}
         variant={deleteError ? 'warning' : 'danger'}
         loading={deleting}
       />
