@@ -210,12 +210,23 @@ Page({
     var personnelType = result.user.personnel_type;
     var role = result.user.role;
 
-    // 业主优先判断（role 是主身份标识，避免 personnel_type 误设导致业主误入员工流程）
+    // 业主 → 我的页面
     if (role === 'owner') {
       wx.showToast({ title: '业主登录成功', icon: 'success' });
       setTimeout(function () { wx.switchTab({ url: '/pages/mine/index' }); }, 800);
-    } else if (personnelType === 'designer') {
-      // 设计师：首次登录 → 设计师中心，后续登录 → 我的页面
+      return;
+    }
+
+    // 游客 → 直接去我的页面，不区分 personnel_type
+    if (role === 'guest') {
+      wx.showToast({ title: '登录成功', icon: 'success' });
+      setTimeout(function () { wx.switchTab({ url: '/pages/mine/index' }); }, 800);
+      return;
+    }
+
+    // 员工（role === 'designer'）→ 按岗位分流
+    if (personnelType === 'designer') {
+      // 设计师：首次 → 设计师中心，后续 → 我的
       var hasSetup = wx.getStorageSync('designer_has_setup');
       wx.showToast({ title: '设计师登录成功', icon: 'success' });
       setTimeout(function () {
