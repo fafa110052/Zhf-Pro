@@ -2,7 +2,7 @@
 <view class="page">
   <!-- ═══ 头部 ═══ -->
   <view class="login-header">
-    <text class="login-icon">🏠</text>
+    <image class="login-logo" src="/images/zhflogo.png" mode="aspectFit" />
     <text class="login-title">住好房</text>
     <text class="login-subtitle">微信授权登录后浏览更多精彩作品</text>
     <view wx:if="{{devMode}}" class="dev-badge">

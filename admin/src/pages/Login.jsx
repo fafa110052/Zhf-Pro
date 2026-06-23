@@ -62,19 +62,19 @@ export default function Login() {
   return (
     <div className="min-h-screen flex bg-gray-50">
       {/* ─── 左侧品牌区（桌面端可见） ─── */}
-      <div className="hidden lg:flex lg:w-1/2 xl:w-3/5 bg-slate-900 relative overflow-hidden items-center justify-center">
+      <div className="hidden lg:flex lg:w-1/2 xl:w-3/5 bg-linear-to-br from-sky-100 via-blue-50 to-indigo-100 relative overflow-hidden items-center justify-center">
         {/* 装饰背景 */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-20 left-10 w-64 h-64 bg-blue-400 rounded-full blur-3xl" />
-          <div className="absolute bottom-10 right-20 w-96 h-96 bg-purple-400 rounded-full blur-3xl" />
-          <div className="absolute top-1/2 left-1/3 w-48 h-48 bg-teal-300 rounded-full blur-3xl" />
+        <div className="absolute inset-0 opacity-20">
+          <div className="absolute top-20 left-10 w-64 h-64 bg-blue-300 rounded-full blur-3xl" />
+          <div className="absolute bottom-10 right-20 w-96 h-96 bg-sky-400 rounded-full blur-3xl" />
+          <div className="absolute top-1/2 left-1/3 w-48 h-48 bg-indigo-300 rounded-full blur-3xl" />
         </div>
-        <div className="relative text-center text-white px-12">
-          <div className="text-7xl mb-6">🏠</div>
-          <h1 className="text-4xl font-bold tracking-wide mb-4">住好房</h1>
-          <p className="text-lg text-slate-300 mb-3">装修展示平台</p>
+        <div className="relative text-center px-12">
+          <img src="/zhflogo.png" alt="住好房" className="w-24 h-24 mx-auto rounded-2xl shadow-md mb-5" />
+          <h1 className="text-4xl font-bold tracking-wide text-slate-800 mb-4">住好房</h1>
+          <p className="text-lg text-slate-600 mb-3">装修展示平台</p>
           <div className="w-16 h-0.5 bg-blue-400 mx-auto mb-4" />
-          <p className="text-sm text-slate-400 leading-relaxed max-w-xs mx-auto">
+          <p className="text-sm text-slate-500 leading-relaxed max-w-xs mx-auto">
             装修案例 · 设计灵感<br />一站式装饰作品管理
           </p>
         </div>
@@ -85,7 +85,8 @@ export default function Login() {
         <div className="w-full max-w-sm">
           {/* 移动端 Logo */}
           <div className="lg:hidden text-center mb-8">
-            <h1 className="text-3xl font-bold text-slate-900">🏠 住好房</h1>
+            <img src="/zhflogo.png" alt="住好房" className="w-16 h-16 mx-auto rounded-xl shadow-sm mb-2" />
+            <h1 className="text-3xl font-bold text-slate-900">住好房</h1>
             <p className="mt-2 text-gray-500">管理后台</p>
           </div>
 

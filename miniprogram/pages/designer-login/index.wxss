@@ -16,9 +16,10 @@
   padding: 80rpx 0 40rpx;
 }
 
-.login-icon {
-  font-size: 72rpx;
-  margin-bottom: 16rpx;
+.login-logo {
+  width: 140rpx;
+  height: 140rpx;
+  margin-bottom: 12rpx;
 }
 
 .login-title {
