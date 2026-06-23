@@ -10,7 +10,6 @@ body {
   @apply bg-gray-50 text-gray-900 antialiased;
   overscroll-behavior: none;
   -webkit-tap-highlight-color: transparent;
-  touch-action: manipulation; /* 阻止浏览器原生 pinch/double-tap 缩放，由 JS 接管 */
 }
 
 /* ─── 移动端安全区域 ─── */
@@ -57,7 +56,7 @@ body {
   background: #fff !important;
 }
 
-/* ─── 修复：Swiper 不阻止捏合事件传递，但禁止浏览器原生缩放 ─── */
+/* ─── Swiper 不阻止原生手势 ─── */
 .swiper-horizontal,
 .swiper-vertical {
   touch-action: pan-x pan-y !important;
