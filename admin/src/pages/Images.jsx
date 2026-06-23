@@ -19,6 +19,31 @@ import { useToast } from '../components/Toast';
 
 const PAGE_SIZE = 20;
 
+// 通用复制到剪贴板（兼容 HTTP 环境）
+// Clipboard API 仅 HTTPS/localhost 可用，HTTP 需 execCommand 回退
+async function copyToClipboard(text) {
+  // 优先尝试 Clipboard API（HTTPS / localhost）
+  if (navigator.clipboard) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch { /* 回退到 execCommand */ }
+  }
+  // 回退方案：textarea + execCommand（HTTP 兼容）
+  const textarea = document.createElement('textarea');
+  textarea.value = text;
+  textarea.style.position = 'fixed';
+  textarea.style.left = '-9999px';
+  textarea.style.top = '-9999px';
+  textarea.setAttribute('readonly', '');
+  document.body.appendChild(textarea);
+  textarea.select();
+  textarea.setSelectionRange(0, text.length);
+  const ok = document.execCommand('copy');
+  document.body.removeChild(textarea);
+  return ok;
+}
+
 export default function Images() {
   const toast = useToast();
 
@@ -582,13 +607,14 @@ export default function Images() {
             <span>{previewImage.original_name || '未命名'}</span>
             {previewImage.width && previewImage.height && <span className="text-white/50">{previewImage.width}×{previewImage.height}</span>}
             <span className="text-white/50">{formatSize(previewImage.file_size || 0)}</span>
-            <button onClick={() => {
+            <button onClick={async () => {
               const fullUrl = window.location.origin + previewImage.image_url;
-              navigator.clipboard.writeText(fullUrl).then(() => {
+              const ok = await copyToClipboard(fullUrl);
+              if (ok) {
                 toast.success('链接已复制到剪贴板');
-              }).catch(() => {
-                toast.error('复制失败，请手动复制');
-              });
+              } else {
+                toast.error('复制失败，请手动复制链接：' + fullUrl);
+              }
             }}
               className="px-3 py-1 bg-white/20 hover:bg-white/30 rounded-lg transition-colors text-xs">
               复制链接
