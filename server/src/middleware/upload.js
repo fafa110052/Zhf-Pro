@@ -6,13 +6,20 @@ const crypto = require('crypto');
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 const MAX_SIZE = 10 * 1024 * 1024; // 10MB
 
+// 文件名安全化：只保留中文/英文/数字/下划线/连字符
+const sanitize = (s) => (s || 'unknown').replace(/[^a-zA-Z0-9一-鿿_-]/g, '').replace(/\s+/g, '_') || 'unknown';
+
 // 磁盘存储配置
 const storage = multer.diskStorage({
   destination: path.join(__dirname, '..', '..', 'uploads', 'originals'),
   filename: (req, file, cb) => {
-    // 安全文件名：时间戳 + 随机串 + 原扩展名
+    // 文件名格式：设计师名-日期-随机串.扩展名
+    // 例：张三-20260623-a1b2.jpg
     const ext = path.extname(file.originalname).toLowerCase() || '.jpg';
-    const name = `${Date.now()}-${crypto.randomBytes(8).toString('hex')}${ext}`;
+    const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+    const designerName = sanitize(req.user?.name || 'unknown');
+    const random = crypto.randomBytes(4).toString('hex');
+    const name = `${designerName}-${dateStr}-${random}${ext}`;
     cb(null, name);
   },
 });

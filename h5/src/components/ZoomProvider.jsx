@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useRef, useState, useCallback } from 'react';
 
-const MAX_SCALE = 4;
-const DOUBLE_TAP_SCALE = 2.5;
+const MAX_SCALE = 2;
+const DOUBLE_TAP_SCALE = 1.5;
 const ANIM_DURATION = 350;
 
 /**
@@ -19,7 +19,10 @@ export const useZoomContext = () => useContext(ZoomContext);
  *
  *   放大：zoom 瞬间到位 → transform 从 scale(1/target) 动画到 scale(1) 做出放大效果
  *   缩小：zoom 过渡回 1x
- *   捏合：zoom 实时跟随
+ *   捏合：以当前尺寸为基础实时跟随，最大 2x，最小 1x（保持原始尺寸）
+ *
+ * 放大后 #root 设 min-height:100vh 确保内容高度足够产生纵向滚动，
+ * 配合原生 window.scroll 实现上下左右任意方向拖动。
  *
  * 当子组件通过 useZoomContext().setDisabled(true) 禁用时，
  * 所有触摸处理跳过，让子组件自行管理缩放（如 Lightbox 全屏预览）。
@@ -59,14 +62,20 @@ export default function ZoomProvider({ children }) {
       root.style.transformOrigin = '';
     };
 
-    // ── 捏合：zoom 实时跟随 ──
+    // ── 确保放大后有足够的纵向滚动空间 ──
+    const setMinHeight = (scale) => {
+      root.style.minHeight = scale > 1.01 ? '100vh' : '';
+    };
+
+    // ── 捏合：zoom 实时跟随（以当前尺寸为基础） ──
     const pinchTo = (scale) => {
       cancelAnim();
       s.scale = scale;
       root.style.zoom = scale;
+      setMinHeight(scale);
     };
 
-    // ── 双击放大 ──
+    // ── 双击放大（1.5x）──
     // zoom 瞬间到位（保证状态稳定），transform 做视觉动画
     const zoomIn = (clientX, clientY) => {
       cancelAnim();
@@ -81,6 +90,7 @@ export default function ZoomProvider({ children }) {
       // Step 1: zoom 瞬间到位
       s.scale = targetScale;
       root.style.zoom = targetScale;
+      setMinHeight(targetScale);
 
       // Step 2: 滚动使触摸点保持在原位
       window.scrollTo(
@@ -88,9 +98,7 @@ export default function ZoomProvider({ children }) {
         docY * targetScale - clientY,
       );
 
-      // Step 3: 盖一层 transform 动画——从视觉 1x 过渡到 2.5x
-      // zoom=2.5 下 transform:scale(1/2.5) = 视觉 1x（于触摸点）
-      // 动画到 transform:scale(1) = 视觉 2.5x
+      // Step 3: 盖一层 transform 动画——从视觉 oldScale 过渡到 targetScale
       const startScale = oldScale / targetScale;
       root.style.transformOrigin = `${docX}px ${docY}px`;
       root.style.transform = `scale(${startScale})`;
@@ -116,6 +124,7 @@ export default function ZoomProvider({ children }) {
     const zoomOut = () => {
       cancelAnim();
       s.scale = 1;
+      setMinHeight(1);
       // ⚠️ 先设 transition 再改 zoom，否则浏览器不会触发过渡动画
       root.style.transition = `zoom ${ANIM_DURATION}ms cubic-bezier(0.25,0.46,0.45,0.94)`;
       root.style.zoom = 1;
@@ -198,6 +207,7 @@ export default function ZoomProvider({ children }) {
       root.style.transform = '';
       root.style.transformOrigin = '';
       root.style.transition = '';
+      root.style.minHeight = '';
     };
   }, []); // disabledRef 在回调中通过 ref 读取，不需要重绑事件
 

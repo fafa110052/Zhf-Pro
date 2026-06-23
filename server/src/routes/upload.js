@@ -21,6 +21,7 @@ const thumbnailsDir = path.join(__dirname, '..', '..', 'uploads', 'thumbnails');
  *
  * 请求：multipart/form-data，字段名 "file"
  * 可选字段：uploaded_by（管理员可指定上传者设计师 ID）
+ *         category 分类（用于图片命名，如 客厅/卧室/厨房）
  * 认证：需要登录（管理员或设计师均可）
  * 返回：image_library 记录
  */
@@ -30,7 +31,11 @@ router.post('/upload', authenticate, upload.single('file'), async (req, res, nex
     const uploadedBy = (req.user.role === 'admin' && req.body.uploaded_by)
       ? Number(req.body.uploaded_by)
       : req.user.id;
-    const record = await uploadService.uploadSingle(req.file, uploadedBy);
+    const options = {
+      designerName: req.user.name || 'unknown',
+      category: req.body.category || '',
+    };
+    const record = await uploadService.uploadSingle(req.file, uploadedBy, options);
     res.status(201).json({ success: true, data: record });
   } catch (err) {
     next(err);
@@ -43,6 +48,7 @@ router.post('/upload', authenticate, upload.single('file'), async (req, res, nex
  *
  * 请求：multipart/form-data，字段名 "files"
  * 可选字段：uploaded_by（管理员可指定上传者设计师 ID）
+ *         category 分类（用于图片命名）
  * 认证：需要登录
  * 返回：{ uploaded: [...], failed: [...] }
  */
@@ -52,7 +58,11 @@ router.post('/upload/multiple', authenticate, upload.array('files', 9), async (r
     const uploadedBy = (req.user.role === 'admin' && req.body.uploaded_by)
       ? Number(req.body.uploaded_by)
       : req.user.id;
-    const result = await uploadService.uploadMultiple(req.files, uploadedBy);
+    const options = {
+      designerName: req.user.name || 'unknown',
+      category: req.body.category || '',
+    };
+    const result = await uploadService.uploadMultiple(req.files, uploadedBy, options);
     res.status(201).json({ success: true, data: result });
   } catch (err) {
     next(err);

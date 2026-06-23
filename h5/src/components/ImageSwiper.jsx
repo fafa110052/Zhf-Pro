@@ -154,8 +154,9 @@ function Lightbox({ images, currentIndex, open, onClose, onIndexChange }) {
 
 /**
  * 灯箱内可缩放图片 — 使用 zoom 属性实现布局级缩放
- * 2 指捏合缩放 + 双击切换 1x/2.5x
- * 放大后单指拖动 = 原生滚动平移（overflow:auto 容器提供）
+ * 2 指捏合缩放（以当前尺寸为基础，最大 2x，最小 1x）
+ * + 双击切换 1x/1.5x
+ * 放大后单指拖动 = 原生滚动平移（overflow:auto 容器提供，支持上下左右）
  */
 function ZoomableImage({ src, alt }) {
   const imgRef = useRef(null);
@@ -200,7 +201,7 @@ function ZoomableImage({ src, alt }) {
           // 双击切换缩放
           e.stopPropagation();
           e.preventDefault();
-          applyZoom(s.scale > 1.05 ? 1 : 2.5);
+          applyZoom(s.scale > 1.05 ? 1 : 1.5);
           s.lastTap = 0;
           return;
         }
@@ -219,7 +220,7 @@ function ZoomableImage({ src, alt }) {
         e.preventDefault();
         const dist = getDist(e.touches[0], e.touches[1]);
         const ratio = dist / s.pinchStartDist;
-        const newScale = Math.min(4, Math.max(1, s.pinchStartScale * ratio));
+        const newScale = Math.min(2, Math.max(1, s.pinchStartScale * ratio));
         applyZoom(newScale);
       } else if (s.scale > 1.01) {
         // 放大态：阻止 Swiper 滑动

@@ -10,11 +10,14 @@ const THUMBS_DIR = path.join(__dirname, '..', '..', 'uploads', 'thumbnails');
 /**
  * 文件上传 + 图片处理业务逻辑
  */
+// 文件名安全化
+const sanitize = (s) => (s || '').replace(/[^a-zA-Z0-9一-鿿_-]/g, '').replace(/\s+/g, '_') || 'unknown';
+
 const uploadService = {
   // ==========================================
   // 单文件上传
   // ==========================================
-  async uploadSingle(file, userId) {
+  async uploadSingle(file, userId, options = {}) {
     if (!file) {
       throw Object.assign(new Error('未选择文件'), { status: 400 });
     }
@@ -34,11 +37,20 @@ const uploadService = {
       throw Object.assign(new Error(`图片处理失败: ${err.message}`), { status: 500 });
     }
 
+    // original_name 格式：设计师-分类-日期.扩展名
+    const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+    const designerName = sanitize(options.designerName || 'unknown');
+    const category = sanitize(options.category || '');
+    const ext = path.extname(file.filename);
+    const displayName = category
+      ? `${designerName}-${category}-${dateStr}${ext}`
+      : `${designerName}-${dateStr}${ext}`;
+
     // 插入 image_library
     const [id] = await db('image_library').insert({
       image_url: `/uploads/originals/${file.filename}`,
       thumb_url: `/uploads/thumbnails/${thumbFilename}`,
-      original_name: file.originalname,
+      original_name: displayName,
       file_size: file.size,
       uploaded_by: userId || null,
     });
@@ -49,7 +61,7 @@ const uploadService = {
   // ==========================================
   // 多文件上传
   // ==========================================
-  async uploadMultiple(files, userId) {
+  async uploadMultiple(files, userId, options = {}) {
     if (!files || files.length === 0) {
       throw Object.assign(new Error('未选择文件'), { status: 400 });
     }
@@ -59,7 +71,7 @@ const uploadService = {
 
     for (const file of files) {
       try {
-        const record = await this.uploadSingle(file, userId);
+        const record = await this.uploadSingle(file, userId, options);
         results.push(record);
       } catch (err) {
         errors.push({ file: file.originalname, error: err.message });
