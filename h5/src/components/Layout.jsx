@@ -3,7 +3,7 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 const TABS = [
   { path: '/', label: '首页', icon: '🏠' },
   { path: '/category', label: '分类', icon: '🔍' },
-  { path: '/login', label: '我的', icon: '👤' },
+  { path: '/mine', label: '我的', icon: '👤' },
 ];
 
 export default function Layout() {

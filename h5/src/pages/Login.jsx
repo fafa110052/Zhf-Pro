@@ -1,34 +1,28 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { loginByPhone } from '../api/auth';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function Login() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const { isLoggedIn, user, login, logout } = useAuth();
 
   const [phone, setPhone] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // 是否已登录
-  const token = localStorage.getItem('h5_token');
-  const user = localStorage.getItem('h5_user');
+  const redirect = searchParams.get('redirect') || '/mine';
 
-  if (token && user) {
+  // 已登录状态
+  if (isLoggedIn) {
     return (
       <div className="flex flex-col items-center justify-center min-h-full px-6 py-12" style={{ background: 'linear-gradient(180deg, #e8f4fd 0%, #f8fafc 40%)' }}>
         <img src="/zhflogo.png" alt="住好房" className="w-16 h-16 mx-auto rounded-xl mb-2" />
         <h2 className="text-lg font-semibold text-gray-900 mt-4">已登录</h2>
-        <p className="text-sm text-gray-400 mt-1">
-          {(() => {
-            try { return JSON.parse(user).name || ''; } catch { return ''; }
-          })()}
-        </p>
+        <p className="text-sm text-gray-400 mt-1">{user?.name || ''}</p>
+        <p className="text-xs text-gray-300 mt-0.5">{user?.phone || ''}</p>
         <button
-          onClick={() => {
-            localStorage.removeItem('h5_token');
-            localStorage.removeItem('h5_user');
-            window.location.reload();
-          }}
+          onClick={() => { logout(); }}
           className="mt-6 px-6 py-2 text-sm text-gray-400 border border-gray-200 rounded-lg active:bg-gray-50"
         >
           退出登录
@@ -46,7 +40,6 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // 校验手机号
     const phoneReg = /^1[3-9]\d{9}$/;
     if (!phoneReg.test(phone)) {
       setError('请输入正确的手机号码');
@@ -57,14 +50,8 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const result = await loginByPhone(phone);
-      const { token, user } = result.data || result;
-
-      localStorage.setItem('h5_token', token);
-      localStorage.setItem('h5_user', JSON.stringify(user));
-
-      // 登录成功跳回首页
-      navigate('/', { replace: true });
+      await login(phone);
+      navigate(redirect, { replace: true });
     } catch (err) {
       setLoading(false);
       const msg = err?.message || '登录失败，请重试';
@@ -89,7 +76,6 @@ export default function Login() {
       <form onSubmit={handleSubmit} className="w-full max-w-sm bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-4">
         <h2 className="text-base font-semibold text-gray-900">手机号登录</h2>
 
-        {/* 错误提示 */}
         {error && (
           <div className="bg-red-50 text-red-600 text-xs px-3 py-2 rounded-lg">
             {error}
@@ -129,7 +115,6 @@ export default function Login() {
         </p>
       </form>
 
-      {/* 底部返回 */}
       <button
         onClick={() => navigate('/')}
         className="mt-6 text-sm text-gray-400 active:text-gray-600"
