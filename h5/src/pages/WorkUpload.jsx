@@ -158,12 +158,12 @@ export default function WorkUpload() {
     setSubmitting(true);
 
     try {
-      // 1. 上传本地图片
-      const uploadedIds = [];
+      // 1. 上传本地图片（同时记录 image_url 用于封面）
+      const uploaded = [];
       for (const img of localImages) {
         try {
           const result = await uploadImage(img.file);
-          uploadedIds.push(result.id);
+          uploaded.push({ id: result.id, image_url: result.image_url, thumb_url: result.thumb_url });
         } catch (err) {
           alert(`图片上传失败: ${err?.message || '未知错误'}`);
           setSubmitting(false);
@@ -171,17 +171,19 @@ export default function WorkUpload() {
         }
       }
 
-      // 2. 收集所有图片 ID（未删除的已有 + 新上传的）
-      const remainingServer = serverImages
-        .filter((img) => !removedImageIds.includes(img.id))
-        .map((img) => img.id);
-      const allImageIds = [...remainingServer, ...uploadedIds];
+      // 2. 拼接全部图片列表（未删除的已有 + 新上传的）
+      const activeServer = serverImages.filter((img) => !removedImageIds.includes(img.id));
+      const allPictures = [
+        ...activeServer.map((img) => ({ id: img.id, image_url: img.image_url })),
+        ...uploaded.map((img) => ({ id: img.id, image_url: img.image_url })),
+      ];
 
-      // 3. 确定封面
-      const activeServerImages = serverImages.filter((img) => !removedImageIds.includes(img.id));
+      // 3. 确定封面图 URL（从全部图片中按索引取）
       let coverImageUrl = '';
-      if (coverIndex < activeServerImages.length) {
-        coverImageUrl = activeServerImages[coverIndex]?.image_url || '';
+      if (coverIndex >= 0 && coverIndex < allPictures.length) {
+        coverImageUrl = allPictures[coverIndex].image_url || '';
+      } else if (allPictures.length > 0) {
+        coverImageUrl = allPictures[0].image_url || '';
       }
 
       // 4. 构建提交数据
@@ -194,7 +196,7 @@ export default function WorkUpload() {
         area_sqm: form.area_sqm ? Number(form.area_sqm) : null,
         budget_min: form.budget_min ? Number(form.budget_min) : null,
         budget_max: form.budget_max ? Number(form.budget_max) : null,
-        images: allImageIds.map((id) => ({ id })),
+        images: allPictures.map((p) => ({ id: p.id })),
         cover_image: coverImageUrl,
       };
 

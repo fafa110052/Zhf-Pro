@@ -1,6 +1,35 @@
 const db = require('../db/connection');
 
 /**
+ * 为作品列表项补全封面信息（cover_image + cover_thumb）
+ * cover_thumb 优先取缩略图，没有时回退到原图
+ */
+async function enrichCoverInfo(items) {
+  if (!items || items.length === 0) return items;
+  return Promise.all(items.map(async (item) => {
+    if (item.cover_image) {
+      const coverRow = await db('case_images')
+        .where('case_id', item.id)
+        .where('image_url', item.cover_image)
+        .select('thumb_url')
+        .first();
+      item.cover_thumb = coverRow?.thumb_url || item.cover_image;
+    } else {
+      const firstImg = await db('case_images')
+        .where('case_id', item.id)
+        .orderBy('sort_order', 'asc')
+        .select('image_url', 'thumb_url')
+        .first();
+      if (firstImg) {
+        item.cover_image = firstImg.image_url;
+        item.cover_thumb = firstImg.thumb_url || firstImg.image_url;
+      }
+    }
+    return item;
+  }));
+}
+
+/**
  * 归一化封面图路径：去除 URL 前缀，确保存储的是相对路径
  */
 function normalizeCoverImage(url) {
@@ -130,20 +159,8 @@ const caseService = {
     // ── 分页 ──
     const list = await query.offset(offset).limit(pageSize);
 
-    // cover_image 为空时回退到第一张作品图片
-    const enriched = await Promise.all(list.map(async (item) => {
-      if (!item.cover_image) {
-        const firstImg = await db('case_images')
-          .where('case_id', item.id)
-          .orderBy('sort_order', 'asc')
-          .select('image_url')
-          .first();
-        if (firstImg) {
-          item.cover_image = firstImg.image_url;
-        }
-      }
-      return item;
-    }));
+    // 补全封面信息（cover_image + cover_thumb）
+    const enriched = await enrichCoverInfo(list);
 
     return {
       list: enriched,
@@ -224,22 +241,8 @@ const caseService = {
       .orderBy('cases.id', 'desc')
       .limit(max);
 
-    // cover_image 为空时回退到第一张作品图片
-    const enriched = await Promise.all(list.map(async (item) => {
-      if (!item.cover_image) {
-        const firstImg = await db('case_images')
-          .where('case_id', item.id)
-          .orderBy('sort_order', 'asc')
-          .select('image_url')
-          .first();
-        if (firstImg) {
-          item.cover_image = firstImg.image_url;
-        }
-      }
-      return item;
-    }));
-
-    return enriched;
+    // 补全封面信息（cover_image + cover_thumb）
+    return enrichCoverInfo(list);
   },
 
   // ══════════════════════════════════════════
@@ -285,20 +288,8 @@ const caseService = {
       .offset(offset)
       .limit(pageSize);
 
-    // cover_image 为空时回退到第一张作品图片
-    const enriched = await Promise.all(list.map(async (item) => {
-      if (!item.cover_image) {
-        const firstImg = await db('case_images')
-          .where('case_id', item.id)
-          .orderBy('sort_order', 'asc')
-          .select('image_url')
-          .first();
-        if (firstImg) {
-          item.cover_image = firstImg.image_url;
-        }
-      }
-      return item;
-    }));
+    // 补全封面信息（cover_image + cover_thumb）
+    const enriched = await enrichCoverInfo(list);
 
     return {
       list: enriched,
@@ -331,7 +322,7 @@ const caseService = {
       .where('case_images.case_id', workId)
       .orderBy('case_images.sort_order', 'asc')
       .select(
-        'case_images.id',
+        'case_images.library_image_id as id',
         'case_images.sort_order',
         'image_library.image_url',
         'image_library.thumb_url as thumb_url'
@@ -559,20 +550,8 @@ const caseService = {
       .offset(offset)
       .limit(pageSize);
 
-    // cover_image 为空时回退到第一张作品图片
-    const enriched = await Promise.all(list.map(async (item) => {
-      if (!item.cover_image) {
-        const firstImg = await db('case_images')
-          .where('case_id', item.id)
-          .orderBy('sort_order', 'asc')
-          .select('image_url')
-          .first();
-        if (firstImg) {
-          item.cover_image = firstImg.image_url;
-        }
-      }
-      return item;
-    }));
+    // 补全封面信息（cover_image + cover_thumb）
+    const enriched = await enrichCoverInfo(list);
 
     return {
       list: enriched,
