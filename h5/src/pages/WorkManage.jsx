@@ -208,13 +208,18 @@ export default function WorkManage() {
                         </button>
                       </>
                     )}
-                    {!canEdit && (
+                    {work.review_status === 'approved' && (
                       <button
                         onClick={() => navigate(`/work/${work.id}`)}
                         className="flex-1 py-2.5 text-xs text-gray-400 active:bg-gray-50"
                       >
                         查看详情
                       </button>
+                    )}
+                    {work.review_status === 'pending' && (
+                      <span className="flex-1 py-2.5 text-xs text-gray-300 text-center">
+                        等待管理员审核
+                      </span>
                     )}
                   </div>
                 </div>
