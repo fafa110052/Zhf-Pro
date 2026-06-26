@@ -3,7 +3,7 @@ import axios from 'axios';
 const client = axios.create({
   baseURL: '/api/v1',
   timeout: 15000,
-  headers: { 'Content-Type': 'application/json' },
+  // 不设 Content-Type：Axios 对普通对象自动设 application/json，对 FormData 保持空白让浏览器设 boundary
 });
 
 // ─── 请求拦截器：自动带 token ───

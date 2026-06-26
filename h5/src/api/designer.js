@@ -31,7 +31,5 @@ export const uploadImage = (file, workName) => {
   if (workName) {
     formData.append('work_name', workName);
   }
-  return client.post('/upload', formData, {
-    headers: { 'Content-Type': 'multipart/form-data' },
-  }).then((r) => r.data);
+  return client.post('/upload', formData).then((r) => r.data);
 };
