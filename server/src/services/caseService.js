@@ -533,8 +533,14 @@ const caseService = {
         'designers.id as designer_id', 'designers.name as designer_name'
       );
 
+    // 默认不显示草稿（草稿是设计师私有状态，不应在管理端可见）
     if (filters.review_status) {
+      if (filters.review_status === 'draft') {
+        return { list: [], pagination: { page: 1, page_size: pageSize, total: 0, total_pages: 0 } };
+      }
       query = query.where('cases.review_status', filters.review_status);
+    } else {
+      query = query.whereNot('cases.review_status', 'draft');
     }
     if (filters.designer_id) {
       query = query.where('cases.designer_id', Number(filters.designer_id));
@@ -672,7 +678,7 @@ const caseService = {
           updates = { review_status: 'approved', updated_at: db.fn.now() };
           break;
         case 'delete':
-          if (work.review_status !== 'offline') { results.skipped++; continue; }
+          if (!['offline', 'rejected'].includes(work.review_status)) { results.skipped++; continue; }
           await db('cases').where('id', Number(id)).del();
           results.success++;
           continue;
@@ -757,14 +763,14 @@ const caseService = {
     return db('cases').where('id', workId).first();
   },
 
-  /** 管理员删除作品（仅 offline 状态可删） */
+  /** 管理员删除作品（已下架或已驳回状态可删） */
   async adminDelete(workId) {
     const work = await db('cases').where('id', workId).first();
     if (!work) {
       throw Object.assign(new Error('作品不存在'), { status: 404 });
     }
-    if (work.review_status !== 'offline') {
-      throw Object.assign(new Error(`当前状态（${work.review_status}）不可删除，请先下架`), { status: 409 });
+    if (!['offline', 'rejected'].includes(work.review_status)) {
+      throw Object.assign(new Error(`当前状态（${work.review_status}）不可删除，仅已下架或已驳回的作品可删除`), { status: 409 });
     }
     await db('cases').where('id', workId).del();
   },

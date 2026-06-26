@@ -18,7 +18,7 @@ export const updateWork = (id, data) =>
 
 // 删除作品
 export const deleteWork = (id) =>
-  client.del(`/designer/works/${id}`).then((r) => r.data);
+  client.delete(`/designer/works/${id}`).then((r) => r.data);
 
 // 提交审核
 export const submitWork = (id) =>

@@ -19,7 +19,6 @@ const STATUS_MAP = {
 
 const STATUS_OPTIONS = [
   { value: '', label: '全部状态' },
-  { value: 'draft', label: '草稿' },
   { value: 'pending', label: '待审核' },
   { value: 'approved', label: '已通过' },
   { value: 'rejected', label: '已驳回' },
@@ -226,6 +225,18 @@ function DetailPanel({ work, loading, onClose, onApprove, onReject, onToggleHot,
                     className="flex-1 py-2.5 border-2 border-orange-300 text-orange-600 text-sm font-medium rounded-xl hover:bg-orange-50 transition-colors"
                   >
                     下 架
+                  </button>
+                </div>
+              )}
+
+              {/* 已驳回 → 删除 */}
+              {work.review_status === 'rejected' && (
+                <div className="flex space-x-3">
+                  <button
+                    onClick={() => onDelete(work)}
+                    className="flex-1 py-2.5 border-2 border-red-300 text-red-600 text-sm font-medium rounded-xl hover:bg-red-50 transition-colors"
+                  >
+                    删 除
                   </button>
                 </div>
               )}
@@ -836,8 +847,9 @@ export default function Works() {
         const allApproved = selectedWorks.every(w => w.review_status === 'approved');
         const allOffline = selectedWorks.every(w => w.review_status === 'offline');
         const allPending = selectedWorks.every(w => w.review_status === 'pending');
+        const allDeletable = selectedWorks.every(w => ['offline', 'rejected'].includes(w.review_status));
 
-        if (!allApproved && !allOffline && !allPending) {
+        if (!allApproved && !allOffline && !allPending && !allDeletable) {
           return (
             <div className="bg-slate-900 text-white rounded-xl shadow-lg px-4 py-3 flex items-center justify-between animate-in slide-in-from-top-2">
               <span className="text-sm text-slate-400">已选 <b className="text-white">{selectedIds.size}</b> 个作品（仅支持下架/上架/待审核作品批量操作）</span>
@@ -870,6 +882,10 @@ export default function Works() {
                   <button onClick={batchDelete} disabled={batchLoading}
                     className="px-3 py-1.5 bg-red-500 text-white text-xs rounded-lg hover:bg-red-600 disabled:opacity-50 transition-colors">批量删除</button>
                 </>
+              )}
+              {allDeletable && !allOffline && (
+                <button onClick={batchDelete} disabled={batchLoading}
+                  className="px-3 py-1.5 bg-red-500 text-white text-xs rounded-lg hover:bg-red-600 disabled:opacity-50 transition-colors">批量删除</button>
               )}
               <button onClick={clearSelection}
                 className="px-3 py-1.5 text-xs text-slate-300 hover:text-white transition-colors">取消选择</button>
@@ -948,6 +964,10 @@ export default function Works() {
                         {w.review_status === 'approved' && (
                           <button onClick={() => handleOffline(w)}
                             className="px-2 py-1 text-xs text-orange-600 hover:bg-orange-50 rounded transition-colors">下架</button>
+                        )}
+                        {w.review_status === 'rejected' && (
+                          <button onClick={() => handleDelete(w)}
+                            className="px-2 py-1 text-xs text-red-500 hover:bg-red-50 rounded transition-colors">删除</button>
                         )}
                         {w.review_status === 'offline' && (
                           <>

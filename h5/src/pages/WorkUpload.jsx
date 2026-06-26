@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getCategories } from '../api/works';
-import { getMyWorkDetail, createWork, updateWork, uploadImage } from '../api/designer';
+import { getMyWorkDetail, createWork, updateWork, submitWork, uploadImage } from '../api/designer';
 
 const MAX_IMAGES = 9;
 
@@ -152,61 +152,79 @@ export default function WorkUpload() {
     return Object.keys(errs).length === 0;
   };
 
-  // ─── 提交 ───
-  const handleSubmit = async () => {
+  // ─── 通用保存逻辑（上传图片 + 构建数据 + 创建/更新）───
+  const doSave = async () => {
+    // 1. 上传本地图片
+    const uploaded = [];
+    for (const img of localImages) {
+      try {
+        const result = await uploadImage(img.file, form.title.trim());
+        uploaded.push({ id: result.id, image_url: result.image_url, thumb_url: result.thumb_url });
+      } catch (err) {
+        throw new Error(`图片上传失败: ${err?.message || '未知错误'}`);
+      }
+    }
+
+    // 2. 拼接全部图片列表
+    const activeServer = serverImages.filter((img) => !removedImageIds.includes(img.id));
+    const allPictures = [
+      ...activeServer.map((img) => ({ id: img.id, image_url: img.image_url })),
+      ...uploaded.map((img) => ({ id: img.id, image_url: img.image_url })),
+    ];
+
+    // 3. 确定封面图 URL
+    let coverImageUrl = '';
+    if (coverIndex >= 0 && coverIndex < allPictures.length) {
+      coverImageUrl = allPictures[coverIndex].image_url || '';
+    } else if (allPictures.length > 0) {
+      coverImageUrl = allPictures[0].image_url || '';
+    }
+
+    // 4. 构建提交数据
+    const data = {
+      title: form.title.trim(),
+      description: form.description.trim(),
+      house_type_id: Number(form.house_type_id),
+      area_category_id: Number(form.area_category_id),
+      style_category_id: Number(form.style_category_id),
+      area_sqm: form.area_sqm ? Number(form.area_sqm) : null,
+      budget_min: form.budget_min ? Number(form.budget_min) : null,
+      budget_max: form.budget_max ? Number(form.budget_max) : null,
+      images: allPictures.map((p) => ({ id: p.id })),
+      cover_image: coverImageUrl,
+    };
+
+    // 5. 创建或更新 → 返回作品 ID
+    if (editId) {
+      await updateWork(editId, data);
+      return Number(editId);
+    } else {
+      const result = await createWork(data);
+      return result.id;
+    }
+  };
+
+  // ─── 保存草稿 ───
+  const handleSaveDraft = async () => {
     if (!validate()) return;
     setSubmitting(true);
-
     try {
-      // 1. 上传本地图片（同时记录 image_url 用于封面）
-      const uploaded = [];
-      for (const img of localImages) {
-        try {
-          const result = await uploadImage(img.file, form.title.trim());
-          uploaded.push({ id: result.id, image_url: result.image_url, thumb_url: result.thumb_url });
-        } catch (err) {
-          alert(`图片上传失败: ${err?.message || '未知错误'}`);
-          setSubmitting(false);
-          return;
-        }
-      }
+      await doSave();
+      navigate('/work-manage', { replace: true });
+    } catch (err) {
+      alert(err?.message || '保存失败');
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
-      // 2. 拼接全部图片列表（未删除的已有 + 新上传的）
-      const activeServer = serverImages.filter((img) => !removedImageIds.includes(img.id));
-      const allPictures = [
-        ...activeServer.map((img) => ({ id: img.id, image_url: img.image_url })),
-        ...uploaded.map((img) => ({ id: img.id, image_url: img.image_url })),
-      ];
-
-      // 3. 确定封面图 URL（从全部图片中按索引取）
-      let coverImageUrl = '';
-      if (coverIndex >= 0 && coverIndex < allPictures.length) {
-        coverImageUrl = allPictures[coverIndex].image_url || '';
-      } else if (allPictures.length > 0) {
-        coverImageUrl = allPictures[0].image_url || '';
-      }
-
-      // 4. 构建提交数据
-      const data = {
-        title: form.title.trim(),
-        description: form.description.trim(),
-        house_type_id: Number(form.house_type_id),
-        area_category_id: Number(form.area_category_id),
-        style_category_id: Number(form.style_category_id),
-        area_sqm: form.area_sqm ? Number(form.area_sqm) : null,
-        budget_min: form.budget_min ? Number(form.budget_min) : null,
-        budget_max: form.budget_max ? Number(form.budget_max) : null,
-        images: allPictures.map((p) => ({ id: p.id })),
-        cover_image: coverImageUrl,
-      };
-
-      // 5. 创建或更新
-      if (editId) {
-        await updateWork(editId, data);
-      } else {
-        await createWork(data);
-      }
-
+  // ─── 提交审核 ───
+  const handleSubmitForReview = async () => {
+    if (!validate()) return;
+    setSubmitting(true);
+    try {
+      const workId = await doSave();
+      await submitWork(workId);
       navigate('/work-manage', { replace: true });
     } catch (err) {
       alert(err?.message || '提交失败');
@@ -264,13 +282,22 @@ export default function WorkUpload() {
           取消
         </button>
         <h2 className="text-sm font-semibold text-gray-900">{editId ? '编辑作品' : '上传作品'}</h2>
-        <button
-          onClick={handleSubmit}
-          disabled={submitting}
-          className="text-sm font-medium text-slate-900 disabled:opacity-30 active:text-slate-600"
-        >
-          {submitting ? '提交中...' : '保存'}
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleSaveDraft}
+            disabled={submitting}
+            className="text-sm text-gray-400 disabled:opacity-30 active:text-gray-600"
+          >
+            {submitting ? '保存中...' : '保存草稿'}
+          </button>
+          <button
+            onClick={handleSubmitForReview}
+            disabled={submitting}
+            className="text-sm font-medium text-slate-900 disabled:opacity-30 active:text-slate-600"
+          >
+            {submitting ? '提交中...' : '提交审核'}
+          </button>
+        </div>
       </div>
 
       <div className="p-4 space-y-5">
