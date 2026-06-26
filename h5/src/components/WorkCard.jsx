@@ -41,7 +41,7 @@ export default function WorkCard({ work }) {
       {/* 封面图 */}
       <div className="relative w-full aspect-4/3 bg-gray-100">
         <img
-          src={work.cover_image}
+          src={work.cover_thumb || work.cover_image}
           alt={work.title}
           className="w-full h-full object-cover"
           loading="lazy"

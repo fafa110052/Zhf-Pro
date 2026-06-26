@@ -48,6 +48,7 @@ export default function Settings() {
   const [formWorkIds, setFormWorkIds] = useState([]);
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState('');
+  const [uploading, setUploading] = useState(false);
 
   // ─── 作品搜索（热门推荐选作品用） ───
   const [workSearch, setWorkSearch] = useState('');
@@ -56,6 +57,11 @@ export default function Settings() {
   const [workDropdown, setWorkDropdown] = useState(false);
   const workSearchRef = useRef(null);
   const searchTimer = useRef(null);
+
+  // ─── 拖拽排序 ───
+  const [dragIndex, setDragIndex] = useState(null);
+  const [dragOverIndex, setDragOverIndex] = useState(null);
+  const [reordering, setReordering] = useState(false);
 
   // ─── 删除确认 ───
   const [deleteTarget, setDeleteTarget] = useState(null);
@@ -233,6 +239,101 @@ export default function Settings() {
     setFormWorkIds(formWorkIds.filter((wid) => wid !== id));
   };
 
+  // ─── 本地上传轮播图 ───
+  const handleBannerUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error('图片大小不能超过 10MB');
+      e.target.value = '';
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const token = localStorage.getItem('admin_token');
+      const response = await fetch('/api/v1/upload', {
+        method: 'POST',
+        headers: { Authorization: token ? `Bearer ${token}` : '' },
+        body: formData,
+      });
+
+      const result = await response.json();
+      if (result.success && result.data?.image_url) {
+        setFormImageUrl(result.data.image_url);
+        toast.success('图片上传成功');
+      } else {
+        toast.error(result.error?.message || '上传失败');
+      }
+    } catch (err) {
+      toast.error('上传失败，请重试');
+    } finally {
+      setUploading(false);
+      e.target.value = '';
+    }
+  };
+
+  // ─── 拖拽排序：轮播图 ───
+  const handleDragStart = (e, index) => {
+    setDragIndex(index);
+    e.dataTransfer.effectAllowed = 'move';
+    // 设置拖拽时的半透明预览
+    if (e.target.closest('.banner-row')) {
+      e.dataTransfer.setDragImage(e.target.closest('.banner-row'), 0, 0);
+    }
+  };
+
+  const handleDragOver = (e, index) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setDragOverIndex(index);
+  };
+
+  const handleDragLeave = () => {
+    setDragOverIndex(null);
+  };
+
+  const handleDragEnd = () => {
+    setDragIndex(null);
+    setDragOverIndex(null);
+  };
+
+  const handleDrop = async (e, dropIndex) => {
+    e.preventDefault();
+    const fromIndex = dragIndex;
+    setDragIndex(null);
+    setDragOverIndex(null);
+
+    if (fromIndex === null || fromIndex === dropIndex) return;
+
+    // 重排数组
+    const reordered = [...banners];
+    const [moved] = reordered.splice(fromIndex, 1);
+    reordered.splice(dropIndex, 0, moved);
+
+    // 立即更新 UI
+    setBanners(reordered);
+    setReordering(true);
+
+    // 保存新排序
+    try {
+      await Promise.all(
+        reordered.map((item, i) =>
+          client.put(`/admin/settings/${item.id}`, { sort_order: i })
+        )
+      );
+    } catch (err) {
+      toast.error('排序保存失败，请刷新页面');
+      fetchSettings();
+    } finally {
+      setReordering(false);
+    }
+  };
+
   // ─── 加载态 ───
   if (loading) {
     return (
@@ -280,13 +381,29 @@ export default function Settings() {
               action={<button onClick={() => openAddForm('banner')} className="text-sm text-blue-600 hover:underline">添加第一张轮播图</button>} />
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-2">
             {banners.map((item, idx) => {
               const v = item._parsed || {};
+              const isDragging = dragIndex === idx;
+              const isDragOver = dragOverIndex === idx && dragIndex !== idx;
               return (
-                <div key={item.id} className="flex items-center gap-4 p-3 bg-gray-50 rounded-xl border border-gray-100 hover:border-gray-200 transition-colors">
+                <div key={item.id}
+                  className={`banner-row flex items-center gap-3 p-3 rounded-xl border transition-all select-none ${isDragging ? 'opacity-40 bg-gray-100 border-dashed border-gray-300' : isDragOver ? 'bg-blue-50 border-blue-300 shadow-sm' : 'bg-gray-50 border-gray-100 hover:border-gray-200'}`}
+                  draggable={!reordering}
+                  onDragStart={(e) => handleDragStart(e, idx)}
+                  onDragOver={(e) => handleDragOver(e, idx)}
+                  onDragLeave={handleDragLeave}
+                  onDragEnd={handleDragEnd}
+                  onDrop={(e) => handleDrop(e, idx)}>
+                  {/* 拖拽手柄 */}
+                  <div className={`shrink-0 cursor-grab active:cursor-grabbing ${reordering ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    title="拖动排序">
+                    <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M8 6h2v2H8V6zm6 0h2v2h-2V6zM8 11h2v2H8v-2zm6 0h2v2h-2v-2zm-6 5h2v2H8v-2zm6 0h2v2h-2v-2z" />
+                    </svg>
+                  </div>
                   {/* 排序序号 */}
-                  <span className="w-7 h-7 rounded-full bg-slate-200 text-slate-600 text-xs font-medium flex items-center justify-center shrink-0">
+                  <span className={`w-6 h-6 rounded-full text-xs font-medium flex items-center justify-center shrink-0 ${isDragOver ? 'bg-blue-500 text-white' : 'bg-slate-200 text-slate-600'}`}>
                     {idx + 1}
                   </span>
                   {/* 图片预览 */}
@@ -304,8 +421,6 @@ export default function Settings() {
                     <p className="text-xs text-gray-400 truncate mt-0.5">{v.image_url || '无图片链接'}</p>
                     {v.link && <p className="text-xs text-blue-500 truncate">🔗 {v.link}</p>}
                   </div>
-                  {/* 排序 */}
-                  <div className="text-xs text-gray-400 shrink-0">排序: {item.sort_order}</div>
                   {/* 操作 */}
                   <div className="flex items-center gap-1 shrink-0">
                     <button onClick={() => openEditForm('banner', item)}
@@ -316,6 +431,9 @@ export default function Settings() {
                 </div>
               );
             })}
+            {reordering && (
+              <div className="text-center text-xs text-gray-400 py-1">保存排序中...</div>
+            )}
           </div>
         )}
       </div>
@@ -413,12 +531,34 @@ export default function Settings() {
             <>
               {/* Banner 表单 */}
               <div>
-                <label className="block text-sm text-gray-600 mb-1">图片链接 <span className="text-red-400">*</span></label>
-                <input type="text" value={formImageUrl} onChange={(e) => setFormImageUrl(e.target.value)}
-                  placeholder="https://example.com/banner.jpg" autoFocus
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                <label className="block text-sm text-gray-600 mb-1">图片 <span className="text-red-400">*</span></label>
+                <div className="flex gap-2">
+                  <input type="text" value={formImageUrl} onChange={(e) => setFormImageUrl(e.target.value)}
+                    placeholder="粘贴图片链接或点击右侧上传" autoFocus
+                    className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                  <label className={`inline-flex items-center gap-1 px-3 py-2 text-sm border rounded-lg cursor-pointer transition-colors shrink-0 ${uploading ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed' : 'bg-white text-blue-600 border-blue-300 hover:bg-blue-50'}`}>
+                    {uploading ? (
+                      <>
+                        <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                        </svg>
+                        上传中
+                      </>
+                    ) : (
+                      <>
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                        </svg>
+                        本地上传
+                      </>
+                    )}
+                    <input type="file" accept="image/*" className="hidden" disabled={uploading}
+                      onChange={handleBannerUpload} />
+                  </label>
+                </div>
                 {formImageUrl && (
-                  <div className="mt-2 w-full h-32 rounded-lg overflow-hidden bg-gray-100 border border-gray-200">
+                  <div className="mt-2 w-full h-36 rounded-lg overflow-hidden bg-gray-100 border border-gray-200">
                     <img src={formImageUrl} alt="预览" className="w-full h-full object-cover"
                       onError={(e) => { e.target.style.display = 'none'; }} />
                   </div>

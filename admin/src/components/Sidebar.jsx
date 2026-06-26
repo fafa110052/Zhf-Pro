@@ -217,15 +217,12 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
           })}
         </nav>
 
-        {/* 底部版本号 + 快捷键提示 */}
+        {/* 底部版本号 */}
         <div className={`px-4 py-3 border-t border-slate-700/60 text-xs text-slate-500 ${collapsed ? 'lg:text-center' : ''}`}>
           {collapsed ? (
-            <span className="hidden lg:inline" title="快捷键: ⌘+D/W/E/I/, 导航">⌨️</span>
+            <span className="hidden lg:inline" title="住好房 v1.1">🏠</span>
           ) : (
-            <div>
-              <div className="mb-1">住好房 v1.1</div>
-              <div className="text-[10px] text-slate-600">⌘+D/W/E/C/I/, 快速导航</div>
-            </div>
+            <div>住好房 v1.1</div>
           )}
         </div>
       </aside>

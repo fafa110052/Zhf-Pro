@@ -21,7 +21,8 @@ const thumbnailsDir = path.join(__dirname, '..', '..', 'uploads', 'thumbnails');
  *
  * 请求：multipart/form-data，字段名 "file"
  * 可选字段：uploaded_by（管理员可指定上传者设计师 ID）
- *         category 分类（用于图片命名，如 客厅/卧室/厨房）
+ *         work_name 作品名称（用于图片命名）
+ *         category 分类（备用，如 客厅/卧室/厨房）
  * 认证：需要登录（管理员或设计师均可）
  * 返回：image_library 记录
  */
@@ -33,6 +34,7 @@ router.post('/upload', authenticate, upload.single('file'), async (req, res, nex
       : req.user.id;
     const options = {
       designerName: req.user.name || 'unknown',
+      workName: req.body.work_name || '',
       category: req.body.category || '',
     };
     const record = await uploadService.uploadSingle(req.file, uploadedBy, options);
@@ -60,6 +62,7 @@ router.post('/upload/multiple', authenticate, upload.array('files', 9), async (r
       : req.user.id;
     const options = {
       designerName: req.user.name || 'unknown',
+      workName: req.body.work_name || '',
       category: req.body.category || '',
     };
     const result = await uploadService.uploadMultiple(req.files, uploadedBy, options);

@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { ToastProvider } from './Toast';
-import useKeyboardNav from '../hooks/useKeyboardNav';
 import Sidebar from './Sidebar';
 import HeaderBar from './HeaderBar';
 
@@ -14,7 +13,6 @@ import HeaderBar from './HeaderBar';
  *
  * 提供：
  * - Toast 通知系统（全局）
- * - 键盘快捷键导航
  * - 响应式侧栏布局
  */
 export default function Layout() {
@@ -22,9 +20,6 @@ export default function Layout() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-
-  // 键盘快捷键
-  useKeyboardNav();
 
   const handleLogout = () => {
     logout();

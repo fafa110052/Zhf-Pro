@@ -24,10 +24,13 @@ export const deleteWork = (id) =>
 export const submitWork = (id) =>
   client.post(`/designer/works/${id}/submit`).then((r) => r.data);
 
-// 上传图片
-export const uploadImage = (file) => {
+// 上传图片（可选传作品名称用于命名）
+export const uploadImage = (file, workName) => {
   const formData = new FormData();
   formData.append('file', file);
+  if (workName) {
+    formData.append('work_name', workName);
+  }
   return client.post('/upload', formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
   }).then((r) => r.data);

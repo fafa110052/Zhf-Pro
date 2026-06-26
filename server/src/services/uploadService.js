@@ -37,13 +37,13 @@ const uploadService = {
       throw Object.assign(new Error(`图片处理失败: ${err.message}`), { status: 500 });
     }
 
-    // original_name 格式：设计师-分类-日期.扩展名
+    // original_name 格式：设计师-作品名字-日期.扩展名
     const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
     const designerName = sanitize(options.designerName || 'unknown');
-    const category = sanitize(options.category || '');
+    const workName = sanitize(options.workName || options.category || '');
     const ext = path.extname(file.filename);
-    const displayName = category
-      ? `${designerName}-${category}-${dateStr}${ext}`
+    const displayName = workName
+      ? `${designerName}-${workName}-${dateStr}${ext}`
       : `${designerName}-${dateStr}${ext}`;
 
     // 插入 image_library

@@ -73,6 +73,7 @@ export default function Images() {
   const [uploading, setUploading] = useState(false);
   const [uploadResult, setUploadResult] = useState(null);
   const [uploadDesignerId, setUploadDesignerId] = useState('');
+  const [uploadWorkName, setUploadWorkName] = useState('');
   const fileInputRef = useRef(null);
 
   const [previewImage, setPreviewImage] = useState(null);
@@ -188,6 +189,10 @@ export default function Images() {
       if (uploadDesignerId) {
         formData.append('uploaded_by', uploadDesignerId);
       }
+      // 作品名称
+      if (uploadWorkName.trim()) {
+        formData.append('work_name', uploadWorkName.trim());
+      }
 
       if (uploadFiles.length === 1) {
         formData.append('file', uploadFiles[0].file);
@@ -219,6 +224,7 @@ export default function Images() {
       uploadFiles.forEach((f) => URL.revokeObjectURL(f.preview));
       setUploadFiles([]);
       setUploadDesignerId('');
+      setUploadWorkName('');
       fetchImages(1);
       const count = uploadFiles.length;
       toast.success(count === 1 ? '图片上传成功' : `${count} 张图片上传成功`);
@@ -236,6 +242,7 @@ export default function Images() {
     setUploadFiles([]);
     setUploadResult(null);
     setUploadDesignerId('');
+    setUploadWorkName('');
     setUploadOpen(false);
   };
 
@@ -567,6 +574,16 @@ export default function Images() {
               <p className="text-xs text-gray-400 mt-1">选择设计师后，图片将归属到该设计师名下</p>
             </div>
           )}
+
+          {/* 作品名称 */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">作品名称（用于图片命名）</label>
+            <input type="text" value={uploadWorkName}
+              onChange={(e) => setUploadWorkName(e.target.value)}
+              placeholder="如：客厅装修方案"
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+            <p className="text-xs text-gray-400 mt-1">命名格式：设计师-作品名称-日期</p>
+          </div>
 
           {/* 选择区 */}
           <div className="border-2 border-dashed border-gray-200 rounded-xl p-6 text-center hover:border-blue-400 transition-colors cursor-pointer"
