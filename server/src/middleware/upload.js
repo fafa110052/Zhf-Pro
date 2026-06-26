@@ -4,7 +4,7 @@ const crypto = require('crypto');
 
 // 允许的图片格式
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-const MAX_SIZE = 10 * 1024 * 1024; // 10MB
+const MAX_SIZE = 50 * 1024 * 1024; // 50MB（4K 渲染图可达 20-35MB）
 
 // 文件名安全化：只保留中文/英文/数字/下划线/连字符
 const sanitize = (s) => (s || 'unknown').replace(/[^a-zA-Z0-9一-鿿_-]/g, '').replace(/\s+/g, '_') || 'unknown';
