@@ -145,7 +145,7 @@ export default function WorkUpload() {
     const errs = {};
     if (!form.title.trim()) errs.title = '请输入作品标题';
     if (!form.house_type_id) errs.house_type_id = '请选择户型';
-    if (!form.area_category_id) errs.area_category_id = '请选择装修部位';
+    if (!form.area_category_id) errs.area_category_id = '请选择装修空间';
     if (!form.style_category_id) errs.style_category_id = '请选择装修风格';
     if (totalImages === 0) errs.images = '请至少上传一张图片';
     setErrors(errs);
@@ -412,7 +412,7 @@ export default function WorkUpload() {
 
           {/* 分类选择 */}
           {renderSelect('house_type_id', '户型', categories?.house_type)}
-          {renderSelect('area_category_id', '装修部位', categories?.area)}
+          {renderSelect('area_category_id', '装修空间', categories?.area)}
           {renderSelect('style_category_id', '装修风格', categories?.style)}
 
           {/* 面积 */}

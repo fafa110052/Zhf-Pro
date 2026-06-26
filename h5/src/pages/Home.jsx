@@ -6,7 +6,7 @@ import { getHomepageConfig, getHotWorks } from '../api/works';
 
 const QUICK_CATS = [
   { key: 'house_type', label: '户型', icon: '🏠', color: 'bg-blue-50 text-blue-600' },
-  { key: 'area', label: '部位', icon: '🔨', color: 'bg-green-50 text-green-600' },
+  { key: 'area', label: '空间', icon: '🔨', color: 'bg-green-50 text-green-600' },
   { key: 'style', label: '风格', icon: '🎨', color: 'bg-amber-50 text-amber-600' },
 ];
 

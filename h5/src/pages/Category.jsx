@@ -16,7 +16,7 @@ const DIMENSION_PARAM_MAP = {
 // 维度显示信息
 const DIMENSION_META = [
   { paramKey: 'house_type_id', catKey: 'house_type', label: '户型' },
-  { paramKey: 'area_category_id', catKey: 'area', label: '部位' },
+  { paramKey: 'area_category_id', catKey: 'area', label: '空间' },
   { paramKey: 'style_category_id', catKey: 'style', label: '风格' },
 ];
 

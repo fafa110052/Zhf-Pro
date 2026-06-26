@@ -4,7 +4,7 @@
  * 模块：
  *   - 搜索栏
  *   - 轮播 Banner（后端动态配置）
- *   - 分类快捷入口（户型 / 部位 / 风格）
+ *   - 分类快捷入口（户型 / 空间 / 风格）
  *   - 热门推荐瀑布流
  */
 const api = require('../../utils/api');
@@ -19,7 +19,7 @@ Page({
     // 分类快捷入口
     quickCats: [
       { key: 'house_type', icon: '🏠', label: '户型' },
-      { key: 'area', icon: '🔨', label: '部位' },
+      { key: 'area', icon: '🔨', label: '空间' },
       { key: 'style', icon: '🎨', label: '风格' },
     ],
 

@@ -7,7 +7,7 @@ import ErrorState from '../components/ErrorState';
 import { useToast } from '../components/Toast';
 
 /**
- * 分类管理页 — 户型/部位/风格的增删改查
+ * 分类管理页 — 户型/空间/风格的增删改查
  *
  * API:
  * - GET    /api/v1/admin/categories      列表
@@ -16,10 +16,10 @@ import { useToast } from '../components/Toast';
  * - DELETE /api/v1/admin/categories/:id  删除
  */
 
-const TYPE_LABELS = { house_type: '户型', area: '部位', style: '风格' };
+const TYPE_LABELS = { house_type: '户型', area: '空间', style: '风格' };
 const TYPE_OPTIONS = [
   { value: 'house_type', label: '户型' },
-  { value: 'area', label: '部位' },
+  { value: 'area', label: '空间' },
   { value: 'style', label: '风格' },
 ];
 

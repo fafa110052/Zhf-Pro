@@ -58,7 +58,7 @@ const caseService = {
   /**
    * 查询参数一览：
    *   house_type_id   — 户型筛选
-   *   area_category_id — 装修部位筛选
+   *   area_category_id — 装修空间筛选
    *   style_category_id — 风格筛选
    *   keyword         — 标题/描述模糊搜索
    *   budget_min      — 最低造价
@@ -340,7 +340,7 @@ const caseService = {
       throw Object.assign(new Error('作品标题不能为空'), { status: 400 });
     }
     if (!house_type_id || !area_category_id || !style_category_id) {
-      throw Object.assign(new Error('请选择户型、部位和风格'), { status: 400 });
+      throw Object.assign(new Error('请选择户型、空间和风格'), { status: 400 });
     }
 
     // 校验分类存在性

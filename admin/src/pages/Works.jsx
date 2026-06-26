@@ -420,7 +420,7 @@ function CreateModal({ open, onClose, onCreated }) {
     if (!title.trim()) { setFormError('请输入作品标题'); return; }
     if (!designerId) { setFormError('请选择设计师'); return; }
     if (!houseTypeId) { setFormError('请选择户型'); return; }
-    if (!areaId) { setFormError('请选择部位'); return; }
+    if (!areaId) { setFormError('请选择空间'); return; }
     if (!styleId) { setFormError('请选择风格'); return; }
 
     setLoading(true);
@@ -520,7 +520,7 @@ function CreateModal({ open, onClose, onCreated }) {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">部位 <span className="text-red-400">*</span></label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">空间 <span className="text-red-400">*</span></label>
               <select value={areaId} onChange={e => setAreaId(e.target.value)} className={`w-full ${selectClass}`}>
                 <option value="">请选择</option>
                 {categories?.area?.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}

@@ -3,7 +3,7 @@
  *
  * 功能：
  *   1. 作品基本信息表单（标题/描述/分类/面积/预算）
- *   2. 分类选择（户型/部位/风格 — 从后端动态获取）
+ *   2. 分类选择（户型/空间/风格 — 从后端动态获取）
  *   3. 多图上传（拍照/相册）→ 批量上传到服务器
  *   4. 保存草稿 / 提交审核
  *   5. 编辑模式（传入 id 则进入编辑）
@@ -48,7 +48,7 @@ Page({
     // 分类选项
     categories: {
       house_type: [],    // 户型
-      area: [],          // 装修部位（API 返回 area 而非 area_category）
+      area: [],          // 装修空间（API 返回 area 而非 area_category）
       style: [],         // 装修风格（API 返回 style 而非 style_category）
     },
 
@@ -516,7 +516,7 @@ Page({
       return false;
     }
     if (!form.area_category_id) {
-      wx.showToast({ title: '请选择装修部位', icon: 'none' });
+      wx.showToast({ title: '请选择装修空间', icon: 'none' });
       return false;
     }
     if (!form.style_category_id) {

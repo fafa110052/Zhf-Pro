@@ -2,7 +2,7 @@
  * 分类筛选页
  *
  * 功能：
- *   - 顶部三维度 Tab（户型 / 部位 / 风格）
+ *   - 顶部三维度 Tab（户型 / 空间 / 风格）
  *   - 二级标签云（单维度单选）
  *   - 交叉筛选（多维度 AND 逻辑）
  *   - 排序切换（最新 / 最热）
@@ -15,7 +15,7 @@ const util = require('../../utils/util');
 // 注意：key 需与 /api/v1/categories 返回的 type 字段一致
 const DIMENSION_TABS = [
   { key: 'house_type', label: '户型' },
-  { key: 'area', label: '部位' },
+  { key: 'area', label: '空间' },
   { key: 'style', label: '风格' },
 ];
 
@@ -377,7 +377,7 @@ Page({
     // 遍历三个维度，找出已选项
     var dims = [
       { paramKey: 'house_type_id', catKey: 'house_type', label: '户型' },
-      { paramKey: 'area_category_id', catKey: 'area', label: '部位' },
+      { paramKey: 'area_category_id', catKey: 'area', label: '空间' },
       { paramKey: 'style_category_id', catKey: 'style', label: '风格' },
     ];
 

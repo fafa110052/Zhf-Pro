@@ -5,10 +5,10 @@ const db = require('../db/connection');
 
 // 缩略图尺寸（等比缩放，宽度 400px）
 const THUMB_WIDTH = 400;
-// 原图压缩：最大边 4096px，WebP Q90，控制在 5MB 以内
-// 4K 渲染图保留足够细节供双指放大查看，酷家乐/3DMax 出图不会糊
-const MAX_DIMENSION = 4096;
-const WEBP_QUALITY = 90;
+// 原图压缩：最大边 5120px，WebP Q95，控制在 5MB 以内
+// 接近无损保留渲染图细节，手机放大看材质纹理不丢
+const MAX_DIMENSION = 5120;
+const WEBP_QUALITY = 95;
 const THUMBS_DIR = path.join(__dirname, '..', '..', 'uploads', 'thumbnails');
 
 /**
@@ -40,8 +40,8 @@ const uploadService = {
       throw Object.assign(new Error(`图片处理失败: ${err.message}`), { status: 500 });
     }
 
-    // 原图压缩：最大边 4096px，WebP Q90，单张 <5MB
-    // 4K 酷家乐/3DMax 渲染图 → 1-3MB，放大看材质不糊
+    // 原图压缩：最大边 5120px，WebP Q95，单张 <5MB
+    // 接近无损，手机放大看材质纹理不丢细节
     let finalFilename = file.filename;
     let finalPath = file.path;
     let finalSize = file.size;

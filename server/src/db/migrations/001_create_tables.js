@@ -23,7 +23,7 @@ exports.up = function (knex) {
       table.timestamps(true, true);                      // created_at + updated_at
     })
 
-    // 2. categories — 分类字典（户型/部位/风格，由B端管理后台动态维护）
+    // 2. categories — 分类字典（户型/空间/风格，由B端管理后台动态维护）
     .createTable('categories', (table) => {
       table.increments('id').primary();
       table.string('type', 16).notNullable();            // house_type | area | style

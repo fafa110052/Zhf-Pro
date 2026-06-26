@@ -64,7 +64,7 @@ exports.seed = async function (knex) {
     houseTypeIds.push(row.id);
   }
 
-  // 装修部位
+  // 装修空间
   const areaNames = ['客厅', '卧室', '厨房', '卫生间', '阳台', '书房', '玄关', '餐厅', '儿童房', '全屋'];
   const areaIds = [];
   for (let i = 0; i < areaNames.length; i++) {

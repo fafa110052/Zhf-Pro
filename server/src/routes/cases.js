@@ -13,7 +13,7 @@ const { authenticate, requireRole } = require('../middleware/auth');
  *
  * Query 参数（全部可选）：
  *   house_type_id   — 户型筛选
- *   area_category_id — 部位筛选
+ *   area_category_id — 空间筛选
  *   style_category_id — 风格筛选
  *   keyword         — 标题/描述搜索
  *   budget_min      — 预算下限（万元）

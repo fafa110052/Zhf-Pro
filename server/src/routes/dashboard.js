@@ -38,7 +38,7 @@ router.get('/admin/dashboard/trends', authenticate, requireRole('admin'), async 
 
 /**
  * GET /api/v1/admin/dashboard/distribution
- * 分类分布 — 按户型/部位/风格统计作品数量
+ * 分类分布 — 按户型/空间/风格统计作品数量
  */
 router.get('/admin/dashboard/distribution', authenticate, requireRole('admin'), async (req, res, next) => {
   try {

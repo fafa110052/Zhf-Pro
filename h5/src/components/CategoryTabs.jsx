@@ -1,6 +1,6 @@
 const DIMENSION_TABS = [
   { key: 'house_type', label: '户型' },
-  { key: 'area', label: '部位' },
+  { key: 'area', label: '空间' },
   { key: 'style', label: '风格' },
 ];
 

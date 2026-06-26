@@ -141,10 +141,10 @@
           </picker>
         </view>
 
-        <!-- 装修部位 -->
+        <!-- 装修空间 -->
         <view class="form-item">
           <text class="form-label">
-            装修部位 <text class="required-star">*</text>
+            装修空间 <text class="required-star">*</text>
           </text>
           <picker
             mode="selector"
@@ -156,7 +156,7 @@
           >
             <view class="picker-input">
               <view class="picker-text {{form.area_category_id ? '' : 'picker-placeholder'}}">
-                {{categories.area[areaCategoryIndex] ? categories.area[areaCategoryIndex].name : '请选择部位'}}
+                {{categories.area[areaCategoryIndex] ? categories.area[areaCategoryIndex].name : '请选择空间'}}
               </view>
               <text class="picker-arrow">▼</text>
             </view>

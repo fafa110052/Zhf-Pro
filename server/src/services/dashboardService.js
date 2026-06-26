@@ -86,7 +86,7 @@ const dashboardService = {
       .groupBy('cases.house_type_id')
       .orderBy('count', 'desc');
 
-    // 按装修部位分布
+    // 按装修空间分布
     const byArea = await db('cases')
       .select('categories.name', db.raw('COUNT(*) as count'))
       .join('categories', 'cases.area_category_id', 'categories.id')
