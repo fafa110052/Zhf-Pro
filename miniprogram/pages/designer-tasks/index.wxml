@@ -1,11 +1,11 @@
 <!-- 设计师待处理列表 -->
 <view class="page">
+  <view wx:if="{{!ready}}" class="page-loading">
+    <view class="loading-dot-pulse"><view class="dot"></view><view class="dot"></view><view class="dot"></view></view>
+    <text class="loading-hint">加载中...</text>
+  </view>
   <block wx:if="{{ready}}">
-    <view wx:if="{{loading}}" class="page-loading">
-      <view class="loading-dot-pulse"><view class="dot"></view><view class="dot"></view><view class="dot"></view></view>
-      <text class="loading-hint">加载中...</text>
-    </view>
-    <view wx:elif="{{error}}" class="page-error" bindtap="onRetry">
+    <view wx:if="{{error}}" class="page-error" bindtap="onRetry">
       <text class="error-icon">⚠️</text>
       <text class="error-msg">加载失败</text>
       <text class="error-hint">点击重试</text>

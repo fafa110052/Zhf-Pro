@@ -84,7 +84,7 @@ Page({
       var list = works.map(function (item) {
         return {
           id: item.id,
-          cover_url: util.fullImageUrl(item.cover_image),
+          cover_url: util.fullImageUrl(item.cover_thumb || item.cover_image),
           title: item.title,
           area_text: util.formatArea(item.area_sqm),
           budget_text: formatBudgetRange(item.budget_min, item.budget_max),

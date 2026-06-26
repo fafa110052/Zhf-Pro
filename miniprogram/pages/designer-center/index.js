@@ -81,10 +81,12 @@ Page({
         created_at: profile.created_at,
         openid: profile.openid,
         role: profile.role,
+        personnel_type: profile.personnel_type,
       };
       // 同步到全局（含角色，确保管理员后台变更后小程序端即时生效）
       app.globalData.userInfo = userInfo;
       app.globalData.role = userInfo.role;
+      app.globalData.personnelType = userInfo.personnel_type;
       wx.setStorageSync('userInfo', userInfo);
 
       this.setData({ userInfo });

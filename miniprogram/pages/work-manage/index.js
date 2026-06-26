@@ -90,7 +90,7 @@ Page({
         return {
           id: w.id,
           title: w.title,
-          cover_url: fullImageUrl(w.cover_image),
+          cover_url: fullImageUrl(w.cover_thumb || w.cover_image),
           area_sqm: w.area_sqm,
           budget_min: w.budget_min,
           budget_max: w.budget_max,
