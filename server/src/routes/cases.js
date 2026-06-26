@@ -343,6 +343,22 @@ router.delete('/admin/works/:id', authenticate, requireRole('admin'), async (req
 });
 
 /**
+ * DELETE /api/v1/admin/works/:workId/images/:imageId
+ * 管理员删除作品中的单张图片
+ */
+router.delete('/admin/works/:workId/images/:imageId', authenticate, requireRole('admin'), async (req, res, next) => {
+  try {
+    const result = await caseService.adminDeleteImage(
+      Number(req.params.workId),
+      Number(req.params.imageId)
+    );
+    res.json({ success: true, data: result, message: '图片已删除' });
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
  * POST /api/v1/admin/works/:id/archive
  * 归档作品（approved/rejected → archived）
  */

@@ -791,6 +791,37 @@ const caseService = {
     });
     return db('cases').where('id', workId).first();
   },
+
+  /** 管理员删除作品中的单张图片 */
+  async adminDeleteImage(workId, imageId) {
+    const ci = await db('case_images').where({ id: imageId, case_id: workId }).first();
+    if (!ci) {
+      throw Object.assign(new Error('图片不存在或不属于该作品'), { status: 404 });
+    }
+
+    // 检查是否至少保留一张图片
+    const count = await db('case_images').where('case_id', workId).count('* as c').first();
+    if (count.c === 1) {
+      throw Object.assign(new Error('至少保留一张图片，请直接删除整个作品'), { status: 409 });
+    }
+
+    // 如果是封面图，顺延到下一张
+    const work = await db('cases').where('id', workId).first();
+    if (work.cover_image === ci.image_url) {
+      const next = await db('case_images')
+        .where('case_id', workId)
+        .whereNot('id', imageId)
+        .orderBy('sort_order', 'asc')
+        .first();
+      await db('cases').where('id', workId).update({
+        cover_image: next ? next.image_url : null,
+        updated_at: db.fn.now(),
+      });
+    }
+
+    await db('case_images').where('id', imageId).del();
+    return { deleted: true };
+  },
 };
 
 module.exports = caseService;

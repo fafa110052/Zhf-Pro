@@ -69,7 +69,7 @@ function Pagination({ page, totalPages, total, onPage }) {
 }
 
 /** 审核详情侧边面板 */
-function DetailPanel({ work, loading, onClose, onApprove, onReject, onToggleHot, onArchive, onSetCover, onOffline, onOnline, onDelete }) {
+function DetailPanel({ work, loading, onClose, onApprove, onReject, onToggleHot, onArchive, onSetCover, onOffline, onOnline, onDelete, onDeleteImage }) {
   if (!work && !loading) return null;
 
   const s = STATUS_MAP[work?.review_status] || {};
@@ -172,6 +172,14 @@ function DetailPanel({ work, loading, onClose, onApprove, onReject, onToggleHot,
                       return (
                         <div key={img.id} className="relative aspect-square rounded-lg bg-gray-100 overflow-hidden group">
                           <img src={img.thumb_url || img.image_url} alt="" className="w-full h-full object-cover" />
+                          {/* 删除按钮 */}
+                          <button
+                            onClick={() => onDeleteImage && onDeleteImage(work, img)}
+                            className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full text-[10px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+                            title="删除此图"
+                          >
+                            ✕
+                          </button>
                           {isCover && (
                             <span className="absolute top-1 left-1 px-1.5 py-0.5 bg-blue-600 text-white text-[10px] rounded font-medium">封面</span>
                           )}
@@ -710,6 +718,18 @@ export default function Works() {
     } catch (err) { toast.error(err?.message || '操作失败'); }
   };
 
+  const handleDeleteImage = async (work, img) => {
+    if (!confirm(`确定从作品「${work.title}」中删除此图片吗？`)) return;
+    try {
+      await client.delete(`/admin/works/${work.id}/images/${img.id}`);
+      toast.success('图片已删除');
+      // 重新拉取详情
+      const res = await client.get(`/admin/works/${work.id}`);
+      setDetailWork(res.data);
+      refresh();
+    } catch (err) { toast.error(err?.message || '操作失败'); }
+  };
+
   const handleOffline = async (work) => {
     if (!confirm(`确定要下架作品「${work.title}」吗？\n\n作品下架后将不在小程序端展示，但可随时重新上架。`)) return;
     try {
@@ -995,6 +1015,7 @@ export default function Works() {
         work={detailWork} loading={detailLoading} onClose={() => setDetailWork(null)}
         onApprove={handleApprove} onReject={handleReject} onToggleHot={handleToggleHot} onArchive={handleArchive}
         onSetCover={handleSetCover} onOffline={handleOffline} onOnline={handleOnline} onDelete={handleDelete}
+        onDeleteImage={handleDeleteImage}
       />
 
       {/* ═══ 单个驳回弹窗 ═══ */}
