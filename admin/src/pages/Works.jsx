@@ -613,8 +613,8 @@ export default function Works() {
   const [keyword, setKeyword] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
 
-  // 多选
-  const [selectedIds, setSelectedIds] = useState(new Set());
+  // 多选（key=作品ID, value=review_status）
+  const [selectedIds, setSelectedIds] = useState(new Map());
 
   // 详情面板
   const [detailWork, setDetailWork] = useState(null);
@@ -656,14 +656,21 @@ export default function Works() {
   const refresh = () => fetchList({ keyword, review_status: statusFilter, page: pagination.page, page_size: pagination.page_size });
 
   // ═══ 选择 ═══
-  const toggleSelect = (id) => {
-    setSelectedIds((prev) => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
+  const toggleSelect = (id, status) => {
+    setSelectedIds((prev) => {
+      const n = new Map(prev);
+      n.has(id) ? n.delete(id) : n.set(id, status);
+      return n;
+    });
   };
   const toggleAll = () => {
-    if (selectedIds.size === works.length) setSelectedIds(new Set());
-    else setSelectedIds(new Set(works.map((w) => w.id)));
+    if (selectedIds.size === works.length) {
+      setSelectedIds(new Map());
+    } else {
+      setSelectedIds(new Map(works.map((w) => [w.id, w.review_status])));
+    }
   };
-  const clearSelection = () => setSelectedIds(new Set());
+  const clearSelection = () => setSelectedIds(new Map());
 
   // ═══ 详情 ═══
   const openDetail = async (work) => {
@@ -774,7 +781,7 @@ export default function Works() {
     if (!confirm(`确定批量通过 ${selectedIds.size} 个作品吗？`)) return;
     setBatchLoading(true);
     try {
-      const res = await client.post('/admin/works/batch', { ids: [...selectedIds], action: 'approve' });
+      const res = await client.post('/admin/works/batch', { ids: [...selectedIds.keys()], action: 'approve' });
       toast.success(`已批量通过 ${res.data.success} 个作品`);
       clearSelection(); refresh();
     } catch (err) { toast.error(err?.message || '操作失败'); }
@@ -791,7 +798,7 @@ export default function Works() {
     if (!reason) return;
     setBatchLoading(true);
     try {
-      const res = await client.post('/admin/works/batch', { ids: [...selectedIds], action: 'reject', reason });
+      const res = await client.post('/admin/works/batch', { ids: [...selectedIds.keys()], action: 'reject', reason });
       toast.success(`已批量驳回 ${res.data.success} 个作品`);
       setBatchRejectModal(false); clearSelection(); refresh();
     } catch (err) { toast.error(err?.message || '操作失败'); }
@@ -802,7 +809,7 @@ export default function Works() {
     if (!confirm(`确定批量下架 ${selectedIds.size} 个作品吗？\n\n下架后作品将不在小程序端展示。`)) return;
     setBatchLoading(true);
     try {
-      const res = await client.post('/admin/works/batch', { ids: [...selectedIds], action: 'offline' });
+      const res = await client.post('/admin/works/batch', { ids: [...selectedIds.keys()], action: 'offline' });
       toast.success(`已下架 ${res.data.success} 个作品`);
       clearSelection(); refresh();
     } catch (err) { toast.error(err?.message || '操作失败'); }
@@ -812,7 +819,7 @@ export default function Works() {
   const batchOnline = async () => {
     setBatchLoading(true);
     try {
-      const res = await client.post('/admin/works/batch', { ids: [...selectedIds], action: 'online' });
+      const res = await client.post('/admin/works/batch', { ids: [...selectedIds.keys()], action: 'online' });
       toast.success(`已上架 ${res.data.success} 个作品`);
       clearSelection(); refresh();
     } catch (err) { toast.error(err?.message || '操作失败'); }
@@ -824,7 +831,7 @@ export default function Works() {
     if (!confirm(`再次确认：永久删除 ${selectedIds.size} 个作品？`)) return;
     setBatchLoading(true);
     try {
-      const res = await client.post('/admin/works/batch', { ids: [...selectedIds], action: 'delete' });
+      const res = await client.post('/admin/works/batch', { ids: [...selectedIds.keys()], action: 'delete' });
       toast.success(`已删除 ${res.data.success} 个作品`);
       clearSelection(); refresh();
     } catch (err) { toast.error(err?.message || '操作失败'); }
@@ -833,7 +840,6 @@ export default function Works() {
 
   // ═══ 渲染 ═══
   const hasSelection = selectedIds.size > 0;
-  const pendingWorks = works.filter((w) => w.review_status === 'pending');
 
   return (
     <div className="p-4 lg:p-6 space-y-4">
@@ -863,11 +869,11 @@ export default function Works() {
 
       {/* ─── 批量操作栏 ─── */}
       {hasSelection && (() => {
-        const selectedWorks = works.filter(w => selectedIds.has(w.id));
-        const allApproved = selectedWorks.every(w => w.review_status === 'approved');
-        const allOffline = selectedWorks.every(w => w.review_status === 'offline');
-        const allPending = selectedWorks.every(w => w.review_status === 'pending');
-        const allDeletable = selectedWorks.every(w => ['offline', 'rejected'].includes(w.review_status));
+        const allStatuses = [...selectedIds.values()];
+        const allApproved = allStatuses.every(s => s === 'approved');
+        const allOffline = allStatuses.every(s => s === 'offline');
+        const allPending = allStatuses.every(s => s === 'pending');
+        const allDeletable = allStatuses.every(s => ['offline', 'rejected'].includes(s));
 
         if (!allApproved && !allOffline && !allPending && !allDeletable) {
           return (
@@ -947,7 +953,7 @@ export default function Works() {
                 works.map((w) => (
                   <tr key={w.id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
                     <td className="px-3 py-3" onClick={(e) => e.stopPropagation()}>
-                      <input type="checkbox" checked={selectedIds.has(w.id)} onChange={() => toggleSelect(w.id)}
+                      <input type="checkbox" checked={selectedIds.has(w.id)} onChange={() => toggleSelect(w.id, w.review_status)}
                         className="w-4 h-4 rounded border-gray-300 text-slate-900 focus:ring-slate-500" />
                     </td>
                     <td className="px-4 py-3 cursor-pointer" onClick={() => openDetail(w)}>
