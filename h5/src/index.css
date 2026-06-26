@@ -56,8 +56,8 @@ body {
   background: #fff !important;
 }
 
-/* ─── Swiper 不阻止原生手势 ─── */
+/* ─── Swiper 允许原生双指缩放 ─── */
 .swiper-horizontal,
 .swiper-vertical {
-  touch-action: pan-x pan-y !important;
+  touch-action: pan-y pinch-zoom !important;
 }
