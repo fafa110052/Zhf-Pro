@@ -90,12 +90,9 @@ const authService = {
     let user = await db('designers').where({ phone }).first();
 
     if (user) {
-      // 已有账号 → 更新 openid + 绑定状态（保留原有角色不变）
-      const updates = {};
-      if (user.openid !== openid) updates.openid = openid;
-      if (!user.is_bound) updates.is_bound = 1;
-      if (Object.keys(updates).length) {
-        await db('designers').where('id', user.id).update(updates);
+      // 已有账号 → 更新 openid（保留原有角色不变）
+      if (user.openid !== openid) {
+        await db('designers').where('id', user.id).update({ openid });
         user = await db('designers').where('id', user.id).first();
       }
     } else {
@@ -106,7 +103,6 @@ const authService = {
         name: '游客' + phone.slice(-4),
         role: 'guest',
         status: 'active',
-        is_bound: 1,
       });
       user = await db('designers').where('id', id).first();
     }
@@ -157,7 +153,13 @@ const authService = {
     }
 
     // 用 wxCode 作为 openid、真实手机号完成登录
-    return this.designerLogin(wxCode, phoneNumber);
+    const result = await this.designerLogin(wxCode, phoneNumber);
+
+    // 微信快捷登录 → 标记为已绑定微信
+    await db('designers').where('id', result.user.id).update({ is_bound: 1 });
+    result.user.is_bound = 1;
+
+    return result;
   },
 
   // ==========================================
