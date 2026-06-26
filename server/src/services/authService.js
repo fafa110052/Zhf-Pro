@@ -89,10 +89,16 @@ const authService = {
     // 按手机号查找（手机号是管理员预设设计师的唯一标识）
     let user = await db('designers').where({ phone }).first();
 
+    // openid 真实性判断：dev_ 开头=开发模式假openid，其余=微信真实openid
+    const isRealWechat = !openid.startsWith('dev_');
+
     if (user) {
-      // 已有账号 → 更新 openid（保留原有角色不变）
-      if (user.openid !== openid) {
-        await db('designers').where('id', user.id).update({ openid });
+      // 已有账号 → 更新 openid + 绑定状态
+      const updates = {};
+      if (user.openid !== openid) updates.openid = openid;
+      if (user.is_bound !== (isRealWechat ? 1 : 0)) updates.is_bound = isRealWechat ? 1 : 0;
+      if (Object.keys(updates).length) {
+        await db('designers').where('id', user.id).update(updates);
         user = await db('designers').where('id', user.id).first();
       }
     } else {
@@ -103,6 +109,7 @@ const authService = {
         name: '游客' + phone.slice(-4),
         role: 'guest',
         status: 'active',
+        is_bound: isRealWechat ? 1 : 0,
       });
       user = await db('designers').where('id', id).first();
     }
@@ -153,13 +160,8 @@ const authService = {
     }
 
     // 用 wxCode 作为 openid、真实手机号完成登录
-    const result = await this.designerLogin(wxCode, phoneNumber);
-
-    // 微信快捷登录 → 标记为已绑定微信
-    await db('designers').where('id', result.user.id).update({ is_bound: 1 });
-    result.user.is_bound = 1;
-
-    return result;
+    // （designerLogin 会自动根据 openid 真实性设置 is_bound）
+    return this.designerLogin(wxCode, phoneNumber);
   },
 
   // ==========================================
