@@ -27,16 +27,16 @@
   ],
   "window": {
     "backgroundTextStyle": "dark",
-    "navigationBarBackgroundColor": "#1e293b",
+    "navigationBarBackgroundColor": "#fffdf9",
     "navigationBarTitleText": "住好房装修",
-    "navigationBarTextStyle": "white",
-    "backgroundColor": "#f8fafc"
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#faf8f5"
   },
   "tabBar": {
-    "color": "#94a3b8",
-    "selectedColor": "#3b82f6",
-    "backgroundColor": "#ffffff",
-    "borderStyle": "black",
+    "color": "#b8a99a",
+    "selectedColor": "#c8a96e",
+    "backgroundColor": "#fffdf9",
+    "borderStyle": "white",
     "list": [
       {
         "pagePath": "pages/index/index",

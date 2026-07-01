@@ -1,11 +1,13 @@
 /**
- * 首页
+ * 首页 V2.0 — 温暖精致风
  *
  * 模块：
  *   - 搜索栏
- *   - 轮播 Banner（后端动态配置）
- *   - 分类快捷入口（户型 / 空间 / 风格）
+ *   - 品牌融合 Banner（Slogan 叠加）
+ *   - 核心优势图标
  *   - 热门推荐瀑布流
+ *   - 设计团队（横向滑动卡片 + 数据条）
+ *   - 免费量房（3步流程 + 预约按钮）
  */
 const api = require('../../utils/api');
 const util = require('../../utils/util');
@@ -16,11 +18,20 @@ Page({
     banners: [],
     bannerLoading: true,
 
-    // 分类快捷入口
-    quickCats: [
-      { key: 'house_type', icon: '🏠', label: '户型' },
-      { key: 'area', icon: '🔨', label: '空间' },
-      { key: 'style', icon: '🎨', label: '风格' },
+    // 核心优势
+    advantages: [
+      { icon: '🏗️', label: '自有施工队' },
+      { icon: '💰', label: '先装后付' },
+      { icon: '🛡️', label: '5年质保' },
+      { icon: '🌿', label: '环保材料' },
+    ],
+
+    // 设计团队（静态占位，后续接入 API）
+    designers: [
+      { avatar: '/images/zhflogo.png', name: '张工', styles: '现代·轻奢' },
+      { avatar: '/images/zhflogo.png', name: '李工', styles: '法式·奶油' },
+      { avatar: '/images/zhflogo.png', name: '王工', styles: '日式·原木' },
+      { avatar: '/images/zhflogo.png', name: '陈工', styles: '极简·北欧' },
     ],
 
     // 热门作品
@@ -57,7 +68,6 @@ Page({
   async loadHomepageConfig() {
     try {
       var data = await api.getHomepageConfig();
-      // 后端返回 config_value 为解析后的对象 { image_url, title, link }
       var banners = (data.banner || []).map(function (b) {
         var cfg = b.config_value || {};
         return {
@@ -104,11 +114,10 @@ Page({
   // 事件
   // ═══════════════════════════════════════════
 
-  /** 点击 Banner — 根据 link 类型执行不同操作 */
+  /** 点击 Banner */
   onBannerTap(e) {
     var link = e.detail.link;
     if (!link) {
-      // 无链接则预览大图
       var banner = this.data.banners[e.detail.index];
       if (banner && banner.image) {
         wx.previewImage({ urls: [banner.image], current: banner.image });
@@ -116,19 +125,16 @@ Page({
       return;
     }
 
-    // 纯数字 → 作品详情
     if (/^\d+$/.test(link)) {
       wx.navigateTo({ url: '/pages/work-detail/index?id=' + link });
       return;
     }
 
-    // 小程序页面路径 → 内部跳转
     if (link.startsWith('/pages/')) {
       wx.navigateTo({ url: link });
       return;
     }
 
-    // 外部链接 → 提示用户（小程序无法直接跳转外部）
     wx.showModal({
       title: '外部链接',
       content: '链接: ' + link + '\n小程序内无法直接打开网页',
@@ -142,12 +148,13 @@ Page({
     this.setData({ searchKeyword: e.detail.value });
   },
 
-  /** 搜索确认 → 携带关键词跳转分类页 */
+  /** 搜索确认 */
   onSearchConfirm() {
     var keyword = (this.data.searchKeyword || '').trim();
-    if (!keyword) return;
-
-    // 通过 globalData 传递搜索关键词（switchTab 不支持 URL 参数）
+    if (!keyword) {
+      wx.switchTab({ url: '/pages/category/index' });
+      return;
+    }
     var app = getApp();
     app.globalData.categoryKeyword = keyword;
     app.globalData.categorySort = 'newest';
@@ -159,19 +166,9 @@ Page({
     this.setData({ searchKeyword: '' });
   },
 
-  /** 点击搜索栏（保留兼容 — 不输入直接点击则跳转分类页） */
+  /** 点击搜索栏 → 跳转分类页 */
   onSearchTap() {
     wx.switchTab({ url: '/pages/category/index' });
-  },
-
-  /** 点击分类快捷入口 → 跳转分类页 */
-  onQuickCatTap(e) {
-    var key = e.currentTarget.dataset.key;
-    // 跳转分类页并传递默认 Tab
-    wx.switchTab({ url: '/pages/category/index' });
-    // 存储选中的 tab，分类页 onShow 时读取
-    var app = getApp();
-    app.globalData.categoryTab = key;
   },
 
   /** 点击热门作品 → 跳转详情 */
@@ -191,6 +188,11 @@ Page({
     var app = getApp();
     app.globalData.categorySort = 'popular';
     wx.switchTab({ url: '/pages/category/index' });
+  },
+
+  /** 免费量房预约 → 暂为占位提示 */
+  onFreeMeasureTap() {
+    wx.showToast({ title: '敬请期待', icon: 'none' });
   },
 });
 

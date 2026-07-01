@@ -13,4 +13,8 @@
       <view wx:if="{{item.title}}" class="banner-title">{{item.title}}</view>
     </swiper-item>
   </swiper>
+  <view wx:if="{{slogan}}" class="banner-slogan-overlay">
+    <text class="banner-slogan-text">{{slogan}}</text>
+    <text wx:if="{{subtitle}}" class="banner-slogan-sub">{{subtitle}}</text>
+  </view>
 </view>

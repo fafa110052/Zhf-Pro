@@ -5,6 +5,8 @@ Component({
     autoplay: { type: Boolean, value: true },
     interval: { type: Number, value: 4000 },
     dots: { type: Boolean, value: true },
+    slogan: { type: String, value: '' },
+    subtitle: { type: String, value: '' },
   },
   methods: {
     onSwiperChange(e) {},

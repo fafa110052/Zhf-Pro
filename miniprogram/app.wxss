@@ -1,39 +1,42 @@
 /**
  * 住好房装修展示平台 — 全局样式
  *
- * 设计系统：
- *   - 主色 slate-800 (#1e293b)  深灰蓝，导航栏/强调
- *   - 辅色 blue-500 (#3b82f6)   链接/选中态
- *   - 背景 gray-50 (#f8fafc)    页面底色
- *   - 卡片 white                 内容容器
- *   - 文字 gray-600~900          层级递进
+ * 设计系统  V2.0 温暖精致风：
+ *   - 主色 香槟金 #c8a96e          链接/强调/选中态
+ *   - 辅色 暖棕 #3d3226            标题/重点文字
+ *   - 背景 暖米白 #faf8f5          页面底色
+ *   - 卡片 暖白 #fffdf9            内容容器
+ *   - 文字 暖灰体系                  层级递进
  */
 
 /* ═══ 基础重置 ═══ */
 page {
-  --color-primary: #1e293b;
-  --color-accent: #3b82f6;
+  --color-primary: #3d3226;
+  --color-accent: #c8a96e;
+  --color-accent-deep: #a8895a;
+  --color-accent-light: #faf5ed;
   --color-success: #10b981;
   --color-warning: #f59e0b;
   --color-danger: #ef4444;
   --color-info: #6366f1;
 
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --text-tertiary: #94a3b8;
-  --text-placeholder: #cbd5e1;
+  --text-primary: #3d3226;
+  --text-secondary: #7a6e5e;
+  --text-tertiary: #b8a99a;
+  --text-placeholder: #cbc0b0;
 
-  --bg-page: #f8fafc;
-  --bg-card: #ffffff;
+  --bg-page: #faf8f5;
+  --bg-card: #fffdf9;
   --bg-mask: rgba(0, 0, 0, 0.5);
 
-  --border-color: #e2e8f0;
+  --border-color: #e8e0d5;
   --border-radius: 12rpx;
   --border-radius-sm: 8rpx;
   --border-radius-lg: 16rpx;
+  --border-radius-xl: 20rpx;
 
-  --shadow-sm: 0 2rpx 8rpx rgba(0, 0, 0, 0.06);
-  --shadow-md: 0 4rpx 16rpx rgba(0, 0, 0, 0.08);
+  --shadow-sm: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4rpx 20rpx rgba(0, 0, 0, 0.05);
   --shadow-lg: 0 8rpx 32rpx rgba(0, 0, 0, 0.12);
 
   --font-xs: 22rpx;
@@ -43,6 +46,9 @@ page {
   --font-lg: 34rpx;
   --font-xl: 40rpx;
   --font-2xl: 48rpx;
+
+  --gradient-warm: linear-gradient(135deg, #c8a96e, #b8956a);
+  --gradient-banner-mask: linear-gradient(to bottom, transparent 30%, rgba(0,0,0,0.55) 100%);
 
   box-sizing: border-box;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC',
@@ -188,8 +194,12 @@ page {
   line-height: 1.4;
 }
 .tag-blue {
-  background: #eff6ff;
-  color: #3b82f6;
+  background: #faf5ed;
+  color: #c8a96e;
+}
+.tag-warm {
+  background: #faf5ed;
+  color: #c8a96e;
 }
 .tag-green {
   background: #ecfdf5;
