@@ -39,6 +39,7 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (loading) return;
 
     const phoneReg = /^1[3-9]\d{9}$/;
     if (!phoneReg.test(phone)) {

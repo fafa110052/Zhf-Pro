@@ -19,13 +19,11 @@
     </view>
   </view>
 
-  <!-- ═══ 品牌融合 Banner ═══ -->
+  <!-- ═══ Banner 轮播 ═══ -->
   <view wx:if="{{!bannerLoading && banners.length > 0}}" class="banner-section">
     <swiper-banner
       banners="{{banners}}"
-      slogan="让每个家，都住好"
-      subtitle="住好房 · 品质装修"
-      height="{{380}}"
+      height="{{420}}"
       bindtap="onBannerTap"
     />
   </view>

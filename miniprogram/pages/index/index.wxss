@@ -62,9 +62,6 @@
 /* ═══ Banner ═══ */
 .banner-section {
   margin: 20rpx 24rpx;
-  border-radius: 20rpx;
-  overflow: hidden;
-  box-shadow: var(--shadow-md);
 }
 
 .banner-empty {

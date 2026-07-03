@@ -1,8 +1,5 @@
 <view class="banner-wrap" style="height:{{height}}rpx;">
   <swiper style="height:{{height}}rpx;"
-    indicator-dots="{{dots && banners.length > 1}}"
-    indicator-color="rgba(255,255,255,0.5)"
-    indicator-active-color="#ffffff"
     autoplay="{{autoplay}}"
     interval="{{interval}}"
     circular="{{banners.length > 1}}"
@@ -13,8 +10,12 @@
       <view wx:if="{{item.title}}" class="banner-title">{{item.title}}</view>
     </swiper-item>
   </swiper>
-  <view wx:if="{{slogan}}" class="banner-slogan-overlay">
-    <text class="banner-slogan-text">{{slogan}}</text>
-    <text wx:if="{{subtitle}}" class="banner-slogan-sub">{{subtitle}}</text>
+  <!-- 自定义分页器（图片下方） -->
+  <view wx:if="{{banners.length > 1}}" class="banner-dots">
+    <view
+      wx:for="{{banners}}"
+      wx:key="id"
+      class="banner-dot {{index === currentSwiperIndex ? 'banner-dot-active' : ''}}"
+    ></view>
   </view>
 </view>

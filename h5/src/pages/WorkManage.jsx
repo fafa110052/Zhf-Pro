@@ -41,6 +41,7 @@ export default function WorkManage() {
   const [works, setWorks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [actingId, setActingId] = useState(null); // 正在操作的作品ID（防重复提交）
 
   const loadWorks = useCallback(async (tab) => {
     setLoading(true);
@@ -67,23 +68,30 @@ export default function WorkManage() {
   };
 
   const handleDelete = async (id) => {
+    if (actingId) return;
     if (!window.confirm('删除后不可恢复，确定删除？')) return;
+    setActingId(id);
     try {
       await deleteWork(id);
       setWorks((prev) => prev.filter((w) => w.id !== id));
     } catch (err) {
       alert(err?.message || '删除失败');
+    } finally {
+      setActingId(null);
     }
   };
 
   const handleSubmit = async (id) => {
+    if (actingId) return;
     if (!window.confirm('提交后管理员将进行审核，确定提交？')) return;
+    setActingId(id);
     try {
       await submitWork(id);
-      // 刷新列表
       loadWorks(activeTab);
     } catch (err) {
       alert(err?.message || '提交失败');
+    } finally {
+      setActingId(null);
     }
   };
 
@@ -196,15 +204,17 @@ export default function WorkManage() {
                         </button>
                         <button
                           onClick={() => handleSubmit(work.id)}
-                          className="flex-1 py-2.5 text-xs text-slate-900 font-medium active:bg-gray-50"
+                          disabled={actingId === work.id}
+                          className="flex-1 py-2.5 text-xs text-slate-900 font-medium active:bg-gray-50 disabled:opacity-30"
                         >
-                          提交审核
+                          {actingId === work.id ? '提交中...' : '提交审核'}
                         </button>
                         <button
                           onClick={() => handleDelete(work.id)}
-                          className="flex-1 py-2.5 text-xs text-red-400 active:bg-gray-50"
+                          disabled={actingId === work.id}
+                          className="flex-1 py-2.5 text-xs text-red-400 active:bg-gray-50 disabled:opacity-30"
                         >
-                          删除
+                          {actingId === work.id ? '删除中...' : '删除'}
                         </button>
                       </>
                     )}

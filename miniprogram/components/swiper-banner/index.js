@@ -4,12 +4,16 @@ Component({
     height: { type: Number, value: 340 },
     autoplay: { type: Boolean, value: true },
     interval: { type: Number, value: 4000 },
-    dots: { type: Boolean, value: true },
     slogan: { type: String, value: '' },
     subtitle: { type: String, value: '' },
   },
+  data: {
+    currentSwiperIndex: 0,
+  },
   methods: {
-    onSwiperChange(e) {},
+    onSwiperChange(e) {
+      this.setData({ currentSwiperIndex: e.detail.current });
+    },
     onBannerTap(e) {
       var index = e.currentTarget.dataset.index;
       var banner = this.properties.banners[index] || {};

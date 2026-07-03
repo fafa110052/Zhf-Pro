@@ -5,6 +5,9 @@ const path = require('path');
 const fs = require('fs');
 const { spawn } = require('child_process');
 
+// 中间件
+const dedup = require('./middleware/dedup');
+
 // 路由模块（后续每天逐一完善）
 const authRoutes = require('./routes/auth');
 const categoriesRoutes = require('./routes/categories');
@@ -29,6 +32,7 @@ app.use(cors());                                    // 跨域
 app.use(express.json({ limit: '10mb' }));           // JSON 解析
 app.use(express.urlencoded({ extended: true }));     // 表单解析
 app.use(morgan('dev'));                             // 请求日志
+app.use(dedup);                                     // 请求去重（防重复提交）
 
 // ═══ 静态文件服务（上传的图片）═══
 app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));

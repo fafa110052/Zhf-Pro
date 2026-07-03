@@ -8,6 +8,13 @@ import 'swiper/css/pagination';
 export default function ImageSwiper({ images, currentIndex, onIndexChange, coverImage }) {
   const navigate = useNavigate();
   const [previewIndex, setPreviewIndex] = useState(-1);
+  const [loadedMap, setLoadedMap] = useState({});
+
+  const markLoaded = (key) => {
+    if (!loadedMap[key]) {
+      setLoadedMap((prev) => ({ ...prev, [key]: true }));
+    }
+  };
 
   const openPreview = (idx) => setPreviewIndex(idx);
   const closePreview = () => setPreviewIndex(-1);
@@ -17,11 +24,17 @@ export default function ImageSwiper({ images, currentIndex, onIndexChange, cover
     return (
       <>
         <div className="relative w-full aspect-4/3 bg-gray-900">
+          {!loadedMap['cover'] && (
+            <div className="absolute inset-0 flex items-center justify-center z-0">
+              <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            </div>
+          )}
           <img
             src={coverImage}
             alt=""
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover relative z-1"
             onClick={() => openPreview(0)}
+            onLoad={() => markLoaded('cover')}
           />
           <BackButton onClick={() => navigate(-1)} />
         </div>
@@ -58,12 +71,18 @@ export default function ImageSwiper({ images, currentIndex, onIndexChange, cover
         >
           {images.map((img, idx) => (
             <SwiperSlide key={img.id || idx}>
+              {!loadedMap[img.id || idx] && (
+                <div className="absolute inset-0 flex items-center justify-center z-0">
+                  <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                </div>
+              )}
               <img
                 src={img.image_url}
                 alt=""
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover relative z-1"
                 onClick={() => openPreview(idx)}
                 loading={idx === 0 ? 'eager' : 'lazy'}
+                onLoad={() => markLoaded(img.id || idx)}
               />
             </SwiperSlide>
           ))}
@@ -96,7 +115,15 @@ export default function ImageSwiper({ images, currentIndex, onIndexChange, cover
  * 全屏大图弹窗 — 可左右滑动，缩放由浏览器原生手势处理
  */
 function Lightbox({ images, currentIndex, open, onClose, onIndexChange }) {
+  const [lbLoaded, setLbLoaded] = useState({});
+
   if (!open || !images.length) return null;
+
+  const markLbLoaded = (key) => {
+    if (!lbLoaded[key]) {
+      setLbLoaded((prev) => ({ ...prev, [key]: true }));
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-200 bg-black flex flex-col">
@@ -124,11 +151,17 @@ function Lightbox({ images, currentIndex, open, onClose, onIndexChange }) {
         >
           {images.map((img, idx) => (
             <SwiperSlide key={img.id || idx}>
-              <div className="w-full h-full flex items-center justify-center overflow-auto">
+              <div className="w-full h-full flex items-center justify-center overflow-auto relative">
+                {!lbLoaded[img.id || idx] && (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-10 h-10 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  </div>
+                )}
                 <img
                   src={img.image_url}
                   alt=""
                   className="max-w-full max-h-full object-contain"
+                  onLoad={() => markLbLoaded(img.id || idx)}
                 />
               </div>
             </SwiperSlide>

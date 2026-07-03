@@ -1,5 +1,5 @@
 /**
- * 登录页样式 V2.0 — 温暖精致风
+ * 登录页样式 V2.1 — 温暖精致风
  */
 
 .page {
@@ -17,23 +17,13 @@
   flex-direction: column;
   align-items: center;
   padding-top: 120rpx;
-  padding-bottom: 64rpx;
-}
-
-.logo-ring {
-  width: 160rpx;
-  height: 160rpx;
-  border-radius: 80rpx;
-  background: var(--bg-card);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 0 48rpx rgba(200, 169, 110, 0.25), 0 4rpx 20rpx rgba(0, 0, 0, 0.06);
+  padding-bottom: 80rpx;
 }
 
 .logo-img {
-  width: 120rpx;
-  height: 120rpx;
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 50%;
 }
 
 .logo-title {
@@ -44,100 +34,34 @@
   letter-spacing: 4rpx;
 }
 
-/* ═══ 登录按钮区 ═══ */
+/* ═══ 登录区 ═══ */
 .login-actions {
   width: 100%;
+  padding: 0 40rpx;
   display: flex;
   flex-direction: column;
   align-items: center;
+  box-sizing: border-box;
 }
 
-/* 微信快捷登录按钮 */
-.wechat-btn {
-  width: 100%;
-  height: 100rpx;
-  background: #07c160;
-  color: #fff;
-  font-size: 32rpx;
-  font-weight: 600;
-  border-radius: 50rpx;
-  border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12rpx;
-  box-shadow: 0 6rpx 24rpx rgba(7, 193, 96, 0.3);
-}
-
-.wechat-btn:active {
-  opacity: 0.9;
-  transform: scale(0.99);
-}
-
-.wechat-btn-icon {
-  font-size: 36rpx;
-}
-
-/* 手机号登录按钮 */
-.phone-btn {
-  width: 100%;
-  height: 100rpx;
-  margin-top: 24rpx;
-  background: var(--bg-card);
-  color: var(--color-accent);
-  font-size: 32rpx;
-  font-weight: 600;
-  border-radius: 50rpx;
-  border: 2rpx solid var(--color-accent);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12rpx;
-}
-
-.phone-btn:active {
-  background: var(--color-accent-light);
-  transform: scale(0.99);
-}
-
-.phone-btn-icon {
-  font-size: 36rpx;
-}
-
-/* 协议未勾选 — 按钮置灰 */
-.btn-muted {
-  opacity: 0.45;
-  pointer-events: none;
-}
-
-/* ═══ 手机号输入区 — 平滑展开 ═══ */
-.phone-section {
-  width: 100%;
-  max-height: 0;
-  overflow: hidden;
-  opacity: 0;
-  transition: all 0.35s ease;
-}
-
-.phone-section-open {
-  max-height: 300rpx;
-  opacity: 1;
-  margin-top: 24rpx;
-}
-
+/* 手机号输入框 */
 .phone-input-wrap {
+  width: 100%;
   background: var(--bg-card);
-  border-radius: 20rpx;
+  border-radius: 16rpx;
   padding: 8rpx 28rpx;
   box-shadow: var(--shadow-sm);
   border: 2rpx solid var(--border-color);
+  margin-bottom: 48rpx;
+  box-sizing: border-box;
 }
 
 .phone-input {
   width: 100%;
-  height: 92rpx;
-  font-size: 30rpx;
+  height: 88rpx;
+  font-size: 28rpx;
   color: var(--text-primary);
+  text-align: center;
   box-sizing: border-box;
 }
 
@@ -145,29 +69,48 @@
   color: var(--text-placeholder);
 }
 
-.phone-submit-btn {
+/* 手机号登录按钮 */
+.phone-btn {
   width: 100%;
-  height: 92rpx;
-  margin-top: 20rpx;
-  background: var(--gradient-warm);
-  color: #fff;
-  font-size: 32rpx;
+  height: 88rpx;
+  background: var(--bg-card);
+  color: var(--color-accent);
+  font-size: 28rpx;
   font-weight: 600;
-  border-radius: 46rpx;
-  border: none;
+  border-radius: 44rpx;
+  border: 2rpx solid var(--color-accent);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4rpx 16rpx rgba(200, 169, 110, 0.3);
+  margin: 0;
+  padding: 0;
+}
+.phone-btn::after {
+  border: none;
 }
 
-.phone-submit-btn:active {
-  opacity: 0.9;
-  transform: scale(0.99);
+/* 微信快捷登录按钮 */
+.wechat-btn {
+  width: 100%;
+  height: 88rpx;
+  margin-top: 24rpx;
+  background: #07c160;
+  color: #fff;
+  font-size: 28rpx;
+  font-weight: 600;
+  border-radius: 44rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4rpx 16rpx rgba(7, 193, 96, 0.25);
+}
+.wechat-btn::after {
+  border: none;
 }
 
-.phone-submit-btn[disabled] {
+.terms-disabled {
   opacity: 0.5;
+  pointer-events: none;
 }
 
 /* ═══ 协议勾选 ═══ */
@@ -220,4 +163,75 @@
   line-height: 40rpx;
   text-decoration: underline;
   padding: 0 2rpx;
+}
+
+.input-disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* ═══ 自定义协议弹窗 ═══ */
+.modal-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-box {
+  width: 560rpx;
+  background: #fff;
+  border-radius: 24rpx;
+  padding: 48rpx 40rpx 32rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.modal-title {
+  font-size: 34rpx;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 20rpx;
+}
+
+.modal-content {
+  font-size: 28rpx;
+  color: var(--text-secondary);
+  line-height: 44rpx;
+  text-align: center;
+  margin-bottom: 36rpx;
+}
+
+.modal-btns {
+  width: 100%;
+  display: flex;
+  gap: 24rpx;
+}
+
+.modal-btn {
+  flex: 1;
+  height: 80rpx;
+  border-radius: 40rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+.modal-btn-cancel {
+  background: #f5f0e8;
+  color: var(--text-secondary);
+}
+
+.modal-btn-confirm {
+  background: var(--gradient-warm);
+  color: #fff;
 }

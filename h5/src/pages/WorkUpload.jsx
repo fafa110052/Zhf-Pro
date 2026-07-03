@@ -206,6 +206,7 @@ export default function WorkUpload() {
 
   // ─── 保存草稿 ───
   const handleSaveDraft = async () => {
+    if (submitting) return;
     if (!validate()) return;
     setSubmitting(true);
     try {
@@ -220,6 +221,7 @@ export default function WorkUpload() {
 
   // ─── 提交审核 ───
   const handleSubmitForReview = async () => {
+    if (submitting) return;
     if (!validate()) return;
     setSubmitting(true);
     try {

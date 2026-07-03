@@ -44,13 +44,13 @@ systemctl reload nginx
 echo "✅ 部署完成！"
 REMOTE
 
-SERVER_IP=$(node -e "console.log(require('$CONFIG').server.ip)")
+DOMAIN=$(node -e "console.log(require('$CONFIG').server.domain || 'wzzhfservice.cloud')")
 
 echo ""
 if [ "$TARGET" = "prod" ]; then
-  echo "📱 H5:      http://${SERVER_IP}:${PORT}"
-  echo "🖥️  后台:    http://${SERVER_IP}:${PORT}/admin"
+  echo "📱 H5:      http://${DOMAIN}"
+  echo "🖥️  后台:    http://${DOMAIN}/admin"
 else
-  echo "📱 H5(测试): http://${SERVER_IP}:${PORT}"
-  echo "🖥️  后台(测): http://${SERVER_IP}:${PORT}/admin"
+  echo "📱 H5(测试): http://test.${DOMAIN}"
+  echo "🖥️  后台(测): http://test.${DOMAIN}/admin"
 fi

@@ -1,11 +1,11 @@
 /**
- * 登录页 V2.0 — 温暖精致风
+ * 登录页 V2.1 — 温暖精致风
  *
- * 两种登录方式并排展示：
- *   1. 微信授权快捷登录 — getPhoneNumber 一键授权
- *   2. 手机号手动登录 — 点击展开输入区
+ * 两种登录方式：
+ *   1. 手机号登录 — 输入手机号后点击按钮登录
+ *   2. 微信授权快捷登录 — getPhoneNumber 一键授权
  *
- * 协议未勾选时按钮置灰不可用
+ * 协议未勾选时弹出确认框
  */
 const app = getApp();
 const api = require('../../utils/api');
@@ -16,8 +16,11 @@ Page({
     agreeTerms: false,
     loading: false,
     quickLoginLoading: false,
-    showPhoneInput: false,
+    showAgreementModal: false,
   },
+
+  _modalCallback: null,
+  _pendingPhoneCode: null,
 
   onPhoneInput(e) {
     this.setData({ phone: e.detail.value });
@@ -25,12 +28,6 @@ Page({
 
   onAgreeToggle() {
     this.setData({ agreeTerms: !this.data.agreeTerms });
-  },
-
-  /** 展开/收起手机号输入区 */
-  onTogglePhone() {
-    if (!this.data.agreeTerms) return;
-    this.setData({ showPhoneInput: !this.data.showPhoneInput });
   },
 
   onOpenAgreement() {
@@ -41,29 +38,55 @@ Page({
     wx.navigateTo({ url: '/pages/privacy/index' });
   },
 
+  // ═══ 弹窗事件 ═══
+  noop() {},
+
+  onModalCancel() {
+    this.setData({ showAgreementModal: false });
+    this._modalCallback = null;
+    this._pendingPhoneCode = null;
+  },
+
+  onModalConfirm() {
+    this.setData({ agreeTerms: true, showAgreementModal: false });
+    var cb = this._modalCallback;
+    var pendingCode = this._pendingPhoneCode;
+    this._modalCallback = null;
+    this._pendingPhoneCode = null;
+
+    if (cb) {
+      cb(); // 手机号登录：直接执行登录
+    } else if (pendingCode) {
+      // 微信登录：用已获取的 phoneCode 继续登录
+      this.setData({ quickLoginLoading: true });
+      this._doWechatLogin(pendingCode);
+    }
+  },
+
   // ═══ 微信手机号快捷登录 ═══
   async onGetPhoneNumber(e) {
-    if (this.data.quickLoginLoading) return;
-
-    if (!this.data.agreeTerms) {
-      wx.showToast({ title: '请先同意用户协议', icon: 'none' });
-      return;
-    }
-
     const phoneCode = e.detail?.code;
+
+    // 用户拒绝授权
     if (!phoneCode) {
-      const errMsg = e.detail?.errMsg || '';
-      if (errMsg.indexOf('deny') !== -1 || errMsg.indexOf('cancel') !== -1) {
-        this.setData({ showPhoneInput: true });
-      } else {
-        wx.showToast({ title: '获取手机号失败，请尝试手动输入', icon: 'none', duration: 2000 });
-        this.setData({ showPhoneInput: true });
-      }
+      this.setData({ quickLoginLoading: false });
       return;
     }
 
-    this.setData({ quickLoginLoading: true });
+    // 未勾选协议 → 暂存 code，弹出自定义弹窗
+    if (!this.data.agreeTerms) {
+      this._pendingPhoneCode = phoneCode;
+      this.setData({ showAgreementModal: true });
+      return;
+    }
 
+    // 已勾选 → 直接登录
+    this.setData({ quickLoginLoading: true });
+    this._doWechatLogin(phoneCode);
+  },
+
+  /** 执行微信手机号登录 API */
+  async _doWechatLogin(phoneCode) {
     try {
       let wxCode = null;
       try {
@@ -83,9 +106,6 @@ Page({
       const msg = err.message || '登录失败';
       if (err.status === 501 || msg.indexOf('AppID') !== -1 || msg.indexOf('配置') !== -1) {
         wx.showToast({ title: '快捷登录暂不可用，请手动输入手机号', icon: 'none', duration: 2500 });
-        this.setData({ showPhoneInput: true });
-      } else if (msg.indexOf('拒绝') !== -1) {
-        this.setData({ showPhoneInput: true });
       } else {
         wx.showToast({ title: msg, icon: 'none', duration: 2500 });
       }
@@ -94,23 +114,42 @@ Page({
     }
   },
 
-  // ═══ 手动手机号登录 ═══
-  async onLogin() {
-    var phone = this.data.phone;
-    var agreeTerms = this.data.agreeTerms;
-
+  // ═══ 手机号登录 ═══
+  onLogin() {
     if (this.data.loading) return;
+
+    var phone = (this.data.phone || '').trim();
+    if (!phone) {
+      wx.showToast({ title: '请输入手机号', icon: 'none' });
+      return;
+    }
+    if (!/^1[3-9]\d{9}$/.test(phone)) {
+      wx.showToast({ title: '请输入正确的手机号', icon: 'none' });
+      return;
+    }
+
+    if (!this.data.agreeTerms) {
+      var that = this;
+      this._modalCallback = function () {
+        that.doPhoneLogin();
+      };
+      this.setData({ showAgreementModal: true });
+      return;
+    }
+
+    this.doPhoneLogin();
+  },
+
+  /** 执行手机号登录 */
+  async doPhoneLogin() {
+    var phone = (this.data.phone || '').trim();
 
     if (!phone) {
       wx.showToast({ title: '请输入手机号', icon: 'none' });
       return;
     }
     if (!/^1[3-9]\d{9}$/.test(phone)) {
-      wx.showToast({ title: '手机号格式不正确', icon: 'none' });
-      return;
-    }
-    if (!agreeTerms) {
-      wx.showToast({ title: '请先同意用户协议', icon: 'none' });
+      wx.showToast({ title: '请输入正确的手机号', icon: 'none' });
       return;
     }
 
