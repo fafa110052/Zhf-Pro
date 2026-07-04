@@ -210,6 +210,9 @@ const materialOrderService = {
         'material_orders.order_no',
         'material_orders.room_number',
         'material_orders.status',
+        'material_orders.construction_status',
+        'material_orders.current_phase_order',
+        db.raw('(SELECT cp.status FROM construction_phases cp WHERE cp.order_id = material_orders.id AND cp.phase_order = 1 LIMIT 1) as phase1_status'),
         'material_orders.created_at',
         'properties.name as property_name'
       )

@@ -52,14 +52,29 @@ Page({
 
   filterList() {
     const tab = this.data.activeTab;
+    const { mode } = this.data;
+
+    // 全部项目：仅展示已验收完成的过往任务
+    if (mode === 'all') {
+      let list = this.data.allList.filter(item => item.status === 'owner_accepted');
+      const projectMap = {};
+      list.forEach(item => {
+        const key = item.order_no || 'unknown';
+        if (!projectMap[key]) {
+          projectMap[key] = { orderNo: item.order_no, propertyName: item.property_name || '—', roomNumber: item.room_number || '', phases: [] };
+        }
+        projectMap[key].phases.push(item);
+      });
+      this.setData({ list, projects: Object.values(projectMap) });
+      return;
+    }
+
+    // mode=active：按 tab 展示需要工程师处理的任务
     let list = this.data.allList.filter(item =>
       tab === 'confirm' ? ['design_admin_approved', 'owner_design_reviewed'].includes(item.status)
-        : ['construction_confirmed', 'engineering_director_rejected', 'construction_admin_rejected'].includes(item.status)
+        : ['construction_confirmed', 'engineering_director_rejected', 'construction_admin_rejected',
+           'construction_uploaded', 'engineering_director_approved', 'construction_admin_approved'].includes(item.status)
     );
-    // mode=active 时只保留进行中
-    if (this.data.mode === 'active') {
-      list = list.filter(function(item) { return isActivePhase(item.status); });
-    }
     // 按项目分组
     const projectMap = {};
     list.forEach(item => {

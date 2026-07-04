@@ -143,7 +143,7 @@ Page({
       }
     }
 
-    // V1.3 施工角色 — 获取待办数（仅进行中）
+    // V1.3 施工角色 — 获取待办数（仅当前用户需操作的任务）
     // isEmployee 已排除业主（role !== 'designer'），此处加 isOwner 双重保险
     if (isEmployee && !isOwner) {
       try {
@@ -153,7 +153,14 @@ Page({
         else if (isEngineer) taskRes = await api.getEngineerPhases({ silent: true });
         else if (isEngineeringDirector) taskRes = await api.getEngineeringDirectorPhases({ silent: true });
         var allList = (taskRes && taskRes.list) ? taskRes.list : [];
-        var activeList = allList.filter(function(item) { return isActivePhase(item.status); });
+        var activeList = allList.filter(function(item) {
+          // 工程师：仅统计确认设计/待上传/驳回后重传
+          if (isEngineer) return ['design_admin_approved','owner_design_reviewed','construction_confirmed','engineering_director_rejected','construction_admin_rejected'].includes(item.status);
+          // 工程总监：仅统计待审核完工 + 业主异议
+          if (isEngineeringDirector) return ['construction_uploaded','owner_disputed'].includes(item.status);
+          // 其他角色沿用通用规则
+          return isActivePhase(item.status);
+        });
         this.setData({ taskCount: activeList.length });
       } catch (_) { /* 静默 */ }
     }

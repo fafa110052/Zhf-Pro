@@ -1,6 +1,5 @@
 <!-- 我的选材申请列表 -->
 <view class="page">
-  <!-- ready 之前仅背景色 -->
   <block wx:if="{{ready}}">
     <view wx:if="{{loading}}" class="page-loading">
       <view class="loading-spinner"></view>
@@ -19,20 +18,42 @@
           <view wx:for="{{orders}}" wx:key="order_no" class="order-card"
             data-order-no="{{item.order_no}}" bindtap="onOrderTap">
             <view class="card-header">
-              <text class="order-no">{{item.order_no}}</text>
-              <view class="status-tag {{item.statusColor}}">
-                <text>{{item.statusIcon}} {{item.statusLabel}}</text>
+              <text class="property-title">{{item.property_name}}<text wx:if="{{item.room_number}}"> · {{item.room_number}}</text></text>
+              <view class="header-meta">
+                <text class="order-no">{{item.order_no}}</text>
+                <view class="status-tag {{item.statusColor}}">
+                  <text>{{item.statusIcon}} {{item.statusLabel}}</text>
+                </view>
               </view>
             </view>
-            <view class="card-body">
-              <text class="property-name">{{item.property_name}}</text>
-              <text class="room-number">{{item.room_number}}</text>
-              <view wx:if="{{item.construction_status && item.construction_status !== 'not_started'}}" class="construction-status-line">
-                <text class="construction-badge {{item.construction_status === 'completed' ? 'tag-green' : 'tag-blue'}}">
-                  {{item.construction_status === 'completed' ? '已竣工' : '施工中 ' + item.current_phase_order + '/5'}}
+
+            <!-- 施工进度（仅已开工的显示） -->
+            <view wx:if="{{item.hasProgress}}" class="progress-section" catchtap="onToggleTimeline" data-order-no="{{item.order_no}}">
+              <view class="progress-toggle">
+                <text class="progress-summary">
+                  当前：<text class="current-stage">{{item.summaryText}}</text>
                 </text>
+                <text class="toggle-arrow {{expandedSet[item.order_no] ? 'arrow-up' : ''}}">▼</text>
+              </view>
+              <view class="timeline-wrap {{expandedSet[item.order_no] ? 'timeline-expanded' : ''}}">
+                <view class="timeline">
+                  <view wx:for="{{item.timeline}}" wx:for-item="step" wx:key="key" class="timeline-step">
+                    <view class="timeline-node-col">
+                      <view class="node {{step.state}}">
+                        <text wx:if="{{step.state === 'completed'}}">✓</text>
+                        <text wx:elif="{{step.state === 'rejected'}}">✗</text>
+                      </view>
+                      <view wx:if="{{index < item.timeline.length - 1}}" class="line {{step.state === 'completed' ? 'line-done' : ''}} {{step.state === 'rejected' ? 'line-rejected' : ''}}"></view>
+                    </view>
+                    <view class="timeline-info">
+                      <text class="step-label {{step.state === 'active' ? 'label-active' : ''}} {{step.state === 'rejected' ? 'label-rejected' : ''}}">{{step.label}}</text>
+                      <text class="step-state {{step.state}}">{{step.stateText}}</text>
+                    </view>
+                  </view>
+                </view>
               </view>
             </view>
+
             <view class="card-footer">
               <text class="order-time">{{item.created_at}}</text>
               <text class="order-arrow">查看详情 ›</text>

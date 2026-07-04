@@ -75,12 +75,14 @@ Page({
         projectMap[key].phases.push(item);
       });
       const projects = Object.values(projectMap);
-      // mode=active 时只保留进行中的阶段
+      // mode=active → 进行中（排除已完成/驳回） / mode=all → 仅已验收完成
       const filteredProjects = this.data.mode === 'active'
         ? projects.map(function(p) {
             return Object.assign({}, p, { phases: p.phases.filter(function(ph) { return isActivePhase(ph.status); }) });
           }).filter(function(p) { return p.phases.length > 0; })
-        : projects;
+        : projects.map(function(p) {
+            return Object.assign({}, p, { phases: p.phases.filter(function(ph) { return ph.status === 'owner_accepted'; }) });
+          }).filter(function(p) { return p.phases.length > 0; });
       const pageData = { projects: filteredProjects, loading: false };
       if (this._readyFired) {
         this.setData(Object.assign({ ready: true }, pageData));

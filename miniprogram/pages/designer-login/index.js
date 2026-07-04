@@ -210,7 +210,7 @@ Page({
 
     if (personnelType === 'designer') {
       var hasSetup = wx.getStorageSync('designer_has_setup');
-      wx.showToast({ title: '设计师登录成功', icon: 'success' });
+      wx.showToast({ title: '登录成功', icon: 'success' });
       setTimeout(function () {
         if (hasSetup) {
           wx.switchTab({ url: '/pages/mine/index' });
@@ -219,13 +219,13 @@ Page({
         }
       }, 800);
     } else if (personnelType === 'design_director') {
-      wx.showToast({ title: '设计总监登录成功', icon: 'success' });
+      wx.showToast({ title: '登录成功', icon: 'success' });
       setTimeout(function () { wx.switchTab({ url: '/pages/mine/index' }); }, 800);
     } else if (personnelType === 'engineer') {
-      wx.showToast({ title: '工程师登录成功', icon: 'success' });
+      wx.showToast({ title: '登录成功', icon: 'success' });
       setTimeout(function () { wx.switchTab({ url: '/pages/mine/index' }); }, 800);
     } else if (personnelType === 'engineering_director') {
-      wx.showToast({ title: '工程总监登录成功', icon: 'success' });
+      wx.showToast({ title: '登录成功', icon: 'success' });
       setTimeout(function () { wx.switchTab({ url: '/pages/mine/index' }); }, 800);
     } else {
       wx.showToast({ title: '登录成功', icon: 'success' });

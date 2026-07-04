@@ -57,7 +57,9 @@ Page({
         ? projects.map(function(p) {
             return Object.assign({}, p, { phases: p.phases.filter(function(ph) { return isActivePhase(ph.status); }) });
           }).filter(function(p) { return p.phases.length > 0; })
-        : projects;
+        : projects.map(function(p) {
+            return Object.assign({}, p, { phases: p.phases.filter(function(ph) { return ph.status === 'owner_accepted'; }) });
+          }).filter(function(p) { return p.phases.length > 0; });
       const pageData = { projects: filteredProjects, loading: false };
       if (this._readyFired) { this.setData(Object.assign({ ready: true }, pageData)); } else { this._pageData = pageData; }
     } catch (err) { this.setData({ loading: false, error: true, ready: true }); }
