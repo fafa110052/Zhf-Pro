@@ -266,6 +266,11 @@ const constructionPhaseService = {
     const phase = await findPhase(phaseId);
     requireStatus(phase, 'unassigned');
 
+    // 设计阶段仅在阶段1（打拆）执行，后续阶段跳过设计，直接指派施工人员
+    if (phase.phase_order > 1) {
+      throw Object.assign(new Error('阶段2-5无需设计审核，请使用指派施工人员接口'), { status: 400 });
+    }
+
     // 校验 personnel_type
     const personIds = [designer_id, design_director_id, engineer_id, engineering_director_id];
     const persons = await db('designers').whereIn('id', personIds);
@@ -400,7 +405,7 @@ const constructionPhaseService = {
     if (phase.designer_id !== userId) {
       throw Object.assign(new Error('您不是该阶段指派的设计师'), { status: 403 });
     }
-    requireStatus(phase, 'assigned', 'design_director_rejected');
+    requireStatus(phase, 'assigned', 'design_director_rejected', 'design_admin_rejected');
 
     const now = new Date().toISOString();
 
