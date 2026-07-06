@@ -750,7 +750,7 @@ const constructionPhaseService = {
 
   // ═══════ 工程总监审核 ═══════
 
-  async reviewEngineeringDirector(userId, phaseId, { action, reason }) {
+  async reviewEngineeringDirector(userId, phaseId, { action, reason, remark }) {
     if (!['approve', 'reject'].includes(action)) {
       throw Object.assign(new Error('无效的审核操作'), { status: 400 });
     }
@@ -773,13 +773,19 @@ const constructionPhaseService = {
     const now = new Date().toISOString();
 
     if (action === 'approve') {
-      await db('construction_phases').where('id', phaseId).update({
+      const updateData = {
         status: 'engineering_director_approved',
         engineering_director_reviewed_at: now,
         engineering_director_reject_reason: null,
         updated_at: db.fn.now(),
-      });
-      await logAction(phaseId, 'engineering_director_approve', userId, '工程总监审核通过完工图');
+      };
+      // 可选备注（对业主可见）
+      if (remark && remark.trim()) {
+        updateData.engineering_director_remark = remark.trim();
+      }
+      await db('construction_phases').where('id', phaseId).update(updateData);
+      const remarkLog = remark && remark.trim() ? `，备注：${remark.trim()}` : '';
+      await logAction(phaseId, 'engineering_director_approve', userId, `工程总监审核通过完工图${remarkLog}`);
     } else {
       await db('construction_phases').where('id', phaseId).update({
         status: 'engineering_director_rejected',
@@ -805,7 +811,7 @@ const constructionPhaseService = {
 
   // ═══════ 管理员二审完工 ═══════
 
-  async reviewConstructionAdmin(operatorId, phaseId, { action, reason }) {
+  async reviewConstructionAdmin(operatorId, phaseId, { action, reason, remark }) {
     if (!['approve', 'reject'].includes(action)) {
       throw Object.assign(new Error('无效的审核操作'), { status: 400 });
     }
@@ -825,14 +831,20 @@ const constructionPhaseService = {
     const now = new Date().toISOString();
 
     if (action === 'approve') {
-      await db('construction_phases').where('id', phaseId).update({
+      const updateData = {
         status: 'construction_admin_approved',
         construction_reviewed_by: operatorId,
         construction_reviewed_at: now,
         construction_reject_reason: null,
         updated_at: db.fn.now(),
-      });
-      await logAction(phaseId, 'construction_admin_approve', operatorId, '管理员二审通过完工图');
+      };
+      // 可选备注（对业主可见）
+      if (remark && remark.trim()) {
+        updateData.admin_construction_remark = remark.trim();
+      }
+      await db('construction_phases').where('id', phaseId).update(updateData);
+      const remarkLog = remark && remark.trim() ? `，备注：${remark.trim()}` : '';
+      await logAction(phaseId, 'construction_admin_approve', operatorId, `管理员二审通过完工图${remarkLog}`);
 
       // 推送给业主
       const projectLabel = await getProjectLabel(phase.order_id);

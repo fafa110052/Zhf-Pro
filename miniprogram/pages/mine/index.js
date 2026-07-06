@@ -143,25 +143,30 @@ Page({
       }
     }
 
-    // V1.3 施工角色 — 获取待办数（仅当前用户需操作的任务）
+    // V1.3 施工角色 — 获取待办数（需当前用户操作的任务，与任务列表红点逻辑一致）
     // isEmployee 已排除业主（role !== 'designer'），此处加 isOwner 双重保险
     if (isEmployee && !isOwner) {
       try {
         var taskRes = null;
-        if (isDesigner) taskRes = await api.getDesignerPhases({ silent: true });
-        else if (isDesignDirector) taskRes = await api.getDesignDirectorPhases({ silent: true });
-        else if (isEngineer) taskRes = await api.getEngineerPhases({ silent: true });
-        else if (isEngineeringDirector) taskRes = await api.getEngineeringDirectorPhases({ silent: true });
+        var actionStatuses = [];
+        if (isDesigner) {
+          taskRes = await api.getDesignerPhases({ silent: true });
+          actionStatuses = ['assigned', 'design_director_rejected'];
+        } else if (isDesignDirector) {
+          taskRes = await api.getDesignDirectorPhases({ silent: true });
+          actionStatuses = ['design_uploaded'];
+        } else if (isEngineer) {
+          taskRes = await api.getEngineerPhases({ silent: true });
+          actionStatuses = ['construction_confirmed', 'engineering_director_rejected'];
+        } else if (isEngineeringDirector) {
+          taskRes = await api.getEngineeringDirectorPhases({ silent: true });
+          actionStatuses = ['construction_uploaded'];
+        }
         var allList = (taskRes && taskRes.list) ? taskRes.list : [];
-        var activeList = allList.filter(function(item) {
-          // 工程师：仅统计确认设计/待上传/驳回后重传
-          if (isEngineer) return ['design_admin_approved','owner_design_reviewed','construction_confirmed','engineering_director_rejected','construction_admin_rejected'].includes(item.status);
-          // 工程总监：仅统计待审核完工 + 业主异议
-          if (isEngineeringDirector) return ['construction_uploaded','owner_disputed'].includes(item.status);
-          // 其他角色沿用通用规则
-          return isActivePhase(item.status);
-        });
-        this.setData({ taskCount: activeList.length });
+        var actionCount = allList.filter(function(item) {
+          return actionStatuses.includes(item.status);
+        }).length;
+        this.setData({ taskCount: actionCount });
       } catch (_) { /* 静默 */ }
     }
 
@@ -248,14 +253,4 @@ function formatStats(stats) {
     { label: '审核中', value: stats.pending || 0 },
     { label: '浏览量', value: util.formatNumber(stats.total_views) },
   ];
-}
-
-/** 是否进行中（未验收、未驳回） */
-function isActivePhase(status) {
-  return ![
-    'owner_accepted',
-    'design_director_rejected', 'design_admin_rejected',
-    'engineering_director_rejected', 'construction_admin_rejected',
-    'owner_design_disputed', 'owner_disputed',
-  ].includes(status);
 }
