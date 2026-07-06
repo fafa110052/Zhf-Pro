@@ -177,7 +177,7 @@ router.get('/engineer/construction-phases', authenticate, requirePersonnelType('
       .leftJoin('material_orders', 'construction_phases.order_id', 'material_orders.id')
       .leftJoin('properties', 'material_orders.property_id', 'properties.id')
       .where('construction_phases.engineer_id', req.user.id)
-      .whereIn('construction_phases.status', ['design_admin_approved', 'owner_design_reviewed',
+      .whereIn('construction_phases.status', ['assigned', 'design_admin_approved', 'owner_design_reviewed',
         'owner_design_disputed', 'engineer_design_confirmed', 'construction_confirmed',
         'construction_uploaded', 'engineering_director_approved', 'engineering_director_rejected',
         'construction_admin_approved', 'construction_admin_rejected', 'owner_accepted', 'owner_disputed'])
@@ -198,7 +198,7 @@ router.post('/construction-phases/:phaseId/confirm-design', authenticate, async 
 /** PUT /api/v1/construction-phases/:phaseId/upload-construction */
 router.put('/construction-phases/:phaseId/upload-construction', authenticate, async (req, res, next) => {
   try {
-    const result = await svc.uploadConstruction(req.user.id, Number(req.params.phaseId), { images: req.body.images });
+    const result = await svc.uploadConstruction(req.user.id, Number(req.params.phaseId), { images: req.body.images, description: req.body.description || '' });
     res.json({ success: true, data: result });
   } catch (err) { next(err); }
 });

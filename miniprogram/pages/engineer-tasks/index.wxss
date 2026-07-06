@@ -27,11 +27,12 @@
 .phase-dot.tag-yellow{background:#f59e0b}.phase-dot.tag-green{background:#22c55e}
 .phase-dot.tag-red{background:#ef4444}.phase-dot.tag-blue{background:var(--color-accent)}
 .phase-dot.tag-orange{background:#f97316}.phase-dot.tag-gray{background:var(--text-tertiary)}
+.phase-dot.dot-red{width:16rpx;height:16rpx;border-radius:50%;background:#ef4444;box-shadow:0 0 8rpx rgba(239,68,68,.4)}
 .phase-label{flex:1;font-size:26rpx;color:var(--text-secondary)}
 .status-tag{padding:6rpx 18rpx;border-radius:20rpx;font-size:22rpx;margin-left:12rpx;flex-shrink:0}
 .tag-yellow{background:#fef3c7;color:#b45309}.tag-green{background:#dcfce7;color:#166534}
 .tag-red{background:#fee2e2;color:#991b1b}.tag-blue{background:var(--color-accent-light);color:var(--color-accent-deep)}
-.tag-orange{background:var(--bg-card)7ed;color:#9a3412}.tag-gray{background:#f5f0e8;color:var(--text-secondary)}
+.tag-orange{background:#fff7ed;color:#9a3412}.tag-gray{background:#f5f0e8;color:var(--text-secondary)}
 .phase-arrow{font-size:28rpx;color:var(--text-tertiary);margin-left:10rpx}
 .empty-state{display:flex;flex-direction:column;align-items:center;padding:160rpx 48rpx}
 .empty-icon{font-size:80rpx;margin-bottom:24rpx}.empty-title{font-size:32rpx;font-weight:600;color:var(--text-secondary);margin-bottom:12rpx}

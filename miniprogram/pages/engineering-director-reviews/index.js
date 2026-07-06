@@ -2,6 +2,9 @@ const api = require('../../utils/api');
 const { PHASE_STATUS_MAP, PHASE_TYPE_MAP } = require('../../utils/constants');
 const { fullImageUrl } = require('../../utils/util');
 
+// 工程总监需要操作的状态（显示红色提醒）
+const ENG_DIRECTOR_ACTION_STATUSES = ['construction_uploaded'];
+
 Page({
   data: { list: [], loading: true, error: false, ready: false, mode: 'active', PHASE_STATUS_MAP, PHASE_TYPE_MAP },
   onLoad(options) { this.setData({ mode: options.mode || 'active' }); this.loadData(); },
@@ -24,6 +27,7 @@ Page({
           ...item, phaseLabel: (PHASE_TYPE_MAP[item.phase_type] || {}).label || item.phase_type,
           statusLabel: (PHASE_STATUS_MAP[item.status] || {}).label || item.status,
           statusColor: (PHASE_STATUS_MAP[item.status] || {}).colorClass || '',
+          needsAction: ENG_DIRECTOR_ACTION_STATUSES.includes(item.status),
           designThumb: designImages.length > 0 ? fullImageUrl(designImages[0]) : '',
           constructionThumb: constructionImages.length > 0 ? fullImageUrl(constructionImages[0]) : '',
           designCount: designImages.length,
@@ -74,7 +78,5 @@ function parseImagesJson(val) {
 }
 
 function isActivePhase(status) {
-  return !['owner_accepted','design_director_rejected','design_admin_rejected',
-    'engineering_director_rejected','construction_admin_rejected',
-    'construction_rejected','owner_design_disputed','owner_disputed'].includes(status);
+  return status !== 'owner_accepted' && status !== 'locked';
 }

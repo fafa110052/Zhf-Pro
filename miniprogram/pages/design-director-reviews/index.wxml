@@ -21,7 +21,7 @@
             <view class="phase-list">
               <view wx:for="{{item.phases}}" wx:for-item="phase" wx:key="id"
                 class="phase-row" data-id="{{phase.id}}" bindtap="onTapItem">
-                <view class="phase-dot {{phase.statusColor}}"></view>
+                <view class="phase-dot {{phase.needsAction ? 'dot-red' : phase.statusColor}}"></view>
                 <text class="phase-label">阶段{{phase.phase_order}} · {{phase.phaseLabel}}</text>
                 <view class="status-tag {{phase.statusColor}}"><text>{{phase.statusLabel}}</text></view>
                 <text class="phase-arrow">›</text>

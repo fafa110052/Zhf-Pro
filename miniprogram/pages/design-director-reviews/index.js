@@ -2,6 +2,9 @@ const api = require('../../utils/api');
 const { PHASE_STATUS_MAP, PHASE_TYPE_MAP } = require('../../utils/constants');
 const { fullImageUrl } = require('../../utils/util');
 
+// 设计总监需要操作的状态（显示红色提醒）
+const DIRECTOR_ACTION_STATUSES = ['design_uploaded'];
+
 Page({
   data: {
     list: [], loading: true, error: false, ready: false,
@@ -34,6 +37,7 @@ Page({
           phaseLabel: (PHASE_TYPE_MAP[item.phase_type] || {}).label || item.phase_type,
           statusLabel: (PHASE_STATUS_MAP[item.status] || {}).label || item.status,
           statusColor: (PHASE_STATUS_MAP[item.status] || {}).colorClass || '',
+          needsAction: DIRECTOR_ACTION_STATUSES.includes(item.status),
           designThumb: designImages.length > 0 ? fullImageUrl(designImages[0]) : '',
           designCount: designImages.length,
         };
@@ -84,7 +88,5 @@ function parseImagesJson(val) {
 }
 
 function isActivePhase(status) {
-  return !['owner_accepted','design_director_rejected','design_admin_rejected',
-    'engineering_director_rejected','construction_admin_rejected',
-    'owner_design_disputed','owner_disputed'].includes(status);
+  return status !== 'owner_accepted' && status !== 'locked';
 }

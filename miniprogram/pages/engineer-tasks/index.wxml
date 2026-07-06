@@ -8,15 +8,6 @@
       <text class="error-icon">⚠️</text><text class="error-msg">加载失败</text><text class="error-hint">点击重试</text>
     </view>
     <block wx:else>
-      <!-- Tab 栏：仅在"我的任务"模式下显示 -->
-      <view wx:if="{{mode === 'active'}}" class="tab-bar">
-        <view class="tab-item {{activeTab === 'confirm' ? 'tab-active' : ''}}" data-tab="confirm" bindtap="onTabChange">
-          <text>待确认设计</text>
-        </view>
-        <view class="tab-item {{activeTab === 'upload' ? 'tab-active' : ''}}" data-tab="upload" bindtap="onTabChange">
-          <text>待上传完工</text>
-        </view>
-      </view>
       <block wx:if="{{projects.length > 0}}">
         <view class="list">
           <view wx:for="{{projects}}" wx:key="orderNo" class="project-card">
@@ -30,7 +21,7 @@
             <view class="phase-list">
               <view wx:for="{{item.phases}}" wx:for-item="phase" wx:key="id"
                 class="phase-row" data-id="{{phase.id}}" bindtap="onTapItem">
-                <view class="phase-dot {{phase.statusColor}}"></view>
+                <view class="phase-dot {{phase.needsAction ? 'dot-red' : phase.statusColor}}"></view>
                 <text class="phase-label">阶段{{phase.phase_order}} · {{phase.phaseLabel}}</text>
                 <view class="status-tag {{phase.statusColor}}"><text>{{phase.statusLabel}}</text></view>
                 <text class="phase-arrow">›</text>

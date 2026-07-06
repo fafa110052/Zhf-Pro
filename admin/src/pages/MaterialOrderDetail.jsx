@@ -54,7 +54,7 @@ const PHASE_STATUS_LABELS = {
   // 设计阶段 — 标注审核角色
   design_uploaded: '待设计总监审核', design_director_approved: '待管理员审核',
   design_director_rejected: '设计总监已驳回', design_admin_approved: '待业主确认设计',
-  design_admin_rejected: '管理员已驳回', owner_design_reviewed: '设计已确认',
+  design_admin_rejected: '管理员已驳回', owner_design_reviewed: '等待管理员分配',
   owner_design_disputed: '业主已驳回', engineer_design_confirmed: '待工程总监确认',
   // 施工阶段 — 标注审核角色
   construction_confirmed: '施工中', construction_uploaded: '待工程总监审核',
@@ -71,7 +71,8 @@ function getPhaseStatusCls(status) {
   // 驳回 / 异议 — 红色（任何角色的驳回统一红色告警）
   if (status.includes('rejected') || status === 'owner_disputed' || status === 'owner_design_disputed') return 'bg-red-100 text-red-700';
   // 设计师 / 设计总监 / 管理员 设计阶段
-  if (status === 'design_uploaded' || status === 'design_director_approved' || status === 'design_admin_approved' || status === 'owner_design_reviewed' || status === 'engineer_design_confirmed') return 'bg-purple-100 text-purple-700';
+  if (status === 'owner_design_reviewed') return 'bg-amber-100 text-amber-700';
+  if (status === 'design_uploaded' || status === 'design_director_approved' || status === 'design_admin_approved' || status === 'engineer_design_confirmed') return 'bg-purple-100 text-purple-700';
   // 工程师 施工中 / 已上传完工 — 蓝色
   if (status === 'construction_confirmed' || status === 'construction_uploaded' || status === 'assigned') return 'bg-blue-100 text-blue-700';
   // 工程总监 待审完工 — 靛青色
@@ -108,7 +109,7 @@ function getBannerStatusText(status, constructionStatus, detail) {
   if (constructionStatus === 'in_progress') return '施工中';
   if (constructionStatus === 'design_phase') {
     const dp = detail?.construction?.phases?.[0];
-    if (dp?.status === 'owner_design_reviewed') return '待施工';
+    if (dp?.status === 'owner_design_reviewed') return '待派单';
     return '设计阶段';
   }
   if (status === 'approved') return '已通过';
@@ -550,7 +551,8 @@ export default function MaterialOrderDetail() {
                   }`}>
                     {designDone ? '设计已完成' : PHASE_STATUS_LABELS[dp.status] || dp.status || '未开始'}
                   </span>
-                  {designDone && <span className="text-xs text-emerald-600 font-medium">设计已通过，施工进行中</span>}
+                  {designDone && dp.status === 'owner_design_reviewed' && <span className="text-xs text-amber-600 font-medium">设计已通过，等待指派施工人员</span>}
+                  {designDone && dp.status !== 'owner_design_reviewed' && <span className="text-xs text-emerald-600 font-medium">设计已通过，施工进行中</span>}
                   {dp.status?.includes('rejected') && <span className="text-xs text-red-500 font-medium">需重新提交设计</span>}
                 </div>
 
@@ -832,6 +834,14 @@ export default function MaterialOrderDetail() {
                                 <p className="text-slate-900 font-medium text-sm mt-0.5">{p.engineering_director?.name || '—'}</p>
                                 {p.engineering_director?.phone && <p className="text-slate-500 text-xs mt-0.5 font-mono">{p.engineering_director.phone}</p>}
                               </div>
+                            </div>
+                          )}
+
+                          {/* 施工描述 */}
+                          {p.construction_description && (
+                            <div className="bg-blue-50 border border-blue-100 rounded-lg p-3">
+                              <p className="text-xs text-blue-500 font-medium mb-1">施工描述</p>
+                              <p className="text-sm text-slate-700 leading-relaxed">{p.construction_description}</p>
                             </div>
                           )}
 

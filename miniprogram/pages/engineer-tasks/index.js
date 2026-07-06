@@ -2,9 +2,12 @@ const api = require('../../utils/api');
 const { PHASE_STATUS_MAP, PHASE_TYPE_MAP } = require('../../utils/constants');
 const { fullImageUrl } = require('../../utils/util');
 
+// 工程师需要操作的状态（显示红色提醒）
+const ENGINEER_ACTION_STATUSES = ['construction_confirmed', 'engineering_director_rejected'];
+
 Page({
   data: {
-    list: [], allList: [], projects: [], activeTab: 'confirm',   // confirm | upload
+    list: [], allList: [], projects: [],
     loading: true, error: false, ready: false,
     mode: 'active',
     PHASE_STATUS_MAP, PHASE_TYPE_MAP,
@@ -38,6 +41,7 @@ Page({
           phaseLabel: (PHASE_TYPE_MAP[item.phase_type] || {}).label || item.phase_type,
           statusLabel: (PHASE_STATUS_MAP[item.status] || {}).label || item.status,
           statusColor: (PHASE_STATUS_MAP[item.status] || {}).colorClass || '',
+          needsAction: ENGINEER_ACTION_STATUSES.includes(item.status),
           designThumb: designImages.length > 0 ? fullImageUrl(designImages[0]) : '',
           constructionThumb: constructionImages.length > 0 ? fullImageUrl(constructionImages[0]) : '',
           designCount: designImages.length,
@@ -51,7 +55,6 @@ Page({
   },
 
   filterList() {
-    const tab = this.data.activeTab;
     const { mode } = this.data;
 
     // 全部项目：显示所有阶段，不按状态过滤
@@ -69,11 +72,9 @@ Page({
       return;
     }
 
-    // mode=active：按 tab 展示需要工程师处理的任务
+    // mode=active：我的任务 — 跟自己有关但未竣工（排除 owner_accepted 和 locked）
     let list = this.data.allList.filter(item =>
-      tab === 'confirm' ? ['design_admin_approved', 'owner_design_reviewed'].includes(item.status)
-        : ['construction_confirmed', 'engineering_director_rejected', 'construction_admin_rejected',
-           'construction_uploaded', 'engineering_director_approved', 'construction_admin_approved'].includes(item.status)
+      item.status !== 'owner_accepted' && item.status !== 'locked'
     );
     // 按项目分组
     const projectMap = {};
@@ -93,11 +94,6 @@ Page({
     this.setData({ list, projects });
   },
 
-  onTabChange(e) {
-    const tab = e.currentTarget.dataset.tab;
-    this.setData({ activeTab: tab }, () => this.filterList());
-  },
-
   onTapItem(e) {
     wx.navigateTo({ url: `/pages/engineer-task-detail/index?phaseId=${e.currentTarget.dataset.id}` });
   },
@@ -110,8 +106,3 @@ function parseImagesJson(val) {
   try { return JSON.parse(val); } catch (_) { return []; }
 }
 
-function isActivePhase(status) {
-  return !['owner_accepted','design_director_rejected','design_admin_rejected',
-    'engineering_director_rejected','construction_admin_rejected',
-    'owner_design_disputed','owner_disputed'].includes(status);
-}
