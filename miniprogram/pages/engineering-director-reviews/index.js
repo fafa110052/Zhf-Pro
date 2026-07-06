@@ -2,6 +2,9 @@ const api = require('../../utils/api');
 const { PHASE_STATUS_MAP, PHASE_TYPE_MAP } = require('../../utils/constants');
 const { fullImageUrl } = require('../../utils/util');
 
+// 工程总监需要操作的状态（显示红色提醒）
+const ENG_DIRECTOR_ACTION_STATUSES = ['construction_uploaded'];
+
 Page({
   data: { list: [], loading: true, error: false, ready: false, mode: 'active', PHASE_STATUS_MAP, PHASE_TYPE_MAP },
   onLoad(options) { this.setData({ mode: options.mode || 'active' }); this.loadData(); },
@@ -24,6 +27,7 @@ Page({
           ...item, phaseLabel: (PHASE_TYPE_MAP[item.phase_type] || {}).label || item.phase_type,
           statusLabel: (PHASE_STATUS_MAP[item.status] || {}).label || item.status,
           statusColor: (PHASE_STATUS_MAP[item.status] || {}).colorClass || '',
+          needsAction: ENG_DIRECTOR_ACTION_STATUSES.includes(item.status),
           designThumb: designImages.length > 0 ? fullImageUrl(designImages[0]) : '',
           constructionThumb: constructionImages.length > 0 ? fullImageUrl(constructionImages[0]) : '',
           designCount: designImages.length,
@@ -45,11 +49,20 @@ Page({
         projectMap[key].phases.push(item);
       });
       const projects = Object.values(projectMap);
-      const filteredProjects = this.data.mode === 'active'
-        ? projects.map(function(p) {
-            return Object.assign({}, p, { phases: p.phases.filter(function(ph) { return isActivePhase(ph.status); }) });
-          }).filter(function(p) { return p.phases.length > 0; })
-        : projects;
+      // mode=active → 进行中（需审核）/ mode=all → 全部项目 / 其他 → 已完成
+      var filteredProjects;
+      if (this.data.mode === 'active') {
+        filteredProjects = projects.map(function(p) {
+          return Object.assign({}, p, { phases: p.phases.filter(function(ph) { return isActivePhase(ph.status); }) });
+        }).filter(function(p) { return p.phases.length > 0; });
+      } else if (this.data.mode === 'all') {
+        // 全部项目：显示所有阶段，不按状态过滤
+        filteredProjects = projects;
+      } else {
+        filteredProjects = projects.map(function(p) {
+          return Object.assign({}, p, { phases: p.phases.filter(function(ph) { return ph.status === 'owner_accepted'; }) });
+        }).filter(function(p) { return p.phases.length > 0; });
+      }
       const pageData = { projects: filteredProjects, loading: false };
       if (this._readyFired) { this.setData(Object.assign({ ready: true }, pageData)); } else { this._pageData = pageData; }
     } catch (err) { this.setData({ loading: false, error: true, ready: true }); }
@@ -65,7 +78,5 @@ function parseImagesJson(val) {
 }
 
 function isActivePhase(status) {
-  return !['owner_accepted','design_director_rejected','design_admin_rejected',
-    'engineering_director_rejected','construction_admin_rejected',
-    'construction_rejected','owner_design_disputed','owner_disputed'].includes(status);
+  return status !== 'owner_accepted' && status !== 'locked';
 }

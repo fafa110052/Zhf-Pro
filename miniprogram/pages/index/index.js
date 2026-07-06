@@ -18,12 +18,12 @@ Page({
     banners: [],
     bannerLoading: true,
 
-    // 核心优势
+    // 核心优势（按服务流程排序）
     advantages: [
-      { icon: '🏗️', label: '自有施工队' },
-      { icon: '💰', label: '先装后付' },
-      { icon: '🛡️', label: '5年质保' },
-      { icon: '🌿', label: '环保材料' },
+      { icon: '🏗️', label: '自有施工队', desc: '自营团队不转包' },
+      { icon: '🌿', label: '环保材料', desc: '品牌主材直供' },
+      { icon: '💰', label: '先装后付', desc: '验收合格再付款' },
+      { icon: '🛡️', label: '5年质保', desc: '住进去也安心' },
     ],
 
     // 设计团队（静态占位，后续接入 API）
@@ -38,6 +38,13 @@ Page({
     hotWorks: [],
     hotLoading: true,
     hotError: false,
+
+    // 免费量房步骤
+    measureSteps: [
+      { icon: '📋', label: '在线预约', desc: '填写房屋信息' },
+      { icon: '📐', label: '上门测量', desc: '专业免费量房' },
+      { icon: '📊', label: '出方案报价', desc: '透明无增项' },
+    ],
 
     // 搜索
     searchKeyword: '',

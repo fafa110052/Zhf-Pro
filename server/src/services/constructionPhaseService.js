@@ -325,7 +325,7 @@ const constructionPhaseService = {
   /**
    * 管理员指派工程师+工程总监到阶段
    * - unassigned（阶段 2-5）→ 跳过设计链，直接 construction_confirmed
-   * - owner_design_reviewed（阶段 1 设计完成）→ 仅填入人员，等待工程师 confirmDesign
+   * - owner_design_reviewed（阶段 1 设计完成）→ 直接 construction_confirmed，跳过工程师/工程总监确认设计
    */
   async assignEngineer(operatorId, phaseId, { engineer_id, engineering_director_id }) {
     if (!engineer_id || !engineering_director_id) {
@@ -352,19 +352,22 @@ const constructionPhaseService = {
     }
 
     const now = new Date().toISOString();
-    const skipDesign = phase.status === 'unassigned';
-    const targetStatus = skipDesign ? 'construction_confirmed' : phase.status;
+    const fromUnassigned = phase.status === 'unassigned';
+    // 两种路径都直接进入施工中：
+    //   unassigned → 跳过整个设计链
+    //   owner_design_reviewed → 设计已完成，跳过工程师/工程总监确认
+    const targetStatus = 'construction_confirmed';
 
     await db('construction_phases').where('id', phaseId).update({
       status: targetStatus,
       engineer_id,
       engineering_director_id,
-      ...(skipDesign ? { construction_confirmed_at: now } : {}),
+      construction_confirmed_at: now,
       updated_at: db.fn.now(),
     });
 
     // 首次从设计阶段转入施工，更新订单施工状态
-    if (!skipDesign) {
+    if (!fromUnassigned) {
       await db('material_orders').where('id', phase.order_id).update({
         construction_status: 'in_progress',
         updated_at: db.fn.now(),
@@ -373,9 +376,9 @@ const constructionPhaseService = {
 
     const engName = byId[engineer_id]?.name || '';
     const engDirName = byId[engineering_director_id]?.name || '';
-    const detail = skipDesign
+    const detail = fromUnassigned
       ? `管理员指派施工人员（跳过设计环节）：工程师 ${engName}，工程总监 ${engDirName}`
-      : `管理员指派施工人员：工程师 ${engName}，工程总监 ${engDirName}`;
+      : `管理员指派施工人员（设计已确认，直接开工）：工程师 ${engName}，工程总监 ${engDirName}`;
     await logAction(phaseId, 'assign', operatorId, detail);
 
     // 推送通知给工程师
@@ -384,7 +387,7 @@ const constructionPhaseService = {
     await tryPush(engineerOpenid, config.subscribeMessage.templates.todoNotify, {
       thing1: { value: projectLabel },
       thing2: { value: PHASE_LABELS[phase.phase_type] },
-      thing3: { value: skipDesign ? '请开始施工并上传完工图' : '设计已通过业主审核，请确认并开始施工' },
+      thing3: { value: '请开始施工并上传完工图' },
       time4: { value: now.slice(0, 10) },
     }, `pages/engineer-task-detail/index?phaseId=${phaseId}`);
 
@@ -705,7 +708,7 @@ const constructionPhaseService = {
 
   // ═══════ 工程师上传完工图 ═══════
 
-  async uploadConstruction(userId, phaseId, { images }) {
+  async uploadConstruction(userId, phaseId, { images, description }) {
     if (!images || !Array.isArray(images) || images.length === 0) {
       throw Object.assign(new Error('请至少上传一张完工图'), { status: 400 });
     }
@@ -720,15 +723,22 @@ const constructionPhaseService = {
     requireStatus(phase, 'construction_confirmed', 'engineering_director_rejected');
 
     const now = new Date().toISOString();
-    await db('construction_phases').where('id', phaseId).update({
+    const updateData = {
       status: 'construction_uploaded',
       construction_images: JSON.stringify(images),
       construction_uploaded_at: now,
       engineering_director_reject_reason: null,
       updated_at: db.fn.now(),
-    });
+    };
+    // 可选施工描述
+    if (description && description.trim()) {
+      updateData.construction_description = description.trim();
+    }
 
-    await logAction(phaseId, 'construction_upload', userId, `工程师上传完工图，共 ${images.length} 张`);
+    await db('construction_phases').where('id', phaseId).update(updateData);
+
+    const descLog = description && description.trim() ? `，描述：${description.trim()}` : '';
+    await logAction(phaseId, 'construction_upload', userId, `工程师上传完工图，共 ${images.length} 张${descLog}`);
 
     // 推送给工程总监
     const projectLabel = await getProjectLabel(phase.order_id);

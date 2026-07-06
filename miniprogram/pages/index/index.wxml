@@ -33,16 +33,6 @@
     <text class="banner-empty-sub">让每个家，都住好</text>
   </view>
 
-  <!-- ═══ 核心优势 ═══ -->
-  <view class="advantages">
-    <view wx:for="{{advantages}}" wx:key="label" class="adv-item">
-      <view class="adv-icon-wrap">
-        <text class="adv-icon">{{item.icon}}</text>
-      </view>
-      <text class="adv-label">{{item.label}}</text>
-    </view>
-  </view>
-
   <!-- ═══ 热门推荐 ═══ -->
   <view class="section">
     <view class="section-header">
@@ -80,6 +70,28 @@
       icon="🔥" title="暂无热门推荐" desc="管理员正在精选优质作品"/>
   </view>
 
+  <!-- ═══ 为什么选择住好房 ═══ -->
+  <view class="section trust-section">
+    <view class="section-header">
+      <text class="section-title">为什么选择住好房</text>
+    </view>
+
+    <view class="trust-steps">
+      <block wx:for="{{advantages}}" wx:key="label">
+        <view class="trust-step">
+          <view class="step-num-row">
+            <view class="step-num">{{index + 1}}</view>
+          </view>
+          <view class="step-icon-wrap">
+            <text class="step-icon">{{item.icon}}</text>
+          </view>
+          <text class="step-label">{{item.label}}</text>
+          <text class="step-desc">{{item.desc}}</text>
+        </view>
+      </block>
+    </view>
+  </view>
+
   <!-- ═══ 设计团队 ═══ -->
   <view class="section">
     <view class="section-header">
@@ -108,36 +120,24 @@
   </view>
 
   <!-- ═══ 免费量房 ═══ -->
-  <view class="section">
+  <view class="section trust-section">
     <view class="section-header">
       <text class="section-title">免费量房</text>
     </view>
 
-    <view class="measure-steps">
-      <view class="measure-step">
-        <view class="measure-step-icon-wrap">
-          <text class="measure-step-icon">📋</text>
+    <view class="trust-steps">
+      <block wx:for="{{measureSteps}}" wx:key="label">
+        <view class="trust-step">
+          <view class="step-num-row">
+            <view class="step-num">{{index + 1}}</view>
+          </view>
+          <view class="step-icon-wrap">
+            <text class="step-icon">{{item.icon}}</text>
+          </view>
+          <text class="step-label">{{item.label}}</text>
+          <text class="step-desc">{{item.desc}}</text>
         </view>
-        <text class="measure-step-label">在线预约</text>
-      </view>
-      <view class="measure-arrow">
-        <text class="measure-arrow-text">→</text>
-      </view>
-      <view class="measure-step">
-        <view class="measure-step-icon-wrap">
-          <text class="measure-step-icon">📐</text>
-        </view>
-        <text class="measure-step-label">上门测量</text>
-      </view>
-      <view class="measure-arrow">
-        <text class="measure-arrow-text">→</text>
-      </view>
-      <view class="measure-step">
-        <view class="measure-step-icon-wrap">
-          <text class="measure-step-icon">📊</text>
-        </view>
-        <text class="measure-step-label">出方案报价</text>
-      </view>
+      </block>
     </view>
 
     <view class="measure-btn" bindtap="onFreeMeasureTap">

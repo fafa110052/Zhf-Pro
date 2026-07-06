@@ -12,6 +12,7 @@ import Properties from '../pages/Properties';
 import MaterialCategories from '../pages/MaterialCategories';
 import Materials from '../pages/Materials';
 import MaterialOrders from '../pages/MaterialOrders';
+import MaterialOrderDetail from '../pages/MaterialOrderDetail';
 
 const router = createBrowserRouter([
   { path: '/login', element: <Login /> },
@@ -32,6 +33,7 @@ const router = createBrowserRouter([
       { path: 'material-categories', element: <MaterialCategories /> },
       { path: 'materials', element: <Materials /> },
       { path: 'material-orders', element: <MaterialOrders /> },
+      { path: 'material-orders/:orderNo', element: <MaterialOrderDetail /> },
     ],
   },
   { path: '*', element: <Navigate to="/dashboard" replace /> },

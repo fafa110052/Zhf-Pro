@@ -76,7 +76,7 @@ const PHASE_STATUS_MAP = {
   design_director_rejected:    { label: '设计已驳回', colorClass: 'tag-red' },
   design_admin_approved:       { label: '待业主审设计', colorClass: 'tag-green' },
   design_admin_rejected:       { label: '设计二审驳回', colorClass: 'tag-red' },
-  owner_design_reviewed:       { label: '待施工', colorClass: 'tag-green' },
+  owner_design_reviewed:       { label: '等待管理员分配', colorClass: 'tag-orange' },
   engineer_design_confirmed:  { label: '待总监确认设计', colorClass: 'tag-blue' },
   owner_design_disputed:       { label: '业主驳回设计', colorClass: 'tag-orange' },
   construction_confirmed:      { label: '施工中', colorClass: 'tag-blue' },
