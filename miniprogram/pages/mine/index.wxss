@@ -1,10 +1,10 @@
 /**
- * 我的页面样式
+ * 我的页面样式 V2.0 — 温暖精致风
  */
 
 .page {
   min-height: 100vh;
-  background: #f8fafc;
+  background: var(--bg-page);
 }
 
 /* ═══ 未登录头部 ═══ */
@@ -13,14 +13,14 @@
   flex-direction: column;
   align-items: center;
   padding: 80rpx 40rpx 48rpx;
-  background: #fff;
+  background: var(--bg-card);
 }
 
 .guest-avatar-wrap {
   width: 120rpx;
   height: 120rpx;
   border-radius: 60rpx;
-  background: #f1f5f9;
+  background: var(--color-accent-light);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -34,19 +34,19 @@
 .guest-title {
   font-size: 36rpx;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--text-primary);
   margin-bottom: 8rpx;
 }
 
 .guest-subtitle {
   font-size: 26rpx;
-  color: #94a3b8;
+  color: var(--text-tertiary);
   margin-bottom: 28rpx;
 }
 
 .guest-login-btn {
   padding: 16rpx 56rpx;
-  background: #1e293b;
+  background: var(--gradient-warm);
   color: #fff;
   border-radius: 40rpx;
   font-size: 28rpx;
@@ -60,10 +60,10 @@
 /* ═══ 个人信息卡片 ═══ */
 .profile-card {
   margin: 24rpx;
-  background: #fff;
-  border-radius: 20rpx;
+  background: var(--bg-card);
+  border-radius: var(--border-radius-xl);
   padding: 28rpx;
-  box-shadow: 0 2rpx 16rpx rgba(0, 0, 0, 0.04);
+  box-shadow: var(--shadow-sm);
 }
 
 .profile-row {
@@ -76,7 +76,7 @@
   width: 96rpx;
   height: 96rpx;
   border-radius: 48rpx;
-  background: #f1f5f9;
+  background: var(--color-accent-light);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -101,12 +101,12 @@
   width: 32rpx;
   height: 32rpx;
   border-radius: 16rpx;
-  background: #f59e0b;
+  background: var(--color-warning);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 18rpx;
-  border: 2rpx solid #fff;
+  border: 2rpx solid var(--bg-card);
 }
 
 .profile-body {
@@ -117,21 +117,21 @@
   display: block;
   font-size: 34rpx;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--text-primary);
 }
 
 .profile-phone {
   display: block;
   font-size: 26rpx;
-  color: #94a3b8;
+  color: var(--text-tertiary);
   margin-top: 6rpx;
 }
 
 .profile-edit {
   padding: 10rpx 20rpx;
   font-size: 24rpx;
-  color: #3b82f6;
-  background: #eff6ff;
+  color: var(--color-accent);
+  background: var(--color-accent-light);
   border-radius: 20rpx;
 }
 
@@ -144,25 +144,25 @@
 }
 
 .role-guest {
-  color: #64748b;
-  background: #f1f5f9;
+  color: var(--text-secondary);
+  background: #f5f0e8;
 }
 
 .role-designer {
-  color: #3b82f6;
-  background: #eff6ff;
+  color: var(--color-accent);
+  background: var(--color-accent-light);
 }
 
 .role-owner {
-  color: #d97706;
-  background: #fffbeb;
+  color: #b8952a;
+  background: #fdf8ec;
 }
 
 /* 业主楼盘信息 */
 .owner-property-info {
   margin-top: 24rpx;
   padding: 20rpx 24rpx;
-  background: #f8fafc;
+  background: var(--bg-page);
   border-radius: 14rpx;
 }
 .owner-property-row {
@@ -175,14 +175,14 @@
 }
 .owner-property-label {
   font-size: 24rpx;
-  color: #94a3b8;
+  color: var(--text-tertiary);
   width: 120rpx;
   flex-shrink: 0;
 }
 .owner-property-value {
   font-size: 26rpx;
   font-weight: 500;
-  color: #334155;
+  color: var(--text-secondary);
 }
 
 /* 申请设计师入口 */
@@ -191,9 +191,9 @@
   align-items: center;
   margin-top: 24rpx;
   padding: 20rpx 24rpx;
-  background: linear-gradient(135deg, #eff6ff, #f0f9ff);
+  background: linear-gradient(135deg, #fdf8f0, #faf5ed);
   border-radius: 14rpx;
-  border: 2rpx solid #bfdbfe;
+  border: 2rpx solid var(--border-color);
 }
 
 .apply-icon {
@@ -204,13 +204,13 @@
 .apply-text {
   flex: 1;
   font-size: 28rpx;
-  color: #2563eb;
+  color: var(--color-accent-deep);
   font-weight: 500;
 }
 
 .apply-arrow {
   font-size: 28rpx;
-  color: #93c5fd;
+  color: var(--color-accent);
 }
 
 /* 统计网格 */
@@ -218,7 +218,7 @@
   display: flex;
   margin-top: 28rpx;
   padding-top: 28rpx;
-  border-top: 2rpx solid #f1f5f9;
+  border-top: 2rpx solid var(--border-color);
 }
 
 .stats-item {
@@ -230,36 +230,36 @@
   display: block;
   font-size: 36rpx;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--text-primary);
 }
 
 .stats-label {
   display: block;
   font-size: 22rpx;
-  color: #94a3b8;
+  color: var(--text-tertiary);
   margin-top: 6rpx;
 }
 
 /* ═══ 菜单 ═══ */
 .menu-section {
   margin: 0 24rpx 24rpx;
-  background: #fff;
-  border-radius: 20rpx;
+  background: var(--bg-card);
+  border-radius: var(--border-radius-xl);
   overflow: hidden;
-  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.03);
+  box-shadow: var(--shadow-sm);
 }
 
 .menu-group-title {
   padding: 20rpx 28rpx 8rpx;
   font-size: 24rpx;
-  color: #94a3b8;
+  color: var(--text-tertiary);
 }
 
 .menu-item {
   display: flex;
   align-items: center;
   padding: 28rpx 28rpx;
-  border-bottom: 2rpx solid #f8fafc;
+  border-bottom: 2rpx solid var(--bg-page);
 }
 
 .menu-item:last-child {
@@ -267,7 +267,7 @@
 }
 
 .menu-item:active {
-  background: #f8fafc;
+  background: var(--bg-page);
 }
 
 .menu-icon {
@@ -280,16 +280,16 @@
 .menu-label {
   flex: 1;
   font-size: 30rpx;
-  color: #0f172a;
+  color: var(--text-primary);
 }
 
 .menu-label-danger {
-  color: #ef4444;
+  color: var(--color-danger);
 }
 
 .menu-arrow {
   font-size: 32rpx;
-  color: #cbd5e1;
+  color: var(--border-color);
   font-weight: 300;
 }
 
@@ -297,27 +297,27 @@
 .page-loading {
   padding: 100rpx 0;
   text-align: center;
-  color: #94a3b8;
+  color: var(--text-tertiary);
   font-size: 28rpx;
 }
 
 /* ═══ V1.3 施工角色标签 ═══ */
 .role-design-director {
-  color: #4338ca;
-  background: #eef2ff;
+  color: #6d5c3f;
+  background: #f5f0e8;
 }
 .role-engineer {
-  color: #0e7490;
-  background: #ecfeff;
+  color: #5a7a6a;
+  background: #edf5f0;
 }
 .role-engineering-director {
-  color: #15803d;
-  background: #f0fdf4;
+  color: #6a7a5a;
+  background: #f2f6ee;
 }
 
 /* ═══ V1.3 菜单待办 badge ═══ */
 .menu-badge {
-  background: #ef4444;
+  background: var(--color-danger);
   color: #fff;
   font-size: 22rpx;
   padding: 2rpx 12rpx;

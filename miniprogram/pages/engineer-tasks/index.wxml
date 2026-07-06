@@ -41,7 +41,7 @@
       </block>
       <view wx:if="{{projects.length === 0}}" class="empty-state">
         <text class="empty-icon">{{mode === 'all' ? '📋' : '🔧'}}</text>
-        <text class="empty-title">{{mode === 'all' ? '暂无已完成项目' : '暂无任务'}}</text>
+        <text class="empty-title">{{mode === 'all' ? '暂无项目' : '暂无任务'}}</text>
       </view>
     </block>
   </block>

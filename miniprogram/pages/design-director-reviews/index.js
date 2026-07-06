@@ -53,13 +53,20 @@ Page({
         projectMap[key].phases.push(item);
       });
       const projects = Object.values(projectMap);
-      const filteredProjects = this.data.mode === 'active'
-        ? projects.map(function(p) {
-            return Object.assign({}, p, { phases: p.phases.filter(function(ph) { return isActivePhase(ph.status); }) });
-          }).filter(function(p) { return p.phases.length > 0; })
-        : projects.map(function(p) {
-            return Object.assign({}, p, { phases: p.phases.filter(function(ph) { return ph.status === 'owner_accepted'; }) });
-          }).filter(function(p) { return p.phases.length > 0; });
+      // mode=active → 进行中（需审核）/ mode=all → 全部项目 / 其他 → 已完成
+      var filteredProjects;
+      if (this.data.mode === 'active') {
+        filteredProjects = projects.map(function(p) {
+          return Object.assign({}, p, { phases: p.phases.filter(function(ph) { return isActivePhase(ph.status); }) });
+        }).filter(function(p) { return p.phases.length > 0; });
+      } else if (this.data.mode === 'all') {
+        // 全部项目：显示所有阶段，不按状态过滤
+        filteredProjects = projects;
+      } else {
+        filteredProjects = projects.map(function(p) {
+          return Object.assign({}, p, { phases: p.phases.filter(function(ph) { return ph.status === 'owner_accepted'; }) });
+        }).filter(function(p) { return p.phases.length > 0; });
+      }
       const pageData = { projects: filteredProjects, loading: false };
       if (this._readyFired) { this.setData(Object.assign({ ready: true }, pageData)); } else { this._pageData = pageData; }
     } catch (err) { this.setData({ loading: false, error: true, ready: true }); }

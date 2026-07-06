@@ -54,9 +54,9 @@ Page({
     const tab = this.data.activeTab;
     const { mode } = this.data;
 
-    // 全部项目：仅展示已验收完成的过往任务
+    // 全部项目：显示所有阶段，不按状态过滤
     if (mode === 'all') {
-      let list = this.data.allList.filter(item => item.status === 'owner_accepted');
+      let list = this.data.allList;
       const projectMap = {};
       list.forEach(item => {
         const key = item.order_no || 'unknown';

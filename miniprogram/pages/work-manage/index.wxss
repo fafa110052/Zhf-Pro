@@ -88,7 +88,7 @@
   height: 140rpx;
   border-radius: var(--border-radius-sm);
   overflow: hidden;
-  background: #f1f5f9;
+  background: #f5f0e8;
   flex-shrink: 0;
   margin-right: 20rpx;
 }
@@ -163,9 +163,9 @@
 }
 
 .action-edit {
-  color: #2563eb;
-  background: #eff6ff;
-  border-color: #bfdbfe;
+  color: var(--color-accent-deep);
+  background: var(--color-accent-light);
+  border-color: var(--border-color);
 }
 
 .action-submit {
