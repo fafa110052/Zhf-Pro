@@ -7,7 +7,7 @@ const ENGINEER_ACTION_STATUSES = ['construction_confirmed', 'engineering_directo
 
 Page({
   data: {
-    list: [], allList: [], projects: [],
+    projects: [],
     loading: true, error: false, ready: false,
     mode: 'active',
     PHASE_STATUS_MAP, PHASE_TYPE_MAP,
@@ -28,7 +28,7 @@ Page({
     this.setData({ loading: true, error: false, ready: false });
     try {
       const res = await api.getEngineerPhases();
-      const allList = (res.list || []).map(item => {
+      const list = (res.list || []).map(item => {
         const designImages = parseImagesJson(item.design_images);
         const constructionImages = parseImagesJson(item.construction_images);
         // 列表仅需缩略图，删除完整图片数组以节省内存
@@ -48,50 +48,38 @@ Page({
           constructionCount: constructionImages.length,
         };
       });
-      const pageData = { allList, loading: false };
-      if (this._readyFired) { this.setData(Object.assign({ ready: true }, pageData)); } else { this._pageData = pageData; }
-      this.filterList();
-    } catch (err) { this.setData({ loading: false, error: true, ready: true }); }
-  },
-
-  filterList() {
-    const { mode } = this.data;
-
-    // 全部项目：显示所有阶段，不按状态过滤
-    if (mode === 'all') {
-      let list = this.data.allList;
+      // 按项目分组
       const projectMap = {};
       list.forEach(item => {
         const key = item.order_no || 'unknown';
         if (!projectMap[key]) {
-          projectMap[key] = { orderNo: item.order_no, propertyName: item.property_name || '—', roomNumber: item.room_number || '', phases: [] };
+          projectMap[key] = {
+            orderNo: item.order_no,
+            propertyName: item.property_name || '—',
+            roomNumber: item.room_number || '',
+            phases: [],
+          };
         }
         projectMap[key].phases.push(item);
       });
-      this.setData({ list, projects: Object.values(projectMap) });
-      return;
-    }
-
-    // mode=active：我的任务 — 跟自己有关但未竣工（排除 owner_accepted 和 locked）
-    let list = this.data.allList.filter(item =>
-      item.status !== 'owner_accepted' && item.status !== 'locked'
-    );
-    // 按项目分组
-    const projectMap = {};
-    list.forEach(item => {
-      const key = item.order_no || 'unknown';
-      if (!projectMap[key]) {
-        projectMap[key] = {
-          orderNo: item.order_no,
-          propertyName: item.property_name || '—',
-          roomNumber: item.room_number || '',
-          phases: [],
-        };
+      const projects = Object.values(projectMap);
+      // mode=active → 我的任务（排除已竣工和未解锁）/ mode=all → 全部项目 / 其他 → 已完成
+      var filteredProjects;
+      if (this.data.mode === 'active') {
+        filteredProjects = projects.map(function(p) {
+          return Object.assign({}, p, { phases: p.phases.filter(function(ph) { return isActivePhase(ph.status); }) });
+        }).filter(function(p) { return p.phases.length > 0; });
+      } else if (this.data.mode === 'all') {
+        // 全部项目：显示所有阶段，不按状态过滤
+        filteredProjects = projects;
+      } else {
+        filteredProjects = projects.map(function(p) {
+          return Object.assign({}, p, { phases: p.phases.filter(function(ph) { return ph.status === 'owner_accepted'; }) });
+        }).filter(function(p) { return p.phases.length > 0; });
       }
-      projectMap[key].phases.push(item);
-    });
-    const projects = Object.values(projectMap);
-    this.setData({ list, projects });
+      const pageData = { projects: filteredProjects, loading: false };
+      if (this._readyFired) { this.setData(Object.assign({ ready: true }, pageData)); } else { this._pageData = pageData; }
+    } catch (err) { this.setData({ loading: false, error: true, ready: true }); }
   },
 
   onTapItem(e) {
@@ -106,3 +94,7 @@ function parseImagesJson(val) {
   try { return JSON.parse(val); } catch (_) { return []; }
 }
 
+/** 是否进行中（排除已竣工和未解锁） */
+function isActivePhase(status) {
+  return status !== 'owner_accepted' && status !== 'locked';
+}

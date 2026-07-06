@@ -6,6 +6,7 @@ Page({
   data: {
     phaseId: null, phase: null, loading: true, error: false, ready: false,
     rejectOpen: false, rejectReason: '', rejecting: false, acting: false,
+    approveRemark: '',
     PHASE_STATUS_MAP, PHASE_TYPE_MAP,
   },
 
@@ -61,13 +62,15 @@ Page({
   async onApprove() {
     wx.showModal({ title: '确认通过', content: '确定审核通过该完工图吗？', confirmText: '通过',
       success: async (res) => { if (!res.confirm) return; this.setData({ acting: true });
-        try { await api.approveEngineeringDirector(this.data.phaseId); wx.requestSubscribeMessage({ tmplIds: [], success: () => {}, fail: () => {} });
+        try { await api.approveEngineeringDirector(this.data.phaseId, this.data.approveRemark.trim());
+          wx.requestSubscribeMessage({ tmplIds: [], success: () => {}, fail: () => {} });
           wx.showToast({ title: '已通过', icon: 'success' }); setTimeout(() => wx.navigateBack(), 1000); }
         catch (err) { wx.showToast({ title: err?.message || '操作失败', icon: 'none' }); } finally { this.setData({ acting: false }); } },
     });
   },
 
   onOpenReject() { this.setData({ rejectOpen: true, rejectReason: '' }); },
+  onRemarkInput(e) { this.setData({ approveRemark: e.detail.value }); },
   onCloseReject() { this.setData({ rejectOpen: false }); },
   onReasonInput(e) { this.setData({ rejectReason: e.detail.value }); },
 

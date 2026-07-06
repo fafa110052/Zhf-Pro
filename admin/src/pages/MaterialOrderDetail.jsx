@@ -182,6 +182,7 @@ export default function MaterialOrderDetail() {
   const [reviewType, setReviewType] = useState('');
   const [reviewAction, setReviewAction] = useState('');
   const [reviewReason, setReviewReason] = useState('');
+  const [reviewRemark, setReviewRemark] = useState('');
   const [reviewSubmitting, setReviewSubmitting] = useState(false);
 
   // 图片灯箱
@@ -296,7 +297,11 @@ export default function MaterialOrderDetail() {
     try {
       const prefix = reviewType === 'design' ? 'design' : 'construction';
       const url = `/admin/construction-phases/${reviewPhaseId}/${action === 'approve' ? `approve-${prefix}` : `reject-${prefix}`}`;
-      await client.post(url, action === 'reject' ? { reason: reviewReason.trim() } : {});
+      const body = action === 'reject' ? { reason: reviewReason.trim() } : {};
+      if (action === 'approve' && reviewRemark.trim()) {
+        body.remark = reviewRemark.trim();
+      }
+      await client.post(url, body);
       toast.success(action === 'approve' ? '审核通过' : '已驳回');
       setReviewOpen(false);
       refreshDetail();
@@ -665,7 +670,7 @@ export default function MaterialOrderDetail() {
                 {/* 设计审核操作按钮 */}
                 {showReviewDesign && (
                   <div className="flex gap-2">
-                    <button onClick={() => { setReviewPhaseId(dp.id); setReviewType('design'); setReviewAction(''); setReviewReason(''); setReviewOpen(true); }}
+                    <button onClick={() => { setReviewPhaseId(dp.id); setReviewType('design'); setReviewAction(''); setReviewReason(''); setReviewRemark(''); setReviewOpen(true); }}
                       className="inline-flex items-center px-4 py-2 bg-slate-900 text-white text-sm font-medium rounded-lg hover:bg-slate-800 transition-colors">
                       {dp.status === 'owner_design_disputed' ? '重新审核设计' : '二审设计图'}
                     </button>
@@ -840,8 +845,24 @@ export default function MaterialOrderDetail() {
                           {/* 施工描述 */}
                           {p.construction_description && (
                             <div className="bg-blue-50 border border-blue-100 rounded-lg p-3">
-                              <p className="text-xs text-blue-500 font-medium mb-1">施工描述</p>
+                              <p className="text-xs text-blue-500 font-medium mb-1">施工描述（工程师）</p>
                               <p className="text-sm text-slate-700 leading-relaxed">{p.construction_description}</p>
+                            </div>
+                          )}
+
+                          {/* 工程总监备注 */}
+                          {p.engineering_director_remark && (
+                            <div className="bg-amber-50 border border-amber-100 rounded-lg p-3">
+                              <p className="text-xs text-amber-600 font-medium mb-1">工程总监备注</p>
+                              <p className="text-sm text-slate-700 leading-relaxed">{p.engineering_director_remark}</p>
+                            </div>
+                          )}
+
+                          {/* 管理员二审备注 */}
+                          {p.admin_construction_remark && (
+                            <div className="bg-emerald-50 border border-emerald-100 rounded-lg p-3">
+                              <p className="text-xs text-emerald-600 font-medium mb-1">管理员备注</p>
+                              <p className="text-sm text-slate-700 leading-relaxed">{p.admin_construction_remark}</p>
                             </div>
                           )}
 
@@ -882,11 +903,11 @@ export default function MaterialOrderDetail() {
                                 className="px-3 py-1.5 text-xs bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-colors">派单</button>
                             )}
                             {p.status === 'engineering_director_approved' && (
-                              <button onClick={() => { setReviewPhaseId(p.id); setReviewType('construction'); setReviewAction(''); setReviewReason(''); setReviewOpen(true); }}
+                              <button onClick={() => { setReviewPhaseId(p.id); setReviewType('construction'); setReviewAction(''); setReviewReason(''); setReviewRemark(''); setReviewOpen(true); }}
                                 className="px-3 py-1.5 text-xs bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-colors">二审完工图</button>
                             )}
                             {p.status === 'owner_disputed' && (
-                              <button onClick={() => { setReviewPhaseId(p.id); setReviewType('construction'); setReviewAction(''); setReviewReason(''); setReviewOpen(true); }}
+                              <button onClick={() => { setReviewPhaseId(p.id); setReviewType('construction'); setReviewAction(''); setReviewReason(''); setReviewRemark(''); setReviewOpen(true); }}
                                 className="px-3 py-1.5 text-xs bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-colors">重新处理</button>
                             )}
                           </div>
@@ -925,7 +946,7 @@ export default function MaterialOrderDetail() {
               </button>
             )}
             {showReviewDesign && (
-              <button onClick={() => { setReviewPhaseId(dp.id); setReviewType('design'); setReviewAction(''); setReviewReason(''); setReviewOpen(true); }}
+              <button onClick={() => { setReviewPhaseId(dp.id); setReviewType('design'); setReviewAction(''); setReviewReason(''); setReviewRemark(''); setReviewOpen(true); }}
                 className="px-6 py-2.5 bg-slate-900 text-white text-sm font-medium rounded-lg hover:bg-slate-800 transition-colors">
                 {dp.status === 'owner_design_disputed' ? '重新审核设计' : '审核设计图'}
               </button>
@@ -1037,12 +1058,27 @@ export default function MaterialOrderDetail() {
                 </div>
               ) : <p className="text-sm text-slate-500">暂无图片</p>;
             })()}
+            {/* 工程总监备注（二审时展示） */}
+            {reviewType === 'construction' && ph?.engineering_director_remark && (
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                <p className="text-xs text-amber-600 font-medium mb-1">工程总监备注</p>
+                <p className="text-sm text-slate-700">{ph.engineering_director_remark}</p>
+              </div>
+            )}
             {reviewAction === 'reject' && (
               <div>
                 <label className="block text-sm font-medium text-slate-800 mb-1">驳回原因 *</label>
                 <textarea value={reviewReason} onChange={(e) => setReviewReason(e.target.value)} rows={3}
                   className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                   maxLength={500} placeholder="请填写驳回原因" />
+              </div>
+            )}
+            {reviewAction === '' && (
+              <div>
+                <label className="block text-sm font-medium text-slate-800 mb-1">备注（选填，业主可见）</label>
+                <textarea value={reviewRemark} onChange={(e) => setReviewRemark(e.target.value)} rows={2}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                  maxLength={500} placeholder="可填写备注信息，审核通过后业主可见" />
               </div>
             )}
             <div className="flex justify-end gap-3 pt-2">

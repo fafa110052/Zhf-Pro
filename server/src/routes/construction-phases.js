@@ -67,7 +67,7 @@ router.post('/admin/construction-phases/:phaseId/reject-design', authenticate, r
 /** POST /api/v1/admin/construction-phases/:phaseId/approve-construction */
 router.post('/admin/construction-phases/:phaseId/approve-construction', authenticate, requireRole('admin'), async (req, res, next) => {
   try {
-    const result = await svc.reviewConstructionAdmin(req.user.id, Number(req.params.phaseId), { action: 'approve' });
+    const result = await svc.reviewConstructionAdmin(req.user.id, Number(req.params.phaseId), { action: 'approve', remark: req.body.remark });
     res.json({ success: true, data: result });
   } catch (err) { next(err); }
 });
@@ -238,7 +238,7 @@ router.post('/construction-phases/:phaseId/director-confirm-design', authenticat
 /** POST /api/v1/construction-phases/:phaseId/approve-engineering-director */
 router.post('/construction-phases/:phaseId/approve-engineering-director', authenticate, async (req, res, next) => {
   try {
-    const result = await svc.reviewEngineeringDirector(req.user.id, Number(req.params.phaseId), { action: 'approve' });
+    const result = await svc.reviewEngineeringDirector(req.user.id, Number(req.params.phaseId), { action: 'approve', remark: req.body.remark });
     res.json({ success: true, data: result });
   } catch (err) { next(err); }
 });

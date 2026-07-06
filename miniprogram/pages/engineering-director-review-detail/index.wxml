@@ -5,6 +5,9 @@
 <view class="status-tag {{PHASE_STATUS_MAP[phase.status].colorClass}}"><text>{{PHASE_STATUS_MAP[phase.status].label}}</text></view>
 <text class="order-no">阶段{{phase.phase_order}} · {{PHASE_TYPE_MAP[phase.phase_type].label}}</text></view>
 <view wx:if="{{phase.progress && phase.progress.length > 0}}" class="progress-section"><view class="section-title"><text>项目进度</text></view><view class="progress-bar"><block wx:for="{{phase.progress}}" wx:key="phase_order"><view class="progress-step"><view class="progress-dot {{item.dotClass}}"><view wx:if="{{item.isCurrent}}" class="progress-dot-inner"></view></view><text class="progress-label {{item.isCurrent ? 'active' : ''}}">{{item.label}}</text><text class="progress-status-text">{{item.statusLabel}}</text></view><view wx:if="{{index < phase.progress.length - 1}}" class="progress-line {{item.lineClass}}"></view></block></view></view>
+<view wx:if="{{phase.construction_description}}" class="section">
+<view class="section-title"><text>施工描述</text></view>
+<view class="desc-card"><text class="desc-text">{{phase.construction_description}}</text></view></view>
 <view wx:if="{{phase.construction_images && phase.construction_images.length > 0}}" class="section">
 <view class="section-title"><text>完工图（{{phase.construction_images.length}}张）</text></view>
 <view class="image-grid"><image lazy-load wx:for="{{phase.construction_images}}" wx:key="index" src="{{item}}" mode="aspectFill" class="image-thumb" bindtap="onPreview" data-url="{{item}}"/></view></view>
@@ -21,6 +24,9 @@
     </button>
   </view>
   <view wx:if="{{ready && phase && phase.status === 'construction_uploaded'}}" class="action-bar">
+  <view class="remark-input-wrap">
+    <textarea class="remark-textarea" placeholder="备注（选填，业主可见）" value="{{approveRemark}}" bindinput="onRemarkInput" maxlength="500" auto-height/>
+  </view>
 <button class="action-btn dispute-btn" bindtap="onOpenReject" disabled="{{acting}}">❌ 驳回</button>
 <button class="action-btn accept-btn" bindtap="onApprove" loading="{{acting}}" disabled="{{acting}}">✅ 通过</button></view>
 <view wx:if="{{rejectOpen}}" class="modal-mask" bindtap="onCloseReject"></view>

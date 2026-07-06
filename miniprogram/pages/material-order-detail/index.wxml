@@ -115,6 +115,9 @@
                 class="phase-img-mini" src="{{img}}" mode="aspectFill"
                 data-url="{{img}}" bindtap="onPreviewImage" />
             </view>
+            <view wx:if="{{item.construction_description}}" class="phase-remark"><text class="phase-remark-label">施工描述：</text><text>{{item.construction_description}}</text></view>
+            <view wx:if="{{item.engineering_director_remark}}" class="phase-remark"><text class="phase-remark-label">工程总监备注：</text><text>{{item.engineering_director_remark}}</text></view>
+            <view wx:if="{{item.admin_construction_remark}}" class="phase-remark"><text class="phase-remark-label">管理员备注：</text><text>{{item.admin_construction_remark}}</text></view>
             <view class="phase-persons">
               <text wx:if="{{item.engineer}}">工程师：{{item.engineer.name}}</text>
               <text wx:if="{{item.engineering_director}}" class="person-sep-block">|</text>

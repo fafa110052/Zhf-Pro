@@ -355,16 +355,16 @@ function getEngineerPhases(opts = {}) {
 function confirmDesign(phaseId) {
   return http.post(`/construction-phases/${phaseId}/confirm-design`, {}, { auth: true });
 }
-function uploadConstructionImages(phaseId, images) {
-  return http.put(`/construction-phases/${phaseId}/upload-construction`, { images }, { auth: true });
+function uploadConstructionImages(phaseId, images, description) {
+  return http.put(`/construction-phases/${phaseId}/upload-construction`, { images, description: description || '' }, { auth: true });
 }
 
 // 工程总监
 function getEngineeringDirectorPhases(opts = {}) {
   return http.get('/director/engineering/phases', {}, Object.assign({ auth: true }, opts));
 }
-function approveEngineeringDirector(phaseId) {
-  return http.post(`/construction-phases/${phaseId}/approve-engineering-director`, {}, { auth: true });
+function approveEngineeringDirector(phaseId, remark) {
+  return http.post(`/construction-phases/${phaseId}/approve-engineering-director`, { remark: remark || '' }, { auth: true });
 }
 function rejectEngineeringDirector(phaseId, reason) {
   return http.post(`/construction-phases/${phaseId}/reject-engineering-director`, { reason }, { auth: true });
