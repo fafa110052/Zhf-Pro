@@ -197,9 +197,9 @@ Page({
     wx.switchTab({ url: '/pages/category/index' });
   },
 
-  /** 免费量房预约 → 暂为占位提示 */
+  /** 免费量房预约 */
   onFreeMeasureTap() {
-    wx.showToast({ title: '敬请期待', icon: 'none' });
+    wx.navigateTo({ url: '/pages/measurement-appointment/index' });
   },
 });
 

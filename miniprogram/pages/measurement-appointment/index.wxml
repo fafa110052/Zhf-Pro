@@ -1,0 +1,134 @@
+<!-- 免费预约量房 -->
+<block wx:if="{{ready}}">
+<view class="page">
+  <!-- 顶部步骤说明 -->
+  <view class="steps-section">
+    <view class="trust-steps">
+      <view class="trust-step">
+        <view class="step-num-row">
+          <view class="step-num active">1</view>
+        </view>
+        <view class="step-icon-wrap">
+          <text class="step-icon">📋</text>
+        </view>
+        <text class="step-label">在线预约</text>
+        <text class="step-desc">填写信息</text>
+      </view>
+      <view class="trust-step">
+        <view class="step-num-row">
+          <view class="step-num">2</view>
+        </view>
+        <view class="step-icon-wrap">
+          <text class="step-icon">📐</text>
+        </view>
+        <text class="step-label">上门测量</text>
+        <text class="step-desc">专业量房</text>
+      </view>
+      <view class="trust-step">
+        <view class="step-num-row">
+          <view class="step-num">3</view>
+        </view>
+        <view class="step-icon-wrap">
+          <text class="step-icon">📄</text>
+        </view>
+        <text class="step-label">出方案报价</text>
+        <text class="step-desc">免费设计</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 表单卡片 -->
+  <view class="section">
+    <view class="section-title"><text>联系信息</text></view>
+
+    <view class="form-group">
+      <text class="form-label">联系人<text class="required">*</text></text>
+      <input class="form-input" placeholder="请输入姓名" value="{{name}}"
+        bindinput="onNameInput" maxlength="32"/>
+      <text wx:if="{{errors.name}}" class="form-error">{{errors.name}}</text>
+    </view>
+
+    <view class="form-group">
+      <text class="form-label">手机号<text class="required">*</text></text>
+      <view class="phone-row">
+        <input class="form-input phone-input" type="number" placeholder="请输入手机号" value="{{phone}}"
+          bindinput="onPhoneInput" maxlength="11"/>
+        <button class="phone-wx-btn" open-type="getPhoneNumber" bindgetphonenumber="onGetPhoneNumber">
+          微信获取
+        </button>
+      </view>
+      <text wx:if="{{errors.phone}}" class="form-error">{{errors.phone}}</text>
+    </view>
+  </view>
+
+  <view class="section">
+    <view class="section-title"><text>房屋信息</text></view>
+
+    <view class="form-group">
+      <text class="form-label">楼盘/小区<text class="required">*</text></text>
+      <input class="form-input" placeholder="请输入所在楼盘或小区名称" value="{{property_name}}"
+        bindinput="onPropertyInput" maxlength="64"/>
+      <text wx:if="{{errors.property_name}}" class="form-error">{{errors.property_name}}</text>
+    </view>
+
+    <view class="form-group">
+      <text class="form-label">房号</text>
+      <input class="form-input" placeholder="如：3栋1单元1001（选填）" value="{{room_number}}"
+        bindinput="onRoomInput" maxlength="32"/>
+    </view>
+
+    <view class="form-group">
+      <text class="form-label">面积（㎡）</text>
+      <input class="form-input" type="digit" placeholder="请输入房屋面积（选填）" value="{{area_size}}"
+        bindinput="onAreaInput"/>
+    </view>
+  </view>
+
+  <view class="section">
+    <view class="section-title"><text>其他信息</text></view>
+
+    <view class="form-group">
+      <text class="form-label">期望上门时间</text>
+      <view class="picker-row">
+        <picker class="picker-item" mode="selector" range="{{timeOptions}}" value="{{timeIndex}}" bindchange="onTimeChange">
+          <view class="picker-value {{timeIndex === -1 ? 'picker-placeholder' : ''}}">
+            {{timeIndex === -1 ? '请选择日期类型' : timeOptions[timeIndex]}}
+          </view>
+        </picker>
+        <picker class="picker-item" mode="selector" range="{{periodOptions}}" value="{{periodIndex}}" bindchange="onPeriodChange">
+          <view class="picker-value {{periodIndex === -1 ? 'picker-placeholder' : ''}}">
+            {{periodIndex === -1 ? '请选择时段' : periodOptions[periodIndex]}}
+          </view>
+        </picker>
+      </view>
+    </view>
+
+    <view class="form-group">
+      <text class="form-label">装修预算</text>
+      <picker mode="selector" range="{{budgetOptions}}" value="{{budgetIndex}}" bindchange="onBudgetChange">
+        <view class="picker-value {{budgetIndex === -1 ? 'picker-placeholder' : ''}}">
+          {{budgetIndex === -1 ? '请选择预算范围（选填）' : budgetOptions[budgetIndex]}}
+        </view>
+      </picker>
+    </view>
+
+    <view class="form-group">
+      <text class="form-label">备注</text>
+      <textarea class="form-textarea" placeholder="其他需要说明的情况（选填）" value="{{remark}}"
+        bindinput="onRemarkInput" maxlength="200" auto-height/>
+    </view>
+  </view>
+
+  <!-- 提交按钮 -->
+  <view class="submit-area">
+    <button class="submit-btn {{submitting ? 'btn-disabled' : ''}}" bindtap="onSubmit"
+      loading="{{submitting}}" disabled="{{submitting}}">
+      免费预约量房
+    </button>
+    <text class="submit-hint">提交后24小时内将有专人与您联系</text>
+  </view>
+
+  <!-- 安全区 -->
+  <view class="safe-bottom"></view>
+</view>
+</block>

@@ -1,0 +1,242 @@
+/**
+ * 预约量房页面样式
+ * 沿用全局设计 token：暖米白底 + 暖白卡片 + 香槟金强调
+ */
+
+.page { min-height: 100vh; background: var(--bg-page); }
+
+/* ═══ 步骤条（复用首页样式） ═══ */
+.steps-section {
+  margin: 24rpx 24rpx;
+  background: var(--bg-card);
+  border-radius: var(--border-radius-xl);
+  padding: 28rpx;
+  box-shadow: var(--shadow-sm);
+}
+
+.trust-steps {
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+  padding: 8rpx 0 0;
+}
+
+.trust-steps::before {
+  content: '';
+  position: absolute;
+  top: 20rpx;
+  left: 28rpx;
+  right: 28rpx;
+  height: 2rpx;
+  background: linear-gradient(90deg,
+    rgba(200, 169, 110, 0.12),
+    rgba(200, 169, 110, 0.35) 30%,
+    rgba(200, 169, 110, 0.35) 70%,
+    rgba(200, 169, 110, 0.12)
+  );
+  z-index: 0;
+}
+
+.trust-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  position: relative;
+  z-index: 1;
+}
+
+.step-num-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16rpx;
+  position: relative;
+  z-index: 2;
+}
+
+.step-num {
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 20rpx;
+  background: #e0d8ca;
+  color: var(--text-tertiary);
+  font-size: 22rpx;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.step-num.active {
+  background: var(--color-accent);
+  color: #fff;
+  box-shadow: 0 2rpx 8rpx rgba(200, 169, 110, 0.25);
+}
+
+.step-icon-wrap {
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 44rpx;
+  background: linear-gradient(135deg, #fdf8f0, #f8f0e2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12rpx;
+}
+
+.step-icon { font-size: 40rpx; }
+
+.step-label {
+  font-size: 24rpx;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4rpx;
+  white-space: nowrap;
+}
+
+.step-desc {
+  font-size: 20rpx;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}
+
+/* ═══ 区块 ═══ */
+.section {
+  margin: 0 24rpx 24rpx;
+  background: var(--bg-card);
+  border-radius: var(--border-radius-lg);
+  padding: 28rpx;
+  box-shadow: var(--shadow-sm);
+}
+
+.section-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 20rpx;
+  padding-bottom: 16rpx;
+  border-bottom: 1rpx solid var(--border-color);
+}
+
+/* ═══ 表单 ═══ */
+.form-group { margin-top: 24rpx; }
+.form-group:first-child { margin-top: 0; }
+
+.form-label {
+  font-size: 28rpx;
+  color: var(--text-secondary);
+  display: block;
+  margin-bottom: 12rpx;
+}
+
+.required { color: var(--color-danger); margin-left: 4rpx; }
+
+.form-input {
+  width: 100%;
+  height: 80rpx;
+  background: var(--bg-page);
+  border-radius: 12rpx;
+  padding: 0 20rpx;
+  font-size: 28rpx;
+  color: var(--text-primary);
+  box-sizing: border-box;
+}
+
+.form-textarea {
+  width: 100%;
+  min-height: 140rpx;
+  background: var(--bg-page);
+  border-radius: 12rpx;
+  padding: 20rpx;
+  font-size: 28rpx;
+  color: var(--text-primary);
+  box-sizing: border-box;
+}
+
+.form-error {
+  font-size: 22rpx;
+  color: var(--color-danger);
+  margin-top: 8rpx;
+  display: block;
+}
+
+/* 手机号行 */
+.phone-row {
+  display: flex;
+  gap: 16rpx;
+  align-items: center;
+}
+
+.phone-input { flex: 1; }
+
+.phone-wx-btn {
+  flex-shrink: 0;
+  height: 80rpx;
+  padding: 0 24rpx;
+  background: var(--color-accent-light);
+  color: var(--color-accent-deep);
+  font-size: 26rpx;
+  font-weight: 500;
+  border-radius: 12rpx;
+  border: 2rpx solid var(--color-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.phone-wx-btn:active { opacity: 0.8; }
+
+/* ═══ Picker ═══ */
+.picker-row {
+  display: flex;
+  gap: 16rpx;
+}
+
+.picker-item { flex: 1; }
+
+.picker-value {
+  width: 100%;
+  height: 80rpx;
+  background: var(--bg-page);
+  border-radius: 12rpx;
+  padding: 0 20rpx;
+  font-size: 28rpx;
+  color: var(--text-primary);
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+}
+
+.picker-placeholder { color: var(--text-placeholder); }
+
+/* ═══ 提交 ═══ */
+.submit-area { margin: 48rpx 24rpx 0; text-align: center; }
+
+.submit-btn {
+  width: 100%;
+  height: 96rpx;
+  background: var(--gradient-warm);
+  border-radius: 48rpx;
+  font-size: 34rpx;
+  font-weight: 600;
+  color: #fff;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.submit-btn:active { opacity: 0.9; transform: scale(0.98); }
+.btn-disabled { opacity: 0.6; }
+
+.submit-hint {
+  font-size: 24rpx;
+  color: var(--text-tertiary);
+  margin-top: 20rpx;
+  display: block;
+}
+
+/* ═══ 安全区 ═══ */
+.safe-bottom { height: 48rpx; }

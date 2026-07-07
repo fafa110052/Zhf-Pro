@@ -23,7 +23,8 @@
     "pages/engineer-tasks/index",
     "pages/engineer-task-detail/index",
     "pages/engineering-director-reviews/index",
-    "pages/engineering-director-review-detail/index"
+    "pages/engineering-director-review-detail/index",
+    "pages/measurement-appointment/index"
   ],
   "window": {
     "backgroundTextStyle": "dark",

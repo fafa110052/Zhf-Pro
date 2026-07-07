@@ -24,6 +24,7 @@ const materialCategoriesRoutes = require('./routes/material-categories');
 const materialsRoutes = require('./routes/materials');
 const materialOrdersRoutes = require('./routes/material-orders');
 const constructionPhaseRoutes = require('./routes/construction-phases');
+const measurementAppointmentRoutes = require('./routes/measurement-appointments');
 
 const app = express();
 
@@ -128,6 +129,7 @@ app.use('/api/v1', materialCategoriesRoutes);// 材料分类管理（V1.1 新增
 app.use('/api/v1', materialsRoutes);        // 材料管理（V1.1 新增）
 app.use('/api/v1', materialOrdersRoutes);   // 选材申请（V1.1 新增）
 app.use('/api/v1', constructionPhaseRoutes); // 施工阶段（V1.3 新增）
+app.use('/api/v1', measurementAppointmentRoutes); // 量房预约
 
 // ═══ 404 / SPA 回退（必须在所有路由之后）═══
 app.use((req, res) => {

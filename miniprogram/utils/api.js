@@ -389,6 +389,18 @@ function disputePhase(phaseId, data) {
   return http.post(`/construction-phases/${phaseId}/dispute`, data, { auth: true });
 }
 
+// ═══════════════════════════════════════════
+// 量房预约 API
+// ═══════════════════════════════════════════
+
+/**
+ * 提交量房预约（无需登录）
+ * @param {object} data — { name, phone, property_name, room_number, area_size, expected_time, budget, remark, source, source_page }
+ */
+function submitMeasureAppointment(data) {
+  return http.post('/measurement-appointments', data);
+}
+
 module.exports = {
   // 分类
   getCategories,
@@ -444,4 +456,6 @@ module.exports = {
   disputeOwnerDesign,
   acceptPhase,
   disputePhase,
+  // 量房预约
+  submitMeasureAppointment,
 };
