@@ -320,16 +320,15 @@ export default function MeasurementAppointments() {
       )}
 
       {/* ─── 确认对话框 ─── */}
-      {confirmOpen && confirmAction && (
-        <ConfirmDialog
-          title={confirmAction.title}
-          message={confirmAction.message}
-          variant={confirmAction.variant}
-          confirmText={confirmAction.confirmText}
-          onConfirm={confirmAction.action}
-          onCancel={() => { setConfirmOpen(false); setConfirmAction(null); }}
-        />
-      )}
+      <ConfirmDialog
+        open={confirmOpen}
+        title={confirmAction?.title}
+        message={confirmAction?.message}
+        variant={confirmAction?.variant}
+        confirmText={confirmAction?.confirmText}
+        onConfirm={confirmAction?.action}
+        onClose={() => { setConfirmOpen(false); setConfirmAction(null); }}
+      />
     </div>
   );
 }
