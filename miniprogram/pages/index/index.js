@@ -28,10 +28,10 @@ Page({
 
     // 设计团队（静态占位，后续接入 API）
     designers: [
-      { avatar: '/images/zhflogo.png', name: '张工', styles: '现代·轻奢' },
-      { avatar: '/images/zhflogo.png', name: '李工', styles: '法式·奶油' },
-      { avatar: '/images/zhflogo.png', name: '王工', styles: '日式·原木' },
-      { avatar: '/images/zhflogo.png', name: '陈工', styles: '极简·北欧' },
+      { avatar: '/images/zhfanglogo.png', name: '张工', styles: '现代·轻奢' },
+      { avatar: '/images/zhfanglogo.png', name: '李工', styles: '法式·奶油' },
+      { avatar: '/images/zhfanglogo.png', name: '王工', styles: '日式·原木' },
+      { avatar: '/images/zhfanglogo.png', name: '陈工', styles: '极简·北欧' },
     ],
 
     // 热门作品

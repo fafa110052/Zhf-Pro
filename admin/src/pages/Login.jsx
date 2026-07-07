@@ -70,7 +70,7 @@ export default function Login() {
           <div className="absolute top-1/2 left-1/3 w-48 h-48 bg-indigo-300 rounded-full blur-3xl" />
         </div>
         <div className="relative text-center px-12">
-          <img src="/zhflogo.png" alt="住好房" className="w-24 h-24 mx-auto rounded-2xl shadow-md mb-5" />
+          <img src="/admin/zhfanglogo.png" alt="住好房" className="w-24 h-24 mx-auto rounded-2xl shadow-md mb-5" />
           <h1 className="text-4xl font-bold tracking-wide text-slate-800 mb-4">住好房</h1>
           <p className="text-lg text-slate-600 mb-3">装修展示平台</p>
           <div className="w-16 h-0.5 bg-blue-400 mx-auto mb-4" />
@@ -85,7 +85,7 @@ export default function Login() {
         <div className="w-full max-w-sm">
           {/* 移动端 Logo */}
           <div className="lg:hidden text-center mb-8">
-            <img src="/zhflogo.png" alt="住好房" className="w-16 h-16 mx-auto rounded-xl shadow-sm mb-2" />
+            <img src="/admin/zhfanglogo.png" alt="住好房" className="w-16 h-16 mx-auto rounded-xl shadow-sm mb-2" />
             <h1 className="text-3xl font-bold text-slate-900">住好房</h1>
             <p className="mt-2 text-gray-500">管理后台</p>
           </div>
@@ -169,10 +169,6 @@ export default function Login() {
               <span>{loading ? '登录中...' : '登 录'}</span>
             </button>
           </form>
-
-          <p className="mt-6 text-center text-xs text-gray-400">
-            住好房装修展示平台 · 管理后台 v1.0
-          </p>
         </div>
       </div>
     </div>

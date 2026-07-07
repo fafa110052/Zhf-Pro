@@ -18,7 +18,7 @@ export default function Mine() {
   if (!isLoggedIn) {
     return (
       <div className="min-h-full flex flex-col items-center justify-center px-6" style={{ background: 'linear-gradient(180deg, #e8f4fd 0%, #f8fafc 40%)' }}>
-        <img src="/zhflogo.png" alt="住好房" className="w-20 h-20 mx-auto rounded-2xl shadow-sm mb-6" />
+        <img src="/m/zhfanglogo.png" alt="住好房" className="w-20 h-20 mx-auto rounded-2xl shadow-sm mb-6" />
         <h2 className="text-lg font-semibold text-gray-900">登录后查看更多</h2>
         <p className="text-sm text-gray-400 mt-1 mb-8">登录后可管理作品、查看进度</p>
         <button

@@ -17,7 +17,7 @@ export default function Login() {
   if (isLoggedIn) {
     return (
       <div className="flex flex-col items-center justify-center min-h-full px-6 py-12" style={{ background: 'linear-gradient(180deg, #e8f4fd 0%, #f8fafc 40%)' }}>
-        <img src="/zhflogo.png" alt="住好房" className="w-16 h-16 mx-auto rounded-xl mb-2" />
+        <img src="/m/zhfanglogo.png" alt="住好房" className="w-16 h-16 mx-auto rounded-xl mb-2" />
         <h2 className="text-lg font-semibold text-gray-900 mt-4">已登录</h2>
         <p className="text-sm text-gray-400 mt-1">{user?.name || ''}</p>
         <p className="text-xs text-gray-300 mt-0.5">{user?.phone || ''}</p>
@@ -68,7 +68,7 @@ export default function Login() {
     <div className="min-h-full flex flex-col items-center justify-center px-6 py-12" style={{ background: 'linear-gradient(180deg, #e8f4fd 0%, #f8fafc 40%)' }}>
       {/* Logo */}
       <div className="text-center mb-8">
-        <img src="/zhflogo.png" alt="住好房" className="w-20 h-20 mx-auto rounded-2xl shadow-sm" />
+        <img src="/m/zhfanglogo.png" alt="住好房" className="w-20 h-20 mx-auto rounded-2xl shadow-sm" />
         <h1 className="text-xl font-bold text-gray-900 mt-3">住好房</h1>
         <p className="text-sm text-gray-400 mt-1">装修展示平台</p>
       </div>

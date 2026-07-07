@@ -160,7 +160,7 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
         {/* Logo + 折叠按钮 */}
         <div className="flex items-center h-14 px-4 border-b border-slate-700/60 shrink-0">
           <div className={`flex items-center overflow-hidden ${collapsed ? 'lg:hidden' : ''}`}>
-            <img src="/admin/zhflogo.png" alt="住好房" className="w-7 h-7 rounded-lg mr-2 shrink-0" />
+            <img src="/admin/zhfanglogo.png" alt="住好房" className="w-7 h-7 rounded-lg mr-2 shrink-0" />
             <h1 className="text-base font-bold whitespace-nowrap tracking-wide">
               住好房
             </h1>
