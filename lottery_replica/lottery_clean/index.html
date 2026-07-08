@@ -7,7 +7,17 @@
     <meta content="yes" name="apple-mobile-web-app-capable" />
     <meta content="black" name="apple-mobile-web-app-status-bar-style" />
     <meta content="telephone=no" name="format-detection" />
-            <title>住好房“摇一摇”有惊喜</title>    <link type="text/css" rel="stylesheet" href="css/xz.css?v=1000" />
+            <title>住好房”摇一摇”有惊喜</title>
+    <!-- 微信/QQ 分享卡片预览 -->
+    <meta property=”og:title” content=”住好房”摇一摇”有惊喜” />
+    <meta property=”og:description” content=”摇一摇赢大奖！华为手机、精美家电等你来拿，每人每天都有机会！” />
+    <meta property=”og:image” content=”https://wzzhfservice.cloud/lottery/images/content_prize_show.png” />
+    <meta property=”og:url” content=”https://wzzhfservice.cloud/lottery/index.html” />
+    <meta property=”og:type” content=”website” />
+    <meta itemprop=”name” content=”住好房”摇一摇”有惊喜” />
+    <meta itemprop=”description” content=”摇一摇赢大奖！华为手机、精美家电等你来拿，每人每天都有机会！” />
+    <meta itemprop=”image” content=”https://wzzhfservice.cloud/lottery/images/content_prize_show.png” />
+    <link type=”text/css” rel=”stylesheet” href=”css/xz.css?v=1000” />
     <link type="text/css" rel="stylesheet" href="css/style_gk.css?v=651310" />
     <link type="text/css" rel="stylesheet" href="css/swiper.min.css" />
     <link type="text/css" rel="stylesheet" href="css/word.css?v=1000" />
@@ -963,9 +973,13 @@
         <style>
         .weapp_card {
             position: fixed;
-            width: 100vw;
+            width: 100%;
+            max-width: 450px;
             height: 25vw;
+            max-height: 112px;
             bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
             text-align: center;
         }
 
