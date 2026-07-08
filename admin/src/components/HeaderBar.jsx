@@ -17,6 +17,7 @@ const BREADCRUMB_MAP = {
   'material-orders': '工程管理',
   categories: '分类字典',
   'measurement-appointments': '量房预约',
+  lottery: '摇一摇抽奖',
 };
 
 /**

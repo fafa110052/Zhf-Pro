@@ -14,6 +14,7 @@ import Materials from '../pages/Materials';
 import MaterialOrders from '../pages/MaterialOrders';
 import MaterialOrderDetail from '../pages/MaterialOrderDetail';
 import MeasurementAppointments from '../pages/MeasurementAppointments';
+import LotteryConfig from '../pages/LotteryConfig';
 
 const router = createBrowserRouter([
   { path: '/login', element: <Login /> },
@@ -36,6 +37,7 @@ const router = createBrowserRouter([
       { path: 'material-orders', element: <MaterialOrders /> },
       { path: 'material-orders/:orderNo', element: <MaterialOrderDetail /> },
       { path: 'measurement-appointments', element: <MeasurementAppointments /> },
+      { path: 'lottery', element: <LotteryConfig /> },
     ],
   },
   { path: '*', element: <Navigate to="/dashboard" replace /> },

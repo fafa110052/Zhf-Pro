@@ -117,6 +117,17 @@ const MENU_ITEMS = [
     ),
   },
   {
+    path: '/lottery',
+    label: '摇一摇抽奖',
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+          d="M21 15.546c-.523 0-1.046.151-1.5.454a2.704 2.704 0 01-3 0 2.704 2.704 0 00-3 0 2.704 2.704 0 01-3 0 2.704 2.704 0 00-3 0 2.704 2.704 0 01-3 0A2.704 2.704 0 003 15.546M12 3v2m-6.364.636L7.05 7.05m9.9 0l1.414-1.414M21 12h-2M5 12H3m14.364 5.364l-1.414 1.414M7.05 16.95l-1.414 1.414" />
+        <circle cx="12" cy="12" r="1" fill="currentColor" />
+      </svg>
+    ),
+  },
+  {
     path: '/measurement-appointments',
     label: '量房预约',
     icon: (

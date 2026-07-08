@@ -25,6 +25,7 @@ const materialsRoutes = require('./routes/materials');
 const materialOrdersRoutes = require('./routes/material-orders');
 const constructionPhaseRoutes = require('./routes/construction-phases');
 const measurementAppointmentRoutes = require('./routes/measurement-appointments');
+const lotteryRoutes = require('./routes/lottery');
 
 const app = express();
 
@@ -37,6 +38,12 @@ app.use(dedup);                                     // 请求去重（防重复�
 
 // ═══ 静态文件服务（上传的图片）═══
 app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
+
+// ═══ 摇一摇 H5 页面（静态托管）═══
+const lotteryH5Dir = path.join(__dirname, '..', '..', 'lottery_replica', 'lottery_clean');
+if (fs.existsSync(lotteryH5Dir)) {
+  app.use('/lottery', express.static(lotteryH5Dir));
+}
 
 // ═══ 管理后台静态文件（生产环境）═══
 // admin/dist 存在时直接托管，无需单独启动 Vite dev server
@@ -130,6 +137,7 @@ app.use('/api/v1', materialsRoutes);        // 材料管理（V1.1 新增）
 app.use('/api/v1', materialOrdersRoutes);   // 选材申请（V1.1 新增）
 app.use('/api/v1', constructionPhaseRoutes); // 施工阶段（V1.3 新增）
 app.use('/api/v1', measurementAppointmentRoutes); // 量房预约
+app.use('/api/v1', lotteryRoutes);              // 摇一摇抽奖
 
 // ═══ 404 / SPA 回退（必须在所有路由之后）═══
 app.use((req, res) => {

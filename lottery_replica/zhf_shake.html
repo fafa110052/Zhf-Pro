@@ -1,0 +1,3643 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta content="width=device-width,initial-scale=1.0, maximum-scale=1.0,minimum-scale=1.0" name="viewport" />
+    <meta content="yes" name="apple-mobile-web-app-capable" />
+    <meta content="black" name="apple-mobile-web-app-status-bar-style" />
+    <meta content="telephone=no" name="format-detection" />
+            <title>住好房“摇一摇”有惊喜</title>    <link type="text/css" rel="stylesheet" href="style/xz.css?v=1000" />
+    <link type="text/css" rel="stylesheet" href="style/style_gk.css?v=651310" />
+    <link type="text/css" rel="stylesheet" href="style/swiper.min.css" />
+    <link type="text/css" rel="stylesheet" href="style/word.css?v=1000" />
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: "微软雅黑";
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .bg_pages,
+        .bg_page {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            left: 0;
+            top: 0;
+            background-color: #fff;
+        }
+
+        .bg_page {
+            background: url(images/69f216e550c64.jpg) no-repeat;
+            background-size: 100% 100%;
+        }
+
+        .tanchu .buttons a {
+            width: 100%;
+        }
+
+        .wordaniwr {
+            background-image: url("images/wordbgleft.png"), url("images/wordbgright.png");
+            background-repeat: no-repeat, no-repeat;
+            background-size: auto auto, auto auto;
+            background-position: 0 0, 100% 100%;
+        }
+
+        #swiper-jizi .swiper-slide {
+            opacity: 0;
+        }
+
+        #swiper-jizi .swiper-slide.swiper-slide-active {
+            opacity: 1;
+        }
+
+        .allwordswr {
+            padding: 10px 13px;
+        }
+
+        .allwordswr_box {
+            width: 100%;
+        }
+
+        .allwordsrow {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+
+        .allwordswr_box .allwordsrow:nth-child(2) {
+            margin-top: 20px;
+        }
+
+        .allwordswr_box .allwordsrow:nth-child(3) {
+            margin-top: 20px;
+        }
+
+        .allwordsrow:after,
+        .allwordsrow:before {
+            content: '';
+            display: block;
+        }
+
+        .fzcontent {
+            position: static;
+            margin: 0 auto;
+        }
+
+        #pan {
+            position: relative;
+        }
+
+        .pangif {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+        }
+
+        #pan_box {
+            background: url(images/shake_yaoyiyao_bg.png?v=1000) no-repeat;
+            background-size: 100% 100%;
+            margin-top: 5vw;
+        }
+
+        .bma_box{
+            position: relative;
+        }
+
+        .zicontent {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            -ms-transform: translate(-50%, -50%);
+            /* IE 9 */
+            -webkit-transform: translate(-50%, -50%);
+            /* Safari and Chrome */
+            width: 80%;
+            z-index: 9000;
+        }
+
+        #top {
+            margin: 0 auto;
+        }
+
+        #right_top_bt a,
+        .btn_rules a {
+            font-size: 12px;
+        }
+
+        .btn_rules,
+        #right_top_bt,
+        .tanchu_adv .img_continer .box .skip {
+            height: 22px;
+            line-height: 22px;
+            width: 70px;
+            border-radius: 3px;
+            background-color: rgba(0, 0, 0, 0.2);
+            font-size: 12px;
+        }
+
+        .tanchu_adv {
+            display: none;
+        }
+
+        #pan_box,
+        #pan {
+            width: 80vw;
+            height: 60vw;
+        }
+
+        .no_opactiy {
+            opacity: 0;
+        }
+
+        .fzcontent {
+            margin-top: 2vw;
+            width: 90vw;
+        }
+
+        .tanchu {
+            display: none;
+        }
+
+        /*中奖弹出层新*/
+        .winner img {
+            display: block;
+        }
+
+        .winner {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            left: 0;
+            top: 0;
+            z-index: 10000;
+            display: none;
+        }
+
+        .full_box {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            display: -webkit-flex;
+            align-items: center;
+            -webkit-align-items: center;
+            justify-content: center;
+            -webkit-justify-content: center;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .winner_content {
+            width: 80vw;
+        }
+
+        .winner_prize {
+            height: 66.7vw;
+            background: url("images/bg_prize.png") no-repeat;
+            background-size: 100% 100%;
+        }
+
+        .prize_title {
+            display: flex;
+            display: -webkit-flex;
+            align-items: center;
+            -webkit-align-items: center;
+            justify-content: center;
+            -webkit-justify-content: center;
+            height: 11.4vw;
+            font-size: 18px;
+            color: #fcdc2f;
+            font-weight: bold;
+        }
+
+        .prize_pic img {
+            display: block;
+            height: 38vw;
+            width: 72vw;
+            border: 8px solid #ffffff;
+            border-radius: 3px;
+            object-fit: cover;
+            margin: 0 auto;
+            box-sizing: border-box;
+        }
+
+        .btn_continue {
+            width: 48vw;
+            margin: 0 auto;
+            margin-top: 3vw;
+        }
+
+        .winner_font_box {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 8000;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+        }
+
+        .winner_font_flex {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .winner_font {
+            width: 80vw;
+            height: 65.2vw;
+            background: url("images/bg_font.png") no-repeat;
+            background-size: 100% 100%;
+            margin-top: 3vw;
+            position: relative;
+        }
+
+        .winner_connect {
+            position: absolute;
+            width: 100%;
+            left: 0;
+            top: -5.4vw;
+        }
+
+        .winner_connect img {
+            height: 7.8vw;
+            object-fit: cover;
+        }
+
+        .font_title {
+            width: 60vw;
+            margin: 0 auto;
+            padding-top: 5vw;
+            padding-bottom: 2vw;
+        }
+
+        .font_pic {
+            width: 51vw;
+            height: 35vw;
+            margin: 0 auto;
+            background: url("images/bg_fontcell.png") no-repeat;
+            background-size: 100% 100%;
+        }
+
+        .font_pic img {
+            width: 27vw;
+            height: 35vw;
+            object-fit: contain;
+            margin: 0 auto;
+        }
+
+        .btn_detail_row {
+            width: 60vw;
+            margin: 0 auto;
+            margin-top: 4vw;
+            display: flex;
+            display: -webkit-flex;
+            align-items: center;
+            -webkit-align-items: center;
+            justify-content: space-between;
+            -webkit-justify-content: space-between;
+        }
+
+        .font_tips {
+            width: 38vw;
+        }
+
+        .btn_todetail {
+            width: 20vw;
+            display: block;
+        }
+
+        .top_bottom {
+            width: 80vw;
+            margin: 0vw auto 2vw;
+            display: flex;
+            display: -webkit-flex;
+            align-items: flex-end;
+            -webkit-align-items: flex-end;
+            justify-content: space-between;
+            -webkit-justify-content: space-between;
+        }
+
+        .top_bottom0 {
+            width: 65vw;
+        }
+
+        .top_bottom1 {
+            width: 13vw;
+        }
+
+        .horn_row {
+            color: #f3ddb5;
+
+            display: flex;
+            display: -webkit-flex;
+            align-items: center;
+            -webkit-align-items: center;
+            justify-content: center;
+            -webkit-justify-content: center;
+        }
+
+        .horn {
+            width: 18px;
+        }
+
+        .horn img {
+            display: block;
+        }
+
+        .horn_text {
+            font-size: 14px;
+            margin: 0 1vw;
+            line-height: normal;
+        }
+
+        .wordz,
+        .wordf {
+            padding: 3vw;
+            box-sizing: border-box;
+        }
+
+        .guize .info {
+            padding-bottom: 1px;
+        }
+
+        .wordswr,
+        .wordf {
+            background-color: rgba(0, 0, 0, 0.15);
+        }
+
+        #advs_show {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            left: 0;
+            top: 0;
+            background-color: transparent;
+        }
+
+        #advs_show img {
+            height: auto;
+            width: 80%;
+        }
+
+        .gray {
+            filter: blur(1px);
+            -webkit-filter: blur(1px);
+        }
+
+        /* --------------新加的swiper样式——开始----------------- */
+        #dynami .swiper-container {
+            width: auto;
+            height: 100%;
+        }
+
+        #dynami .swiper-slide {
+            text-align: center;
+            font-size: 18px;
+            background: #fff;
+            display: -webkit-box;
+            display: -ms-flexbox;
+            display: -webkit-flex;
+            display: flex;
+            -webkit-box-pack: center;
+            -ms-flex-pack: center;
+            -webkit-justify-content: center;
+            justify-content: center;
+            -webkit-box-align: center;
+            -ms-flex-align: center;
+            -webkit-align-items: center;
+            align-items: center;
+        }
+
+        #dynami {
+            width: 100%;
+            position: absolute;
+            height: 42%;
+            top: 0px;
+            left: 0%;
+            z-index: -1;
+        }
+
+        #dynami .swiper1 img {
+            width: 100%;
+            min-height: 100%;
+            transition: 0s linear 0s;
+            /* -webkit-transform-origin-x: 50%; */
+            transform: scale(1, 1);
+        }
+
+        #dynami .swiper-slide-active.swiper1 img {
+            transition: 3s linear;
+            transform: scale(1.3, 1.3);
+        }
+
+        #dynami .swiper2 img {
+            width: 100%;
+            height: auto;
+            min-height: 100%;
+            /* -webkit-transform-origin-x: 50%; */
+            transition: 0s linear 0s;
+            transform: scale(1.3, 1.3);
+        }
+
+        #dynami .swiper-slide-active.swiper2 img {
+            transition: 3s linear;
+            transform: scale(1, 1);
+        }
+
+        #dynami .swiper3 img {
+            width: 100%;
+            height: auto;
+            min-height: 100%;
+            /* -webkit-transform-origin-x: 50%; */
+            transition: 0s linear 0s;
+            transform: scale(1, 1);
+            transform-origin: 100% 100% 0;
+            -webkit-transform-origin: 100% 100% 0;
+        }
+
+        #dynami .swiper-slide-active.swiper3 img {
+            transition: 3s linear;
+            transform: scale(1.15, 1.15);
+        }
+
+        #dynami .swiper4 img {
+            width: 100%;
+            height: auto;
+            min-height: 100%;
+            /* -webkit-transform-origin-x: 50%; */
+            transition: 0s linear 0s;
+            transform: scale(1, 1);
+            transform-origin: 0 0 0;
+            -webkit-transform-origin: 0 0 0;
+        }
+
+        #dynami .swiper-slide-active.swiper4 img {
+            transition: 3s linear;
+            transform: scale(1.15, 1.15);
+        }
+
+        .dynamibox {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+
+        #dynami .swiper-container .swiper-slide .dynamibox img {
+            width: auto;
+            height: 100%;
+        }
+
+        /* --------------新加的swiper样式——结束----------------- */
+        /* 红包 */
+        .clickGIF {
+            display: inline-block;
+            width: 25%;
+            position: fixed;
+            left: 3vw;
+            top: 110vw;
+        }
+
+        .clickGIF img {
+            width: 100%;
+        }
+
+        .textwordf {
+            padding: 10px 13px;
+        }
+
+        .textwordf p {
+            margin: 0 0;
+        }
+
+        .new_support {
+            width: 100%;
+            color: #fff;
+            height: 5vw;
+            border-radius: 0 0 6px 6px;
+            background: url("images/new_support.png") no-repeat;
+            background-size: 100% 100%;
+        }
+
+        .tanchu_adv .img_continer .box {
+            height: 90%;
+        }
+
+        .tanchu_adv .img_continer .box img {
+            border-radius: 6px 6px 0 0;
+            width: auto;
+            max-height: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+        }
+
+        .info_prize_bg {
+            background: url("images/prize_center.png") !important;
+            background-size: 100% 100% !important;
+        }
+
+        .gift_display {
+            width: 96%;
+            margin: 0 auto;
+        }
+
+        .tanchu_adv {
+            z-index: 999;
+        }
+
+        .demo_k {}
+    </style>
+</head>
+
+<body>
+    <!-- share_gif -->
+    <div class="share_gif_img">
+        <img src="images/share_gif.gif" alt="">
+    </div>
+    <img style="display:none;" src="images/shake_pan.gif?v=1000" width="1px" />
+    <audio id="audio" src="music/load.mp3"></audio>
+    <audio id="audio2" src="music/load.mp3"></audio>
+    <audio id="audio3" src="music/load.mp3" preload="auto"></audio>
+    <img src="images/69f2175355c32.png" width="1px" /><img src="images/69f21753561d7.png" width="1px" /><img src="images/69f2175356610.png" width="1px" />        <div class="bg_page"></div>
+    <div id="page">
+        <div class="content">
+            <div id="" class="mySwiper swiper-container" style="width:100%;min-height: 63vw;">
+                    <div class="swiper-wrapper get_id_swiper_show">
+                        <div class="swiper-slide wx_open_po_box">
+                                <img src="images/69f2175355c32.png"
+                                        style="display:block; width:100%;" />
+                                    <span
+                                        style=" position:absolute;color:#F3DDB5;bottom:5px; right:10px;width: 30px;height: 16px;text-align: center;line-height: 16px; font-size:12px; border-radius:3px; background:rgba(0,0,0,0.3)">
+                                        详情
+                                    </span>
+                                    <div class="wx_open_po">
+                                        <wx-open-launch-weapp id="launch-btn-top0"
+                                            username="gh_b677c5987d75"
+                                            path="pages/index/index?project_id=【你的项目ID】"
+                                            style=" display:block; width:100%; height:auto;">
+                                            <template>
+                                                <img src="images/69f2175355c32.png"
+                                                    style="display:block; width:100%;visibility: hidden;" />
+                                            </template>
+                                        </wx-open-launch-weapp>
+                                    </div>
+                                                                </div><div class="swiper-slide wx_open_po_box">
+                                <img src="images/69f21753561d7.png"
+                                        style="display:block; width:100%;" />
+                                    <span
+                                        style=" position:absolute;color:#F3DDB5;bottom:5px; right:10px;width: 30px;height: 16px;text-align: center;line-height: 16px; font-size:12px; border-radius:3px; background:rgba(0,0,0,0.3)">
+                                        详情
+                                    </span>
+                                    <div class="wx_open_po">
+                                        <wx-open-launch-weapp id="launch-btn-top1"
+                                            username="gh_b677c5987d75"
+                                            path="pages/index/index?project_id=【你的项目ID】"
+                                            style=" display:block; width:100%; height:auto;">
+                                            <template>
+                                                <img src="images/69f21753561d7.png"
+                                                    style="display:block; width:100%;visibility: hidden;" />
+                                            </template>
+                                        </wx-open-launch-weapp>
+                                    </div>
+                                                                </div><div class="swiper-slide wx_open_po_box">
+                                <img src="images/69f2175356610.png"
+                                        style="display:block; width:100%;" />
+                                    <span
+                                        style=" position:absolute;color:#F3DDB5;bottom:5px; right:10px;width: 30px;height: 16px;text-align: center;line-height: 16px; font-size:12px; border-radius:3px; background:rgba(0,0,0,0.3)">
+                                        详情
+                                    </span>
+                                    <div class="wx_open_po">
+                                        <wx-open-launch-weapp id="launch-btn-top2"
+                                            username="gh_b677c5987d75"
+                                            path="pages/index/index?project_id=【你的项目ID】"
+                                            style=" display:block; width:100%; height:auto;">
+                                            <template>
+                                                <img src="images/69f2175356610.png"
+                                                    style="display:block; width:100%;visibility: hidden;" />
+                                            </template>
+                                        </wx-open-launch-weapp>
+                                    </div>
+                                                                </div>                    </div>
+                </div>
+                
+
+                        <!-- <div id="pan_box" style="position:relative;">
+                                <div id="pan">
+                    <img src="images/shake_pan.png?v=1000">
+                    <img class="js-pangif pangif" src="images/shake_pan.gif?v=1000">
+                </div>
+                                <div style=" position:absolute; width:50%; height:50%; left:25%; top:22%;" onclick="shake_post()"></div>
+            </div> -->
+            <div class="click_pan_pan">
+                <div class="pan_box_new">
+                    <img src="images/pan_img_bg.png" alt="">
+                    <img src="images/pan_show.png" alt="" class="pan_show">
+                    <img src="images/pan_img.png" alt="" class="pan_img"
+                        onclick="shake_post()">
+                    <img src="images/lamp_strip.png" alt="" class="lamp_strip">
+
+                                            <div class="surplus">活动已结束</div>                </div>
+                <img src="images/click_pan.png" alt="" class="click_pan_share">
+            </div>
+                                    <!-- <div id="ts">
+                                    <div>活动已结束</div>            </div> -->
+            <!-- VIP 状态 是否提交预约信息 -->
+
+            <!-- 未填写信息 -->
+            <div class="vip_page_box" id="vip_yy_box" style="display:none">
+                <!-- <img src="images/vip_page_1.png" alt="" class="vip_page_1"> -->
+            </div>
+            <!-- 已填写信息 -->
+            <div class="vip_page_box vip_page_box_b" id="vip_staff_box" style="display:none">
+                <a href="tel:【你的客服电话】" id="staff_phone_bt">
+                    <img src="images/vip_page_2.png" alt="">
+                </a>
+                <div class="vip_page_text">
+                    <div>
+                        我是您的专属服务顾问
+                        <span class="staff_name">住好房</span>
+                        <span class="staff_phone">【你的客服电话】</span>
+                    </div>
+                    <div>由我负责为您安排领奖期待您与我联系</div>
+                </div>
+            </div>
+
+            <div class="guize">
+                <!--</div>-->
+                <div class="rule_top">
+                    <img src="images/rule_top.png?v=12" />
+                </div>
+                <div class="info"><p style="text-align:center;white-space:normal;">
+	<span style="text-align:justify;color:#FFE500;font-size:16px;">通知</span> 
+</p>
+<p style="text-align:center;white-space:normal;">
+	<span style="text-align:justify;color:#FFE500;font-size:16px;">领奖时间调整为</span> 
+</p>
+<p style="text-align:center;white-space:normal;">
+	<span style="color:#FFE500;font-size:16px;">下午：14：30-16:30</span> 
+</p>
+<p style="text-align:center;white-space:normal;">
+	<span style="color:#FFE500;font-size:16px;">上午不在进行领奖</span> 
+</p>
+<p style="white-space:normal;">
+	<span style="text-align:justify;">1、</span><span style="text-align:justify;color:#FF9900;"><strong>每人每天2次初始抽奖机会，每天最多5次</strong></span><span style="text-align:justify;">，了解抽奖次数详情可咨询营销中心；</span> 
+</p>
+<span style="white-space:normal;"></span><span style="white-space:normal;"></span><span style="white-space:normal;"></span><span style="white-space:normal;"></span> 
+<p style="white-space:normal;">
+	2、<strong><span style="color:#FF9900;">【你的活动开始日期】</span></strong>开始领取奖品，限本人携带年<span style="color:#FF9900;"><strong>满22周岁以上及60岁以下</strong></span>的有效身份证领取，<span style="color:#FF9900;"><strong>奖品有效期24小时，超时自动失效，请在领奖时间内</strong></span>及时领取，不得代领，逾期作废；
+</p>
+<span style="white-space:normal;">3、</span><span style="white-space:normal;color:#FF9900;"><strong>活动未到领奖时间前，奖品不会失效</strong></span><span style="white-space:normal;">，请于</span><span style="white-space:normal;color:#FF9900;"><span font-size:14px;white-space:normal;background-color:#ffffff;"=""><strong>【你的活动开始日期】</strong></span></span><strong style="white-space:normal;"><span style="color:#FF9900;"></span></strong><span style="white-space:normal;">领奖开始后及时前往领取，每人仅限一个微信号参与本次活动；</span><br style="white-space:normal;" />
+<span style="white-space:normal;">4、活动期间抽奖次数不限，</span><span style="white-space:normal;color:#FF9900;"><strong>每人每天仅限领取1个礼品，活动期间最多领取2个</strong></span><span style="white-space:normal;">，请自行选择；</span><br style="white-space:normal;" />
+<span style="white-space:normal;">5、</span><span style="white-space:normal;color:#FF9900;"><strong>抽奖时间</strong></span><span style="white-space:normal;">：【你的抽奖开始日期】—【你的活动截止日期】；</span><br style="white-space:normal;" />
+<span style="white-space:normal;">6、</span><strong style="white-space:normal;"><span style="color:#FF9900;">领奖时间</span></strong><span style="white-space:normal;">：【你的活动开始日期】—【你的活动截止日期】；</span><br style="white-space:normal;" />
+<span style="white-space:normal;text-align:justify;">下午14：30-16：30</span><br style="white-space:normal;" />
+<strong style="white-space:normal;"><span style="color:#FFE500;">当日领奖时间截止后，系统自动关闭，无法兑奖。领奖处可能有排队现象，请参与领奖人员合理安排时间。现场会根据排队情况提前发放限量兑奖号牌。请凭限量兑奖号牌领取礼品。<br />
+</span></strong><span style="white-space:normal;">7、领奖地址：【你的公司地址】</span><br style="white-space:normal;" />
+<span style="white-space:normal;">8、领奖电话：【你的客服电话】</span><br style="white-space:normal;" />
+<span style="white-space:normal;">9、奖品以实物为准，根据采购及发放情况，可能更换为同类商品；请凭中奖界面前往指定地址领取，不可抵现，不提供邮寄；</span><br style="white-space:normal;" />
+<p style="white-space:normal;">
+	本抽奖活动的参与者默认同意并遵守以上条款，本公司在法律允许范围内，保留对此次活动的解释权利。
+</p></div>
+                <div class="rule_bottom">
+                    <img src="images/rule_bottom.png" />
+                </div>
+            </div>
+            <!-- 顾问名片 -->
+            <div class="consultant_box">
+                    <div class="consultant_box_flex">
+                        <div class="consultant_head_tou">
+                            <img src="images/consultant_avatar.jpg" />
+                        </div>
+                        <div class="consultant_head_right">
+                            <div class="consultant_right_name">【你的顾问姓名】</div>
+                            <div>【你的顾问电话】</div>
+                        </div>
+                        <div class="dial_btn">
+                            <a href="tel:【你的顾问电话】">
+                                <img src="images/dial_btn.png" />
+                            </a>
+                        </div>
+                    </div>
+                    <div class="consultant_code">
+                        <img src="images/consultant_qrcode.jpg" />
+                    </div>
+                </div>            <div class="guize" style="margin-top: 2vw;">
+                <div class="rule_top">
+                    <img src="images/prize_top.png?v=10002" />
+                </div>
+                <div class="info info_prize_bg">
+                    <img src="images/69fbfbb72a653.png" alt="">
+                </div>
+                <div class="rule_bottom">
+                    <img src="images/prize_bottom.png" />
+                </div>
+            </div>
+            
+            
+                            <div class="bma_box" style="background:rgba(0,0,0,0.2)">
+                    <div class="advs information">
+                                                        <a href="javascript:map_show()">
+                                <img src="images/69f216e56db93.jpg" />
+                                <span class="rtbt">详情</span>
+                            </a>
+                                                    </div><div class="advs information">
+                                                        <a href="tel:">
+                                <img src="images/69f216e56e002.jpg" />
+                                <span class="rtbt">详情</span>
+                            </a>
+                                                    </div>                    <div style="clear:both"></div>
+                </div>                            <!--轮播图的数量-->
+                                                    <!-- 多张图片 -->
+                    <div id="" class="mySwiper bma_box swiper-container" style="background:rgba(0,0,0,0.2)">
+                        <div class="swiper-wrapper">
+                            <div class="swiper-slide">
+                                                                        <a href="javascript:void(0)">
+                                        <img src="images/69f2178916aa7.jpg" />
+                                    </a>
+                                                                    </div><div class="swiper-slide">
+                                                                        <a href="javascript:void(0)">
+                                        <img src="images/69f2178917f78.jpg" />
+                                    </a>
+                                                                    </div><div class="swiper-slide">
+                                                                        <a href="javascript:void(0)">
+                                        <img src="images/69f2178918f6e.jpg" />
+                                    </a>
+                                                                    </div>                        </div>
+                    </div>            <style>
+	#jizhi {
+		position: absolute;
+		bottom: 25vw;
+		width: 100%;
+		height: 50px;
+		line-height: 30px;
+		color: #FFF;
+	}
+
+	#jizhi_card {
+		display: none;
+		position: fixed;
+		width: 100%;
+		left: 0;
+		bottom: 0;
+		background: #fff;
+		z-index: 10000;
+		padding-bottom: 20px;
+	}
+
+	#jizhi_close {
+		float: right;
+		width: 30px;
+		height: 30px;
+		padding: 5px;
+	}
+
+	.jizhi_img {
+		width: 76%;
+		margin: 20px auto 0;
+	}
+
+	#jizhi_bg {
+		display: none;
+		position: fixed;
+		width: 100%;
+		height: 100%;
+		left: 0;
+		top: 0;
+		background: rgba(0, 0, 0, 0.5);
+	}
+
+	.zhichi {
+		text-align: center;
+		font-size: 12px;
+	}
+
+	.zhichi a {
+		color: #FFF;
+		text-decoration: none;
+	}
+
+	.contact_page {
+		display: none;
+		position: fixed;
+		height: 100vh;
+		width: 100vw;
+		left: 0;
+		right: 0;
+		top: 0;
+		z-index: 1000;
+		background: rgba(0, 0, 0, 0.3);
+	}
+
+	.contact_flex {
+		width: 100%;
+		height: 100vh;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.contact_con {
+		width: 68vw;
+		background: #fff;
+		border-radius: 2vw;
+		padding-bottom: 3.3vw;
+		margin-bottom: 8vw;
+		position: relative;
+	}
+
+	.contact_con img {
+		width: 100%;
+		display: block;
+		pointer-events: none;
+	}
+
+	.contact_er {
+		width: 38vw !important;
+		height: 38vw !important;
+		margin: 4vh auto 4vh;
+		pointer-events: auto !important;
+	}
+	.ishide_contact{
+		position: absolute;
+		width: 4.5vw !important;
+		height: 4.5vw;
+		right: 2vw;
+		top:2vw
+	}
+	.jump {
+		line-height: 30px;
+		color: #FFF;
+		text-align: center;
+		font-size: 12px;
+	}
+</style>
+
+
+<div style="height:40vw;"></div>
+
+<div id="jizhi">
+	<div class="zhichi active_font_color" style="margin-bottom: -10px">
+			曝光量：0&emsp;&emsp;参与量：0</div>	<div class="zhichi">
+
+	<div class="jump" onclick="contact_page()">©住好房装饰</div>
+		
+	</div>
+	
+	<!-- <div class="zhichi">
+			<wx-open-launch-weapp id="launch-btn" username="gh_b677c5987d75" path="pages/index/index.html">
+				<template>
+					<style>
+						.jump {
+							line-height: 30px;
+							color: #FFF;
+							text-align: center;
+							font-size: 12px;
+						}
+					</style>
+					<div class="jump">©住好房装饰</div>
+				</template>
+			</wx-open-launch-weapp>
+		</div>
+		 -->
+
+	<div id="jizhi_card">
+		<div id="jizhi_close"><a href="javascript:close_jizhi()"><img src="images/jizhi_close.jpg"
+					width="100%" /></a></div>
+		<div class="jizhi_img"><img src="images/jizhi_05.jpg" width="100%" /></div>
+		<div class="jizhi_img"><a href="tel:【你的合作电话】"><img src="images/jizhi_11.jpg"
+					width="100%" /></a></div>
+		<div class="jizhi_img"><a href="tel:【你的合作电话】"><img src="images/jizhi_17.jpg"
+					width="100%" /></a></div>
+	</div>
+</div>
+
+
+
+<div id="jizhi_bg" onClick="close_jizhi()"></div>
+<script type="text/javascript" src="script/jquery-1.11.1.min.js"></script>
+<script>
+	function jizhi_card() {
+		$("#jizhi_card").show();
+		$("#jizhi_bg").show();
+	}
+	function close_jizhi() {
+		$("#jizhi_card").hide();
+		$("#jizhi_bg").hide();
+	}
+	function contact_page() {
+		$(".contact_page").show()
+	};
+	$(function () {
+		$(".contact_page,.ishide_contact").click(function () {
+			$(".contact_page").hide()
+		})
+	});
+</script>
+            <div id="right_top_bt" class="active_back_color">
+                <a href="/api/v1/lottery/my-prizes class="btn_font_color">
+                    我的奖品
+                </a>
+            </div>
+            <div class="btn_rules active_back_color">
+                <!--<a href="/api/v1/lottery/prize-detail
+                <a onclick="poput('.poput_rules')" class="btn_font_color">
+                    规则详情
+                </a>
+            </div>
+        </div>
+
+        <!--裂变红包入口--功能取消--最后保留版本2012-->
+
+    </div>
+
+    <!--跳转小程序-->
+
+        <style>
+        .weapp_card {
+            position: fixed;
+            width: 100vw;
+            height: 25vw;
+            bottom: 0;
+            text-align: center;
+        }
+
+        img {
+            display: block;
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        .weapp_button {
+            display: block;
+            width: 100%;
+            height: 15vw;
+            margin: 0;
+            padding: 0;
+            border: 0;
+            background: url(images/weapp_card_bg.jpg);
+            background-size: 100% 100%;
+        }
+
+        .weapp_logo {
+            width: 25%;
+            height: 15vw;
+            padding-left: 2vw;
+        }
+
+        .weapp_staff_img {
+            width: 18%;
+            padding: 0 4%;
+        }
+
+        .weapp_staff_img img {
+            border-radius: 10vw;
+        }
+
+        .weapp_staff_name {
+            width: 15%;
+            text-align: left;
+            font-size: 12px;
+        }
+
+        .weapp_entry {
+            position: relative;
+            width: 20%;
+            height: 15vw;
+        }
+
+        .weapp_entry div {
+            position: absolute;
+            right: 0vw;
+            bottom: 2vw;
+            width: 18vw;
+            height: 18vw;
+            -webkit-animation: scaleDraw 1s ease-in-out infinite;
+            background: #fff;
+            border-radius: 18vw;
+            border: 1px solid #eee;
+            overflow: hidden;
+        }
+
+        @keyframes scaleDraw {
+
+            /*定义关键帧、scaleDrew关键帧名称*/
+            0% {
+                -webkit-transform: scale(0.9);
+                /*开始为原始大小*/
+            }
+
+            25% {
+                -webkit-transform: scale(1.0);
+                /*放大1.1倍*/
+            }
+
+            50% {
+                -webkit-transform: scale(0.9);
+            }
+
+            75% {
+                -webkit-transform: scale(1.0);
+            }
+
+            100% {
+                -webkit-transform: scale(0.9);
+            }
+        }
+    </style>
+    <div class="weapp_card">
+        <div style="height:10vw"></div>
+        <div class="weapp_button">
+            <table style="width:100%; height:100%;" cellpadding="0" cellspacing="0">
+                <tr>
+                                            <td class="weapp_staff_img">
+                            <img src="images/consultant_avatar.jpg" />
+                        </td>
+                        <td class="weapp_staff_name">
+                            【你的顾问姓名】<br>【你的顾问电话】                        </td>                    <td class="weapp_title"><img src="images/weapp_title.png?v=1" /></td>
+                    <td class="weapp_entry">
+                        <div>
+                            <wx-open-launch-weapp id="launch-btn" username="gh_b677c5987d75"
+                                path="pages/index/index?project_id=【你的项目ID】"
+                                style=" display:block; width:100%; height:25vw;">
+                                <template>
+                                    <style>
+                                        * {
+                                            margin: 0;
+                                            padding: 0;
+                                        }
+
+                                        img {
+                                            display: block;
+                                            max-width: 100%;
+                                            max-height: 100%;
+                                        }
+
+                                        button {
+                                            width: 100%;
+                                            height: 100%;
+                                            border: 0;
+                                        }
+                                    </style>
+                                    <button>
+                                        <img
+                                            src="images/weapp_entry.png" />
+                                    </button>
+                                </template>
+                            </wx-open-launch-weapp>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    
+    <!--跳转小程序-end-->
+
+    <div id="zhezhao" class="zhezhao"></div>
+    <div class="tanchu in_prize pribox">
+        <div class="prize-box">
+            <div class="prize_one">
+                <div class="title">能中什么奖，主要看气质！</div>
+                <div class="prize_img">
+                    <img src="images/no_prize.jpg" height="140px" />
+                </div>
+                <div class="desc">&nbsp;</div>
+                <div class="buttons">
+                    <a href="javascript:void(0)" class="continue" style="background:#ed6061">
+                        继续摇奖
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="tanchu no_prize">
+        <div class="title">哎呦，没有摇中~</div>
+        <div class="prize_img">
+            <img src="images/no_prize.jpg" height="140px" />
+        </div>
+        <div class="desc">&nbsp;</div>
+        <div class="buttons">
+            <!--<a href="/api/v1/lottery/my-prizes" style="background:#4d63ee">查看奖品</a>-->
+            <a href="javascript:void(0)" class="continue" style="background:#ed6061">
+                继续摇奖
+            </a>
+        </div>
+    </div>
+    <!--中奖弹出层新--><!-- prize_pic -->
+    <div class="winner">
+        <div class="full_box">
+            <div class="winner_content_y">
+                <div class="prize_con">
+                    <div class="prize_tishi">恭喜您获得</div>
+                    <div class="prize_name_y prize_name"></div>
+                    <div class="prize_pic_y">
+                        <img src="images/vip_prize.png?v=99" alt="">
+                    </div>
+                    <div class="prize_time_ip_box">
+                        <div class="prize_time_ip_flex">
+                            <div class="prize_time_ip_l">领奖时间:</div>
+                            <div class="prize_time_ip_r">【你的领奖开始日期】 -
+                                【你的活动截止日期】</div>
+                        </div>
+                    </div>
+                    <div class="prize_time_ip_box" style="margin: 1vw auto 0;">
+                        <div class="prize_time_ip_flex">
+                            <div class="prize_time_ip_l">领奖地址:</div>
+                            <div class="prize_time_ip_r">【你的公司地址】</div>
+                        </div>
+                    </div>
+                    <div class="lucky_draw" onclick="winner_hide()">
+                        <img src="images/lucky_draw.png" alt="">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="winner_font_box">
+        <div class="winner_font_flex">
+            <div class="winner_font">
+                <img src="images/close.png" alt="" class="close_font" onclick="close_font()">
+                <!-- <div class="winner_connect">
+                    <img src="images/winner_connect.png" alt="">
+                </div> -->
+                <div class="font_title">
+                    <img src="images/" alt="">
+                </div>
+                <div class="font_pic font_pic_icm">
+                    <img src="images/" alt="">
+                </div>
+                <div class="btn_detail_row">
+                    <div class="font_tips">
+                        <img src="images/font_tips.png" alt="">
+                    </div>
+                    <a class="btn_todetail"
+                        href="/api/v1/lottery/prize-detail
+                        <img src="images/btn_todetail.png" alt="">
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- <div class="winner">
+        <div class="full_box">
+            <div class="winner_content">
+                <div class="winner_prize">
+                    <div class="prize_title">
+                        <div class="prize_name"></div>
+                    </div>
+                    <div class="prize_pic">
+                        <img src="images/" alt="">
+                    </div>
+                    <div class="btn_continue" onclick="winner_hide()">
+                        <img src="images/btn_continue.png" alt="">
+                    </div>
+                </div>
+                <div class="winner_font" style="display:black">
+                    <div class="winner_connect">
+                        <img src="images/winner_connect.png" alt="">
+                    </div>
+                    <div class="font_title">
+                        <img src="images/" alt="">
+                    </div>
+                    <div class="font_pic">
+                        <img src="images/" alt="">
+                    </div>
+                    <div class="btn_detail_row">
+                        <div class="font_tips">
+                            <img src="images/font_tips.png" alt="">
+                        </div>
+                        <a class="btn_todetail"
+                            href="/api/v1/lottery/prize-detail
+                            <img src="images/btn_todetail.png" alt="">
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> -->
+    <div class="tanchu_adv">
+            <div class="img_continer">
+                <div class="box">
+                    <img src="images/69f216e552b83.jpg" />
+                    <a class="skip">
+                        跳过(3s)
+                    </a>
+                    <!-- ***************************** -->
+                    <div id="dynami">
+                        <div class="swiper-container swiper-no-swiping swipernew">
+                            <div class="swiper-wrapper">
+                                                            </div>
+                        </div>
+                    </div>
+                    <!-- ******************************* -->
+                    <div class="new_support" onclick="contact_page()">
+                            <style>
+                                .new_support_jump {
+                                    width: 100%;
+                                    height: 5vw;
+                                }
+
+                                .new_support_jump img {
+                                    display: block;
+                                    width: 100%;
+                                    height: 5vw;
+                                }
+                            </style>
+                            <div class="new_support_jump">
+                                &nbsp;
+                            </div>
+                        </div>                </div>
+            </div>
+        </div>    <div class="poput_advert poput">
+        <!--<img class="adb1" src="images/" alt="">-->
+        <!--<img class="adb2" src="images/" alt="">-->
+        <!--<img class="adb3" src="images/" alt="">-->
+    </div>
+    <div class="cover"></div>
+    <div class="poput_rules poput"><p class="MsoNormal" verdana,="" tahoma,="" serif",="" sans="" helvetica;font-size:13.33px;font-style:normal;font-weight:400;word-spacing:0px;white-space:normal;orphans:2;widows:2;overflow-wrap:break-word;font-variant-ligatures:normal;font-variant-caps:normal;-webkit-text-stroke-width:0px;text-decoration-style:initial;text-decoration-color:initial;"="" style="white-space: normal; text-align: center;"><strong style="color:#FF9900;"><span style="font-size:16px;">规则详情</span></strong> 
+	</p>
+<p class="MsoNormal" line-height:1.5;text-align:justify;"="" style="margin-left: 0pt; text-indent: 0pt; white-space: normal; text-align: justify;"><span style="line-height:1;"><strong><span style="line-height:1.5;font-size:14px;">· </span></strong><span style="line-height:1.5;font-size:14px;">每人仅限使用一个微信账号参与活动，多账号取消领奖资格。</span></span> 
+</p>
+<p class="MsoNormal" line-height:1.5;text-align:justify;"="" style="margin-left: 0pt; text-indent: 0pt; white-space: normal; text-align: justify;"><span style="line-height:1.5;text-indent:0pt;font-size:14px;"><strong>· </strong></span><span style="line-height:1.5;text-indent:0pt;font-size:14px;">奖品以实物为准，根据采购及发放情况，可能更换为同类商品。</span> 
+	</p>
+<p class="MsoNormal" line-height:1.5;text-align:justify;"="" style="margin-left: 0pt; text-indent: 0pt; white-space: normal; text-align: justify;"><span style="text-indent:0pt;"><span style="line-height:1.5;text-indent:0pt;font-size:14px;"><strong>· </strong></span><span style="line-height:1.5;text-indent:0pt;font-size:14px;">活动截止日期请关注项目公众号，&nbsp;不再另行通知。</span><br />
+</span> 
+</p>
+<p class="MsoNormal" "="" style="white-space:normal;">
+	<span style="text-align:justify;line-height:1.5;font-size:14px;"><strong>· </strong></span><span style="line-height:1.5;font-size:14px;">网络延迟时，增加次数可能延迟刷新，关闭页面，再次进入即可。</span> 
+</p>
+<p class="MsoNormal" "="" style="white-space:normal;">
+	<span style="text-indent:0pt;"><span style="text-align:justify;line-height:1.5;font-size:14px;"><strong>· </strong></span><span style="line-height:1.5;font-size:14px;">中奖请凭中奖界面前往营销中心领取，自行领取，不提供邮寄，不可抵现。</span></span> 
+</p>
+<p class="MsoNormal" "="" style="white-space:normal;">
+	<span style="text-align:justify;line-height:1.5;font-size:14px;"><strong>· </strong></span><span style="line-height:1.5;"><span style="font-size:14px;">活动最终解释权归</span><span style="color:#FF9900;font-size:14px;"><b><span font-size:14px;white-space:normal;background-color:#ffffff;"="">住好房</span></b></span></span><span style="line-height:1.5;font-size:14px;">所有。</span> 
+</p>
+<div>
+	<br />
+</div></div>
+    <div class="zhezhao" id="advs_zz"></div>
+    <div class="tanchui" id="advs_show">
+        <div class="full_box">
+            <img src="images/" />
+        </div>
+    </div>
+    <!--<div class="tanchui" id="guanzhu"><img src="images/" /></div>-->
+
+    <!--弹出字-->
+    <div class="zicontent" style="display:none;">
+        <div class="ziimgbg">
+            <img src="images/ziimgbg.png" alt="">
+        </div>
+        <div class="zicon">
+            <div class="ziimgwr js-ziimgwr">
+                <img style="object-fit:contain" src="images/" alt="">
+            </div>
+            <div class="tczibtns" style="margin-top: 58%">
+                <div class="tczibtn goshakebtn" onclick="closeAll()">
+                    <img src="images/goshakebtn.png" alt="">
+                </div>
+                <a class="tczibtn seeinfobtn"
+                    href="/api/v1/lottery/prize-detail
+                    <img src="images/seeinfobtn.png" alt="">
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- VIP 新中奖弹出 -->
+    <div class="vip_tan_zhe">
+        <div class="vip_tan_flex">
+            <div class="vip_tan_box">
+                <div class="vip_bg_prize">
+                    <div class="vip_prize_title">
+                        <img src="images/vip_prize_title.png" alt="">
+                    </div>
+                    <!-- 中奖图片  prize_pic 原中奖图片 -->
+                    <div class="vip_prize_pic prize_pic">
+                        <img src="images/vip_prize.png" alt="">
+                    </div>
+                    <div class="vip_make">
+                        <img src="images/vip_make.png" alt="">
+                    </div>
+                </div>
+                <!-- 预约按钮 -->
+                <div class="vip_btn_y">
+                    <img src="images/vip_btn_y.png" alt="">
+                </div>
+                <!-- 放弃预约 -->
+                <div class="vip_giveup">
+                    <img src="images/vip_giveup.png" alt="">
+                </div>
+                <!-- 字 -->
+                <div class="vip_winner_font">
+                    <div class="font_title">
+                        <img src="images/" alt="">
+                    </div>
+                    <div class="font_pic">
+                        <img src="images/" alt="">
+                    </div>
+                    <div class="btn_detail_row">
+                        <div class="font_tips">
+                            <img src="images/font_tips.png" alt="">
+                        </div>
+                        <a class="btn_todetail"
+                            href="/api/v1/lottery/prize-detail
+                            <img src="images/btn_todetail.png" alt="">
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- vip提交电话 -->
+    <div class="vip_submit_zhe">
+        <div class="vip_submit_flex">
+            <div class="vip_submit_box">
+                <div class="vip_bg_submit">
+                    <!-- 电话 -->
+                    <div class="vip_phone_flex">
+                        <div class="vip_phone_l">电&ensp;&ensp;话：</div>
+                        <div class="vip_phone_inp">
+                            <input type="number" id="ck_phone" placeholder="请输入您的手机号" />
+                        </div>
+                    </div>
+                    <!-- 验证码 -->
+                    <div class="vip_phone_flex">
+                        <div class="vip_phone_l">验证码：</div>
+                        <div class="vip_phone_inp vip_code_inp">
+                            <input type="number" id="ck_phone_code">
+                        </div>
+                        <div class="vip_code_r" id="vip_code">获取验证码</div>
+                    </div>
+                    <img src="images/vip_submit.png" alt="" class="vip_submit" id="vip_submit">
+                </div>
+                <!-- 关闭按钮 -->
+                <img src="images/shutdown.png" alt="" class="vip_hide">
+            </div>
+        </div>
+    </div>
+    <!-- 分享提示弹窗 -->
+    <div class="share_tan_zhe_bg"></div>
+    <div class="share_tan_zhe">
+        <div class="share_tan_box">
+            <div class="play_content">
+                <img src="images/play_top.png" alt="" class="play_top">
+                <img src="images/close.png" alt="" class="close" onclick="close2()">
+                <div class="share_top_title">
+                    增加抽奖次数
+                </div>
+                <div class="play_info">
+                    <!-- 参与 -->
+                    <div class="method">
+                        <div class="method_left">
+                            <img src="images/icn_1.png" alt="">
+                        </div>
+                        <div class="method_center">
+                            每日首次参与
+                        </div>
+                        <div class="method_right">
+                            <div class="tomorrow tomorrow_user_day">
+                                <span onclick="go_complete(1)">去完成</span>
+                            </div>
+                            <div class="tomorrow2">
+                                已完成
+                                <span class="daily_user_num">0</span>/
+                                <span class="initial_num">0</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="method" style="border:none">
+                        <div class="method_left">
+                            <img src="images/icn_2.png" alt="">
+                        </div>
+                        <div class="method_center">
+                            <div>
+                                <div>
+                                    更多机会
+                                </div>
+                                <div class="yy_prompt">
+                                    <!-- *打开语音收听如何获得抽奖机会 -->
+                                    <div class="yy_prompt_flex">
+                                        <div class="yy_prompt_item yy_prompt_item_1">*打</div>
+                                        <div class="yy_prompt_item yy_prompt_item_2">开</div>
+                                        <div class="yy_prompt_item yy_prompt_item_3">语</div>
+                                        <div class="yy_prompt_item yy_prompt_item_4">音</div>
+                                        <div class="yy_prompt_item yy_prompt_item_5">收</div>
+                                        <div class="yy_prompt_item yy_prompt_item_6">听</div>
+                                        <div class="yy_prompt_item yy_prompt_item_7">如</div>
+                                        <div class="yy_prompt_item yy_prompt_item_8">何</div>
+                                        <div class="yy_prompt_item yy_prompt_item_9">获</div>
+                                        <div class="yy_prompt_item yy_prompt_item_10">得</div>
+                                        <div class="yy_prompt_item yy_prompt_item_11">抽</div>
+                                        <div class="yy_prompt_item yy_prompt_item_12">奖</div>
+                                        <div class="yy_prompt_item yy_prompt_item_13">机</div>
+                                        <div class="yy_prompt_item yy_prompt_item_14">会</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="method_right">
+                            <div class="tomorrow tomorrow_share_day">
+                                <span onclick="go_complete(2)">去完成</span>
+                            </div>
+                            <div class="tomorrow2">
+                                已完成
+                                <span class="user_share_num">0</span>/
+                                <span class="initial_share_num">0</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="play_zi_bg">
+                        <div class="play_zi_bg_xc">
+                            <div class="part_prize">
+                                <img src="images/part_prize.png" alt="">
+                            </div>
+                            <div class="gift_display">
+                                <img src="images/69fbfbb72a653.png" alt="">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="contact_page">
+        <div class="contact_flex">
+            <div class="contact_con">
+                <img src="images/contact_top.png" alt="">
+                <img src="images/contact_er.jpg" alt="" class="contact_er">
+                <img src="images/contact_bottom.png" alt="" class="">
+                <img src="images/ishide.png" alt="" class="ishide_contact">
+            </div>
+        </div>
+    </div>
+    <!-- 置业顾问绑定提示 -->
+    <div class="forbid_posts">
+        <div class="forbid_posts_box">
+            <div class="forbid_posts_c">
+                绑定成功！<br />
+                请返回【住好房APP】进行后续操作。
+            </div>
+        </div>
+    </div>
+    <!-- 置业顾问信息弹窗 -->
+    <div class="consultant_tan_zhe">
+            <div class="consultant_tan_box">
+                <div class="consultant_tan_bg">
+                    <div class="consultant_tan_head">
+                        <img src="images/consultant_avatar.jpg" />
+                    </div>
+                    <div class="consultant_tan_name">
+                        【你的顾问姓名】                    </div>
+                    <div class="consultant_tan_tishi">
+                        这是我的手机号,期待您与我联系
+                    </div>
+                    <div class="consultant_tan_name">
+                        【你的顾问电话】                    </div>
+                    <div class="consultant_tan_btn">
+                        <a href="tel:【你的顾问电话】">
+                            <img src="images/consultant_tan_btn.png" alt="">
+                        </a>
+                    </div>
+                    <div class="consultant_tan_code">
+                        <img src="images/consultant_qrcode.jpg" />
+                    </div>
+                    <div class="consultant_tan_tishi2">
+                        <img src="images/consultant_tan_text.png" alt="">
+                    </div>
+                    <img src="images/tan_hide.png" alt="" class="consultant_tan_hide">
+                </div>
+            </div>
+        </div>    <div class="goandsee_zhe">
+        <div class="goandsee_h">
+            <div class="goandsee_box">
+                <div class="goandsee_flex">
+                    <div>当前抽奖机会已用完</div>
+                    <div>快看看如何增加更多抽奖机会吧</div>
+                </div>
+                <div class="goandsee_btn" onclick="goandsee_btn()">
+                    <img src="images/goandsee_btn.png" alt="">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="consultation_btn_box">
+            <img src="images/consultation_btn_c.png?v=5" alt="">
+        </div>    <!-- css3 动画 -->
+    <style>
+    /* 2021-7-22 开屏css动画 开始 */
+    ::-webkit-scrollbar {
+        display: none;
+        /* Chrome Safari */
+    }
+
+    .animation_bg {
+        position: fixed;
+        z-index: 7;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        background: rgba(0, 0, 0, 0.6);
+        display: none;
+    }
+
+    .animation_box {
+        width: 100%;
+        height: 100%;
+        position: relative;
+    }
+
+    /* 动画 第二屏  二屏背景图*/
+
+    .animation_p {
+        position: absolute;
+        width: 60%;
+        left: 20%;
+        top: 23%;
+    }
+
+    .animation_p_box {
+        position: relative;
+        width: 100%;
+        height: 100%;
+    }
+
+    .prize_bgnone {
+        width: 100%;
+    }
+
+    .animation_prize_bg2 {
+        position: absolute;
+        top: 0;
+        left: -140%;
+        display: none;
+    }
+
+    .animation_6 {
+        display: block;
+        animation: mynew6 0.5s forwards;
+        -moz-animation: mynew6 0.5s forwards;
+        /* Firefox */
+        -webkit-animation: mynew6 0.5s forwards;
+        /* Safari and Chrome */
+        -o-animation: mynew6 0.5s forwards;
+        /* Opera */
+    }
+
+    @keyframes mynew6 {
+        0% {
+            left: -140%
+        }
+
+        100% {
+            left: 0%;
+        }
+    }
+
+    @-moz-keyframes mynew6 {
+        0% {
+            left: -140%
+        }
+
+        100% {
+            left: 0%;
+        }
+    }
+
+    /* 文字免费那大奖 19*/
+    .crown_icn {
+        position: absolute;
+        width: 58%;
+        top: 38%;
+        left: 21%;
+        display: none;
+    }
+
+    .animation_7 {
+        display: block;
+        animation: mynew7 0.5s forwards;
+        -moz-animation: mynew7 0.5s forwards;
+        /* Firefox */
+        -webkit-animation: mynew7 0.5s forwards;
+        /* Safari and Chrome */
+        -o-animation: mynew7 0.5s forwards;
+        /* Opera */
+    }
+
+    @keyframes mynew7 {
+        0% {
+            left: -92%
+        }
+
+        100% {
+            left: 21%;
+        }
+    }
+
+    @-moz-keyframes mynew7 {
+        0% {
+            left: -92%
+        }
+
+        100% {
+            left: 21%;
+        }
+    }
+
+    /* 发光线 */
+    .hair_light {
+        position: absolute;
+        width: 58%;
+        top: 45.2%;
+        left: 15%;
+        width: 6vw;
+        height: 10vw;
+        border-radius: 5px;
+        display: inline-block;
+        /* box-shadow: rgb(254, 255, 255) 0px 0px 10px inset; */
+        background: -webkit-gradient(linear, left top, right top, color-stop(0%, rgba(255, 255, 255, 0.08)), color-stop(20%, rgba(255, 255, 255, 0.15)), color-stop(100%, rgba(255, 255, 255, 1)));
+        background: -moz-linear-gradient(linear, left top, right top, color-stop(0%, rgba(255, 255, 255, 0.08)), color-stop(20%, rgba(255, 255, 255, 0.15)), color-stop(100%, rgba(255, 255, 255, 1)));
+        background: -webkit-linear-gradient(linear, left top, right top, color-stop(0%, rgba(255, 255, 255, 0.08)), color-stop(20%, rgba(255, 255, 255, 0.15)), color-stop(100%, rgba(255, 255, 255, 1)));
+        background: -o-linear-gradient(linear, left top, right top, color-stop(0%, rgba(255, 255, 255, 0.08)), color-stop(20%, rgba(255, 255, 255, 0.15)), color-stop(100%, rgba(255, 255, 255, 1)));
+
+        transform: rotate(10deg);
+        -ms-transform: rotate(10deg);
+        /* Internet Explorer */
+        -moz-transform: rotate(10deg);
+        /* Firefox */
+        -webkit-transform: rotate(10deg);
+        /* Safari 和 Chrome */
+        -o-transform: rotate(10deg);
+        display: none;
+    }
+
+    .animation_8 {
+        display: block;
+        animation: mynew8 0.5s;
+        -moz-animation: mynew8 0.5s;
+        /* Firefox */
+        -webkit-animation: mynew8 0.5s;
+        /* Safari and Chrome */
+        -o-animation: mynew8 0.5s;
+        /* Opera */
+    }
+
+    @keyframes mynew8 {
+        0% {
+            left: 15%
+        }
+
+        100% {
+            left: 69%;
+        }
+    }
+
+    @-moz-keyframes mynew8 {
+        0% {
+            left: 15%
+        }
+
+        100% {
+            left: 69%;
+        }
+    }
+
+    .animation_9 {
+        display: block;
+        animation: mynew9 0.5s forwards;
+        -moz-animation: mynew9 0.5s forwards;
+        /* Firefox */
+        -webkit-animation: mynew9 0.5s forwards;
+        /* Safari and Chrome */
+        -o-animation: mynew9 0.5s forwards;
+        /* Opera */
+    }
+
+    @keyframes mynew9 {
+        0% {
+            top: 40%;
+        }
+
+        100% {
+            top: -15%;
+        }
+    }
+
+    @-moz-keyframes mynew9 {
+        0% {
+            top: 40%;
+        }
+
+        100% {
+            top: -15%;
+        }
+    }
+
+    /* 奖品2 展示 */
+    .prize_2_box {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        overflow-x: scroll;
+    }
+
+    .prize_2_material {
+        position: absolute;
+        width: auto;
+        height: 100%;
+        left: 0%;
+        bottom: 0%;
+        display: none;
+    }
+
+    .animation_10 {
+        display: block;
+        animation: mynew10 2.5s forwards;
+        -moz-animation: mynew10 2.5s forwards;
+        /* Firefox */
+        -webkit-animation: mynew10 2.5s forwards;
+        /* Safari and Chrome */
+        -o-animation: mynew10 2.5s forwards;
+        /* Opera */
+        animation-delay: 0s;
+        -webkit-animation-delay: 0s;
+    }
+
+    @keyframes mynew10 {
+        0% {
+            transform: translateX(-100%);
+        }
+
+        100% {
+            left: 0vw
+        }
+    }
+
+    @-moz-keyframes mynew10 {
+        0% {
+            transform: translateX(-100%);
+        }
+
+        100% {
+            left: 0vw;
+        }
+    }
+
+    /* 底部旋转 */
+    .animation_material2 {
+        position: absolute;
+        z-index: -1;
+        left: 0;
+        top: 17%;
+        display: none;
+    }
+
+    .animation_11 {
+        display: block;
+        animation: mynew11 4s linear infinite;
+        -moz-animation: mynew11 4s linear infinite;
+        /* Firefox */
+        -webkit-animation: mynew11 4s linear infinite;
+        /* Safari and Chrome */
+        -o-animation: mynew11 4s linear infinite;
+        /* Opera */
+    }
+
+    @keyframes mynew11 {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    @-moz-keyframes mynew11 {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* 直接拿走 */
+    .an_text_icn {
+        width: 14%;
+        display: none;
+    }
+
+    .zhi_icn {
+        position: absolute;
+        bottom: 3%;
+        left: -55%
+    }
+
+    .animation_12 {
+        display: block;
+        animation: mynew12 0.6s forwards;
+        -moz-animation: mynew12 0.6s forwards;
+        /* Firefox */
+        -webkit-animation: mynew12 0.6s forwards;
+        /* Safari and Chrome */
+        -o-animation: mynew12 0.6s forwards;
+        /* Opera */
+        animation-delay: 0s;
+        -webkit-animation-delay: 0s;
+    }
+
+    @keyframes mynew12 {
+        0% {
+            left: -55%;
+            bottom: 20%;
+            width: 14%;
+        }
+
+        100% {
+            left: 10%;
+            bottom: 3%;
+            width: 14%;
+            transform: rotate(360deg);
+        }
+    }
+
+    @-moz-keyframes mynew12 {
+        0% {
+            left: -55%;
+            bottom: 20%;
+            width: 14%
+        }
+
+        100% {
+            left: 10%;
+            bottom: 3%;
+            width: 14%;
+            transform: rotate(360deg);
+        }
+    }
+
+    .jie_icn {
+        position: absolute;
+        bottom: 3%;
+        left: -55%
+    }
+
+    .animation_13 {
+        display: block;
+        animation: mynew13 0.6s forwards;
+        -moz-animation: mynew13 0.6s forwards;
+        /* Firefox */
+        -webkit-animation: mynew13 0.6s forwards;
+        /* Safari and Chrome */
+        -o-animation: mynew13 0.6s forwards;
+        /* Opera */
+        animation-delay: 0.2s;
+        -webkit-animation-delay: 0.2s;
+    }
+
+    @keyframes mynew13 {
+        0% {
+            left: -55%;
+            bottom: 15%;
+            width: 14%
+        }
+
+        100% {
+            left: 32%;
+            bottom: 3%;
+            width: 14%;
+            transform: rotate(360deg);
+        }
+    }
+
+    @-moz-keyframes mynew13 {
+        0% {
+            left: -55%;
+            bottom: 15%;
+            width: 14%
+        }
+
+        100% {
+            left: 32%;
+            bottom: 3%;
+            width: 14%;
+            transform: rotate(360deg);
+        }
+    }
+
+    .na_icn {
+        position: absolute;
+        bottom: 3%;
+        left: -55%
+    }
+
+    .animation_14 {
+        display: block;
+        animation: mynew14 0.6s forwards;
+        -moz-animation: mynew14 0.6s forwards;
+        /* Firefox */
+        -webkit-animation: mynew14 0.6s forwards;
+        /* Safari and Chrome */
+        -o-animation: mynew14 0.6s forwards;
+        /* Opera */
+        animation-delay: 0.4s;
+        -webkit-animation-delay: 0.4s;
+    }
+
+    @keyframes mynew14 {
+        0% {
+            left: -55%;
+            bottom: 10%;
+            width: 14%
+        }
+
+        100% {
+            left: 54%;
+            bottom: 3%;
+            width: 14%;
+            transform: rotate(360deg);
+        }
+    }
+
+    @-moz-keyframes mynew14 {
+        0% {
+            left: -55%;
+            bottom: 10%;
+            width: 14%
+        }
+
+        100% {
+            left: 54%;
+            bottom: 3%;
+            width: 14%;
+            transform: rotate(360deg);
+        }
+    }
+
+    .zou_icn {
+        position: absolute;
+        bottom: 3%;
+        left: -55%
+    }
+
+    .animation_15 {
+        display: block;
+        animation: mynew15 0.6s forwards;
+        -moz-animation: mynew15 0.6s forwards;
+        /* Firefox */
+        -webkit-animation: mynew15 0.6s forwards;
+        /* Safari and Chrome */
+        -o-animation: mynew15 0.6s forwards;
+        /* Opera */
+        animation-delay: 0.6s;
+        -webkit-animation-delay: 0.6s;
+    }
+
+    @keyframes mynew15 {
+        0% {
+            left: -55%;
+            bottom: 5%;
+            width: 14%
+        }
+
+        100% {
+            left: 75%;
+            bottom: 3%;
+            width: 14%;
+            transform: rotate(360deg);
+        }
+    }
+
+    @-moz-keyframes mynew15 {
+        0% {
+            left: -55%;
+            bottom: 5%;
+            width: 14%
+        }
+
+        100% {
+            left: 75%;
+            bottom: 3%;
+            width: 14%;
+            transform: rotate(360deg);
+        }
+    }
+
+    /* bottom 24% */
+    .bot_24 {
+        bottom: 26%;
+    }
+
+    /* 立即拿走 按钮 */
+    .animation_btn {
+        width: 110%;
+        position: absolute;
+        bottom: -26%;
+        left: -5%;
+        display: none;
+    }
+
+    .animation_16 {
+        display: block;
+        animation: mynew16 0.3s linear infinite;
+        -moz-animation: mynew16 0.3s linear infinite;
+        /* Firefox */
+        -webkit-animation: mynew16 0.3s linear infinite;
+        /* Safari and Chrome */
+        -o-animation: mynew16 0.3s linear infinite;
+        /* Opera */
+        animation-direction: alternate;
+        -webkit-animation-direction: alternate;
+        /* Safari 和 Chrome */
+    }
+
+    @keyframes mynew16 {
+        0% {
+            transform: scale(1);
+        }
+
+        100% {
+            transform: scale(1.08);
+        }
+    }
+
+    @-moz-keyframes mynew16 {
+        0% {
+            transform: scale(1);
+        }
+
+        100% {
+            transform: scale(1.08);
+        }
+    }
+
+    .animation_17 {
+        display: block;
+        animation: mynew17 0.3s linear;
+        -moz-animation: mynew17 0.3s linear;
+        /* Firefox */
+        -webkit-animation: mynew17 0.3s linear;
+        /* Safari and Chrome */
+        -o-animation: mynew17 0.3s linear;
+        /* Opera */
+        animation-direction: alternate;
+        -webkit-animation-direction: alternate;
+        /* Safari 和 Chrome */
+    }
+
+    @keyframes mynew17 {
+        0% {
+            transform: scale(1.08);
+        }
+
+        100% {
+            transform: scale(1);
+        }
+    }
+
+    @-moz-keyframes mynew17 {
+        0% {
+            transform: scale(1.08);
+        }
+
+        100% {
+            transform: scale(1);
+        }
+    }
+
+    /* 2021-7-22 开屏css动画 结束 */
+</style>
+
+<body>
+    <!-- 7-22 新填的css3动画 开始 -->
+    <div class="animation_bg">
+        <div class="animation_box">
+            <div class="animation_p">
+                <div class="animation_p_box">
+                    <img src="images/animation_img/prize_bgnone.png" alt=""
+                        class="prize_bgnone">
+                    <img src="images/animation_img/animation_prize_bg.png" alt=""
+                        class="animation_prize_bg2">
+                    <img src="images/animation_img/crown_icn.png" alt="" class="crown_icn">
+                    <div class="hair_light"></div>
+                    <div class="prize_2_box">
+                        <img src="images/animation_img/prize_2_material.png" alt=""
+                            class="prize_2_material">
+                    </div>
+                    <!-- 直-->
+                    <img src="images/animation_img/zhi_icn.png" alt=""
+                        class="an_text_icn zhi_icn">
+                    <!-- 接 jie_icn-->
+                    <img src="images/animation_img/jie_icn.png" alt=""
+                        class="an_text_icn jie_icn">
+                    <!-- 拿 na_icn-->
+                    <img src="images/animation_img/na_icn.png" alt=""
+                        class="an_text_icn na_icn">
+                    <!-- 走 zou_icn-->
+                    <img src="images/animation_img/zou_icn.png" alt=""
+                        class="an_text_icn zou_icn">
+                    <!-- 按钮-->
+                    <img src="images/animation_img/animation_btn.png" alt=""
+                        class="animation_btn">
+                </div>
+            </div>
+            <!-- 底圈 转 animation_material2-->
+            <img src="images/animation_img/animation_material2.png" alt=""
+                class="animation_material2">
+
+        </div>
+    </div>
+    <!-- 动画结束 -->
+    <script type="text/javascript" src="script/jquery-1.11.1.min.js"></script>
+    <script type="text/javascript" src="script/swiper.jquery.min.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            // 7-22 新加 css3 动画
+            // 
+            // 监听第4 第二屏背景执行完
+            var animation_icn4 = document.querySelector('.animation_prize_bg2');
+            animation_icn4.addEventListener("webkitAnimationEnd", overAni4, false);
+            animation_icn4.addEventListener("mozAnimationEnd", overAni4, false);
+            animation_icn4.addEventListener("MSAnimationEnd", overAni4, false);
+            animation_icn4.addEventListener("oanimationend", overAni4, false);
+            animation_icn4.addEventListener("animationend", overAni4, false);
+            function overAni4() {
+                $(".crown_icn").addClass("animation_7")
+                $(".animation_material2").addClass("animation_11")
+            }
+            // 监听第5 第二屏文字向右移执行完
+            var animation_icn5 = document.querySelector('.crown_icn');
+            animation_icn5.addEventListener("webkitAnimationEnd", overAni5, false);
+            animation_icn5.addEventListener("mozAnimationEnd", overAni5, false);
+            animation_icn5.addEventListener("MSAnimationEnd", overAni5, false);
+            animation_icn5.addEventListener("oanimationend", overAni5, false);
+            animation_icn5.addEventListener("animationend", overAni5, false);
+            var animation_state = 0;
+            function overAni5() {
+                $(".hair_light").addClass("animation_8")
+                // 解决两次冲突
+                animation_state++
+                if (animation_state == 2) {
+                    $(".prize_2_material").addClass("animation_10")
+                }
+            }
+            // 监听第6 第二屏 高亮白色 向右移执行完
+            var animation_icn6 = document.querySelector('.hair_light');
+            animation_icn6.addEventListener("webkitAnimationEnd", overAni6, false);
+            animation_icn6.addEventListener("mozAnimationEnd", overAni6, false);
+            animation_icn6.addEventListener("MSAnimationEnd", overAni6, false);
+            animation_icn6.addEventListener("oanimationend", overAni6, false);
+            animation_icn6.addEventListener("animationend", overAni6, false);
+            function overAni6() {
+                $(".hair_light").hide()
+                $(".hair_light").removeClass("animation_8");
+                $(".crown_icn").removeClass("animation_7").addClass("animation_9")
+            }
+            // 监听第7 第二屏 展示奖品 向下移执行完 animation_material2 animation_11
+            var animation_icn7 = document.querySelector('.prize_2_material');
+            animation_icn7.addEventListener("webkitAnimationEnd", overAni7, false);
+            animation_icn7.addEventListener("mozAnimationEnd", overAni7, false);
+            animation_icn7.addEventListener("MSAnimationEnd", overAni7, false);
+            animation_icn7.addEventListener("oanimationend", overAni7, false);
+            animation_icn7.addEventListener("animationend", overAni7, false);
+            function overAni7() {
+                $(".zhi_icn").addClass("animation_12");
+                $(".jie_icn").addClass("animation_13")
+                $(".na_icn").addClass("animation_14")
+                $(".zou_icn").addClass("animation_15")
+            }
+            // 监听第8 第二屏 高亮白色 向右移执行完
+            var animation_icn8 = document.querySelector('.zou_icn');
+            animation_icn8.addEventListener("webkitAnimationEnd", overAni8, false);
+            animation_icn8.addEventListener("mozAnimationEnd", overAni8, false);
+            animation_icn8.addEventListener("MSAnimationEnd", overAni8, false);
+            animation_icn8.addEventListener("oanimationend", overAni8, false);
+            animation_icn8.addEventListener("animationend", overAni8, false);
+            function overAni8() {
+                $(".animation_btn").addClass("animation_16")
+            }
+            // 7-22 动画结束animation_btn
+        })
+    </script>
+</body>
+
+</html>
+    <script type="text/javascript" src="script/jquery-1.11.1.min.js"></script>
+    <script type="text/javascript" src="script/swiper.jquery.min.js"></script>
+    
+<style type="text/css">
+	/**弹出层样式*/
+
+	.alert_cover{
+		display: none;
+		position:fixed;
+		width: 100%;
+		height: 100%;
+		top: 0;
+		left: 0;
+		z-index: 100000;
+		background: rgba(0,0,0,0.6);
+	}
+
+	/*alertshow*/
+	.ts_button{
+	    width: 70%;
+	    border-radius: 5px;
+	    background: #F6F7F2;
+	    text-align: center;
+	    padding-bottom:40px; 
+	    position:fixed;
+	    top:40%;
+	    left:15%;
+	    z-index: 120000;
+	}
+
+	.ts_button span{
+
+		display: block;
+		width: 90%;
+		padding:10% 5%;
+		color: #000;
+		font-family: "微软雅黑";
+		border-bottom:1px solid #ccc;
+	}
+
+	/*一个按钮*/
+	.ts_button .close{
+		position: absolute;
+		top:auto;
+		bottom:0;
+		left: 0;
+		width: 100%;
+		height: 40px;
+		line-height: 40px;
+		color: #2C98EA;
+		border: 0;
+		font-size: 16px;
+		font-family: "微软雅黑";
+		border-radius: 5px;
+	}
+	</style>
+
+	
+<div class="alert_cover"></div>
+<div class="ts_button" style="display:none">
+    <span id="ts_text"></span>
+    <a class="close">确定</a>
+</div>
+
+<script type="text/javascript">
+var callback;
+
+$(function(){
+	
+	$('.close').click(function(){
+		$('.alert_cover').hide();
+		$('.ts_button').hide();
+
+		setTimeout(callback,0);
+	});
+	
+});
+
+function alertshow(str,e){
+	$('#ts_text').html(str);
+	$('.alert_cover').show();
+	$('.ts_button').show();
+    callback	=	e;
+}
+
+</script>
+
+
+    
+    <script>
+        var forbid_posts = true
+        var open_wx_btn = `<div class="swiper-slide">
+                                <img src="images/69f2175355c32.png"
+                                    style="display:block; width:100%;" />
+                            </div><div class="swiper-slide">
+                                <img src="images/69f21753561d7.png"
+                                    style="display:block; width:100%;" />
+                            </div><div class="swiper-slide">
+                                <img src="images/69f2175356610.png"
+                                    style="display:block; width:100%;" />
+                            </div>`
+        var bd_xcx_user_id = ""
+        function get_user_swiper() {
+            if (bd_xcx_user_id != '') {
+                forbid_posts = false
+                $(".get_id_swiper_show").html(open_wx_btn)
+                $('.tanchu_adv').hide()
+                $(".forbid_posts").show()
+                swiper_time = parseInt("2") * 1000;
+                mySwiper = new Swiper('.mySwiper', {
+                    loop: true,
+                    autoplay: swiper_time
+                });
+            }
+        } setTimeout(function () {
+            get_user_swiper()
+        }, 10)
+        var animation_status = parseInt('0');
+        // 项目电话
+        var project_telephone = "【你的客服电话】"
+        // 每日初始
+        var initial_num = parseInt("2")
+        console.log(initial_num);
+        //已分享好友次数
+        var is_share_1 = parseInt("0");
+        //已分享朋友圈次数
+        var is_share_2 = parseInt("0");
+        // 已分享次数
+        var use_number_1 = parseInt("0");
+        //已分享朋友圈次数
+        var use_number_2 = parseInt("0");
+        // 已分享广告
+        var is_to_advert = parseInt("0");
+        //需要分享好友次数
+        var add_number_1 = parseInt("1");
+        //需要分享朋友圈次数
+        var add_number_2 = parseInt("1");
+        //需要分享广告到朋友圈次数
+        var is_advert = parseInt("1");
+        //总共抽奖机会
+        var all_times = parseInt("5");
+        //已用抽奖机会
+        var use_times = parseInt("0");
+        function num_shre_number() {
+            let num_share; //需要分享次数
+            let total_num_share = parseInt(use_number_1 + use_number_2 + is_to_advert)
+            // 初始
+            if (initial_num) {
+                $(".initial_num").html(initial_num)
+            }
+            if (use_times >= initial_num) {
+                $(".daily_user_num").html(initial_num)
+                $(".tomorrow_user_day").html("明日再来")
+                $(".tomorrow_user_day").addClass("tomorrow_active")
+            } else {
+                $(".daily_user_num").html(use_times)
+            }
+            // 晒好友朋友圈
+            if (all_times) {
+                num_share = parseInt(add_number_1 + add_number_2 + is_advert)
+                $(".initial_share_num").html(num_share)//可以分享总数
+            }
+            if (total_num_share) {
+                $(".user_share_num").html(total_num_share)//已分享
+            }
+            if (total_num_share >= num_share) {
+                $(".user_share_num").html(num_share)
+                $(".tomorrow_share_day").html("明日再来")
+                $(".share_gif_img").hide();
+                $(".tomorrow_share_day").addClass("tomorrow_active")
+            }
+        }
+        setTimeout(function () {
+            num_shre_number()
+        }, 10)
+        // 初始机会用没后弹出框 去看看
+        function goandsee_btn() {
+            share_tsyy()
+            $(".goandsee_zhe").hide()
+            document.body.style.overflow = 'hidden';
+            var fn = function (e) { e.preventDefault(); };
+            document.addEventListener("touchmove", fn, false);
+            $(".share_tan_zhe_bg").show()
+            $(".share_tan_zhe").addClass("animation_share_winaprize")
+        }
+        var animation_yy_state = true
+        var animationnew_yy_index = 1
+        var time_animati;
+        function go_complete(index) {
+            if (index == 1) {
+                $(".share_tan_zhe").hide()
+                $(".share_tan_zhe_bg").hide()
+                $(".share_gif_img").hide()
+            }
+            if (index == 2) {
+                share_tsyy()
+                $(".share_gif_img").show()
+            }
+        }
+        function mySwipers() {
+            var mySwipers = new Swiper('.swipernew', {
+                autoplay: 1250,
+                effect: 'fade',
+                loop: true,
+                initialSlide: 0,
+                mousewheelControl: true,
+                fadeEffect: {
+                    crossFade: true,
+                },
+                observer: true,
+                observeParents: true,
+            });
+        }
+        // 有机会
+        var animationnew_index2 = 1
+        function animation_zi_get() {
+            $(".surplus_index").removeClass("animation_zi_tiao")
+            if (animationnew_index2 < 10) {
+                $(".surplus_index_" + animationnew_index2).addClass("animation_zi_tiao")
+                setTimeout(function () {
+                    animationnew_index2++
+                    animation_zi_get()
+                }, 100)
+            }
+            if (animationnew_index2 == 10) {
+                animationnew_index2 = 1
+                animation_zi_get()
+            }
+        } animation_zi_get()
+        // 没有机会
+        var animationnew_index = 1
+        function animation_zi_add() {
+            $(".surplus_item_0").removeClass("animation_zi_tiao")
+            if (animationnew_index < 9) {
+                $(".surplus_item_" + animationnew_index).addClass("animation_zi_tiao")
+                setTimeout(function () {
+                    animationnew_index++
+                    animation_zi_add()
+                }, 100)
+            }
+            if (animationnew_index == 9) {
+                animationnew_index = 1
+                animation_zi_add()
+            }
+        } animation_zi_add()
+        //提示文字跳
+
+        function animation_yy_get() {
+            $(".yy_prompt_item").removeClass("animation_yy_prompt")
+            if (animationnew_yy_index < 15) {
+                $(".yy_prompt_item_" + animationnew_yy_index).addClass("animation_yy_prompt")
+                time_animati = setTimeout(function () {
+                    animationnew_yy_index++
+                    animation_yy_get()
+                }, 200)
+            }
+            if (animationnew_yy_index == 15) {
+                animationnew_yy_index = 1
+                animation_yy_get()
+            }
+        }
+        //广告弹出
+        var status_tan = "1";
+        var is_back = "";
+        var shake_power = 0;
+        if ( (status_tan == 1 || animation_status == 0)  && is_back != 1) {
+            function the_countdown() {
+                var seconder = parseInt('3');
+                setTimeout(function () {
+                    if (shake_power == 0 && typeof DeviceMotionEvent.requestPermission === 'function') {
+                        $('.skip').html('跳过');
+                    } else {
+                        var daojishi = setInterval(function () {
+                            seconder--;
+                            $('.skip').html('跳过(' + seconder + 's)');
+                            if (seconder < 0) {
+                                $(".tanchu_adv").hide();
+                                window.clearInterval(daojishi)
+                            }
+                        }, 1000)
+                    }
+                }, 100)
+            }
+            $(".skip").click(function () {
+                $(".tanchu_adv").hide();
+                getPower()
+                if (shake_power == 0 && typeof DeviceMotionEvent.requestPermission === 'function') {
+
+                } else {
+                    window.clearInterval(daojishi)
+                }
+            })
+        }
+
+        // console.log(is_back);
+        if (is_back == 1) {
+            $('.tanchu_adv').hide();
+            $(".animation_bg").hide();
+        }
+
+        if (parseInt(animation_status) == 0 && is_back != 1) {
+            $(".tanchu_adv").show();
+            mySwipers()
+            the_countdown()
+        }
+
+        $(function () {
+            $(".consultant_tan_bg").click(function () {
+                event.stopPropagation();
+            })
+            $(".consultation_btn_box").click(function () {
+                $(".consultant_tan_zhe").show()
+            })
+            $(".consultant_tan_zhe,.consultant_tan_hide").click(function () {
+                $(".consultant_tan_zhe").hide()
+            })
+            // vip新弹窗
+            // 点击放弃，弹窗hide
+            $(".vip_giveup").click(function () {
+                $(".vip_tan_zhe").hide();
+                can = true;
+            });
+            // 点击页面  圆盘  下面  预约按钮
+            $(".vip_page_1").click(function () {
+                $(".vip_submit_zhe").show();
+            });
+            // 点击填写信息获取验证码关闭按钮
+            $(".vip_hide").click(function () {
+                $(".vip_submit_zhe").hide();
+                can = true;
+            });
+            // 中奖弹出 放弃预约
+            $(".vip_giveup").click(function () {
+                $(".vip_tan_zhe").hide()
+                can = true;
+            });
+            // 预约弹出
+            $(".vip_btn_y").click(function () {
+                $(".vip_tan_zhe").hide();
+                $(".vip_submit_zhe").show();
+            });
+            $('.animation_prize_bg2').load((function () {
+                if (parseInt(animation_status) > 0) {
+                    $(".animation_bg").show()
+                    $(".animation_prize_bg2").addClass("animation_6")
+                }
+            })())
+            var random = ['swiper1', 'swiper2', 'swiper3', 'swiper4']
+            //   随机添加
+            $('.randomdiv').each(function (index, item) {
+                $(item).addClass(random[Math.floor(Math.random() * 4)])
+            })
+            // 判断显示 电话 还是导航
+            $(".bma_box .information").each(function () {
+                // href数据
+                var hrdata = $(this).find("a").attr('href');
+                if(!hrdata) return;
+                var obtain = hrdata.split(":")
+                if (obtain[0] == 'tel') {
+                    $(this).find(".rtbt").html("拨打")
+                    $(this).find("a").attr('href', 'tel:' + project_telephone)
+                }
+                if (hrdata == "javascript:map_show()") {
+                    $(this).find(".rtbt").html("导航")
+                }
+            })
+
+            // 开屏动画点击按钮
+            $(".animation_btn").click(function () {
+                $(".animation_bg").hide();
+                $(".tanchu_adv").show();
+                if (is_back == 1) {
+                    $('.tanchu_adv').hide();
+                } else {
+                    the_countdown()
+                }
+                mySwipers()
+            })
+        });
+        function share_tan() {
+            setTimeout(function () {
+                share_tsyy()
+            }, 10)
+
+            // document.body.style.overflow = 'hidden';
+            // var fn = function (e) { e.preventDefault(); };
+            // document.addEventListener("touchmove", fn, false);
+            // $(".share_tan_zhe_bg").show()
+            // $(".share_tan_zhe").addClass("animation_share_winaprize")
+        }
+        function close2() {
+            $(".share_tan_zhe_bg").hide()
+            $(".share_gif_img").hide()
+            $(".share_tan_zhe").removeClass("animation_share_winaprize")
+            document.body.style.overflow = '';
+            var fn = function (e) { e.preventDefault(); };
+            document.removeEventListener("touchmove", fn, false);
+        }
+        function close_font() {
+            $(".winner_font_box").hide()
+        }
+    </script>
+    <script type="text/javascript">
+        var daojishi = 0;
+        var shake_power = 0;//陀螺仪权限
+        function getPower() {
+            if (shake_power == 0 && typeof DeviceMotionEvent.requestPermission === 'function') {
+                DeviceMotionEvent.requestPermission().then(function () {
+
+                }).catch(function (res) {
+
+                })
+            }
+        }
+        //提示语音
+        $(document).one('WeixinJSBridgeReady', function () {
+            var audio = document.getElementById("audio");
+            var audio2 = document.getElementById("audio2");
+            var audio3 = document.getElementById("audio3");
+            audio.play();
+            audio.setAttribute('src', 'music/shake_ka_ka.wav');
+            audio.load();
+            audio2.play();
+            audio2.setAttribute('src', 'music/shake_ddd.mp3');
+            audio2.load();
+            audio3.play();
+                            audio3.setAttribute('src', 'music/share_audio.mp3');            audio3.load();
+        });
+        var page_height = document.documentElement.clientHeight;
+        // 是否集卡 1-集卡 0-没有集卡  1天集卡1次
+        var is_jizi = parseInt("1");
+        $("#page").css({ 'min-height': page_height + 'px' });
+        //是否开启集卡活动
+        var is_word = parseInt("0");
+        var can_say = true;
+        function share_tsyy() {
+            if (can_say) {
+                can_say = false;
+                $(".tishi_txt").show()
+                $(".yy_prompt").show()
+                audio3.load();
+                audio3.play();
+                animationnew_yy_index = 1
+                animation_yy_get()
+                setTimeout(function () {
+                    can_say = true;
+                    $(".tishi_txt").hide()
+                    $(".yy_prompt").hide()
+
+                    $(".yy_prompt_item").removeClass("animation_yy_prompt")
+                    animationnew_yy_index = 1
+                    animation_yy_state = true
+                    clearTimeout(time_animati)
+
+                    audio3.pause();
+                }, 10000);
+            }
+        }
+
+        var swiper_time = parseInt("2") * 1000;
+        var mySwiper = new Swiper('.mySwiper', {
+            loop: true,
+            autoplay: swiper_time
+        });
+        var swiper_jizi = new Swiper('#swiper-jizi', {
+            loop: true,
+            // autoHeight: true,
+            autoplay: 3000,
+            speed: 1500,
+            observer: true,
+            effect: 'flip',
+            flip: {
+                slideShadows: true,
+                limitRotation: true,
+            },
+            onSlideChangeEnd: function (e) {
+                //console.log(e.realIndex)
+                //$('.swiper_opactiys').removeClass('no_opactiy');
+                //$('.swiper_opactiys'+e.realIndex).addClass('no_opactiy');
+            }
+        });
+        // swiper_jizi.slideTo(0,0,1)
+        // 固定盘的高度
+
+
+        function advs_show(name) {
+            $("#advs_show .full_box").html('<img src="images/' + name + '" />');
+            $("#advs_show").show();
+        }
+        function poput(str) {
+            $('.cover').show();
+            $('.tanchui').hide();
+            $(str).show();
+        }
+        function poputad(strs) {
+            $('.poput_advert img').hide();
+            $(strs).show();
+            $('.poput_advert').show();
+        }
+
+        // 关闭弹出 zicontent
+        function closeAll() {
+
+            $('.cover').hide();
+            $('.zicontent').hide();
+
+        }
+
+        // 显示弹出 zicontent
+        function tc_show(str) {
+            $('.js_tc_shows').hide();
+            $('.cover').show();
+            $(str).show();
+
+        }
+        // 隐藏弹出 zicontent
+        function tc_hide(str) {
+            $('.js_tc_shows').hide();
+            $('.cover').hide();
+            $(str).hide();
+
+        }
+
+        // 字的宽度
+        var zilength = $('.allwordswr .allwordswr_box').eq(0).find('.worditem').length;
+        // var ziwidth = ((100)/zilength);
+        // $('.worditem').css('width',ziwidth+"%");
+
+        console.log('zilength>>', zilength)
+        var $eallwordsrow1 = $('<div class="allwordsrow"></div>');
+        var $eallwordsrow2 = $('<div class="allwordsrow"></div>');
+        // 排列字
+        if (zilength == 6 || zilength == 7) {
+            $('.allwordswr .allwordswr_box').eq(0).find('.worditem').each(function (index, item) {
+                // console.log('item>>',item)
+                if (index <= 2) {
+                    $eallwordsrow1.append(item)
+                } else {
+                    $eallwordsrow2.append(item)
+                }
+
+            })
+            $('.allwordswr .allwordswr_box').html("").append($eallwordsrow1).append($eallwordsrow2);
+            $('.textwordf').addClass('texttworow');
+
+        } else if (zilength == 8 || zilength == 9) {
+            $('.allwordswr .allwordswr_box').eq(0).find('.worditem').each(function (index, item) {
+                // console.log('item>>',item)
+                if (index <= 3) {
+                    $eallwordsrow1.append(item)
+                } else {
+                    $eallwordsrow2.append(item)
+                }
+
+            })
+            $('.allwordswr .allwordswr_box').html("").append($eallwordsrow1).append($eallwordsrow2);
+            $('.textwordf').addClass('texttworow');
+        } else if (zilength == 10) {
+            $('.deteilwordswr').eq(0).find('.worditem').each(function (index, item) {
+                // console.log('item>>',item)
+                if (index <= 4) {
+                    $eallwordsrow1.append(item)
+                } else {
+                    $eallwordsrow2.append(item)
+                }
+
+            })
+            $('.deteilwordswr').html("").append($eallwordsrow1).append($eallwordsrow2);
+            $('.textwordf').addClass('texttworow');
+        }
+
+
+        $(function () {
+            // 集卡高度
+            var tex_hejght = $(".textwordf").height()
+            var ka_hejght = $(".allwordswr_box").height()
+            var wordf = $(".wordf").height()
+            var wordz = $(".wordz").height()
+            if (tex_hejght > ka_hejght) {
+                $(".allwordswr_box").css({ "position": "absolute", "top": "50%", "left": "50%", "transform": "translate(-50%,-50%)" })
+                $(".allwordswr").css({ "position": "relative", "height": tex_hejght })
+            } else {
+                $(".textwordf").css({ "height": ka_hejght })
+            }
+            $('.cover').click(function () {
+                $('.cover').hide();
+                $('.poput').hide();
+                $('.tanchui').hide();
+            });
+            $('.poput_advert img').click(function () {
+                $('.poput_advert').hide();
+            })
+        })
+
+        if (parseInt("0") == 1) {
+            var can = true;							//当前可执行摇奖操作
+        }
+
+        var times_sk = "2";		//剩余可摇奖次数
+        if (times_sk == 0) {
+            $(".thereare_num_no").show()
+            $(".thereare_num").hide()
+        } else {
+            $(".thereare_num_no").hide()
+            $(".thereare_num").show()
+        }
+        audio = document.getElementById('audio');
+        //audio.play();
+        var sharking = false;
+        var times = 0;
+        var startTime = 5;
+        var leaveTime = 20;
+        var rockTime = 5;
+        var eventRegister = false;
+        var SHAKE_THRESHOLD = 2000;
+        var last_update = 0;
+        var x = y = z = last_x = last_y = last_z = 0;
+        function init() {
+            if (window.DeviceMotionEvent) {
+                window.addEventListener('devicemotion', deviceMotionHandler, false);
+            } else {
+                //alert('您的手机不支持摇一摇功能');
+            }
+        }
+        function deviceMotionHandler(eventData) {
+            shake_power = 1;
+            var acceleration = eventData.accelerationIncludingGravity;
+            var curTime = new Date().getTime();
+            if ((curTime - last_update) > 100) {
+                var diffTime = curTime - last_update;
+                last_update = curTime;
+                x = acceleration.x;
+                y = acceleration.y;
+                z = acceleration.z;
+                var speed = Math.abs(x + y + z - last_x - last_y - last_z) / diffTime * 10000;
+
+                if (speed > SHAKE_THRESHOLD) {
+                    if (!sharking) {
+                        shake_post();
+                    }
+                }
+                last_x = x;
+                last_y = y;
+                last_z = z;
+            }
+        }
+        //摇一摇动作后执行操作
+        function shake_post() {
+            console.log("can", can);
+            console.log("times_sk", times_sk);
+            try {
+                getPower()
+            }
+            catch {
+
+            }
+            if (!forbid_posts) {
+                return false
+            }
+            if (can && times_sk > 0) {
+                audio.play();
+                // $(".js-pangif").css("opacity", "1");
+                $(".pan_show").addClass("onlineCls")
+                can = false;
+                setTimeout(function () {
+                    posts();
+                }, 2000);
+                shake_top_img();
+            } else {
+                if (times_sk <= 0) {
+                    share_tsyy()
+                    if (all_times != use_times) {
+                        $(".share_gif_img").show()
+                    }
+                    $(".share_tan_zhe_bg").show()
+                    $(".share_tan_zhe").addClass("animation_share_winaprize")
+                    $('.jieshi').addClass('opc');
+                    var notime = setTimeout(function () {
+                        $('.jieshi').removeClass('opc');
+                    }, 4000)
+                }
+            }
+        }
+
+        var shake_is_vip = 0;
+        //请求摇奖操作
+        function posts() {
+            $.ajax({
+                type: 'post',
+                url: '/api/v1/lottery/shake',
+                data: { 'shake': '576' },
+                success: function (data) {
+                    use_times += 1 //已抽几次
+                    shake_is_vip = 0;
+                    audio2.play();
+                    // $(".js-pangif").css("opacity", "0");
+                    $(".pan_show").removeClass("onlineCls")
+                    if (data['status'] > 0) {
+                        $(".prize_tishi").html("恭喜您获得");
+                        $(".prize_name").html(data['name']);
+                        $(".prize_pic,.prize_pic_y").html('<img src="images/' + data['image'] + '" />');
+                        shake_is_vip = data.is_vip;
+                        if (is_word == 1 && is_jizi > 0) {
+                            code_word();
+                        } else {
+                            winner_show()
+                        }
+
+                        if (parseInt(data.is_vip) == 1) {
+                            vip_winner_id = data.id;
+                        }
+
+                    }
+
+                    else if (data['status'] == -1) {
+                        alert(data['info'])
+                        //location.href=location;
+                    }
+                    else {
+                        $(".prize_tishi").html("哎呦，没有摇中~");
+                        $(".prize_pic,.prize_pic_y").html('<img src="images/no_prize.jpg" />');
+                        if (is_word == 1 && is_jizi > 0) {
+                            code_word();
+                        } else {
+                            winner_show()
+                        }
+                    }
+                    times_sk = data['times'];
+                    $("#times").html(data['times']);
+                    num_shre_number()
+                    if (data['times'] == 0) {
+                        $(".thereare_num_no").show()
+                        $(".thereare_num").hide()
+                    }
+                }
+            });
+        }
+        init();
+        function winner_show() {
+            if (parseInt(shake_is_vip) == 1) {
+                $('.vip_tan_zhe').show();
+                $("#vip_yy_box").show();
+            }
+            else {
+                $('.winner').show()
+            }
+        }
+        function winner_hide() {
+            $('.winner').hide()
+            // $('.winner_font').hide();
+            $('.vip_tan_zhe').hide();
+            $('.vip_winner_font').hide();
+            if (times_sk == 0 && use_times == initial_num) {
+                $(".goandsee_zhe").show()
+            }
+            can = true;
+        }
+
+        // 摇一摇集卡操作
+        var shuole_showfont = 0;
+        var can_code = true;
+        function code_word() {
+
+            if (can_code) {
+                can_code = false;
+                // alert('333')
+                $.ajax({
+                    type: 'post',
+                    url: '/api/v1/lottery/card',
+                    data: { 'shake_word': '334' },
+                    success: function (data) {
+                        // alert(data.status)
+                        console.log("data", data);
+                        // 集卡结果
+                        is_jizi = 0;
+                        if (data.status > 0) {
+                            $('.winner_font').show();
+                            $('.winner_font_box').show();
+                            $('.vip_winner_font').show();
+                            // 获得字了  <img style="width:100%;" src="images/" />
+                            $('.font_pic').html('<img src="images/' + data.win_image + '" />');
+
+
+                            // 获取数字
+                            var num = $('.js-wordimg' + data.index).eq(0).find('.js-wordnum').text();
+
+                            if (num > 0) {
+                                num = parseInt(num) + 1
+                                $('.js-wordimg' + data.index).find(".js-wordnum").text(num);
+                            } else {
+                                num = 1
+                                var zihtml = '<div class="num js-wordnum">\n' + num + '</div>';
+                                $('.js-wordimg' + data.index).append(zihtml).find('img').removeClass('gray');
+                            }
+
+                        } else {
+                            $('.winner_font').hide();
+                            $('.winner_font_box').hide();
+                            $('.vip_winner_font').hide();
+                            // 没获得字  什么都不弹出
+                            // alertshow(data.info)
+
+                        }
+                        winner_show()
+                        // console.log(data);
+                        can_code = true;
+                    }
+                });
+            }
+        }
+
+
+    </script>
+    <script type="text/javascript">
+
+        $(function () {
+            $("#to_share").click(function () {
+                $("#zhezhao").show();
+                $("#share_ts").show();
+                can = false;
+            });
+
+            $(".continue").click(function () {
+                // alert(is_jizi+">>"+is_word)
+                $(".zhezhao").hide();
+                $(".tanchu").hide();
+                can = true;
+
+                if (is_word == 1) {
+                    if (is_jizi > 0) {
+                        code_word();
+                    }
+                }
+
+            });
+
+            $("#zhezhao").click(function () {
+                $("#zhezhao").hide();
+                $("#share_ts").hide();
+                $(".tanchu").hide();
+                can = true;
+            });
+            $("#advs_zz,#advs_show").click(function () {
+                $("#advs_zz").hide();
+                $("#advs_show").hide();
+            });
+        });
+
+        var shake_top = new Array();
+        var shake_bg = new Array();
+        var shake_index = 0;
+
+        ////
+        shake_top[{ $key }] = 'images/69f2175355c32.png';
+        ////
+        shake_top[{ $key }] = 'images/69f21753561d7.png';
+        ////
+        shake_top[{ $key }] = 'images/69f2175356610.png';
+        ////
+        var shake_top_len = shake_top.length;
+
+        ////
+        var shake_bg_len = shake_bg.length;
+
+        function shake_top_img() {
+            if (shake_top_len > 0) {
+                var index_t = shake_index % shake_top_len;
+                $("#top").html('<img style="width:100%;" src="' + shake_top[index_t] + '" />');
+
+            }
+
+            if (shake_bg_len > 0) {
+                var index_b = shake_index % shake_bg_len;
+                $(".bg_page").css({ 'background': 'url(' + shake_bg[index_b] + ') no-repeat', 'background-size': '100% 100%' });
+            }
+
+            shake_index++;
+        }
+        function poput(str) {
+            $('.cover').show();
+            $('.tanchui').hide();
+            $(str).show();
+        }
+        function poputad(strs) {
+            $('.poput_advert img').hide();
+            $(strs).show();
+            $('.poput_advert').show();
+        }
+        $(function () {
+            $('.cover').click(function () {
+                $('.cover').hide();
+                $('.poput').hide();
+                $('.tanchui').hide();
+                $('.zicontent').hide();
+            });
+            $('.poput_advert img').click(function () {
+                $('.poput_advert').hide();
+            });
+        });
+    </script>
+
+    <!--高意向预约相关-->
+    <script type="text/javascript">
+
+        var vip_winner_id = parseInt("0");
+        var vip_yuyue_id = parseInt("0");
+        var can_phone_code = true;
+        var ck_second = parseInt("0");
+
+        if (vip_winner_id > 0) {
+            if (vip_yuyue_id == 0) {
+                $("#vip_yy_box").show();
+            }
+            else {
+                $("#vip_staff_box").show();
+            }
+        }
+
+        //验证码倒计时//继续
+        if (ck_second > 0) {
+            can_phone_code = false;
+            var ck_djs = setInterval(function () {
+                ck_second--
+                if (ck_second <= 0) {
+                    can_phone_code = true;
+                    clearInterval(ck_djs);
+                    $("#vip_code").html("获取验证码");
+                }
+                else {
+                    $("#vip_code").html("(" + ck_second + "S)");
+                }
+
+            }, 1000);
+
+        }
+
+        $(function () {
+
+            //发送验证码
+            $("#vip_code").click(function () {
+
+                if (can_phone_code) {
+                    var phone = $("#ck_phone").val();
+                    if (phone.length != 11) {
+                        alertshow("手机号码格式错误！");
+                        return false;
+                    }
+                    can_phone_code = false;
+
+                    $.ajax({
+                        url: "/api/v1/lottery/sms-code",
+                        type: "post",
+                        data: { phone: phone },
+                        success: function (data) {
+                            if (data.status == "1") {
+                                $("#ck_phone_code").focus();
+                                var ck_second = 60;
+                                var ck_djs = setInterval(function () {
+
+                                    ck_second--
+                                    if (ck_second <= 0) {
+                                        can_phone_code = true;
+                                        clearInterval(ck_djs);
+                                        $("#vip_code").html("获取验证码");
+                                    }
+                                    else {
+                                        $("#vip_code").html("(" + ck_second + "S)");
+                                    }
+
+                                }, 1000);
+                            }
+                            else {
+                                alertshow(data.info);
+                            }
+                        }
+                    })
+                }
+
+            });
+
+
+            var can_submit = true;
+            $("#vip_submit").click(function () {
+
+                if (can_submit) {
+                    var phone = $("#ck_phone").val();
+                    var phone_code = $("#ck_phone_code").val();
+                    if (phone.length != 11) {
+                        alertshow("手机号码格式错误！");
+                        return false;
+                    }
+                    if (phone_code.length != 6) {
+                        alertshow("验证码错误！");
+                        return false;
+                    }
+
+                    can_submit = false;
+
+                    $.ajax({
+                        url: "/api/v1/lottery/submit-phone",
+                        type: "post",
+                        data: { phone: phone, phone_code: phone_code, winner_id: vip_winner_id },
+                        success: function (data) {
+                            if (data.status == 1) {
+                                $(".vip_submit_zhe").hide();
+
+                                var staff_name = data.staff_name;
+                                var staff_phone = data.staff_phone;
+
+                                $(".staff_name").html(staff_name);
+                                $(".staff_phone").html(staff_phone);
+
+                                $("#staff_phone_bt").prop('href', 'tel:' + staff_phone);
+
+                                $("#vip_yy_box").hide();
+                                $("#vip_staff_box").show();
+
+                            }
+                            else {
+                                alertshow(data.info);
+                            }
+                            can_submit = true;
+                            can = true;
+                        }
+                    });
+
+                }
+
+            });
+
+
+        })
+
+    </script>
+
+    <!--长按事件-->
+    <script>
+        var timeOutEvent = 0;
+        $(function () {
+            $("#top").on({
+                touchstart: function (e) {
+                    timeOutEvent = setTimeout("longPress()", 2000);
+                    e.preventDefault();
+                },
+                touchmove: function () {
+
+                },
+                touchend: function () {
+                    clearTimeout(timeOutEvent);
+                    return false;
+                }
+            });
+        });
+
+        function longPress() {
+            //长按事件
+            if (confirm('绑定推广人员？')) {
+                location.href = "/api/v1/lottery/bind-staff";
+            }
+        }
+
+    </script>
+
+        <script type="text/javascript" src="https://res.wx.qq.com/open/js/jweixin-1.6.0.js"></script>
+<script type="text/javascript">
+    //分享到朋友圈
+    var is_share_1 = parseInt("0");
+    var is_share_2 = parseInt("0");
+    var is_advert = parseInt("1");
+    var is_to_advert = parseInt("0");
+    var type = 0;
+    if (is_share_2 == 1 && is_advert == 1 && is_to_advert == 0) {
+        type = 3;
+        //share_url	=	'/api/v1/lottery/share-page
+        share_url = '/api/v1/lottery/share-page
+        share_logo = 'images/69f216e56d321.jpg';
+        share_title = '青铜峡热销楼盘 住好房二期升级面世 火爆认筹中';
+    } else {
+        type = 2;
+        if ("" == '') {
+            //share_url	=	'/api/v1/lottery/share-page
+            share_url = '/api/v1/lottery/share-page
+        }
+        else {
+            //share_url	=	'/api/v1/lottery/share-page
+            share_url = '/api/v1/lottery/share-page
+        }
+        share_logo = 'images/69f216e56cae4.jpg';
+        share_title = '住好房好礼天天有！华为手机、冰箱、洗衣机等好礼等你来领！100%中奖！';
+    }
+    // console.log(share_url)
+
+    share_logo_11 = 'images/69f216e56cae4.jpg';
+    //share_url_11	=	'/api/v1/lottery/share-page
+    share_url_11 = '/api/v1/lottery/share-page
+
+
+    wx.config({
+        debug: false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+        appId: 'wx9366b15a2abfb6e2', // 必填，公众号的唯一标识
+        timestamp: "【后端动态生成】", // 必填，生成签名的时间戳
+        nonceStr: "【后端动态生成】", // 必填，生成签名的随机串
+        signature: "【后端动态生成】",// 必填，签名，见附录1
+        jsApiList: ['onMenuShareTimeline', 'onMenuShareAppMessage', 'getLocation', 'openLocation', 'updateTimelineShareData'], // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
+        openTagList: ['wx-open-launch-weapp']
+    });
+
+    wx.ready(function () {
+        wx.onMenuShareTimeline({
+            title: share_title, // 分享标题
+            link: share_url, // 分享链接
+            imgUrl: share_logo, // 分享图标
+            success: function () {
+                setTimeout(function () {
+                    $.ajax({
+                        url: '/api/v1/lottery/share',
+                        type: 'post',
+                        data: { 'share': 2, 'type': type },
+                        success: function (data) {
+                            //请求成功
+                            if (data['status'] > 0) {
+                                is_share_2 = parseInt(data['is_share_2']);
+                                is_to_advert = parseInt(data['is_to_advert']);
+                                use_number_1 = parseInt(data['add_number_1']);
+                                use_number_2 = parseInt(data['add_number_2']);
+                                if (is_share_2 == 1 && is_advert == 1 && is_to_advert == 0) {
+                                    console.log('2');
+                                    wx.onMenuShareTimeline({
+                                        title: '青铜峡热销楼盘 住好房二期升级面世 火爆认筹中', // 分享标题
+                                        link: '/api/v1/lottery/share-page // 分享链接
+                                        imgUrl: 'images/69f216e56d321.jpg', // 分享图标
+                                        success: function () {
+                                            setTimeout(function () {
+                                                $.ajax({
+                                                    url: '/api/v1/lottery/share',
+                                                    type: 'post',
+                                                    data: { 'share': 2, 'type': 3 },
+                                                    success: function (data) {
+                                                        //请求成功
+                                                        if (data['status'] > 0) {
+                                                            is_share_2 = parseInt(data['is_share_2']);
+                                                            is_to_advert = parseInt(data['is_to_advert']);
+                                                            use_number_1 = parseInt(data['add_number_1']);
+                                                            use_number_2 = parseInt(data['add_number_2']);
+                                                            if ("" == '') {
+                                                                share_url = '/api/v1/lottery/share-page
+                                                            } else {
+                                                                share_url = '/api/v1/lottery/share-page
+                                                            }
+                                                            wx.onMenuShareTimeline({
+                                                                title: '住好房好礼天天有！华为手机、冰箱、洗衣机等好礼等你来领！100%中奖！', // 分享标题
+                                                                link: share_url, // 分享链接
+                                                                imgUrl: 'images/69f216e56cae4.jpg', // 分享图标
+                                                                success: function () {
+                                                                    setTimeout(function () {
+                                                                        $.ajax({
+                                                                            url: '/api/v1/lottery/share',
+                                                                            type: 'post',
+                                                                            data: { 'share': 2, 'type': 2 },
+                                                                            success: function (data) {
+                                                                                //请求成功
+                                                                                if (data['status'] > 0) {
+                                                                                    is_share_2 = parseInt(data['is_share_2']);
+                                                                                    is_to_advert = parseInt(data['is_to_advert']);
+                                                                                    use_number_1 = parseInt(data['add_number_1']);
+                                                                                    use_number_2 = parseInt(data['add_number_2']);
+                                                                                    times = data['times'];
+                                                                                    times_sk = data['times'];
+                                                                                    $("#times").html(data['times']);
+                                                                                    if ($(".thereare_num") && $(".thereare_num").css('display') == 'none') {
+                                                                                        if (data['times'] > 0) {
+                                                                                            $(".thereare_num_no").hide()
+                                                                                            $(".thereare_num").show()
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        });
+
+                                                                        try {
+                                                                            num_shre_number()
+                                                                        }
+                                                                        catch
+                                                                        {
+
+                                                                        }
+
+                                                                    }, 500);
+                                                                }
+                                                            });
+                                                            times = data['times'];
+                                                            times_sk = data['times'];
+                                                            $("#times").html(data['times']);
+                                                            if ($(".thereare_num") && $(".thereare_num").css('display') == 'none') {
+                                                                if (data['times'] > 0) {
+                                                                    $(".thereare_num_no").hide()
+                                                                    $(".thereare_num").show()
+                                                                }
+                                                            }
+
+                                                            try {
+                                                                num_shre_number()
+                                                            }
+                                                            catch {
+
+                                                            }
+
+                                                        }
+                                                    }
+                                                });
+                                            }, 500);
+                                        }
+                                    });
+                                }
+
+                                if (is_share_2 == 1 && is_advert == 1 && is_to_advert == 1) {
+                                    if ("" == '') {
+                                        share_url = '/api/v1/lottery/share-page
+                                    } else {
+                                        share_url = '/api/v1/lottery/share-page
+                                    }
+                                    console.log('4');
+                                    wx.onMenuShareTimeline({
+                                        title: '住好房好礼天天有！华为手机、冰箱、洗衣机等好礼等你来领！100%中奖！', // 分享标题
+                                        link: share_url, // 分享链接
+                                        imgUrl: 'images/69f216e56cae4.jpg', // 分享图标
+                                        success: function () {
+                                            setTimeout(function () {
+                                                $.ajax({
+                                                    url: '/api/v1/lottery/share',
+                                                    type: 'post',
+                                                    data: { 'share': 2, 'type': 2 },
+                                                    success: function (data) {
+                                                        //请求成功
+                                                        if (data['status'] > 0) {
+                                                            is_share_2 = parseInt(data['is_share_2']);
+                                                            is_to_advert = parseInt(data['is_to_advert']);
+                                                            use_number_1 = parseInt(data['add_number_1']);
+                                                            use_number_2 = parseInt(data['add_number_2']);
+                                                            times = data['times'];
+                                                            times_sk = data['times'];
+                                                            $("#times").html(data['times']);
+                                                            if ($(".thereare_num") && $(".thereare_num").css('display') == 'none') {
+                                                                if (data['times'] > 0) {
+                                                                    $(".thereare_num_no").hide()
+                                                                    $(".thereare_num").show()
+                                                                }
+                                                            }
+
+                                                        }
+                                                    }
+                                                });
+
+                                                try {
+                                                    num_shre_number()
+                                                }
+                                                catch {
+
+                                                }
+
+                                            }, 500);
+                                        }
+                                    });
+                                }
+                                times = data['times'];
+                                times_sk = data['times'];
+                                $("#times").html(data['times']);
+                                if ($(".thereare_num") && $(".thereare_num").css('display') == 'none') {
+                                    if (data['times'] > 0) {
+                                        $(".thereare_num_no").hide()
+                                        $(".thereare_num").show()
+                                    }
+                                }
+                                try {
+                                    num_shre_number();
+                                }
+                                catch {
+
+                                }
+
+                            }
+                        }
+                    });
+                }, 500);
+            }
+        });
+        //分享给朋友/微信群
+        wx.onMenuShareAppMessage({
+            title: '住好房好礼天天有！华为手机、冰箱、洗衣机等好礼等你来领！100%中奖！', // 分享标题
+            desc: '住好房装修大礼免费领！100%中奖，到店即兑！', 	// 分享描述
+            link: share_url_11, // 分享链接
+            imgUrl: share_logo_11, // 分享图标
+            type: '', 		// 分享类型,music、video或link，不填默认为link
+            dataUrl: '', 	// 如果type是music或video，则要提供数据链接，默认为空
+            success: function () {
+                setTimeout(function () {
+                    $.ajax({
+                        url: '/api/v1/lottery/share',
+                        type: 'post',
+                        data: { 'share': 1, 'type': 1 },
+                        success: function (data) {
+                            //请求成功
+                            if (data['status'] > 0) {
+                                is_share_1 = parseInt(data['is_share_1']);
+                                use_number_1 = parseInt(data['add_number_1']);
+                                use_number_2 = parseInt(data['add_number_2']);
+                                times = data['times'];
+                                times_sk = data['times'];
+                                $("#times").html(data['times']);
+                                if ($(".thereare_num") && $(".thereare_num").css('display') == 'none') {
+                                    if (data['times'] > 0) {
+                                        $(".thereare_num_no").hide()
+                                        $(".thereare_num").show()
+                                    }
+                                }
+                            }
+                            try {
+                                num_shre_number();
+                            }
+                            catch {
+
+                            }
+                        }
+                    });
+                }, 500);
+            }
+        });
+    });
+
+    // 地图跳转
+    function map_show() {
+        var lat = parseFloat("【你的纬度】");
+        var lng = parseFloat("【你的经度】");
+        var name_ = "住好房装饰";
+        var address = "【你的公司地址】";
+        wx.openLocation({
+            latitude: lat, // 纬度，浮点数，范围为90 ~ -90
+            longitude: lng, // 经度，浮点数，范围为180 ~ -180。
+            name: name_, // 位置名
+            address: address, // 地址详情说明
+            scale: 16, // 地图缩放级别,整形值,范围从1~28。默认为最大
+        });
+    }
+</script>
+
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mobile-detect/1.4.4/mobile-detect.min.js"></script>
+    <script type="text/javascript">
+        var md = new MobileDetect(window.navigator.userAgent);
+        //同步活跃度
+        setInterval(function () {
+
+            $.ajax({
+                url: "/api/v1/lottery/heartbeat",
+                type: "post",
+                data: {ua:md.ua},
+                success: function (data) {
+                    console.log(data);
+                }
+            });
+
+
+        }, 3000);
+
+    </script>
+
+    <script type="text/javascript">
+    var lat = "【你的纬度】";
+    var lng = "【你的经度】";
+    function get_location()
+    {
+        if(!lat || !lng)
+        {
+            wx.getLocation({
+                type: 'gcj02', // 默认为wgs84的gps坐标，如果要返回直接给openLocation用的火星坐标，可传入'gcj02'
+                success: function (res) {
+                    var latitude = res.latitude; // 纬度，浮点数，范围为90 ~ -90
+                    var longitude = res.longitude; // 经度，浮点数，范围为180 ~ -180。
+                    var speed = res.speed; // 速度，以米/每秒计
+                    var accuracy = res.accuracy; // 位置精度
+        
+                    $.ajax({
+                        url: '/api/v1/lottery/location',
+                        type: 'post',
+                        data: {'take_info': '1' , 'latitude':latitude , 'longitude':longitude },
+                        success: function (data) {
+                            
+                           console.log(data);
+                            
+                        }
+                    });
+        
+                }
+            });
+
+        }
+    }
+
+    
+        
+    </script>
+
+</body>
+
+</html>
