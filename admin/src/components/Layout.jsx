@@ -50,6 +50,17 @@ export default function Layout() {
           <main className="flex-1 overflow-auto">
             <Outlet />
           </main>
+
+          {/* ICP备案号 */}
+          <div className="text-center py-1 bg-gray-50 text-gray-400 text-[11px] border-t border-gray-100">
+            <a
+              href="https://beian.miit.gov.cn"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              桂ICP备2026013449号
+            </a>
+          </div>
         </div>
       </div>
     </ToastProvider>
