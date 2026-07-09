@@ -99,13 +99,13 @@
 
 .tag-cloud-wrap {
   max-height: 200rpx;
-  padding: 16rpx 20rpx;
 }
 
 .tag-cloud {
   display: flex;
   flex-wrap: wrap;
   gap: 14rpx;
+  padding: 16rpx 20rpx;
 }
 
 .tag-chip {

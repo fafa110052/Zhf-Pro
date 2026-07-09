@@ -59,6 +59,11 @@ function dedup(req, res, next) {
     return next();
   }
 
+  // 跳过状态变更接口（天然幂等，不是表单提交）
+  if (req.path.endsWith('/status')) {
+    return next();
+  }
+
   // 计算用户标识
   const userId = req.user?.id || req.ip || 'anonymous';
 

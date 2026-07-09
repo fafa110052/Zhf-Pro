@@ -7,21 +7,28 @@
     <meta content="yes" name="apple-mobile-web-app-capable" />
     <meta content="black" name="apple-mobile-web-app-status-bar-style" />
     <meta content="telephone=no" name="format-detection" />
-            <title>住好房”摇一摇”有惊喜</title>
+            <title>住好房"摇一摇"有惊喜</title>
     <!-- 微信/QQ 分享卡片预览 -->
-    <meta property=”og:title” content=”住好房”摇一摇”有惊喜” />
-    <meta property=”og:description” content=”摇一摇赢大奖！华为手机、精美家电等你来拿，每人每天都有机会！” />
-    <meta property=”og:image” content=”https://wzzhfservice.cloud/lottery/images/content_prize_show.png” />
-    <meta property=”og:url” content=”https://wzzhfservice.cloud/lottery/index.html” />
-    <meta property=”og:type” content=”website” />
-    <meta itemprop=”name” content=”住好房”摇一摇”有惊喜” />
-    <meta itemprop=”description” content=”摇一摇赢大奖！华为手机、精美家电等你来拿，每人每天都有机会！” />
-    <meta itemprop=”image” content=”https://wzzhfservice.cloud/lottery/images/content_prize_show.png” />
-    <link type=”text/css” rel=”stylesheet” href=”css/xz.css?v=1000” />
+    <meta property="og:title" content="住好房"摇一摇"有惊喜" />
+    <meta property="og:description" content="摇一摇赢大奖！华为手机、精美家电等你来拿，每人每天都有机会！" />
+    <meta property="og:image" content="https://wzzhfservice.cloud/lottery/images/content_prize_show.png" />
+    <meta property="og:url" content="https://wzzhfservice.cloud/lottery/index.html" />
+    <meta property="og:type" content="website" />
+    <meta itemprop="name" content="住好房"摇一摇"有惊喜" />
+    <meta itemprop="description" content="摇一摇赢大奖！华为手机、精美家电等你来拿，每人每天都有机会！" />
+    <meta itemprop="image" content="https://wzzhfservice.cloud/lottery/images/content_prize_show.png" />
+    <link type="text/css" rel="stylesheet" href="css/xz.css?v=1000" />
     <link type="text/css" rel="stylesheet" href="css/style_gk.css?v=651310" />
     <link type="text/css" rel="stylesheet" href="css/swiper.min.css" />
     <link type="text/css" rel="stylesheet" href="css/word.css?v=1000" />
     <style>
+        /* 修复：word.css 的 transform:translateZ(0) 创建独立层叠上下文，导致
+           .btn_rules 等按钮被 .bg_page 遮挡无法点击。解决方案：
+           1. 移除 translateZ（仅用于 GPU 加速，非布局必需）
+           2. 提升 .content 到固定背景层之上 */
+        .content { position: relative; z-index: 1; transform: none !important; }
+        /* 确保按钮可点击 */
+        .btn_rules { cursor: pointer; pointer-events: auto; }
         html { background: #0a0a0a; }
         body {
             margin: 0 auto;
@@ -142,8 +149,26 @@
             font-size: 12px;
         }
 
-        .btn_rules,
         #right_top_bt,
+        .btn_rules {
+            position: absolute;
+            height: 22px;
+            line-height: 22px;
+            width: 70px;
+            border-radius: 3px;
+            background-color: rgba(0, 0, 0, 0.2);
+            font-size: 12px;
+            text-align: center;
+            z-index: 1000;
+        }
+        #right_top_bt {
+            top: 10px;
+            right: 10px;
+        }
+        .btn_rules {
+            top: 40px;
+            right: 10px;
+        }
         .tanchu_adv .img_continer .box .skip {
             height: 22px;
             line-height: 22px;
@@ -562,13 +587,6 @@
 </head>
 
 <body>
-    <script>
-    // 微信浏览器检测 — 非微信环境显示引导页
-    if (!/MicroMessenger/i.test(navigator.userAgent)) {
-      document.body.innerHTML = '<div style="position:fixed;top:0;left:0;width:100%;height:100%;background:linear-gradient(180deg,#1a1a2e 0%,#16213e 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;font-family:sans-serif;z-index:99999"><div style="font-size:64px;margin-bottom:20px">📱</div><div style="font-size:20px;font-weight:bold;margin-bottom:8px">请在微信中打开</div><div style="font-size:14px;color:#999;margin-bottom:4px">请使用微信扫一扫或直接</div><div style="font-size:14px;color:#999">在微信中打开此链接参与活动</div></div>';
-      document.title = '请在微信中打开 — 住好房';
-    }
-    </script>
     <!-- share_gif -->
     <div class="share_gif_img">
         <img src="images/share_guide.gif" alt="">
@@ -757,12 +775,12 @@
                     <div class="advs information">
                                                         <a href="javascript:map_show()">
                                 <img src="images/content_info_nav.jpg" />
-                                <span class="rtbt">详情</span>
+                                <span class="rtbt">导航</span>
                             </a>
                                                     </div><div class="advs information">
                                                         <a href="tel:">
                                 <img src="images/content_info_phone.jpg" />
-                                <span class="rtbt">详情</span>
+                                <span class="rtbt">拨打电话</span>
                             </a>
                                                     </div>                    <div style="clear:both"></div>
                 </div>                            <!--轮播图的数量-->
@@ -958,7 +976,7 @@
                 </a>
             </div>
             <div class="btn_rules active_back_color">
-                <a onclick="poput('.poput_rules')" class="btn_font_color" style="color:#FFE500;">
+                <a onclick="poput('.poput_rules')" class="btn_font_color">
                     规则详情
                 </a>
             </div>
@@ -968,19 +986,17 @@
 
     </div>
 
-    <!--跳转小程序-->
 
-        <style>
+    
+    <style>
         .weapp_card {
             position: fixed;
             width: 100%;
-            max-width: 450px;
             height: 25vw;
-            max-height: 112px;
             bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
+            left: 0;
             text-align: center;
+            z-index: 999999;
         }
 
         img {
@@ -1530,7 +1546,8 @@
     </div>
     <div class="consultation_btn_box">
             <img src="images/btn_consultation.png?v=5" alt="">
-        </div>    <!-- css3 动画 -->
+        </div>
+        <!-- css3 动画 -->
     <style>
     /* 2021-7-22 开屏css动画 开始 */
     ::-webkit-scrollbar {
@@ -2121,7 +2138,6 @@
     /* 2021-7-22 开屏css动画 结束 */
 </style>
 
-<body>
     <!-- 7-22 新填的css3动画 开始 -->
     <div class="animation_bg">
         <div class="animation_box">
@@ -2232,9 +2248,7 @@
             // 7-22 动画结束animation_btn
         })
     </script>
-</body>
 
-</html>
     <script type="text/javascript" src="js/jquery-1.11.1.min.js"></script>
     <script type="text/javascript" src="js/swiper.jquery.min.js"></script>
     
@@ -2299,6 +2313,67 @@
     <a class="close">确定</a>
 </div>
 
+<script>
+// ═══ 页面配置初始化（同步加载，确保后续 JS 使用真实配置）═══
+var LOTTERY_CONFIG = {};
+(function() {
+  try {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', '/api/v1/lottery/config', false);
+    xhr.send();
+    if (xhr.status === 200) {
+      var result = JSON.parse(xhr.responseText);
+      if (result.success) { LOTTERY_CONFIG = result.data; }
+    }
+  } catch(e) { console.error('配置加载失败:', e); }
+
+  // 替换 DOM 中的占位符
+  if (Object.keys(LOTTERY_CONFIG).length > 0) {
+    var map = {
+      '\u3010\u4f60\u7684\u9879\u76eeID\u3011': LOTTERY_CONFIG.project_id || '',
+      '\u3010\u4f60\u7684\u5ba2\u670d\u7535\u8bdd\u3011': LOTTERY_CONFIG.service_phone || '',
+      '\u3010\u4f60\u7684\u6d3b\u52a8\u5f00\u59cb\u65e5\u671f\u3011': LOTTERY_CONFIG.activity_start_date || '',
+      '\u3010\u4f60\u7684\u6d3b\u52a8\u622a\u6b62\u65e5\u671f\u3011': LOTTERY_CONFIG.activity_end_date || '',
+      '\u3010\u4f60\u7684\u62bd\u5956\u5f00\u59cb\u65e5\u671f\u3011': LOTTERY_CONFIG.lottery_start_date || '',
+      '\u3010\u4f60\u7684\u516c\u53f8\u5730\u5740\u3011': LOTTERY_CONFIG.company_address || '',
+      '\u3010\u4f60\u7684\u987e\u95ee\u59d3\u540d\u3011': LOTTERY_CONFIG.consultant_name || '',
+      '\u3010\u4f60\u7684\u987e\u95ee\u7535\u8bdd\u3011': LOTTERY_CONFIG.consultant_phone || '',
+      '\u3010\u4f60\u7684\u5408\u4f5c\u7535\u8bdd\u3011': LOTTERY_CONFIG.cooperation_phone || '',
+      '\u3010\u4f60\u7684\u7eac\u5ea6\u3011': LOTTERY_CONFIG.latitude || '',
+      '\u3010\u4f60\u7684\u7ecf\u5ea6\u3011': LOTTERY_CONFIG.longitude || '',
+      '\u3010\u4f60\u7684\u9886\u5956\u5f00\u59cb\u65e5\u671f\u3011': LOTTERY_CONFIG.prize_start_date || ''
+    };
+
+    // 1. 替换文本节点
+    var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
+    var node;
+    while (node = walker.nextNode()) {
+      for (var key in map) {
+        if (node.nodeValue.indexOf(key) !== -1) {
+          node.nodeValue = node.nodeValue.split(key).join(map[key]);
+        }
+      }
+    }
+
+    // 2. 替换 a 标签 href 属性
+    var links = document.querySelectorAll('a[href*="\u3010\u4f60\u7684"]');
+    for (var i = 0; i < links.length; i++) {
+      var href = links[i].getAttribute('href');
+      for (var key in map) { href = href.split(key).join(map[key]); }
+      links[i].setAttribute('href', href);
+    }
+
+    // 3. 替换 wx-open-launch-weapp 的 path 属性
+    var wxApps = document.querySelectorAll('wx-open-launch-weapp[path*="\u3010\u4f60\u7684"]');
+    for (var j = 0; j < wxApps.length; j++) {
+      var p = wxApps[j].getAttribute('path');
+      for (var key in map) { p = p.split(key).join(map[key]); }
+      wxApps[j].setAttribute('path', p);
+    }
+  }
+})();
+</script>
+
 <script type="text/javascript">
 var callback;
 
@@ -2354,9 +2429,10 @@ function alertshow(str,e){
         }, 10)
         var animation_status = parseInt('0');
         // 项目电话
-        var project_telephone = "【你的客服电话】"
+        var project_telephone = (typeof LOTTERY_CONFIG !== 'undefined' && LOTTERY_CONFIG.service_phone) || "400-888-8888"
         // 每日初始
-        var initial_num = parseInt("2")
+        var initial_num = parseInt((typeof LOTTERY_CONFIG !== 'undefined' && LOTTERY_CONFIG.daily_init_draws) || "2")
+        var daily_max_draws = parseInt((typeof LOTTERY_CONFIG !== 'undefined' && LOTTERY_CONFIG.daily_max_draws) || "5")
         console.log(initial_num);
         //已分享好友次数
         var is_share_1 = parseInt("0");
@@ -2512,6 +2588,12 @@ function alertshow(str,e){
                             $('.skip').html('跳过(' + seconder + 's)');
                             if (seconder < 0) {
                                 $(".tanchu_adv").hide();
+                                $(".animation_bg").hide();
+                                $(".cover").hide();
+                                $(".zhezhao").hide();
+                                $(".tanchui").hide();
+                                $("#advs_show").hide();
+                                $("#advs_zz").hide();
                                 window.clearInterval(daojishi)
                             }
                         }, 1000)
@@ -2520,6 +2602,12 @@ function alertshow(str,e){
             }
             $(".skip").click(function () {
                 $(".tanchu_adv").hide();
+                $(".animation_bg").hide();
+                $(".cover").hide();
+                $(".zhezhao").hide();
+                $(".tanchui").hide();
+                $("#advs_show").hide();
+                $("#advs_zz").hide();
                 getPower()
                 if (shake_power == 0 && typeof DeviceMotionEvent.requestPermission === 'function') {
 
@@ -2883,6 +2971,16 @@ function alertshow(str,e){
         }
         //摇一摇动作后执行操作
         function shake_post() {
+            // 活动时间校验
+            var activityStatus = (typeof LOTTERY_CONFIG !== 'undefined' && LOTTERY_CONFIG.activity_status) || 'active';
+            if (activityStatus === 'not_started') {
+                alertshow('活动尚未开始，敬请期待', null);
+                return false;
+            }
+            if (activityStatus === 'ended') {
+                alertshow('活动已结束，感谢参与', null);
+                return false;
+            }
             console.log("can", can);
             console.log("times_sk", times_sk);
             try {
@@ -3300,54 +3398,57 @@ function alertshow(str,e){
 
         <script type="text/javascript" src="https://res.wx.qq.com/open/js/jweixin-1.6.0.js"></script>
 <script type="text/javascript">
-    //分享到朋友圈
-    var is_share_1 = parseInt("0");
-    var is_share_2 = parseInt("0");
-    var is_advert = parseInt("1");
-    var is_to_advert = parseInt("0");
-    var type = 0;
-    if (is_share_2 == 1 && is_advert == 1 && is_to_advert == 0) {
-        type = 3;
-        //share_url	=	'/api/v1/lottery/share-page
-        share_url = '/api/v1/lottery/share-page';
-        share_logo = 'images/content_share_ad.jpg';
-        share_title = '青铜峡热销楼盘 住好房二期升级面世 火爆认筹中';
-    } else {
-        type = 2;
-        if ("" == '') {
-            //share_url	=	'/api/v1/lottery/share-page
-            share_url = '/api/v1/lottery/share-page';
+    // 分享到朋友圈 / 朋友
+    var share_logo = 'images/content_share_logo.jpg';
+    var share_title = '住好房好礼天天有！华为手机、冰箱、洗衣机等好礼等你来领！100%中奖！';
+    var share_desc = '住好房装修大礼免费领！100%中奖，到店即兑！';
+    var share_url = window.location.href.split('#')[0];
+    var is_share_1 = 0;
+    var is_share_2 = 0;
+    var is_advert = 1;
+    var is_to_advert = 0;
+    var type = 2;
+    var times = 1;
+    var times_sk = 1;
+    var use_number_1 = 0;
+    var use_number_2 = 0;
+
+    // 从后端获取 JS-SDK 签名，然后初始化微信分享
+    var wxSignatureUrl = '/api/v1/lottery/wx-signature?url=' + encodeURIComponent(window.location.href.split('#')[0]);
+    $.getJSON(wxSignatureUrl, function(res) {
+        if (!res.success || !res.data) {
+            console.error('[wx] 获取签名失败:', res);
+            return;
         }
-        else {
-            //share_url	=	'/api/v1/lottery/share-page
-            share_url = '/api/v1/lottery/share-page';
-        }
-        share_logo = 'images/content_share_logo.jpg';
-        share_title = '住好房好礼天天有！华为手机、冰箱、洗衣机等好礼等你来领！100%中奖！';
-    }
-    // console.log(share_url)
+        var sig = res.data;
 
-    share_logo_11 = 'images/content_share_logo.jpg';
-    //share_url_11	=	'/api/v1/lottery/share-page
-    share_url_11 = '/api/v1/lottery/share-page';
+        wx.config({
+            debug: false,
+            appId: sig.appId,
+            timestamp: sig.timestamp,
+            nonceStr: sig.nonceStr,
+            signature: sig.signature,
+            jsApiList: ['onMenuShareTimeline', 'onMenuShareAppMessage', 'updateAppMessageShareData', 'updateTimelineShareData', 'getLocation', 'openLocation'],
+            openTagList: ['wx-open-launch-weapp']
+        });
 
+        wx.ready(function () {
+            // 新版分享 API（微信 6.7.2+）
+            var shareData = {
+                title: share_title,
+                desc: share_desc,
+                link: share_url,
+                imgUrl: share_logo
+            };
+            wx.updateAppMessageShareData && wx.updateAppMessageShareData(shareData);
+            wx.updateTimelineShareData && wx.updateTimelineShareData(shareData);
 
-    wx.config({
-        debug: false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
-        appId: 'wx9366b15a2abfb6e2', // 必填，公众号的唯一标识
-        timestamp: "【后端动态生成】", // 必填，生成签名的时间戳
-        nonceStr: "【后端动态生成】", // 必填，生成签名的随机串
-        signature: "【后端动态生成】",// 必填，签名，见附录1
-        jsApiList: ['onMenuShareTimeline', 'onMenuShareAppMessage', 'getLocation', 'openLocation', 'updateTimelineShareData'], // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
-        openTagList: ['wx-open-launch-weapp']
-    });
-
-    wx.ready(function () {
-        wx.onMenuShareTimeline({
-            title: share_title, // 分享标题
-            link: share_url, // 分享链接
-            imgUrl: share_logo, // 分享图标
-            success: function () {
+            // 旧版分享 API（兼容）
+            wx.onMenuShareTimeline({
+                title: share_title,
+                link: share_url,
+                imgUrl: share_logo,
+                success: function () {
                 setTimeout(function () {
                     $.ajax({
                         url: '/api/v1/lottery/share',
@@ -3562,14 +3663,19 @@ function alertshow(str,e){
                 }, 500);
             }
         });
+    }); // wx.ready 结束
+
+    // 获取签名出错时的降级处理
+    }).fail(function(err) {
+        console.error('[wx] 签名接口请求失败:', err);
     });
 
     // 地图跳转
     function map_show() {
-        var lat = parseFloat("【你的纬度】");
-        var lng = parseFloat("【你的经度】");
+        var lat = parseFloat((typeof LOTTERY_CONFIG !== 'undefined' && LOTTERY_CONFIG.latitude) || "30.259244");
+        var lng = parseFloat((typeof LOTTERY_CONFIG !== 'undefined' && LOTTERY_CONFIG.longitude) || "120.205234");
         var name_ = "住好房装饰";
-        var address = "【你的公司地址】";
+        var address = (typeof LOTTERY_CONFIG !== 'undefined' && LOTTERY_CONFIG.company_address) || "请填写公司地址";
         wx.openLocation({
             latitude: lat, // 纬度，浮点数，范围为90 ~ -90
             longitude: lng, // 经度，浮点数，范围为180 ~ -180。
@@ -3602,8 +3708,8 @@ function alertshow(str,e){
     </script>
 
     <script type="text/javascript">
-    var lat = "【你的纬度】";
-    var lng = "【你的经度】";
+    var lat = (typeof LOTTERY_CONFIG !== 'undefined' && LOTTERY_CONFIG.latitude) || "30.259244";
+    var lng = (typeof LOTTERY_CONFIG !== 'undefined' && LOTTERY_CONFIG.longitude) || "120.205234";
     function get_location()
     {
         if(!lat || !lng)
@@ -3636,6 +3742,7 @@ function alertshow(str,e){
     
         
     </script>
+
 
 </body>
 

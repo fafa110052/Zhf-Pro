@@ -447,30 +447,39 @@ export default function LotteryConfig() {
             <h3 className="text-base font-semibold text-gray-800 mb-4">基础信息</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {[
-                { key: 'activity_start_date', label: '活动开始日期' },
-                { key: 'activity_end_date', label: '活动结束日期' },
-                { key: 'lottery_start_date', label: '抽奖开始日期' },
-                { key: 'prize_start_date', label: '领奖开始日期' },
-                { key: 'service_phone', label: '客服电话' },
-                { key: 'cooperation_phone', label: '合作电话' },
-                { key: 'company_address', label: '公司地址' },
-                { key: 'project_id', label: '项目 ID' },
-                { key: 'page_title', label: '页面标题' },
-                { key: 'share_title', label: '分享标题' },
-                { key: 'share_desc', label: '分享描述' },
-                { key: 'daily_init_draws', label: '每日初始抽奖次数' },
-                { key: 'daily_max_draws', label: '每日最大抽奖次数' },
-                { key: 'latitude', label: '纬度' },
-                { key: 'longitude', label: '经度' },
+                { key: 'activity_start_date', label: '活动开始日期', type: 'date' },
+                { key: 'activity_end_date', label: '活动结束日期', type: 'date' },
+                { key: 'lottery_start_date', label: '抽奖开始日期', type: 'date' },
+                { key: 'prize_start_date', label: '领奖开始日期', type: 'date' },
+                { key: 'service_phone', label: '客服电话', type: 'text' },
+                { key: 'cooperation_phone', label: '合作电话', type: 'text' },
+                { key: 'company_address', label: '公司地址', type: 'text' },
+                { key: 'project_id', label: '项目 ID', type: 'text' },
+                { key: 'page_title', label: '页面标题', type: 'text' },
+                { key: 'share_title', label: '分享标题', type: 'text' },
+                { key: 'share_desc', label: '分享描述', type: 'text' },
+                { key: 'daily_init_draws', label: '每日初始抽奖次数', type: 'number' },
+                { key: 'daily_max_draws', label: '每日最大抽奖次数', type: 'number' },
+                { key: 'latitude', label: '纬度', type: 'text' },
+                { key: 'longitude', label: '经度', type: 'text' },
               ].map(field => (
                 <div key={field.key}>
                   <label className="block text-sm font-medium text-gray-600 mb-1">{field.label}</label>
-                  <TextSaveRow
-                    configKey={field.key}
-                    value={textConfigs[field.key] || ''}
-                    onSave={handleTextSave}
-                    saving={savingText}
-                  />
+                  {field.type === 'date' ? (
+                    <DateSaveRow
+                      configKey={field.key}
+                      value={textConfigs[field.key] || ''}
+                      onSave={handleTextSave}
+                      saving={savingText}
+                    />
+                  ) : (
+                    <TextSaveRow
+                      configKey={field.key}
+                      value={textConfigs[field.key] || ''}
+                      onSave={handleTextSave}
+                      saving={savingText}
+                    />
+                  )}
                 </div>
               ))}
             </div>
@@ -941,6 +950,24 @@ export default function LotteryConfig() {
         variant="danger"
       />
     </div>
+  );
+}
+
+// ========================================================
+// 内联组件：日期选择行（点击编辑 → 日期选择器 → 自动保存）
+// ========================================================
+function DateSaveRow({ configKey, value, onSave, saving }) {
+  const handleChange = (e) => {
+    onSave(configKey, e.target.value);
+  };
+
+  return (
+    <input
+      type="date"
+      value={value || ''}
+      onChange={handleChange}
+      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
+    />
   );
 }
 

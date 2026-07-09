@@ -62,32 +62,6 @@ Page({
   onAreaInput(e) { this.setData({ area_size: e.detail.value }); },
   onRemarkInput(e) { this.setData({ remark: e.detail.value }); },
 
-  // ─── 微信获取手机号 ───
-  onGetPhoneNumber(e) {
-    if (e.detail.errMsg === 'getPhoneNumber:ok') {
-      // 微信一键获取手机号
-      const app = getApp();
-      wx.login({
-        success: (loginRes) => {
-          if (!loginRes.code) return;
-          wx.request({
-            url: `${app.globalData.baseUrl}/api/v1/auth/designer/wechat-phone`,
-            method: 'POST',
-            data: { wxCode: loginRes.code, phoneCode: e.detail.code },
-            success: (res) => {
-              if (res.data.success && res.data.data?.phone) {
-                this.setData({ phone: res.data.data.phone });
-              }
-            },
-            fail: () => {
-              wx.showToast({ title: '获取手机号失败', icon: 'none' });
-            },
-          });
-        },
-      });
-    }
-  },
-
   // ─── Picker 选择 ───
   onTimeChange(e) {
     const idx = parseInt(e.detail.value);
@@ -119,7 +93,10 @@ Page({
   // ─── 提交 ───
   async onSubmit() {
     if (this.data.submitting) return;
-    if (!this.validate()) return;
+    if (!this.validate()) {
+      console.log('[量房预约] 校验不通过:', this.data.errors);
+      return;
+    }
 
     this.setData({ submitting: true });
 
@@ -137,14 +114,17 @@ Page({
         source_page: 'home_button',
       };
 
-      await api.submitMeasureAppointment(data);
+      console.log('[量房预约] 提交数据:', JSON.stringify(data));
+      const result = await api.submitMeasureAppointment(data);
+      console.log('[量房预约] 提交成功:', JSON.stringify(result));
 
-      wx.showToast({ title: '预约成功', icon: 'success', duration: 1500 });
+      wx.showToast({ title: '预约成功', icon: 'success', duration: 2000 });
       setTimeout(() => {
         wx.navigateBack();
-      }, 1500);
+      }, 2000);
     } catch (err) {
-      wx.showToast({ title: err?.message || '提交失败，请重试', icon: 'none' });
+      console.error('[量房预约] 提交失败:', err);
+      wx.showToast({ title: err?.message || '提交失败，请重试', icon: 'none', duration: 3000 });
     } finally {
       this.setData({ submitting: false });
     }

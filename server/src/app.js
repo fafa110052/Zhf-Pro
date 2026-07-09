@@ -42,7 +42,16 @@ app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 // ═══ 摇一摇 H5 页面（静态托管）═══
 const lotteryH5Dir = path.join(__dirname, '..', '..', 'lottery_replica', 'lottery_clean');
 if (fs.existsSync(lotteryH5Dir)) {
-  app.use('/lottery', express.static(lotteryH5Dir));
+  app.use('/lottery', express.static(lotteryH5Dir, {
+    setHeaders: (res, filePath) => {
+      // 微信浏览器缓存激进，HTML 文件强制禁止缓存
+      if (filePath.endsWith('.html')) {
+        res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+        res.set('Pragma', 'no-cache');
+        res.set('Expires', '0');
+      }
+    }
+  }));
 }
 
 // ═══ 管理后台静态文件（生产环境）═══

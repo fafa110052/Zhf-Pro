@@ -27,6 +27,23 @@ const lotteryConfigService = {
     for (const row of rows) {
       config[row.config_key] = row.config_value;
     }
+
+    // 计算活动状态
+    const now = new Date();
+    const today = now.toISOString().slice(0, 10); // YYYY-MM-DD
+    const startDate = config.activity_start_date || '2000-01-01';
+    const endDate = config.activity_end_date || '2099-12-31';
+
+    if (today < startDate) {
+      config.activity_status = 'not_started';
+    } else if (today > endDate) {
+      config.activity_status = 'ended';
+    } else {
+      config.activity_status = 'active';
+    }
+    config.activity_start_date = startDate;
+    config.activity_end_date = endDate;
+
     return config;
   },
 

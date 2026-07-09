@@ -1,5 +1,8 @@
 const path = require('path');
 
+// 加载 .env 文件（PM2 不自动加载）
+require('dotenv').config({ path: path.join(__dirname, '..', '..', '.env') });
+
 module.exports = {
   // 服务器
   port: process.env.PORT || 3000,

@@ -10,6 +10,7 @@ const lotteryPrizeService = require('../services/lotteryPrizeService');
 const lotteryService = require('../services/lotteryService');
 const lotteryRecordService = require('../services/lotteryRecordService');
 const lotteryUserService = require('../services/lotteryUserService');
+const wechatService = require('../services/wechatService');
 const { authenticate, requireRole } = require('../middleware/auth');
 
 // ── 抽奖图片上传 Multer 配置 ──
@@ -128,6 +129,26 @@ router.post('/lottery/bind-info', async (req, res, next) => {
     }
     const user = await lotteryUserService.bindInfo(openid, { phone, name });
     res.json({ success: true, data: user });
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * GET /api/v1/lottery/wx-signature
+ * 微信 JS-SDK 签名（用于自定义分享）
+ *
+ * Query: url — 当前页面完整 URL（不含 # 及之后部分）
+ */
+router.get('/lottery/wx-signature', async (req, res, next) => {
+  try {
+    const { url } = req.query;
+    if (!url) {
+      return res.status(400).json({ success: false, message: '缺少 url 参数' });
+    }
+    const ticket = await wechatService.getJsapiTicket();
+    const sig = wechatService.generateSignature(ticket, url);
+    res.json({ success: true, data: sig });
   } catch (err) {
     next(err);
   }

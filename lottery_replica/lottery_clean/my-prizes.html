@@ -166,13 +166,6 @@
         }
     </style>
 </head>
-<body>
-<script>
-if (!/MicroMessenger/i.test(navigator.userAgent)) {
-  document.body.innerHTML = '<div style="position:fixed;top:0;left:0;width:100%;height:100%;background:linear-gradient(180deg,#1a1a2e 0%,#16213e 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;font-family:sans-serif;z-index:99999"><div style="font-size:64px;margin-bottom:20px">📱</div><div style="font-size:20px;font-weight:bold;margin-bottom:8px">请在微信中打开</div><div style="font-size:14px;color:#999">请使用微信扫一扫或直接在微信中打开此链接</div></div>';
-  document.title = '请在微信中打开 — 住好房';
-}
-</script>
 <div class="page">
     <!-- 头部 -->
     <div class="header">
@@ -224,6 +217,8 @@ if (!/MicroMessenger/i.test(navigator.userAgent)) {
     </a>
 </div>
 
+<script type="text/javascript" src="js/jquery-1.11.1.min.js"></script>
+<script type="text/javascript" src="https://res.wx.qq.com/open/js/jweixin-1.6.0.js"></script>
 <script>
 function switchTab(idx) {
     document.querySelectorAll('.tab').forEach(function(t, i) {
@@ -233,6 +228,40 @@ function switchTab(idx) {
         c.classList.toggle('active', i === idx);
     });
 }
+
+// 微信 JS-SDK 分享配置
+var wxSignatureUrl = '/api/v1/lottery/wx-signature?url=' + encodeURIComponent(window.location.href.split('#')[0]);
+$.getJSON(wxSignatureUrl, function(res) {
+    if (!res.success || !res.data) {
+        console.error('[wx] 获取签名失败:', res);
+        return;
+    }
+    var sig = res.data;
+
+    wx.config({
+        debug: false,
+        appId: sig.appId,
+        timestamp: sig.timestamp,
+        nonceStr: sig.nonceStr,
+        signature: sig.signature,
+        jsApiList: ['onMenuShareTimeline', 'onMenuShareAppMessage', 'updateAppMessageShareData', 'updateTimelineShareData']
+    });
+
+    wx.ready(function() {
+        var shareData = {
+            title: '住好房"摇一摇"有惊喜 — 我的奖品',
+            desc: '看看我中了什么奖品！你也来摇一摇吧！',
+            link: window.location.href.split('#')[0],
+            imgUrl: 'https://wzzhfservice.cloud/lottery/images/content_share_logo.jpg'
+        };
+        wx.updateAppMessageShareData && wx.updateAppMessageShareData(shareData);
+        wx.updateTimelineShareData && wx.updateTimelineShareData(shareData);
+        wx.onMenuShareTimeline && wx.onMenuShareTimeline(shareData);
+        wx.onMenuShareAppMessage && wx.onMenuShareAppMessage(shareData);
+    });
+}).fail(function(err) {
+    console.error('[wx] 签名接口请求失败:', err);
+});
 </script>
 </body>
 </html>

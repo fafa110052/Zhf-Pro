@@ -87,7 +87,7 @@ WXML：`<block wx:if="{{ready}}">` 包裹所有内容。ready 前只显示背景
 ### 参数
 `url` / `method` / `data` / `auth`(boolean) / `loading`(boolean) / `silent`(boolean)
 
-URL = `BASE_URL + API_PREFIX + url`（如 `http://43.136.71.64:8081/api/v1/works`）
+URL = `BASE_URL + API_PREFIX + url`（如 `http://test.wzzhfservice.cloud/api/v1/works`）
 
 ### 错误码处理
 - 401 → `app.clearLogin()`（silent 模式跳过）
@@ -104,7 +104,7 @@ URL = `BASE_URL + API_PREFIX + url`（如 `http://43.136.71.64:8081/api/v1/works
 - ⚠️ 小程序 `require()` **不能引用 miniprogram 目录外**的文件
 - BASE_URL 只有一处定义：`constants.js`
 - 改 IP/端口 → 改 `env.js`
-- 不在代码中写 `192.168.x.x` 或 `43.136.71.64`
+- 不在代码中写 IP 地址
 
 ## API 速查（utils/api.js）
 

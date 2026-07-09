@@ -14,9 +14,6 @@
 <view wx:if="{{phase.design_images && phase.design_images.length > 0}}" class="section">
 <view class="section-title"><text>设计图（{{phase.design_images.length}}张）</text></view>
 <view class="image-grid"><image lazy-load wx:for="{{phase.design_images}}" wx:key="index" src="{{item}}" mode="aspectFill" class="image-thumb" bindtap="onPreview" data-url="{{item}}"/></view></view>
-<view class="section"><view class="section-title"><text>项目信息</text></view>
-<view wx:if="{{phase.engineer}}" class="info-row"><text class="info-label">工程师</text><text class="info-value">{{phase.engineer.name}}</text></view>
-<view wx:if="{{phase.designer}}" class="info-row"><text class="info-label">设计师</text><text class="info-value">{{phase.designer.name}}</text></view></view>
 <view class="bottom-spacer"></view></block></block>
 <view wx:if="{{ready && phase && phase.status === 'engineer_design_confirmed'}}" class="action-bar">
     <button class="action-btn accept-btn" bindtap="onConfirmDesign" loading="{{acting}}" disabled="{{acting}}">

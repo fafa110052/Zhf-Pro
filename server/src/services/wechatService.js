@@ -6,11 +6,16 @@
  *   - 手机号解密（getuserphonenumber）
  *   - 开发模式兜底
  */
+const crypto = require('crypto');
 const config = require('../config');
 
 // access_token 缓存
 let cachedToken = null;
 let tokenExpiresAt = 0; // 毫秒时间戳
+
+// jsapi_ticket 缓存
+let cachedTicket = null;
+let ticketExpiresAt = 0; // 毫秒时间戳
 
 const WECHAT_API = 'https://api.weixin.qq.com';
 
@@ -147,7 +152,7 @@ const wechatService = {
           template_id: templateId,
           page: page || '',
           data,
-          miniprogram_state: 'developer',  // TODO: 上线后改为 'formal'
+          miniprogram_state: 'formal',
         }),
         signal: AbortSignal.timeout(10000),
       });
@@ -167,11 +172,74 @@ const wechatService = {
   },
 
   /**
-   * 清除 token 缓存（调试用）
+   * 获取 jsapi_ticket（带缓存，用于 JS-SDK 签名）
+   * @returns {Promise<string>}
+   */
+  async getJsapiTicket() {
+    const now = Date.now();
+
+    // 缓存有效（提前 5 分钟刷新）
+    if (cachedTicket && now < ticketExpiresAt - 300000) {
+      return cachedTicket;
+    }
+
+    const accessToken = await this.getAccessToken();
+
+    try {
+      const url = `${WECHAT_API}/cgi-bin/ticket/getticket?access_token=${accessToken}&type=jsapi`;
+      const res = await fetch(url, { signal: AbortSignal.timeout(10000) });
+
+      if (!res.ok) {
+        throw new Error(`获取 jsapi_ticket HTTP ${res.status}`);
+      }
+
+      const data = await res.json();
+
+      if (data.errcode !== 0) {
+        throw new Error(`获取 jsapi_ticket 失败: ${data.errmsg} (errcode=${data.errcode})`);
+      }
+
+      cachedTicket = data.ticket;
+      ticketExpiresAt = now + (data.expires_in || 7200) * 1000;
+
+      return cachedTicket;
+    } catch (err) {
+      if (err.code === 'WECHAT_NOT_CONFIGURED') throw err;
+      console.error('[wechat] 获取 jsapi_ticket 异常:', err.message);
+      throw Object.assign(new Error('微信服务暂不可用，请稍后重试'), { status: 502 });
+    }
+  },
+
+  /**
+   * 生成 JS-SDK 签名
+   *
+   * @param {string} ticket  — jsapi_ticket
+   * @param {string} url     — 当前页面完整 URL（不含 # 及之后部分）
+   * @returns {{ appId: string, timestamp: number, nonceStr: string, signature: string }}
+   */
+  generateSignature(ticket, url) {
+    const nonceStr = Math.random().toString(36).substring(2, 18);
+    const timestamp = Math.floor(Date.now() / 1000);
+
+    const raw = `jsapi_ticket=${ticket}&noncestr=${nonceStr}&timestamp=${timestamp}&url=${url}`;
+    const signature = crypto.createHash('sha1').update(raw).digest('hex');
+
+    return {
+      appId: config.wechat.appid,
+      timestamp,
+      nonceStr,
+      signature,
+    };
+  },
+
+  /**
+   * 清除所有缓存（调试用）
    */
   clearTokenCache() {
     cachedToken = null;
     tokenExpiresAt = 0;
+    cachedTicket = null;
+    ticketExpiresAt = 0;
   },
 };
 

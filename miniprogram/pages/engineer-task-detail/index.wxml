@@ -75,6 +75,11 @@
         <view wx:else class="image-add-large" bindtap="onChooseImages">
           <text class="add-icon">+</text><text class="add-text">选择图片</text>
         </view>
+        <!-- 施工描述（可选） -->
+        <view class="desc-section">
+          <view class="section-title"><text>施工描述</text><text class="optional-hint">（选填）</text></view>
+          <textarea class="desc-textarea" placeholder="例如：已按设计图完成水电布线，管道压力测试合格..." value="{{constructionDescription}}" bindinput="onDescriptionInput" maxlength="500" auto-height />
+        </view>
       </view>
 
       <view class="bottom-spacer"></view>

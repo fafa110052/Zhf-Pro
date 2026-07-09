@@ -13,3 +13,14 @@ miniprogram/env.local.js
 backups/*.sqlite
 *.bak
 .vite/
+
+# 本地开发工具
+.claude/skills/
+
+# SSL 证书
+*.key
+*.pem
+
+# 临时文件
+zmJvQTnjYJ.txt
+lijizixun.png

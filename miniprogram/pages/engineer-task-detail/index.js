@@ -8,6 +8,7 @@ Page({
     loading: true, error: false, ready: false,
     // 上传完工图
     selectedImages: [], uploading: false,
+    constructionDescription: '',
     acting: false,
     PHASE_STATUS_MAP, PHASE_TYPE_MAP,
   },
@@ -82,6 +83,10 @@ Page({
     this.setData({ selectedImages: imgs });
   },
 
+  onDescriptionInput(e) {
+    this.setData({ constructionDescription: e.detail.value });
+  },
+
   // 提交完工图
   async onSubmitConstruction() {
     if (this.data.selectedImages.length === 0) {
@@ -95,7 +100,7 @@ Page({
         const r = await api.uploadImage(path);
         urls.push(r.image_url);
       }
-      await api.uploadConstructionImages(this.data.phaseId, urls);
+      await api.uploadConstructionImages(this.data.phaseId, urls, this.data.constructionDescription);
       wx.showToast({ title: '提交成功', icon: 'success' });
       setTimeout(() => wx.navigateBack(), 1200);
     } catch (err) { wx.showToast({ title: err?.message || '失败', icon: 'none' }); }

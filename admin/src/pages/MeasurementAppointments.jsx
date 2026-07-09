@@ -19,6 +19,11 @@ const SOURCE_MAP = {
   website: { label: '官网', cls: 'bg-blue-100 text-blue-700' },
 };
 
+const SOURCE_PAGE_MAP = {
+  home_button: '首页预约按钮',
+  material_tab: '选材页面',
+};
+
 export default function MeasurementAppointments() {
   const toast = useToast();
 
@@ -97,16 +102,16 @@ export default function MeasurementAppointments() {
     return phone.slice(0, 3) + '****' + phone.slice(7);
   };
 
-  // 状态流转选项
-  const getNextStatuses = (currentStatus) => {
-    const transitions = {
-      0: [{ value: 1, label: '已联系' }],
-      1: [{ value: 2, label: '已上门' }, { value: 4, label: '已放弃' }],
-      2: [{ value: 3, label: '已签约' }, { value: 4, label: '已放弃' }],
-      3: [],
-      4: [{ value: 0, label: '重新打开' }],
-    };
-    return transitions[currentStatus] || [];
+  // 所有状态选项（当前状态高亮，其余可点）
+  const getAllStatuses = (currentStatus) => {
+    const all = [
+      { value: 0, label: '待处理' },
+      { value: 1, label: '已联系' },
+      { value: 2, label: '已上门' },
+      { value: 3, label: '已签约' },
+      { value: 4, label: '已放弃' },
+    ];
+    return all.map((s) => ({ ...s, isCurrent: s.value === currentStatus }));
   };
 
   return (
@@ -275,7 +280,7 @@ export default function MeasurementAppointments() {
             {detail.source_page && (
               <div>
                 <p className="text-xs text-gray-400 mb-0.5">来源页面</p>
-                <p className="text-sm text-gray-700">{detail.source_page}</p>
+                <p className="text-sm text-gray-700">{SOURCE_PAGE_MAP[detail.source_page] || detail.source_page}</p>
               </div>
             )}
 
@@ -291,26 +296,27 @@ export default function MeasurementAppointments() {
             </div>
 
             {/* 状态操作 */}
-            {getNextStatuses(detail.status).length > 0 && (
-              <div className="pt-3 border-t border-gray-100">
-                <p className="text-xs text-gray-400 mb-2">变更状态：</p>
-                <div className="flex flex-wrap gap-2">
-                  {getNextStatuses(detail.status).map((s) => (
-                    <button
-                      key={s.value}
-                      onClick={() => handleStatusChange(detail.id, s.value, s.label)}
-                      className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
-                        s.value === 4
+            <div className="pt-3 border-t border-gray-100">
+              <p className="text-xs text-gray-400 mb-2">变更状态：</p>
+              <div className="flex flex-wrap gap-2">
+                {getAllStatuses(detail.status).map((s) => (
+                  <button
+                    key={s.value}
+                    onClick={() => s.isCurrent ? null : handleStatusChange(detail.id, s.value, s.label)}
+                    disabled={s.isCurrent}
+                    className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
+                      s.isCurrent
+                        ? 'bg-slate-900 text-white cursor-default'
+                        : s.value === 4
                           ? 'text-red-600 bg-red-50 hover:bg-red-100 border border-red-200'
                           : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'
-                      }`}
-                    >
-                      {s.label}
-                    </button>
-                  ))}
-                </div>
+                    }`}
+                  >
+                    {s.label}
+                  </button>
+                ))}
               </div>
-            )}
+            </div>
 
             <div className="flex justify-end pt-2">
               <button onClick={closeDetail} className="px-4 py-2 text-sm text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">关闭</button>

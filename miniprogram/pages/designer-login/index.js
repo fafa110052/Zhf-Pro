@@ -197,7 +197,7 @@ Page({
     var role = result.user.role;
 
     if (role === 'owner') {
-      wx.showToast({ title: '业主登录成功', icon: 'success' });
+      wx.showToast({ title: '登录成功', icon: 'success' });
       setTimeout(function () { wx.switchTab({ url: '/pages/mine/index' }); }, 800);
       return;
     }

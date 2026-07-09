@@ -2,7 +2,23 @@
 
 装修展示平台：C端小程序 + H5 + B端管理后台（Express 5 + SQLite + React 19 + 微信原生）。V1.3 已完整实现「设计审核→施工管理→业主验收」全流程闭环。
 
-> 📂 [server/CLAUDE.md](server/CLAUDE.md) · [admin/CLAUDE.md](admin/CLAUDE.md) · [小程序](miniprogram/CLAUDE.md) · [H5](h5/CLAUDE.md) · [PROJECT_MAP](PROJECT_MAP.md)
+> 📂 [server/CLAUDE.md](server/CLAUDE.md) · [admin/CLAUDE.md](admin/CLAUDE.md) · [小程序](miniprogram/CLAUDE.md) · [H5](h5/CLAUDE.md) · [抽奖](lottery_replica/CLAUDE.md) · [项目索引](PROJECT_MAP.md)
+
+---
+## 按需加载约束（必读）
+
+**只在需要访问某个子项目时才读取其 CLAUDE.md。** 不要在新会话开始时就加载全部项目文档。规则：
+
+| 任务涉及 | 读取文件 |
+|---------|---------|
+| 后端 API/数据库/服务端逻辑 | `server/CLAUDE.md` |
+| 管理后台页面/组件/路由 | `admin/CLAUDE.md` |
+| 小程序页面/组件/API | `miniprogram/CLAUDE.md` |
+| H5 移动端页面/路由 | `h5/CLAUDE.md` |
+| 摇一摇抽奖 H5 | `lottery_replica/CLAUDE.md` |
+| 跨项目概览/环境/部署 | `PROJECT_MAP.md`（精简索引） |
+
+**首次加载时只读本文件。** 后续根据用户任务按需打开对应的子项目 CLAUDE.md。这样能保持上下文精简，提高缓存命中率。
 
 ## 与用户协作
 

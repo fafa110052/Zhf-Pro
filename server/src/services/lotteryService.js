@@ -10,21 +10,20 @@ const lotteryService = {
   // 摇一摇抽奖（服务端核心）
   // ==========================================
   async shake(openid) {
-    // 1. 校验活动时间
+    // 1. 校验活动时间（日期级别比较，活动当天全天有效）
     const config = await this._getConfigMap();
-    const now = new Date();
-    const activityStart = new Date(config.activity_start_date || '2000-01-01');
-    const activityEnd = new Date(config.activity_end_date || '2099-12-31');
+    const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+    const activityStart = config.activity_start_date || '2000-01-01';
+    const activityEnd = config.activity_end_date || '2099-12-31';
 
-    if (now < activityStart) {
+    if (today < activityStart) {
       return { success: false, code: 'NOT_STARTED', message: '活动尚未开始' };
     }
-    if (now > activityEnd) {
+    if (today > activityEnd) {
       return { success: false, code: 'ENDED', message: '活动已结束' };
     }
 
     // 2. 查找或创建用户
-    const today = now.toISOString().slice(0, 10);
     let user = await db('lottery_users').where('openid', openid).first();
 
     if (!user) {
@@ -99,7 +98,7 @@ const lotteryService = {
       prize_name: selectedPrize.name,
       prize_image: selectedPrize.image || '',
       status: 0,
-      win_at: now.toISOString(),
+      win_at: new Date().toISOString(),
     });
 
     // 7. 更新用户次数

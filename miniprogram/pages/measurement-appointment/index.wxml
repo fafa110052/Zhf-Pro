@@ -50,13 +50,8 @@
 
     <view class="form-group">
       <text class="form-label">手机号<text class="required">*</text></text>
-      <view class="phone-row">
-        <input class="form-input phone-input" type="number" placeholder="请输入手机号" value="{{phone}}"
-          bindinput="onPhoneInput" maxlength="11"/>
-        <button class="phone-wx-btn" open-type="getPhoneNumber" bindgetphonenumber="onGetPhoneNumber">
-          微信获取
-        </button>
-      </view>
+      <input class="form-input" type="number" placeholder="请输入手机号" value="{{phone}}"
+        bindinput="onPhoneInput" maxlength="11"/>
       <text wx:if="{{errors.phone}}" class="form-error">{{errors.phone}}</text>
     </view>
   </view>
