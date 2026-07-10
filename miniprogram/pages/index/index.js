@@ -1,13 +1,12 @@
 /**
- * 首页 V2.0 — 温暖精致风
+ * 首页 V3.0 — 温暖精致风
  *
  * 模块：
- *   - 搜索栏
  *   - 品牌融合 Banner（Slogan 叠加）
- *   - 核心优势图标
- *   - 热门推荐瀑布流
- *   - 设计团队（横向滑动卡片 + 数据条）
  *   - 免费量房（3步流程 + 预约按钮）
+ *   - 核心优势（2×2 图文网格）
+ *   - 设计团队（横向滑动卡片 + 数据条）
+ *   - 热门推荐瀑布流
  */
 const api = require('../../utils/api');
 const util = require('../../utils/util');
@@ -18,21 +17,16 @@ Page({
     banners: [],
     bannerLoading: true,
 
-    // 核心优势（按服务流程排序）
+    // 核心优势（2×2 图文网格）
     advantages: [
       { icon: '🏗️', label: '自有施工队', desc: '自营团队不转包' },
       { icon: '🌿', label: '环保材料', desc: '品牌主材直供' },
-      { icon: '💰', label: '先装后付', desc: '验收合格再付款' },
-      { icon: '🛡️', label: '5年质保', desc: '住进去也安心' },
+      { icon: '💡', label: '透明报价', desc: '预算清晰无增项' },
+      { icon: '👤', label: '一对一服务', desc: '专属设计师全程跟进' },
     ],
 
-    // 设计团队（静态占位，后续接入 API）
-    designers: [
-      { avatar: '/images/zhfanglogo.png', name: '张工', styles: '现代·轻奢' },
-      { avatar: '/images/zhfanglogo.png', name: '李工', styles: '法式·奶油' },
-      { avatar: '/images/zhfanglogo.png', name: '王工', styles: '日式·原木' },
-      { avatar: '/images/zhfanglogo.png', name: '陈工', styles: '极简·北欧' },
-    ],
+    // 设计团队（从 API 读取）
+    designers: [],
 
     // 热门作品
     hotWorks: [],
@@ -45,14 +39,12 @@ Page({
       { icon: '📐', label: '上门测量', desc: '专业免费量房' },
       { icon: '📊', label: '出方案报价', desc: '透明无增项' },
     ],
-
-    // 搜索
-    searchKeyword: '',
   },
 
   onLoad() {
     this.loadHomepageConfig();
     this.loadHotWorks();
+    this.loadDesignTeam();
   },
 
   onShow() {
@@ -63,6 +55,7 @@ Page({
     Promise.all([
       this.loadHomepageConfig(),
       this.loadHotWorks(),
+      this.loadDesignTeam(),
     ]).then(() => {
       wx.stopPullDownRefresh();
     });
@@ -118,6 +111,27 @@ Page({
   },
 
   // ═══════════════════════════════════════════
+  // 加载设计团队
+  // ═══════════════════════════════════════════
+
+  async loadDesignTeam() {
+    try {
+      var list = await api.getDesignTeam();
+      var designers = list.map(function (item) {
+        return {
+          avatar: item.avatar_url ? util.fullImageUrl(item.avatar_url) : '/images/zhfanglogo.png',
+          name: item.name,
+          styles: item.styles || '',
+        };
+      });
+      this.setData({ designers: designers });
+    } catch (err) {
+      console.error('加载设计团队失败:', err);
+      // 失败时保持空数组，UI 自行处理
+    }
+  },
+
+  // ═══════════════════════════════════════════
   // 事件
   // ═══════════════════════════════════════════
 
@@ -148,34 +162,6 @@ Page({
       showCancel: false,
       confirmText: '知道了',
     });
-  },
-
-  /** 搜索输入 */
-  onSearchInput(e) {
-    this.setData({ searchKeyword: e.detail.value });
-  },
-
-  /** 搜索确认 */
-  onSearchConfirm() {
-    var keyword = (this.data.searchKeyword || '').trim();
-    if (!keyword) {
-      wx.switchTab({ url: '/pages/category/index' });
-      return;
-    }
-    var app = getApp();
-    app.globalData.categoryKeyword = keyword;
-    app.globalData.categorySort = 'newest';
-    wx.switchTab({ url: '/pages/category/index' });
-  },
-
-  /** 清除搜索关键词 */
-  onSearchClear() {
-    this.setData({ searchKeyword: '' });
-  },
-
-  /** 点击搜索栏 → 跳转分类页 */
-  onSearchTap() {
-    wx.switchTab({ url: '/pages/category/index' });
   },
 
   /** 点击热门作品 → 跳转详情 */

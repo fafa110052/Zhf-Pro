@@ -63,6 +63,26 @@ export default function Settings() {
   const [dragOverIndex, setDragOverIndex] = useState(null);
   const [reordering, setReordering] = useState(false);
 
+  // ─── 设计团队 ───
+  const [designTeam, setDesignTeam] = useState([]);
+  const [dtLoading, setDtLoading] = useState(true);
+
+  // ─── 设计团队表单 ───
+  const [dtFormOpen, setDtFormOpen] = useState(false);
+  const [dtFormMode, setDtFormMode] = useState('add');
+  const [dtFormId, setDtFormId] = useState(null);
+  const [dtName, setDtName] = useState('');
+  const [dtAvatar, setDtAvatar] = useState('');
+  const [dtStyles, setDtStyles] = useState('');
+  const [dtSortOrder, setDtSortOrder] = useState(0);
+  const [dtSaving, setDtSaving] = useState(false);
+  const [dtUploading, setDtUploading] = useState(false);
+  const [dtFormError, setDtFormError] = useState('');
+
+  // ─── 设计团队删除 ───
+  const [dtDeleteTarget, setDtDeleteTarget] = useState(null);
+  const [dtDeleting, setDtDeleting] = useState(false);
+
   // ─── 删除确认 ───
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleting, setDeleting] = useState(false);
@@ -90,6 +110,21 @@ export default function Settings() {
   }, []);
 
   useEffect(() => { fetchSettings(); }, [fetchSettings]);
+
+  // ─── 加载设计团队 ───
+  const fetchDesignTeam = useCallback(async () => {
+    setDtLoading(true);
+    try {
+      const res = await client.get('/admin/design-team');
+      setDesignTeam(res.data || []);
+    } catch {
+      // silent
+    } finally {
+      setDtLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { fetchDesignTeam(); }, [fetchDesignTeam]);
 
   // ─── 作品搜索 ───
   const searchWorks = async (keyword) => {
@@ -273,6 +308,110 @@ export default function Settings() {
       toast.error('上传失败，请重试');
     } finally {
       setUploading(false);
+      e.target.value = '';
+    }
+  };
+
+  // ─── 设计团队：打开表单 ───
+  const openDtAddForm = () => {
+    setDtFormMode('add');
+    setDtFormId(null);
+    setDtName('');
+    setDtAvatar('');
+    setDtStyles('');
+    setDtSortOrder(designTeam.length);
+    setDtFormError('');
+    setDtFormOpen(true);
+  };
+
+  const openDtEditForm = (item) => {
+    setDtFormMode('edit');
+    setDtFormId(item.id);
+    setDtName(item.name || '');
+    setDtAvatar(item.avatar_url || '');
+    setDtStyles(item.styles || '');
+    setDtSortOrder(item.sort_order || 0);
+    setDtFormError('');
+    setDtFormOpen(true);
+  };
+
+  // ─── 设计团队：保存 ───
+  const handleDtSave = async () => {
+    setDtFormError('');
+    if (!dtName.trim()) {
+      setDtFormError('请输入设计师姓名');
+      return;
+    }
+    setDtSaving(true);
+    try {
+      const body = {
+        name: dtName.trim(),
+        avatar_url: dtAvatar.trim(),
+        styles: dtStyles.trim(),
+        sort_order: dtSortOrder,
+      };
+      if (dtFormMode === 'add') {
+        await client.post('/admin/design-team', body);
+        toast.success('设计师已添加');
+      } else {
+        await client.put(`/admin/design-team/${dtFormId}`, body);
+        toast.success('设计师信息已更新');
+      }
+      setDtFormOpen(false);
+      fetchDesignTeam();
+    } catch (err) {
+      toast.error(err.message || '保存失败');
+    } finally {
+      setDtSaving(false);
+    }
+  };
+
+  // ─── 设计团队：删除 ───
+  const handleDtDelete = async () => {
+    if (!dtDeleteTarget) return;
+    setDtDeleting(true);
+    try {
+      await client.delete(`/admin/design-team/${dtDeleteTarget.id}`);
+      toast.success('设计师已删除');
+      setDtDeleteTarget(null);
+      fetchDesignTeam();
+    } catch (err) {
+      toast.error(err.message || '删除失败');
+    } finally {
+      setDtDeleting(false);
+    }
+  };
+
+  // ─── 设计团队：头像上传 ───
+  const handleDtAvatarUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error('图片大小不能超过 10MB');
+      e.target.value = '';
+      return;
+    }
+    setDtUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const token = localStorage.getItem('admin_token');
+      const response = await fetch('/api/v1/upload', {
+        method: 'POST',
+        headers: { Authorization: token ? `Bearer ${token}` : '' },
+        body: formData,
+      });
+      const result = await response.json();
+      if (result.success && result.data?.image_url) {
+        setDtAvatar(result.data.image_url);
+        toast.success('头像上传成功');
+      } else {
+        toast.error(result.error?.message || '上传失败');
+      }
+    } catch {
+      toast.error('上传失败，请重试');
+    } finally {
+      setDtUploading(false);
       e.target.value = '';
     }
   };
@@ -498,6 +637,67 @@ export default function Settings() {
       </div>
 
       {/* ════════════════════════════════════ */}
+      {/* 设计团队 */}
+      {/* ════════════════════════════════════ */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h3 className="text-base font-semibold text-gray-800">设计团队</h3>
+            <p className="text-sm text-gray-500 mt-0.5">管理小程序首页展示的设计师名片</p>
+          </div>
+          <button onClick={openDtAddForm}
+            className="inline-flex items-center px-3 py-1.5 text-sm bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-colors">
+            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            新增
+          </button>
+        </div>
+
+        {dtLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <div className="w-6 h-6 border-2 border-gray-200 border-t-slate-600 rounded-full animate-spin" />
+          </div>
+        ) : designTeam.length === 0 ? (
+          <div className="border-2 border-dashed border-gray-200 rounded-lg">
+            <EmptyState icon="👤" title="暂无设计团队成员" size="sm"
+              action={<button onClick={openDtAddForm} className="text-sm text-blue-600 hover:underline">添加第一位设计师</button>} />
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {designTeam.map((item, idx) => (
+              <div key={item.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-100 hover:border-gray-200 transition-colors">
+                <span className="w-6 h-6 rounded-full bg-slate-200 text-slate-600 text-xs font-medium flex items-center justify-center shrink-0">
+                  {idx + 1}
+                </span>
+                {/* 头像 */}
+                <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-200 shrink-0 border border-gray-100">
+                  {item.avatar_url ? (
+                    <img src={item.avatar_url} alt="" className="w-full h-full object-cover"
+                      onError={(e) => { e.target.style.display = 'none'; }} />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-gray-400 text-lg">👤</div>
+                  )}
+                </div>
+                {/* 信息 */}
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-gray-800">{item.name}</p>
+                  <p className="text-xs text-gray-400 truncate">{item.styles || '未设置擅长风格'}</p>
+                </div>
+                {/* 操作 */}
+                <div className="flex items-center gap-1 shrink-0">
+                  <button onClick={() => openDtEditForm(item)}
+                    className="px-2.5 py-1 text-xs text-blue-600 hover:bg-blue-50 rounded transition-colors">编辑</button>
+                  <button onClick={() => setDtDeleteTarget(item)}
+                    className="px-2.5 py-1 text-xs text-red-500 hover:bg-red-50 rounded transition-colors">删除</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* ════════════════════════════════════ */}
       {/* 表单弹窗 — Banner / Hot Works 共用 */}
       {/* ════════════════════════════════════ */}
       <Modal open={formOpen} onClose={() => setFormOpen(false)}
@@ -638,6 +838,104 @@ export default function Settings() {
           )}
         </div>
       </Modal>
+
+      {/* ════════════════════════════════════ */}
+      {/* 设计团队表单弹窗 */}
+      {/* ════════════════════════════════════ */}
+      <Modal open={dtFormOpen} onClose={() => setDtFormOpen(false)}
+        title={dtFormMode === 'add' ? '新增设计师' : '编辑设计师'}
+        footer={
+          <>
+            <button onClick={() => setDtFormOpen(false)}
+              className="px-4 py-2 text-sm text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+              取消
+            </button>
+            <button onClick={handleDtSave} disabled={dtSaving}
+              className="px-4 py-2 text-sm text-white bg-slate-900 rounded-lg hover:bg-slate-800 transition-colors disabled:opacity-50">
+              {dtSaving ? '保存中...' : '保存'}
+            </button>
+          </>
+        }>
+        <div className="space-y-4">
+          {dtFormError && (
+            <div className="p-3 bg-red-50 text-red-700 text-sm rounded-lg">{dtFormError}</div>
+          )}
+
+          {/* 姓名 */}
+          <div>
+            <label className="block text-sm text-gray-600 mb-1">姓名 <span className="text-red-400">*</span></label>
+            <input type="text" value={dtName} onChange={(e) => setDtName(e.target.value)}
+              placeholder="如：张工" autoFocus
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+          </div>
+
+          {/* 头像 */}
+          <div>
+            <label className="block text-sm text-gray-600 mb-1">头像</label>
+            <div className="flex gap-2">
+              <input type="text" value={dtAvatar} onChange={(e) => setDtAvatar(e.target.value)}
+                placeholder="粘贴图片链接或点击右侧上传"
+                className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+              <label className={`inline-flex items-center gap-1 px-3 py-2 text-sm border rounded-lg cursor-pointer transition-colors shrink-0 ${dtUploading ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed' : 'bg-white text-blue-600 border-blue-300 hover:bg-blue-50'}`}>
+                {dtUploading ? (
+                  <>
+                    <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    </svg>
+                    上传中
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                    </svg>
+                    本地上传
+                  </>
+                )}
+                <input type="file" accept="image/*" className="hidden" disabled={dtUploading}
+                  onChange={handleDtAvatarUpload} />
+              </label>
+            </div>
+            {dtAvatar && (
+              <div className="mt-2 w-20 h-20 rounded-full overflow-hidden bg-gray-100 border border-gray-200">
+                <img src={dtAvatar} alt="预览" className="w-full h-full object-cover"
+                  onError={(e) => { e.target.style.display = 'none'; }} />
+              </div>
+            )}
+          </div>
+
+          {/* 擅长风格 */}
+          <div>
+            <label className="block text-sm text-gray-600 mb-1">擅长风格</label>
+            <input type="text" value={dtStyles} onChange={(e) => setDtStyles(e.target.value)}
+              placeholder="如：现代·轻奢（选填）"
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+          </div>
+
+          {/* 排序 */}
+          <div>
+            <label className="block text-sm text-gray-600 mb-1">排序序号</label>
+            <input type="number" value={dtSortOrder} onChange={(e) => setDtSortOrder(parseInt(e.target.value) || 0)}
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+            <p className="text-xs text-gray-400 mt-0.5">数字越小越靠前</p>
+          </div>
+        </div>
+      </Modal>
+
+      {/* ════════════════════════════════════ */}
+      {/* 设计团队删除确认 */}
+      {/* ════════════════════════════════════ */}
+      <ConfirmDialog
+        open={!!dtDeleteTarget}
+        onClose={() => setDtDeleteTarget(null)}
+        onConfirm={handleDtDelete}
+        title="删除设计师"
+        message={`确定要删除「${dtDeleteTarget?.name}」吗？此操作不可撤销。`}
+        confirmText="确认删除"
+        variant="danger"
+        loading={dtDeleting}
+      />
 
       {/* ════════════════════════════════════ */}
       {/* 删除确认 */}

@@ -65,8 +65,8 @@ Page({
     hasMore: true,
     error: false,    // 加载失败
 
-    // 搜索关键词（从首页传入）
-    keyword: '',
+    // 搜索关键词
+    searchKeyword: '',
 
     // 分类加载失败标记
     categoryError: false,
@@ -104,7 +104,7 @@ Page({
     var updates = {};
     if (presetTab) updates.activeTabKey = presetTab;
     if (presetSort) updates.sortBy = presetSort;
-    if (presetKeyword) updates.keyword = presetKeyword;
+    if (presetKeyword) updates.searchKeyword = presetKeyword;
 
     this.setData(updates, function () {
       this.updateActiveTags();
@@ -182,8 +182,8 @@ Page({
       };
 
       // 搜索关键词
-      if (this.data.keyword) {
-        params.keyword = this.data.keyword;
+      if (this.data.searchKeyword) {
+        params.keyword = this.data.searchKeyword;
       }
 
       // 拼装已选筛选条件
@@ -308,9 +308,36 @@ Page({
     this.loadWorks(true);
   },
 
-  // 清除搜索关键词
-  onClearKeyword() {
-    this.setData({ keyword: '' });
+  // ═══════════════════════════════════════════
+  // 搜索
+  // ═══════════════════════════════════════════
+
+  /** 搜索输入（防抖 400ms）*/
+  onSearchInput(e) {
+    var value = e.detail.value;
+    this.setData({ searchKeyword: value });
+    // 防抖：清除上次定时器，重新计时
+    if (this._searchTimer) clearTimeout(this._searchTimer);
+    this._searchTimer = setTimeout(function () {
+      this._doSearch();
+    }.bind(this), 400);
+  },
+
+  /** 搜索确认（键盘回车）*/
+  onSearchConfirm() {
+    if (this._searchTimer) clearTimeout(this._searchTimer);
+    this._doSearch();
+  },
+
+  /** 清除搜索 */
+  onSearchClear() {
+    if (this._searchTimer) clearTimeout(this._searchTimer);
+    this.setData({ searchKeyword: '' });
+    this._doSearch();
+  },
+
+  /** 执行搜索 */
+  _doSearch() {
     this.loadWorks(true);
   },
 

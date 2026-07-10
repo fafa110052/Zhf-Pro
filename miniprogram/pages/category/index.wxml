@@ -1,5 +1,24 @@
 <!-- 分类筛选页 -->
 <view class="page">
+
+  <!-- ═══ 搜索栏 ═══ -->
+  <view class="search-bar">
+    <view class="search-box">
+      <text class="search-icon">🔍</text>
+      <input
+        class="search-input"
+        type="text"
+        value="{{searchKeyword}}"
+        placeholder="搜索作品名称..."
+        placeholder-class="search-placeholder"
+        confirm-type="search"
+        bindinput="onSearchInput"
+        bindconfirm="onSearchConfirm"
+      />
+      <text wx:if="{{searchKeyword}}" class="search-clear" bindtap="onSearchClear">✕</text>
+    </view>
+  </view>
+
   <!-- ═══ 维度 Tab 栏 ═══ -->
   <view class="tab-bar">
     <view
@@ -11,16 +30,6 @@
     >
       <text class="tab-text">{{item.label}}</text>
       <view wx:if="{{activeTabKey === item.key}}" class="tab-indicator"></view>
-    </view>
-  </view>
-
-  <!-- ═══ 搜索关键词提示 ═══ -->
-  <view wx:if="{{keyword}}" class="keyword-bar">
-    <text class="keyword-icon">🔍</text>
-    <text class="keyword-text">"{{keyword}}"</text>
-    <text class="keyword-count">{{works.length}} 个结果</text>
-    <view class="keyword-clear" bindtap="onClearKeyword">
-      <text>✕</text>
     </view>
   </view>
 

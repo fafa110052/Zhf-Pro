@@ -390,6 +390,18 @@ function disputePhase(phaseId, data) {
 }
 
 // ═══════════════════════════════════════════
+// 设计团队 API（公开）
+// ═══════════════════════════════════════════
+
+/**
+ * 获取设计团队列表（公开）
+ * @returns {Promise<Array>}
+ */
+function getDesignTeam() {
+  return http.get('/design-team');
+}
+
+// ═══════════════════════════════════════════
 // 量房预约 API
 // ═══════════════════════════════════════════
 
@@ -456,6 +468,8 @@ module.exports = {
   disputeOwnerDesign,
   acceptPhase,
   disputePhase,
+  // 设计团队
+  getDesignTeam,
   // 量房预约
   submitMeasureAppointment,
 };

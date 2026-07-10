@@ -4,7 +4,7 @@
     "loading-more": "/components/loading-more/index",
     "empty-state": "/components/empty-state/index"
   },
-  "navigationBarTitleText": "分类筛选",
+  "navigationBarTitleText": "作品筛选",
   "enablePullDownRefresh": true,
   "onReachBottomDistance": 100
 }

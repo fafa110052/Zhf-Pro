@@ -29,7 +29,7 @@
   "window": {
     "backgroundTextStyle": "dark",
     "navigationBarBackgroundColor": "#fffdf9",
-    "navigationBarTitleText": "住好房装修",
+    "navigationBarTitleText": "住好房",
     "navigationBarTextStyle": "black",
     "backgroundColor": "#faf8f5"
   },
@@ -47,7 +47,7 @@
       },
       {
         "pagePath": "pages/category/index",
-        "text": "分类",
+        "text": "作品",
         "iconPath": "images/tab-category.png",
         "selectedIconPath": "images/tab-category-active.png"
       },

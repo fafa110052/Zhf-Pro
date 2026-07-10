@@ -1,23 +1,5 @@
-<!-- 首页 V2.0 — 温暖精致风 -->
+<!-- 首页 V3.0 — 温暖精致风 -->
 <view class="page">
-
-  <!-- ═══ 搜索栏 ═══ -->
-  <view class="search-bar">
-    <view class="search-box" bindtap="onSearchTap">
-      <text class="search-icon">🔍</text>
-      <input
-        class="search-input"
-        type="text"
-        value="{{searchKeyword}}"
-        placeholder="搜索装修作品..."
-        placeholder-class="search-placeholder"
-        confirm-type="search"
-        bindinput="onSearchInput"
-        bindconfirm="onSearchConfirm"
-      />
-      <text wx:if="{{searchKeyword}}" class="search-clear" bindtap="onSearchClear">✕</text>
-    </view>
-  </view>
 
   <!-- ═══ Banner 轮播 ═══ -->
   <view wx:if="{{!bannerLoading && banners.length > 0}}" class="banner-section">
@@ -31,6 +13,76 @@
     <text class="banner-empty-icon">🏠</text>
     <text class="banner-empty-title">住好房装修展示平台</text>
     <text class="banner-empty-sub">让每个家，都住好</text>
+  </view>
+
+  <!-- ═══ 免费量房 ═══ -->
+  <view class="section trust-section">
+    <view class="section-header">
+      <text class="section-title">免费量房</text>
+    </view>
+
+    <view class="trust-steps">
+      <block wx:for="{{measureSteps}}" wx:key="label">
+        <view class="trust-step">
+          <view class="step-num-row">
+            <view class="step-num">{{index + 1}}</view>
+          </view>
+          <view class="step-icon-wrap">
+            <text class="step-icon">{{item.icon}}</text>
+          </view>
+          <text class="step-label">{{item.label}}</text>
+          <text class="step-desc">{{item.desc}}</text>
+        </view>
+      </block>
+    </view>
+
+    <view class="measure-btn" bindtap="onFreeMeasureTap">
+      <text class="measure-btn-text">免费预约量房</text>
+    </view>
+  </view>
+
+  <!-- ═══ 为什么选择住好房 ═══ -->
+  <view class="section">
+    <view class="section-header">
+      <text class="section-title">为什么选择住好房</text>
+    </view>
+
+    <view class="adv-grid">
+      <view wx:for="{{advantages}}" wx:key="label" class="adv-card">
+        <view class="adv-icon-wrap">
+          <text class="adv-icon">{{item.icon}}</text>
+        </view>
+        <text class="adv-label">{{item.label}}</text>
+        <text class="adv-desc">{{item.desc}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- ═══ 设计团队 ═══ -->
+  <view class="section">
+    <view class="section-header">
+      <text class="section-title">设计团队</text>
+    </view>
+
+    <scroll-view wx:if="{{designers.length > 0}}" class="team-scroll" scroll-x enable-flex>
+      <view class="team-list">
+        <view wx:for="{{designers}}" wx:key="name" class="team-card">
+          <view class="team-avatar-wrap">
+            <image class="team-avatar" src="{{item.avatar}}" mode="aspectFill"/>
+          </view>
+          <text class="team-name">{{item.name}}</text>
+          <text class="team-tag">{{item.styles}}</text>
+        </view>
+      </view>
+    </scroll-view>
+
+    <view class="team-stats"
+      <text class="team-stat"><text class="team-stat-num">500+</text> 服务家庭</text>
+      <text class="team-stat-dot">·</text>
+      <text class="team-stat"><text class="team-stat-num">1200+</text> 设计作品</text>
+      <text class="team-stat-dot">·</text>
+      <text class="team-stat"><text class="team-stat-num">98%</text> 好评率</text>
+    </view>
   </view>
 
   <!-- ═══ 热门推荐 ═══ -->
@@ -68,81 +120,6 @@
 
     <empty-state wx:elif="{{hotWorks.length === 0}}"
       icon="🔥" title="暂无热门推荐" desc="管理员正在精选优质作品"/>
-  </view>
-
-  <!-- ═══ 为什么选择住好房 ═══ -->
-  <view class="section trust-section">
-    <view class="section-header">
-      <text class="section-title">为什么选择住好房</text>
-    </view>
-
-    <view class="trust-steps">
-      <block wx:for="{{advantages}}" wx:key="label">
-        <view class="trust-step">
-          <view class="step-num-row">
-            <view class="step-num">{{index + 1}}</view>
-          </view>
-          <view class="step-icon-wrap">
-            <text class="step-icon">{{item.icon}}</text>
-          </view>
-          <text class="step-label">{{item.label}}</text>
-          <text class="step-desc">{{item.desc}}</text>
-        </view>
-      </block>
-    </view>
-  </view>
-
-  <!-- ═══ 设计团队 ═══ -->
-  <view class="section">
-    <view class="section-header">
-      <text class="section-title">设计团队</text>
-    </view>
-
-    <scroll-view class="team-scroll" scroll-x enable-flex>
-      <view class="team-list">
-        <view wx:for="{{designers}}" wx:key="name" class="team-card">
-          <view class="team-avatar-wrap">
-            <image class="team-avatar" src="{{item.avatar}}" mode="aspectFill"/>
-          </view>
-          <text class="team-name">{{item.name}}</text>
-          <text class="team-tag">{{item.styles}}</text>
-        </view>
-      </view>
-    </scroll-view>
-
-    <view class="team-stats">
-      <text class="team-stat"><text class="team-stat-num">500+</text> 服务家庭</text>
-      <text class="team-stat-dot">·</text>
-      <text class="team-stat"><text class="team-stat-num">1200+</text> 设计作品</text>
-      <text class="team-stat-dot">·</text>
-      <text class="team-stat"><text class="team-stat-num">98%</text> 好评率</text>
-    </view>
-  </view>
-
-  <!-- ═══ 免费量房 ═══ -->
-  <view class="section trust-section">
-    <view class="section-header">
-      <text class="section-title">免费量房</text>
-    </view>
-
-    <view class="trust-steps">
-      <block wx:for="{{measureSteps}}" wx:key="label">
-        <view class="trust-step">
-          <view class="step-num-row">
-            <view class="step-num">{{index + 1}}</view>
-          </view>
-          <view class="step-icon-wrap">
-            <text class="step-icon">{{item.icon}}</text>
-          </view>
-          <text class="step-label">{{item.label}}</text>
-          <text class="step-desc">{{item.desc}}</text>
-        </view>
-      </block>
-    </view>
-
-    <view class="measure-btn" bindtap="onFreeMeasureTap">
-      <text class="measure-btn-text">免费预约量房</text>
-    </view>
   </view>
 
   <view class="safe-bottom"></view>

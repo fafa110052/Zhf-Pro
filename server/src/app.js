@@ -26,6 +26,7 @@ const materialOrdersRoutes = require('./routes/material-orders');
 const constructionPhaseRoutes = require('./routes/construction-phases');
 const measurementAppointmentRoutes = require('./routes/measurement-appointments');
 const lotteryRoutes = require('./routes/lottery');
+const designTeamRoutes = require('./routes/design-team');
 
 const app = express();
 
@@ -147,6 +148,7 @@ app.use('/api/v1', materialOrdersRoutes);   // 选材申请（V1.1 新增）
 app.use('/api/v1', constructionPhaseRoutes); // 施工阶段（V1.3 新增）
 app.use('/api/v1', measurementAppointmentRoutes); // 量房预约
 app.use('/api/v1', lotteryRoutes);              // 摇一摇抽奖
+app.use('/api/v1', designTeamRoutes);          // 设计团队
 
 // ═══ 404 / SPA 回退（必须在所有路由之后）═══
 app.use((req, res) => {
