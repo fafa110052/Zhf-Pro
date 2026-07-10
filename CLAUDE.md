@@ -1,76 +1,28 @@
-# 住好房展示平台 (ZHFPro) — V1.3
+# 住好房展示平台 (ZHFPro)
 
-装修展示平台：C端小程序 + H5 + B端管理后台（Express 5 + SQLite + React 19 + 微信原生）。V1.3 已完整实现「设计审核→施工管理→业主验收」全流程闭环。
+装修展示平台：C端小程序 + H5 + B端管理后台（Express 5 + SQLite + React 19 + 微信原生）。
 
-> 📂 [server/CLAUDE.md](server/CLAUDE.md) · [admin/CLAUDE.md](admin/CLAUDE.md) · [小程序](miniprogram/CLAUDE.md) · [H5](h5/CLAUDE.md) · [抽奖](lottery_replica/CLAUDE.md) · [项目索引](PROJECT_MAP.md)
+> 📂 [server](server/CLAUDE.md) · [admin](admin/CLAUDE.md) · [小程序](miniprogram/CLAUDE.md) · [H5](h5/CLAUDE.md) · [抽奖](lottery_replica/CLAUDE.md) · [项目索引](PROJECT_MAP.md)
 
 ---
-## 按需加载约束（必读）
+## 按需加载
 
-**只在需要访问某个子项目时才读取其 CLAUDE.md。** 不要在新会话开始时就加载全部项目文档。规则：
+**只在需要访问某个子项目时才读取其 CLAUDE.md。** 首次只读本文件，后续按需打开：
 
 | 任务涉及 | 读取文件 |
 |---------|---------|
-| 后端 API/数据库/服务端逻辑 | `server/CLAUDE.md` |
+| 后端 API/数据库/业务逻辑 | `server/CLAUDE.md` |
 | 管理后台页面/组件/路由 | `admin/CLAUDE.md` |
-| 小程序页面/组件/API | `miniprogram/CLAUDE.md` |
+| 小程序页面/组件 | `miniprogram/CLAUDE.md` |
 | H5 移动端页面/路由 | `h5/CLAUDE.md` |
 | 摇一摇抽奖 H5 | `lottery_replica/CLAUDE.md` |
-| 跨项目概览/环境/部署 | `PROJECT_MAP.md`（精简索引） |
-
-**首次加载时只读本文件。** 后续根据用户任务按需打开对应的子项目 CLAUDE.md。这样能保持上下文精简，提高缓存命中率。
+| 跨项目概览/环境/部署 | `PROJECT_MAP.md` |
 
 ## 与用户协作
 
 用户是不懂技术的业务老板，以产品经理视角理解需求。如有更优方案主动提出并解释利弊。**每个改动都要能解释业务价值。**
 
 ---
-
-## 环境配置（唯一入口：`env.config.json`，切换环境只改 `active`）
-
-- 小程序：`constants.js` 读取 `env.js`（⚠️ `require()` 不能引用 miniprogram 外文件）
-- deploy.sh：`./deploy.sh`=test，`./deploy.sh prod`=prod
-- Admin/H5：使用相对路径 `/api/v1`，不依赖环境配置
-
----
-
-## 用户体系（关键 — 两个独立维度）
-
-| 维度 | 字段 | 取值 |
-|------|------|------|
-| **角色** | `role` | `admin` / `designer`(员工) / `owner`(业主) / `guest`(游客) |
-| **人员类型** | `personnel_type` | `designer` / `design_director` / `engineer` / `engineering_director` |
-
-- `app.isDesigner()` = `role === 'designer'` → **所有员工**
-- `app.isDesignerPersonnel()` = `personnel_type === 'designer'` → 仅设计师岗位
-- `app.isOwner()` = `role === 'owner'` → 业主
-- 登录路由：`owner` 最先判断
-
----
-
-## 施工流程（V1.3 核心）
-
-打拆 → 水电 → 油工 → 主材安装 → 竣工
-
-```
-派单 → 设计师提交整屋设计 → 设计总监审 → 管理员审 → 业主审
-→ 派工(工程师+工程总监) → 5阶段施工 → 每阶段业主验收 → 竣工
-```
-
-- 设计阶段独立于施工；驳回只回退当前阶段
-- 角色分离：设计师≠设计总监，工程师≠工程总监
-
----
-
-## 业务规则
-
-- 订单号 10 位 = YYYYMMDD(6) + property_code(2) + daily_sequence(2)
-- 手机号脱敏：中间 4 位 `****`；价格快照下单时存储
-- 选材订单：pending → approved → completed / rejected
-- 图片库命名：`设计师-作品名字-日期.扩展名`
-
----
-
 ## 1. Think Before Coding
 
 **Don't assume. Don't hide confusion. Surface tradeoffs.**
@@ -126,7 +78,3 @@ For multi-step tasks, state a brief plan:
 ```
 
 Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
-
----
-
-**These guidelines are working if:** fewer unnecessary changes in diffs, fewer rewrites due to overcomplication, and clarifying questions come before implementation rather than after mistakes.

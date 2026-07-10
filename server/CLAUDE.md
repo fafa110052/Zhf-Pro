@@ -102,3 +102,34 @@ server/src/
 ```bash
 cd server && npm run dev   # nodemon 热重载
 ```
+
+## 用户体系（两个独立维度）
+
+| 维度 | 字段 | 取值 |
+|------|------|------|
+| **角色** | `role` | `admin` / `designer`(员工) / `owner`(业主) / `guest`(游客) |
+| **人员类型** | `personnel_type` | `designer` / `design_director` / `engineer` / `engineering_director` |
+
+- `app.isDesigner()` = `role === 'designer'` → **所有员工**
+- `app.isDesignerPersonnel()` = `personnel_type === 'designer'` → 仅设计师岗位
+- `app.isOwner()` = `role === 'owner'` → 业主
+- 登录路由：`owner` 最先判断
+
+## 施工流程（V1.3 核心）
+
+打拆 → 水电 → 油工 → 主材安装 → 竣工
+
+```
+派单 → 设计师提交整屋设计 → 设计总监审 → 管理员审 → 业主审
+→ 派工(工程师+工程总监) → 5阶段施工 → 每阶段业主验收 → 竣工
+```
+
+- 设计阶段独立于施工；驳回只回退当前阶段
+- 角色分离：设计师≠设计总监，工程师≠工程总监
+
+## 关键业务规则
+
+- 订单号 10 位 = YYYYMMDD(6) + property_code(2) + daily_sequence(2)
+- 手机号脱敏：中间 4 位 `****`；价格快照下单时存储
+- 选材订单：pending → approved → completed / rejected
+- 图片库命名：`设计师-作品名字-日期.扩展名`
