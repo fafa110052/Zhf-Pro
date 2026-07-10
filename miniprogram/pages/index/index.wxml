@@ -76,7 +76,7 @@
       </view>
     </scroll-view>
 
-    <view class="team-stats"
+    <view class="team-stats">
       <text class="team-stat"><text class="team-stat-num">500+</text> 服务家庭</text>
       <text class="team-stat-dot">·</text>
       <text class="team-stat"><text class="team-stat-num">1200+</text> 设计作品</text>

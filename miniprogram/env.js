@@ -8,5 +8,5 @@
  * 生产环境：https://wzzhfservice.cloud
  */
 module.exports = {
-  BASE_URL: 'https://wzzhfservice.cloud',
+  BASE_URL: 'http://test.wzzhfservice.cloud',
 };
