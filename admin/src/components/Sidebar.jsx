@@ -68,7 +68,7 @@ const MENU_GROUPS = [
   },
 ];
 
-// 各菜单项图标（按 path 索引，避免重复定义 SVG）
+// 各菜单项图标（按 path 索引）
 const ITEM_ICONS = {
   '/works': (
     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -154,10 +154,13 @@ const ITEM_ICONS = {
 };
 
 /**
- * 左侧垂直导航栏 — 折叠分组版
- * - 桌面端：可折叠（收起后仅显示图标）
- * - 移动端：默认隐藏，通过 HeaderBar 的汉堡按钮打开
- * - 菜单按业务模块分组，组可折叠/展开
+ * 左侧垂直导航栏 — 分组卡片版
+ *
+ * 设计系统：Data-Dense Dashboard + Dark Mode
+ * - 深色侧边栏（slate-900），分组采用微凸起容器
+ * - 激活分组：左侧 accent 色条 + 背景高亮
+ * - 间距：8px 节奏（组间 8px，组内子项 2px）
+ * - 动画：200ms ease-in-out
  */
 export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }) {
   const location = useLocation();
@@ -183,7 +186,7 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
   const isGroupActive = (group) => group.items.some((item) => isItemActive(item.path));
 
   /** 渲染菜单项 */
-  const renderItem = (item, indent = true) => {
+  const renderItem = (item, { indent = true, compact = false } = {}) => {
     const active = isItemActive(item.path);
     return (
       <NavLink
@@ -191,20 +194,27 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
         to={item.path}
         onClick={onMobileClose}
         className={`
-          flex items-center h-9 rounded-lg transition-all duration-200 group
-          ${collapsed ? 'lg:justify-center lg:px-0' : indent ? 'pl-9 pr-3' : 'px-3 space-x-3'}
+          flex items-center rounded-lg transition-all duration-200 group
+          ${compact
+            ? 'justify-center px-0 h-9'
+            : indent
+              ? 'pl-9 pr-2 h-8'
+              : 'px-2.5 space-x-3 h-9'
+          }
           ${active
-            ? 'bg-slate-700 text-white shadow-sm'
-            : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+            ? 'bg-slate-700/80 text-white shadow-sm'
+            : 'text-slate-400 hover:bg-slate-800/60 hover:text-slate-200'
           }
         `}
         title={collapsed ? item.label : undefined}
       >
-        <span className={`shrink-0 ${active ? 'text-blue-400' : 'text-slate-400 group-hover:text-slate-300'}`}>
+        <span className={`shrink-0 transition-colors duration-200 ${
+          active ? 'text-blue-400' : 'text-slate-500 group-hover:text-slate-300'
+        }`}>
           {ITEM_ICONS[item.path]}
         </span>
         <span
-          className={`text-sm font-medium whitespace-nowrap transition-opacity ${
+          className={`text-[13px] font-medium whitespace-nowrap transition-opacity ${
             collapsed ? 'lg:hidden' : ''
           }`}
         >
@@ -219,7 +229,7 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
       {/* ─── 移动端遮罩层 ─── */}
       {mobileOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden backdrop-blur-sm"
           onClick={onMobileClose}
         />
       )}
@@ -236,21 +246,21 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
         `}
       >
         {/* Logo + 折叠按钮 */}
-        <div className="flex items-center h-14 px-4 border-b border-slate-700/60 shrink-0">
+        <div className="flex items-center h-14 px-3 border-b border-white/6 shrink-0">
           <div className={`flex items-center overflow-hidden ${collapsed ? 'lg:hidden' : ''}`}>
-            <img src="/admin/zhfanglogo.png" alt="住好房" className="w-7 h-7 rounded-lg mr-2 shrink-0" />
-            <h1 className="text-base font-bold whitespace-nowrap tracking-wide">
+            <img src="/admin/zhfanglogo.png" alt="住好房" className="w-7 h-7 rounded-lg shrink-0" />
+            <h1 className="text-[15px] font-bold whitespace-nowrap ml-2.5 tracking-tight">
               住好房
             </h1>
           </div>
           {/* 折叠按钮 — 仅桌面端可见 */}
           <button
             onClick={onToggle}
-            className="hidden lg:flex items-center justify-center w-8 h-8 ml-auto rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors shrink-0"
+            className="hidden lg:flex items-center justify-center w-7 h-7 ml-auto rounded-lg text-slate-500 hover:text-slate-200 hover:bg-slate-800 transition-colors shrink-0"
             title={collapsed ? '展开菜单' : '收起菜单'}
           >
             <svg
-              className={`w-4 h-4 transition-transform duration-300 ${collapsed ? 'rotate-180' : ''}`}
+              className={`w-3.5 h-3.5 transition-transform duration-300 ${collapsed ? 'rotate-180' : ''}`}
               fill="none" stroke="currentColor" viewBox="0 0 24 24"
             >
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -268,83 +278,111 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
         </div>
 
         {/* 菜单列表 */}
-        <nav className="flex-1 py-3 px-2 overflow-y-auto space-y-0.5">
+        <nav className="flex-1 py-3 px-2.5 overflow-y-auto">
           {/* ── 仪表盘（独立，不分组）── */}
           <div className={collapsed ? 'lg:flex lg:justify-center' : ''}>
-            {renderItem({ path: '/dashboard', label: '仪表盘' }, false)}
+            {renderItem(
+              { path: '/dashboard', label: '仪表盘' },
+              { indent: false, compact: collapsed }
+            )}
           </div>
 
           {/* ── 分隔线 ── */}
-          <div className={`my-2 border-t border-slate-700/40 ${collapsed ? 'lg:mx-1' : 'mx-2'}`} />
+          <div className="my-3 mx-1 border-t border-white/6" />
 
           {/* ── 分组菜单 ── */}
-          {MENU_GROUPS.map((group) => {
-            const isOpen = expanded[group.key];
-            const active = isGroupActive(group);
+          <div className="space-y-2">
+            {MENU_GROUPS.map((group) => {
+              const isOpen = expanded[group.key];
+              const active = isGroupActive(group);
 
-            return (
-              <div key={group.key}>
-                {/* 分组标题 — 可点击折叠 */}
-                <button
-                  onClick={() => toggleGroup(group.key)}
+              return (
+                <div
+                  key={group.key}
                   className={`
-                    w-full flex items-center h-9 rounded-lg transition-all duration-200
-                    ${collapsed ? 'lg:justify-center lg:px-0' : 'px-2'}
-                    ${active
-                      ? 'text-slate-200'
-                      : 'text-slate-500 hover:text-slate-300 hover:bg-slate-800/50'
+                    rounded-xl transition-all duration-200 relative
+                    ${active && !collapsed
+                      ? 'bg-white/5 ring-1 ring-white/6 border-l-2 border-l-blue-400'
+                      : 'bg-transparent hover:bg-white/2'
                     }
+                    ${collapsed ? 'lg:bg-transparent lg:ring-0 lg:border-l-0' : ''}
                   `}
-                  title={collapsed ? group.label : undefined}
                 >
-                  <span className={`shrink-0 ${active ? 'text-blue-400' : ''}`}>
-                    {group.icon}
-                  </span>
-                  <span
-                    className={`flex-1 text-left ml-2 text-xs font-semibold uppercase tracking-wider whitespace-nowrap ${
+                  {/* 分组标题 */}
+                  <button
+                    onClick={() => toggleGroup(group.key)}
+                    className={`
+                      w-full flex items-center rounded-xl transition-all duration-200
+                      ${collapsed ? 'lg:justify-center lg:px-0 lg:h-9 lg:relative' : 'px-2.5 h-9'}
+                      ${active && !collapsed
+                        ? 'text-slate-100'
+                        : 'text-slate-500 hover:text-slate-300'
+                      }
+                    `}
+                    title={collapsed ? group.label : undefined}
+                  >
+                    <span className={`shrink-0 transition-colors duration-200 ${
+                      active ? 'text-blue-400' : ''
+                    }`}>
+                      {group.icon}
+                    </span>
+                    <span className={`flex-1 text-left ml-2.5 text-xs font-medium whitespace-nowrap ${
                       collapsed ? 'lg:hidden' : ''
+                    }`}>
+                      {group.label}
+                    </span>
+                    {/* 折叠箭头 */}
+                    {!collapsed && (
+                      <svg
+                        className={`w-3 h-3 shrink-0 transition-transform duration-200 ${
+                          isOpen ? 'rotate-90' : ''
+                        } ${active ? 'text-slate-300' : 'text-slate-600'}`}
+                        fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    )}
+                    {/* 折叠态：激活分组用小圆点提示 */}
+                    {collapsed && active && (
+                      <span className="absolute right-0.5 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-blue-400 lg:block hidden" />
+                    )}
+                  </button>
+
+                  {/* 分组子项 */}
+                  <div
+                    className={`space-y-0.5 overflow-hidden transition-all duration-200 ease-in-out ${
+                      collapsed
+                        ? 'lg:block'
+                        : isOpen
+                          ? 'max-h-64 opacity-100 pb-1.5 px-1.5'
+                          : 'max-h-0 opacity-0'
                     }`}
                   >
-                    {group.label}
-                  </span>
-                  {/* 折叠箭头 */}
-                  {!collapsed && (
-                    <svg
-                      className={`w-3 h-3 shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-90' : ''}`}
-                      fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  )}
-                </button>
-
-                {/* 分组子项 */}
-                <div
-                  className={`space-y-0.5 overflow-hidden transition-all duration-200 ${
-                    collapsed ? 'lg:block' : isOpen ? 'mt-0.5' : 'h-0 opacity-0'
-                  }`}
-                >
-                  {group.items.map((item) => renderItem(item))}
+                    {group.items.map((item) => renderItem(item, { compact: collapsed }))}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
 
           {/* ── 分隔线 ── */}
-          <div className={`my-2 border-t border-slate-700/40 ${collapsed ? 'lg:mx-1' : 'mx-2'}`} />
+          <div className="my-3 mx-1 border-t border-white/6" />
 
           {/* ── 系统设置（独立，最后）── */}
           <div className={collapsed ? 'lg:flex lg:justify-center' : ''}>
-            {renderItem({ path: '/settings', label: '系统设置' }, false)}
+            {renderItem(
+              { path: '/settings', label: '系统设置' },
+              { indent: false, compact: collapsed }
+            )}
           </div>
         </nav>
 
         {/* 底部版本号 */}
-        <div className={`px-4 py-3 border-t border-slate-700/60 text-xs text-slate-500 ${collapsed ? 'lg:text-center' : ''}`}>
+        <div className={`px-4 py-3 border-t border-white/6 text-xs text-slate-600 ${collapsed ? 'lg:text-center' : ''}`}>
           {collapsed ? (
             <span className="hidden lg:inline" title="住好房 v1.1">🏠</span>
           ) : (
-            <div>住好房 v1.1</div>
+            <span>住好房 v1.1</span>
           )}
         </div>
       </aside>

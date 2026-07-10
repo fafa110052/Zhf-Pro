@@ -32,7 +32,9 @@ export default function Settings() {
 
   // ─── 数据 ───
   const [banners, setBanners] = useState([]);
-  const [hotWorks, setHotWorks] = useState([]);
+  const [hotWorks, setHotWorks] = useState([]);           // 旧：homepage_config hot_works（保留兼容）
+  const [hotWorksList, setHotWorksList] = useState([]);   // 新：is_hot 标记的作品
+  const [hotWorksLoading, setHotWorksLoading] = useState(true);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -110,6 +112,31 @@ export default function Settings() {
   }, []);
 
   useEffect(() => { fetchSettings(); }, [fetchSettings]);
+  useEffect(() => { fetchHotWorks(); }, []);
+
+  // ─── 加载热门作品（is_hot 标记，与作品管理同步）───
+  const fetchHotWorks = useCallback(async () => {
+    setHotWorksLoading(true);
+    try {
+      const res = await client.get('/admin/hot-works');
+      setHotWorksList(res.data || []);
+    } catch {
+      // silent
+    } finally {
+      setHotWorksLoading(false);
+    }
+  }, []);
+
+  // ─── 取消热门 ───
+  const handleToggleHot = async (workId) => {
+    try {
+      await client.patch(`/admin/works/${workId}/hot`);
+      toast.success('已取消热门');
+      fetchHotWorks();
+    } catch (err) {
+      toast.error(err.message || '操作失败');
+    }
+  };
 
   // ─── 加载设计团队 ───
   const fetchDesignTeam = useCallback(async () => {
@@ -578,60 +605,63 @@ export default function Settings() {
       </div>
 
       {/* ════════════════════════════════════ */}
-      {/* 热门推荐配置 */}
+      {/* 正在上热门 — 与作品管理同步（is_hot 标记）*/}
       {/* ════════════════════════════════════ */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h3 className="text-base font-semibold text-gray-800">热门推荐</h3>
-            <p className="text-sm text-gray-500 mt-0.5">手动精选作品展示在小程序首页热门区域</p>
+            <p className="text-sm text-gray-500 mt-0.5">在「作品管理」中设置热门，此处同步展示</p>
           </div>
-          <button onClick={() => openAddForm('hot_works')}
-            className="inline-flex items-center px-3 py-1.5 text-sm bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-colors">
-            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            新增
-          </button>
         </div>
 
-        {hotWorks.length === 0 ? (
+        {hotWorksLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <div className="w-6 h-6 border-2 border-gray-200 border-t-slate-600 rounded-full animate-spin" />
+          </div>
+        ) : hotWorksList.length === 0 ? (
           <div className="border-2 border-dashed border-gray-200 rounded-lg">
-            <EmptyState icon="🔥" title="暂无热门推荐配置" size="sm"
-              action={<button onClick={() => openAddForm('hot_works')} className="text-sm text-blue-600 hover:underline">添加推荐分组</button>} />
+            <EmptyState icon="🔥" title="暂无热门作品" size="sm"
+              description="前往作品管理，将优质作品设为热门" />
           </div>
         ) : (
-          <div className="space-y-3">
-            {hotWorks.map((item, idx) => {
-              const v = item._parsed || {};
-              const count = (v.work_ids || []).length;
-              return (
-                <div key={item.id} className="flex items-center gap-4 p-3 bg-gray-50 rounded-xl border border-gray-100 hover:border-gray-200 transition-colors">
-                  <span className="w-7 h-7 rounded-full bg-orange-200 text-orange-700 text-xs font-medium flex items-center justify-center shrink-0">
-                    {idx + 1}
-                  </span>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-800">{v.title || '未命名推荐分组'}</p>
-                    <p className="text-xs text-gray-400 mt-0.5">包含 {count} 个作品 · 排序: {item.sort_order}</p>
-                    {/* 作品ID标签 */}
-                    <div className="flex flex-wrap gap-1 mt-1.5">
-                      {(v.work_ids || []).slice(0, 8).map((wid) => (
-                        <span key={wid} className="px-1.5 py-0.5 bg-white border border-gray-200 rounded text-[10px] text-gray-500">
-                          #{wid}
-                        </span>
-                      ))}
-                      {count > 8 && <span className="text-[10px] text-gray-400">等 {count} 个</span>}
+          <div className="space-y-2">
+            {hotWorksList.map((work, idx) => (
+              <div key={work.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-100 hover:border-gray-200 transition-colors">
+                <span className="w-6 h-6 rounded-full bg-orange-200 text-orange-700 text-xs font-medium flex items-center justify-center shrink-0">
+                  {idx + 1}
+                </span>
+                {/* 封面缩略图 */}
+                <div className="w-14 h-10 rounded-lg overflow-hidden bg-gray-200 shrink-0 border border-gray-100">
+                  {(work.cover_image) ? (
+                    <img
+                      src={work.cover_image}
+                      alt={work.title}
+                      className="w-full h-full object-cover"
+                      onError={(e) => { e.target.style.display = 'none'; }}
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-gray-400">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-1 shrink-0">
-                    <button onClick={() => openEditForm('hot_works', item)}
-                      className="px-2.5 py-1 text-xs text-blue-600 hover:bg-blue-50 rounded transition-colors">编辑</button>
-                    <button onClick={() => setDeleteTarget(item)}
-                      className="px-2.5 py-1 text-xs text-red-500 hover:bg-red-50 rounded transition-colors">删除</button>
-                  </div>
+                  )}
                 </div>
-              );
-            })}
+                {/* 作品信息 */}
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-gray-800 truncate">{work.title}</p>
+                  <p className="text-xs text-gray-400 mt-0.5">{work.designer_name || '未知设计师'} · {work.view_count || 0} 次浏览</p>
+                </div>
+                {/* 取消热门 */}
+                <button
+                  onClick={() => handleToggleHot(work.id)}
+                  className="px-2.5 py-1 text-xs text-red-500 hover:bg-red-50 rounded transition-colors shrink-0"
+                >
+                  取消热门
+                </button>
+              </div>
+            ))}
           </div>
         )}
       </div>

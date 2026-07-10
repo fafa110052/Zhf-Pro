@@ -4,6 +4,43 @@ const db = require('../db/connection');
 const ALLOWED_TYPES = ['banner', 'hot_works'];
 
 /**
+ * 解析 hot_works 配置中的 work_ids → 实际作品信息
+ * 将作品详情附加到每个配置项的 _works 字段
+ */
+async function resolveWorkDetails(hotWorksList) {
+  // 收集所有 work_ids
+  const allIds = new Set();
+  for (const item of hotWorksList) {
+    const cv = item.config_value || {};
+    if (Array.isArray(cv.work_ids)) {
+      cv.work_ids.forEach((id) => allIds.add(id));
+    }
+  }
+
+  if (allIds.size === 0) return;
+
+  // 批量查询作品信息
+  const works = await db('cases')
+    .whereIn('id', Array.from(allIds))
+    .select('id', 'title', 'cover_image', 'cover_thumb');
+
+  // 建立 ID → 作品 映射
+  const workMap = {};
+  for (const w of works) {
+    workMap[w.id] = w;
+  }
+
+  // 附加到每个配置项
+  for (const item of hotWorksList) {
+    const cv = item.config_value || {};
+    const ids = Array.isArray(cv.work_ids) ? cv.work_ids : [];
+    item._works = ids.map((wid) =>
+      workMap[wid] || { id: wid, title: '(作品已删除)', cover_image: null, cover_thumb: null }
+    );
+  }
+}
+
+/**
  * 系统设置业务逻辑（B端管理后台）
  * 基于 homepage_config 表，存储 banner 和 hot_works 配置
  */
@@ -42,7 +79,16 @@ const settingsService = {
         if (!grouped[item.config_type]) grouped[item.config_type] = [];
         grouped[item.config_type].push(item);
       }
+      // 解析 hot_works 的作品信息
+      if (grouped.hot_works) {
+        await resolveWorkDetails(grouped.hot_works);
+      }
       return grouped;
+    }
+
+    // 解析 hot_works 的作品信息
+    if (type === 'hot_works') {
+      await resolveWorkDetails(list);
     }
 
     return list;

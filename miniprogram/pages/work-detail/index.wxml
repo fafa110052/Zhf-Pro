@@ -37,13 +37,31 @@
         bindchange="onSwiperChange"
       >
         <swiper-item wx:for="{{images}}" wx:key="id">
-          <image
-            class="swiper-image"
-            src="{{item.image_url}}"
-            mode="aspectFill"
-            lazy-load
-            bindtap="onPreviewImage"
-          />
+          <view class="swiper-image-wrap">
+            <!-- 图片 -->
+            <image
+              class="swiper-image"
+              src="{{item.image_url}}"
+              mode="aspectFill"
+              lazy-load
+              data-id="{{item.id}}"
+              bindload="onImageLoad"
+              binderror="onImageError"
+              bindtap="onPreviewImage"
+            />
+            <!-- 加载进度指示器 -->
+            <view wx:if="{{imageLoadState[item.id] === 'loading'}}" class="image-loading-overlay">
+              <view class="image-loading-bar">
+                <view class="image-loading-bar-track"></view>
+              </view>
+              <text class="image-loading-text">加载中...</text>
+            </view>
+            <!-- 加载失败占位 -->
+            <view wx:if="{{imageLoadState[item.id] === 'error'}}" class="image-error-overlay">
+              <text class="image-error-icon">🖼️</text>
+              <text class="image-error-text">图片加载失败</text>
+            </view>
+          </view>
         </swiper-item>
       </swiper>
 
@@ -57,11 +75,6 @@
           src="{{work.cover_image}}"
           mode="aspectFill"
         />
-      </view>
-
-      <!-- 返回按钮 -->
-      <view class="back-btn" bindtap="onBack">
-        <text class="back-icon">‹</text>
       </view>
 
       <!-- 图片计数器 -->

@@ -25,6 +25,9 @@ Page({
     loading: true,
     error: false,
     ready: false,    // 页面过渡完成后再显示内容
+
+    // 图片加载状态：loading | loaded | error
+    imageLoadState: {},
   },
 
   onLoad(options) {
@@ -70,6 +73,12 @@ Page({
         };
       });
 
+      // 初始化图片加载状态（全部标记为 loading）
+      var imageLoadState = {};
+      images.forEach(function (img) {
+        imageLoadState[img.id] = 'loading';
+      });
+
       // 设计师数据从展平的工作对象中提取
       var designer = {
         id: work.designer_id,
@@ -98,6 +107,7 @@ Page({
         },
         images: images,
         designer: designer,
+        imageLoadState: imageLoadState,
         loading: false,
       };
 
@@ -144,6 +154,18 @@ Page({
     this.setData({ currentSwiper: e.detail.current });
   },
 
+  /** 图片加载完成 */
+  onImageLoad(e) {
+    var id = e.currentTarget.dataset.id;
+    this.setData({ ['imageLoadState.' + id]: 'loaded' });
+  },
+
+  /** 图片加载失败 */
+  onImageError(e) {
+    var id = e.currentTarget.dataset.id;
+    this.setData({ ['imageLoadState.' + id]: 'error' });
+  },
+
   // ═══════════════════════════════════════════
   // 点击图片 → 全屏双指缩放预览
   // ═══════════════════════════════════════════
@@ -158,14 +180,6 @@ Page({
       urls: urls,
       current: urls[this.data.currentSwiper] || urls[0],
     });
-  },
-
-  // ═══════════════════════════════════════════
-  // 返回上一页
-  // ═══════════════════════════════════════════
-
-  onBack() {
-    wx.navigateBack();
   },
 
   // ═══════════════════════════════════════════

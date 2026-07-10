@@ -19,7 +19,7 @@ Page({
 
     // 核心优势（2×2 图文网格）
     advantages: [
-      { icon: '🏗️', label: '自有施工队', desc: '自营团队不转包' },
+      { icon: '🏗️', label: '匠心工艺', desc: '精工细作品质保障' },
       { icon: '🌿', label: '环保材料', desc: '品牌主材直供' },
       { icon: '💡', label: '透明报价', desc: '预算清晰无增项' },
       { icon: '👤', label: '一对一服务', desc: '专属设计师全程跟进' },

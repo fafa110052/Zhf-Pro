@@ -705,6 +705,22 @@ const caseService = {
     return db('cases').where('id', workId).select('id', 'title', 'is_hot').first();
   },
 
+  /** 管理端 — 获取所有热门作品（is_hot = 1） */
+  async listHot() {
+    const list = await db('cases')
+      .join('designers', 'cases.designer_id', 'designers.id')
+      .where('cases.review_status', 'approved')
+      .where('cases.is_hot', 1)
+      .select(
+        'cases.id', 'cases.title', 'cases.cover_image',
+        'cases.view_count', 'cases.created_at',
+        'designers.name as designer_name'
+      )
+      .orderBy('cases.updated_at', 'desc');
+
+    return list;
+  },
+
   /** 设置作品封面图（从已关联图片中选取） */
   async setCoverImage(workId, imageUrl) {
     const work = await db('cases').where('id', workId).first();

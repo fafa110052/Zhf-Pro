@@ -291,6 +291,19 @@ router.patch('/admin/works/:id/cover', authenticate, requireRole('admin'), async
 });
 
 /**
+ * GET /api/v1/admin/hot-works
+ * 获取所有热门作品（管理端，含作品详情）
+ */
+router.get('/admin/hot-works', authenticate, requireRole('admin'), async (req, res, next) => {
+  try {
+    const list = await caseService.listHot();
+    res.json({ success: true, data: list });
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
  * PATCH /api/v1/admin/works/:id/hot
  * 切换热门标记（仅 approved 作品）
  */
