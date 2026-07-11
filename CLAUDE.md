@@ -22,6 +22,13 @@
 
 用户是不懂技术的业务老板，以产品经理视角理解需求。如有更优方案主动提出并解释利弊。**每个改动都要能解释业务价值。**
 
+## 安全红线（硬性要求）
+
+**绝不把密钥/令牌提交到 git。** 微信 AppSecret、JWT_SECRET、GitHub token、SSH/SSL key 等一律不进版本库：
+- 真实密钥只存在于服务器与本地的 `.env`（已 gitignore）；`.env.example` 只放占位符。
+- 每次 `git add` 前扫描改动，确认不含真实密钥；git 远程地址不得内嵌 token。
+- 密钥更新走服务器 `.env` + 重启，不经 git（见 [PROJECT_MAP](PROJECT_MAP.md) 「密钥同步」）。
+
 ---
 ## 1. Think Before Coding
 

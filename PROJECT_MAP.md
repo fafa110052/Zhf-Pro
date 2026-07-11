@@ -22,6 +22,15 @@
 - **Admin/H5**：相对路径 `/api/v1`，不依赖环境配置
 - **部署**：`./deploy.sh` = test，`./deploy.sh prod` = prod
 
+## 密钥同步（不经 git）
+
+密钥（`WECHAT_SECRET` / `JWT_SECRET` 等）**只存在于 `.env`，已 gitignore，不提交、不随部署覆盖**。
+
+- git 只同步代码；`.env.example` 仅是变量清单模板（占位值）。
+- 服务器 `.env` 手动放置一次：`server/.env`（生产 `/root/Zhf-Pro/server/.env`，测试 `/root/Zhf-Pro-test/server/.env`）。
+- 更新某个密钥：SSH 登录服务器 → 编辑该 `.env` → `pm2 restart zhf-server`（测试用 `zhf-server-test`）。
+- `git pull` / `deploy.sh` 不会碰 `.env`（它被 gitignore），所以部署不会覆盖服务器密钥。
+
 ## 用户体系（两维度）
 
 | 维度 | 字段 | 取值 |
