@@ -1,6 +1,6 @@
 <!-- 空状态占位 -->
 <view class="empty-wrap">
-  <text class="empty-icon">{{icon}}</text>
+  <text class="empty-icon zhficon">{{IC[icon]}}</text>
   <text class="empty-title">{{title}}</text>
   <text wx:if="{{desc}}" class="empty-desc">{{desc}}</text>
   <button

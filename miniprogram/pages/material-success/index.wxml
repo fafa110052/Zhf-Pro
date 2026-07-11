@@ -3,7 +3,7 @@
   <view class="result-card">
     <!-- 成功图标 -->
     <view class="result-icon-wrap">
-      <text class="result-icon">🎉</text>
+      <text class="result-icon zhficon"></text>
     </view>
 
     <text class="result-title">提交成功</text>
@@ -18,7 +18,7 @@
       <view class="order-row">
         <text class="order-label">当前状态</text>
         <view class="status-tag tag-yellow">
-          <text>⏳ 待审核</text>
+          <text><text class="zhficon"></text> 待审核</text>
         </view>
       </view>
     </view>

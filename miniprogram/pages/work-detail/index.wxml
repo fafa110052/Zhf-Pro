@@ -12,7 +12,7 @@
   <!-- ═══ Error ═══ -->
   <empty-state
     wx:elif="{{error}}"
-    icon="⚠️"
+    icon="alert"
     title="加载失败"
     desc="请检查网络后重试"
     showAction="{{true}}"
@@ -58,7 +58,7 @@
             </view>
             <!-- 加载失败占位 -->
             <view wx:if="{{imageLoadState[item.id] === 'error'}}" class="image-error-overlay">
-              <text class="image-error-icon">🖼️</text>
+              <text class="image-error-icon zhficon"></text>
               <text class="image-error-text">图片加载失败</text>
             </view>
           </view>
@@ -67,7 +67,7 @@
 
       <!-- 无图片占位 -->
       <view wx:else class="no-image">
-        <text class="no-image-icon">🖼️</text>
+        <text class="no-image-icon zhficon"></text>
         <text class="no-image-text">暂无图片</text>
         <image
           wx:if="{{work.cover_image}}"
@@ -84,7 +84,7 @@
 
       <!-- 点击提示 -->
       <view wx:if="{{images.length > 0}}" class="preview-hint" bindtap="onPreviewImage">
-        <text class="preview-hint-text">🔍 点击查看大图</text>
+        <text class="preview-hint-text"><text class="zhficon"></text> 点击查看大图</text>
       </view>
     </view>
 
@@ -138,7 +138,7 @@
             src="{{designer.avatar_url}}"
             mode="aspectFill"
           />
-          <text wx:else class="avatar-placeholder">👤</text>
+          <text wx:else class="avatar-placeholder zhficon"></text>
         </view>
         <view class="designer-body">
           <text class="designer-name">{{designer.name}}</text>
@@ -150,8 +150,63 @@
       <text wx:if="{{designer.bio}}" class="designer-bio">{{designer.bio}}</text>
     </view>
 
+    <!-- ─── 举报入口 ─── -->
+    <view class="report-entry" bindtap="onOpenReport">
+      <text class="report-entry-text">举报该作品</text>
+    </view>
+
     <!-- 底部安全区 -->
     <view class="safe-bottom"></view>
 
   </block>
+</view>
+
+<!-- ═══ 举报弹窗 ═══ -->
+<view wx:if="{{showReport}}" class="report-wrapper">
+  <view class="report-overlay" catchtap="onCloseReport" catchtouchmove="onCloseReport"></view>
+  <view class="report-modal">
+    <text class="report-modal-title">举报作品</text>
+    <text class="report-modal-sub">请选择举报原因，我们会尽快核实处理</text>
+
+    <!-- 理由单选 -->
+    <view class="report-reasons">
+      <view
+        wx:for="{{reportReasons}}"
+        wx:key="value"
+        class="report-reason {{reportForm.reason_type === item.value ? 'active' : ''}}"
+        data-value="{{item.value}}"
+        bindtap="onSelectReason"
+      >
+        <view class="report-radio {{reportForm.reason_type === item.value ? 'checked' : ''}}"></view>
+        <text class="report-reason-text">{{item.label}}</text>
+      </view>
+    </view>
+
+    <!-- 其他说明 -->
+    <textarea
+      wx:if="{{reportForm.reason_type === 'other'}}"
+      class="report-textarea"
+      placeholder="请填写举报原因"
+      value="{{reportForm.reason_detail}}"
+      bindinput="onReportDetailInput"
+      maxlength="200"
+    />
+
+    <!-- 联系方式（选填） -->
+    <input
+      class="report-input"
+      placeholder="联系方式（选填，方便回访）"
+      value="{{reportForm.contact}}"
+      bindinput="onReportContactInput"
+      maxlength="64"
+    />
+
+    <!-- 提交 -->
+    <view class="report-btn {{reportForm.reason_type ? '' : 'disabled'}}" bindtap="onSubmitReport">
+      <text class="report-btn-text">{{reportSubmitting ? '提交中...' : '提交举报'}}</text>
+    </view>
+    <view class="report-cancel" bindtap="onCloseReport">
+      <text class="report-cancel-text">取消</text>
+    </view>
+  </view>
 </view>

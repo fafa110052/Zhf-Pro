@@ -217,8 +217,8 @@
 
 .modal-btn {
   flex: 1;
-  height: 80rpx;
-  border-radius: 40rpx;
+  height: 88rpx;
+  border-radius: 44rpx;
   display: flex;
   align-items: center;
   justify-content: center;

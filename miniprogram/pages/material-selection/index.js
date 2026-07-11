@@ -6,6 +6,7 @@
  *   - onReady 回调后再渲染内容，消除 TabBar 消失产生的视觉跳变
  */
 const api = require('../../utils/api');
+const util = require('../../utils/util');
 
 Page({
   data: {
@@ -53,13 +54,13 @@ Page({
         category_id: cat.category_id,
         category_name: cat.category_name,
         expanded: true,
-        materials: cat.materials.map((m) => ({ ...m, selected: false, in_stock: m.in_stock !== undefined ? m.in_stock : true, quantity: m.quantity ?? 0 })),
+        materials: cat.materials.map((m) => ({ ...m, image_url: util.fullImageUrl(m.image_url), selected: false, in_stock: m.in_stock !== undefined ? m.in_stock : true, quantity: m.quantity ?? 0 })),
       }));
       this.restoreSelection(categories);
 
       const pageData = {
         categories,
-        propertyCover: result.property_cover || '',
+        propertyCover: util.fullImageUrl(result.property_cover),
         loading: false,
       };
 

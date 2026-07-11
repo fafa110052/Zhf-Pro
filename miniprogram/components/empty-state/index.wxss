@@ -31,13 +31,18 @@
 }
 
 .empty-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 88rpx;
+  box-sizing: border-box;
   margin-top: 32rpx;
   padding: 16rpx 48rpx;
   font-size: 26rpx;
   color: var(--color-accent);
   background: var(--color-accent-light);
   border: none;
-  border-radius: 40rpx;
+  border-radius: 44rpx;
   line-height: 1.4;
 }
 

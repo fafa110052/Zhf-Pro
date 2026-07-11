@@ -20,7 +20,7 @@
       <!-- 搜索栏 -->
       <view class="search-bar">
         <view class="search-box">
-          <text class="search-icon">🔍</text>
+          <text class="search-icon zhficon"></text>
           <input
             class="search-input"
             placeholder="搜索楼盘名称"

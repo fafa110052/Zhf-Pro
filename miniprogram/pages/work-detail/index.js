@@ -28,6 +28,21 @@ Page({
 
     // 图片加载状态：loading | loaded | error
     imageLoadState: {},
+
+    // 举报弹窗
+    showReport: false,
+    reportSubmitting: false,
+    reportReasons: [
+      { value: 'fake', label: '虚假信息/夸大宣传' },
+      { value: 'infringe', label: '侵权/盗用他人作品' },
+      { value: 'vulgar', label: '低俗/不良内容' },
+      { value: 'other', label: '其他' },
+    ],
+    reportForm: {
+      reason_type: '',
+      reason_detail: '',
+      contact: '',
+    },
   },
 
   onLoad(options) {
@@ -193,6 +208,63 @@ Page({
       path: '/pages/work-detail/index?id=' + this.data.workId,
       imageUrl: work.cover_image || '',
     };
+  },
+
+  // ═══════════════════════════════════════════
+  // 举报
+  // ═══════════════════════════════════════════
+
+  onOpenReport() {
+    this.setData({
+      showReport: true,
+      reportForm: { reason_type: '', reason_detail: '', contact: '' },
+    });
+  },
+
+  onCloseReport() {
+    if (this.data.reportSubmitting) return;
+    this.setData({ showReport: false });
+  },
+
+  onSelectReason(e) {
+    var value = e.currentTarget.dataset.value;
+    this.setData({ 'reportForm.reason_type': value });
+  },
+
+  onReportDetailInput(e) {
+    this.setData({ 'reportForm.reason_detail': e.detail.value });
+  },
+
+  onReportContactInput(e) {
+    this.setData({ 'reportForm.contact': e.detail.value });
+  },
+
+  async onSubmitReport() {
+    var form = this.data.reportForm;
+    if (!form.reason_type) {
+      util.showToast('请选择举报原因', 'none');
+      return;
+    }
+    if (form.reason_type === 'other' && !form.reason_detail.trim()) {
+      util.showToast('请填写举报原因', 'none');
+      return;
+    }
+    if (this.data.reportSubmitting) return;
+
+    this.setData({ reportSubmitting: true });
+    try {
+      await api.submitReport(this.data.workId, {
+        reason_type: form.reason_type,
+        reason_detail: form.reason_detail.trim() || undefined,
+        contact: form.contact.trim() || undefined,
+      });
+      this.setData({ showReport: false, reportSubmitting: false });
+      wx.showToast({ title: '举报已提交，感谢反馈', icon: 'none', duration: 2500 });
+    } catch (err) {
+      console.error('举报提交失败:', err);
+      this.setData({ reportSubmitting: false });
+      wx.showToast({ title: err && err.message ? err.message : '提交失败，请重试', icon: 'none', duration: 2500 });
+    }
   },
 
   // ═══════════════════════════════════════════

@@ -1046,25 +1046,29 @@ export default function MaterialOrderDetail() {
             {detail?.construction?.phases?.find(p => p.id === reviewPhaseId) && (() => {
               const ph = detail.construction.phases.find(p => p.id === reviewPhaseId);
               const imgs = reviewType === 'design' ? ph.design_images : ph.construction_images;
-              return imgs?.length > 0 ? (
-                <div>
-                  <p className="text-sm text-slate-600 mb-2">共 {imgs.length} 张</p>
-                  <div className="flex flex-wrap gap-2">
-                    {imgs.map((url, j) => (
-                      <img key={j} src={url} className="w-24 h-24 object-cover rounded-lg border border-slate-200 cursor-pointer hover:opacity-80"
-                        onClick={() => setLightboxUrl(url)} onError={(e) => { e.target.style.display = 'none'; }} />
-                    ))}
-                  </div>
-                </div>
-              ) : <p className="text-sm text-slate-500">暂无图片</p>;
+              return (
+                <>
+                  {imgs?.length > 0 ? (
+                    <div>
+                      <p className="text-sm text-slate-600 mb-2">共 {imgs.length} 张</p>
+                      <div className="flex flex-wrap gap-2">
+                        {imgs.map((url, j) => (
+                          <img key={j} src={url} className="w-24 h-24 object-cover rounded-lg border border-slate-200 cursor-pointer hover:opacity-80"
+                            onClick={() => setLightboxUrl(url)} onError={(e) => { e.target.style.display = 'none'; }} />
+                        ))}
+                      </div>
+                    </div>
+                  ) : <p className="text-sm text-slate-500">暂无图片</p>}
+                  {/* 工程总监备注（二审时展示） */}
+                  {reviewType === 'construction' && ph?.engineering_director_remark && (
+                    <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                      <p className="text-xs text-amber-600 font-medium mb-1">工程总监备注</p>
+                      <p className="text-sm text-slate-700">{ph.engineering_director_remark}</p>
+                    </div>
+                  )}
+                </>
+              );
             })()}
-            {/* 工程总监备注（二审时展示） */}
-            {reviewType === 'construction' && ph?.engineering_director_remark && (
-              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
-                <p className="text-xs text-amber-600 font-medium mb-1">工程总监备注</p>
-                <p className="text-sm text-slate-700">{ph.engineering_director_remark}</p>
-              </div>
-            )}
             {reviewAction === 'reject' && (
               <div>
                 <label className="block text-sm font-medium text-slate-800 mb-1">驳回原因 *</label>

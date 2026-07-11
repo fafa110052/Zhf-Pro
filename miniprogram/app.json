@@ -16,6 +16,7 @@
     "pages/work-upload/index",
     "pages/agreement/index",
     "pages/privacy/index",
+    "pages/account-cancel/index",
     "pages/designer-tasks/index",
     "pages/designer-task-detail/index",
     "pages/design-director-reviews/index",
@@ -34,8 +35,8 @@
     "backgroundColor": "#faf8f5"
   },
   "tabBar": {
-    "color": "#b8a99a",
-    "selectedColor": "#c8a96e",
+    "color": "#8b7d6f",
+    "selectedColor": "#3d3226",
     "backgroundColor": "#fffdf9",
     "borderStyle": "white",
     "list": [

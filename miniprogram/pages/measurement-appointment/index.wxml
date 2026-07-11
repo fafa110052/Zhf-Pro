@@ -9,7 +9,7 @@
           <view class="step-num active">1</view>
         </view>
         <view class="step-icon-wrap">
-          <text class="step-icon">📋</text>
+          <text class="step-icon zhficon"></text>
         </view>
         <text class="step-label">在线预约</text>
         <text class="step-desc">填写信息</text>
@@ -19,7 +19,7 @@
           <view class="step-num">2</view>
         </view>
         <view class="step-icon-wrap">
-          <text class="step-icon">📐</text>
+          <text class="step-icon zhficon"></text>
         </view>
         <text class="step-label">上门测量</text>
         <text class="step-desc">专业量房</text>
@@ -29,7 +29,7 @@
           <view class="step-num">3</view>
         </view>
         <view class="step-icon-wrap">
-          <text class="step-icon">📄</text>
+          <text class="step-icon zhficon"></text>
         </view>
         <text class="step-label">出方案报价</text>
         <text class="step-desc">免费设计</text>

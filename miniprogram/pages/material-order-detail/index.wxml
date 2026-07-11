@@ -10,7 +10,7 @@
     </view>
 
     <view wx:elif="{{error}}" class="page-error" bindtap="onRetry">
-      <text class="error-icon">⚠️</text>
+      <text class="error-icon zhficon"></text>
       <text class="error-msg">加载失败</text>
       <text class="error-hint">点击重试</text>
     </view>
@@ -18,9 +18,9 @@
     <block wx:elif="{{detail}}">
       <view class="status-header">
         <view class="status-tag {{ORDER_STATUS_MAP[detail.status].colorClass}}">
-          <text>{{ORDER_STATUS_MAP[detail.status].icon}} {{ORDER_STATUS_MAP[detail.status].label}}</text>
+          <text class="zhficon">{{ORDER_STATUS_MAP[detail.status].icon}}</text><text> {{ORDER_STATUS_MAP[detail.status].label}}</text>
         </view>
-        <text class="order-no" bindtap="onCopyOrderNo">{{detail.order_no}} 📋</text>
+        <text class="order-no" bindtap="onCopyOrderNo">{{detail.order_no}} <text class="zhficon"></text></text>
         <text class="order-time">{{detail.created_at}}</text>
       </view>
 
@@ -60,9 +60,9 @@
         <view wx:if="{{detail.supervisor}}" class="info-row"><text class="info-label">监理</text><text class="info-value">{{detail.supervisor.name}}  {{detail.supervisor.phone}}</text></view>
       </view>
 
-      <!-- 🎨 设计阶段（整屋设计，独立于施工） -->
+      <!-- 设计阶段（整屋设计，独立于施工） -->
       <view wx:if="{{designPhase}}" class="section">
-        <view class="section-title"><text>🎨 设计阶段</text></view>
+        <view class="section-title"><text><text class="zhficon"></text> 设计阶段</text></view>
         <view class="design-status-row">
           <view class="design-status-tag {{designPhase.status === 'design_admin_approved' ? 'tag-blue' : designPhase.status === 'engineer_design_confirmed' ? 'tag-blue' : designPhase.status.includes('rejected') || designPhase.status === 'owner_design_disputed' ? 'tag-red' : designPhase.status === 'owner_design_reviewed' ? 'tag-green' : 'tag-orange'}}">
             <text>{{designPhase.status === 'design_uploaded' ? '待设计总监审核' : designPhase.status === 'design_director_approved' ? '待管理员审核' : designPhase.status === 'design_admin_approved' ? '待业主审核' : designPhase.status === 'design_director_rejected' ? '设计总监已驳回' : designPhase.status === 'design_admin_rejected' ? '管理员已驳回' : designPhase.status === 'owner_design_reviewed' ? '设计已确认' : designPhase.status === 'owner_design_disputed' ? '业主已驳回' : PHASE_STATUS_MAP[designPhase.status].label}}</text>
@@ -88,9 +88,9 @@
         </view>
       </view>
 
-      <!-- 🔨 施工进度（5阶段）— 仅进入施工阶段后显示 -->
+      <!-- 施工进度（5阶段）— 仅进入施工阶段后显示 -->
       <view wx:if="{{showConstruction}}" class="section">
-        <view class="section-title"><text>🔨 施工进度</text></view>
+        <view class="section-title"><text><text class="zhficon"></text> 施工进度</text></view>
         <view class="phase-progress">
           <block wx:for="{{detail.construction.phases}}" wx:key="phase_order">
             <view class="phase-dot {{item.status === 'owner_accepted' ? 'phase-dot-done' : item.phase_order < detail.current_phase_order ? 'phase-dot-done' : item.phase_order === detail.current_phase_order ? 'phase-dot-active' : 'phase-dot-locked'}}">{{item.phase_order}}</view>
@@ -150,7 +150,7 @@
 
       <!-- ✅ 验收（业主） -->
       <view wx:if="{{activePhase && activePhase.status === 'construction_admin_approved'}}" class="section">
-        <view class="section-title"><text>✅ 验收</text></view>
+        <view class="section-title"><text><text class="zhficon"></text> 验收</text></view>
         <view wx:if="{{activePhase.construction_images && activePhase.construction_images.length > 0}}" class="image-grid">
           <view wx:for="{{activePhase.construction_images}}" wx:key="*this" class="image-item">
             <image lazy-load class="image-thumb" src="{{item}}" mode="aspectFill"

@@ -1,0 +1,113 @@
+/* 注销账号页 */
+.cancel-page {
+  height: 100vh;
+  background: var(--bg-page);
+  box-sizing: border-box;
+}
+
+.content {
+  padding: 48rpx 40rpx 60rpx;
+}
+
+.warn-badge {
+  width: 120rpx;
+  height: 120rpx;
+  margin: 20rpx auto 24rpx;
+  border-radius: 50%;
+  background: #fdecec;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.warn-icon {
+  font-size: 60rpx;
+  color: var(--color-danger);
+}
+
+.page-title {
+  text-align: center;
+  font-size: 40rpx;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.page-subtitle {
+  text-align: center;
+  font-size: 26rpx;
+  color: var(--text-tertiary);
+  margin-top: 12rpx;
+}
+
+.card {
+  margin-top: 40rpx;
+  padding: 32rpx;
+  background: var(--bg-card);
+  border: 2rpx solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.card-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 8rpx;
+}
+
+.line {
+  display: flex;
+  align-items: flex-start;
+  margin-top: 18rpx;
+}
+
+.line-dot {
+  width: 10rpx;
+  height: 10rpx;
+  border-radius: 50%;
+  background: var(--color-danger);
+  margin: 14rpx 16rpx 0 0;
+  flex-shrink: 0;
+}
+
+.line-text {
+  flex: 1;
+  font-size: 27rpx;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.hint {
+  margin: 28rpx 4rpx 0;
+  font-size: 24rpx;
+  line-height: 1.6;
+  color: var(--text-tertiary);
+}
+
+.btn-danger {
+  margin-top: 56rpx;
+  background: var(--color-danger);
+  color: #fff;
+  font-size: 32rpx;
+  font-weight: 600;
+  border-radius: 44rpx;
+}
+
+.btn-danger[disabled] {
+  opacity: 0.6;
+}
+
+.btn-danger::after {
+  border: none;
+}
+
+.btn-plain {
+  margin-top: 24rpx;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 30rpx;
+}
+
+.btn-plain::after {
+  border: none;
+}

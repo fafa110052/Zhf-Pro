@@ -15,13 +15,13 @@
           src="{{userInfo.avatar_url}}"
           mode="aspectFill"
         />
-        <text wx:else class="avatar-placeholder">👤</text>
+        <text wx:else class="avatar-placeholder zhficon"></text>
         <view wx:if="{{userInfo.avatar_url}}" class="avatar-hint-badge">
-          <text>🔍</text>
+          <text class="zhficon"></text>
         </view>
         <!-- 头像审核中标记 -->
         <view wx:if="{{userInfo.avatar_review_status === 'pending'}}" class="avatar-pending-badge">
-          <text>⏳</text>
+          <text class="zhficon"></text>
         </view>
       </view>
 
@@ -32,7 +32,7 @@
 
       <!-- 从业年限标签 -->
       <view wx:if="{{userInfo.years_of_exp > 0}}" class="exp-badge">
-        <text>🏗️ 从业 {{userInfo.years_of_exp}} 年</text>
+        <text><text class="zhficon"></text> 从业 {{userInfo.years_of_exp}} 年</text>
       </view>
 
     </view>
@@ -49,12 +49,12 @@
   <!-- ═══ 快捷入口 ═══ -->
   <view class="quick-actions">
     <view class="action-card action-primary" bindtap="onGoUpload">
-      <text class="action-icon">📤</text>
+      <text class="action-icon zhficon"></text>
       <text class="action-label">上传作品</text>
       <text class="action-desc">新的装修案例</text>
     </view>
     <view class="action-card action-secondary" bindtap="onGoWorks">
-      <text class="action-icon">📋</text>
+      <text class="action-icon zhficon"></text>
       <text class="action-label">管理作品</text>
       <text class="action-desc">{{stats.total}} 个作品</text>
     </view>
@@ -64,14 +64,14 @@
   <view wx:if="{{!editing}}" class="info-card card">
     <view class="card-header">
       <text class="card-title">个人信息</text>
-      <text class="edit-btn" bindtap="onEdit">✏️ 编辑</text>
+      <text class="edit-btn" bindtap="onEdit"><text class="zhficon"></text> 编辑</text>
     </view>
 
     <view class="info-list">
       <!-- 姓名 -->
       <view class="info-row">
         <view class="info-label-wrap">
-          <text class="info-icon">👤</text>
+          <text class="info-icon zhficon"></text>
           <text class="info-label">姓名</text>
         </view>
         <text class="info-value">{{userInfo.name || '未设置'}}</text>
@@ -80,7 +80,7 @@
       <!-- 手机号 -->
       <view class="info-row">
         <view class="info-label-wrap">
-          <text class="info-icon">📱</text>
+          <text class="info-icon zhficon"></text>
           <text class="info-label">手机号</text>
         </view>
         <text class="info-value">{{userInfo.phone || '未设置'}}</text>
@@ -89,18 +89,16 @@
       <!-- 从业经验 -->
       <view class="info-row">
         <view class="info-label-wrap">
-          <text class="info-icon">🏗️</text>
+          <text class="info-icon zhficon"></text>
           <text class="info-label">从业经验</text>
         </view>
-        <text class="info-value">
-          {{userInfo.years_of_exp ? userInfo.years_of_exp + ' 年' : '未设置'}}
-        </text>
+        <text class="info-value">{{userInfo.years_of_exp ? userInfo.years_of_exp + ' 年' : '未设置'}}</text>
       </view>
 
       <!-- 注册时间 -->
       <view class="info-row" wx:if="{{userInfo.created_at}}">
         <view class="info-label-wrap">
-          <text class="info-icon">📅</text>
+          <text class="info-icon zhficon"></text>
           <text class="info-label">注册时间</text>
         </view>
         <text class="info-value">{{userInfo.created_at}}</text>
@@ -110,7 +108,7 @@
     <!-- 个人简介 -->
     <view class="bio-section">
       <view class="bio-header">
-        <text class="info-icon">💬</text>
+        <text class="info-icon zhficon"></text>
         <text class="bio-title">个人简介</text>
       </view>
       <view wx:if="{{userInfo.bio}}" class="bio-content">
@@ -139,7 +137,7 @@
         mode="aspectFill"
       />
       <view wx:else class="edit-avatar-placeholder">
-        <text class="edit-avatar-icon">📷</text>
+        <text class="edit-avatar-icon zhficon"></text>
       </view>
       <text class="edit-avatar-hint">点击更换头像</text>
     </view>
@@ -223,12 +221,12 @@
     </view>
 
     <button class="btn btn-primary btn-block save-btn" bindtap="onSave" disabled="{{saving}}">
-      {{saving ? '保存中...' : '💾 保存资料'}}
+      <text class="zhficon"></text> {{saving ? '保存中...' : '保存资料'}}
     </button>
 
     <!-- 提示 -->
     <view class="edit-notice">
-      <text>📌 手机号变更后下次登录需使用新手机号</text>
+      <text><text class="zhficon"></text> 手机号变更后下次登录需使用新手机号</text>
     </view>
   </view>
 

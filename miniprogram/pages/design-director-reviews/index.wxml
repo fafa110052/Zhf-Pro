@@ -5,7 +5,7 @@
   </view>
   <block wx:if="{{ready}}">
     <view wx:if="{{error}}" class="page-error" bindtap="onRetry">
-      <text class="error-icon">⚠️</text><text class="error-msg">加载失败</text><text class="error-hint">点击重试</text>
+      <text class="error-icon zhficon"></text><text class="error-msg">加载失败</text><text class="error-hint">点击重试</text>
     </view>
     <block wx:else>
       <block wx:if="{{projects.length > 0}}">
@@ -31,7 +31,7 @@
         </view>
       </block>
       <view wx:if="{{projects.length === 0}}" class="empty-state">
-        <text class="empty-icon">{{mode === 'all' ? '📋' : '✅'}}</text><text class="empty-title">{{mode === 'all' ? '暂无项目' : '暂无待审核设计'}}</text>
+        <text class="empty-icon zhficon">{{mode === 'all' ? '' : ''}}</text><text class="empty-title">{{mode === 'all' ? '暂无项目' : '暂无待审核设计'}}</text>
       </view>
     </block>
   </block>

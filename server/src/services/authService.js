@@ -180,6 +180,66 @@ const authService = {
   },
 
   // ==========================================
+  // 账号注销（仅 C 端：游客 / 业主）
+  //
+  // 合规要求：注销后删除个人信息、账号立即失效。
+  // 做法：把本行 PII 匿名化并置 status='cancelled'（authenticate 中间件只认
+  //       active，故该账号所有已发出的 token 立即失效，无需黑名单）；同时抹去
+  //       冗余存储的订单联系人、抽奖身份等个人信息。业务台账（选材订单/施工
+  //       记录）保留，但去除客户身份。手机号用唯一占位符释放，便于日后重注册。
+  // 员工/管理员账号由后台管理，不走此自助流程。
+  // ==========================================
+  async cancelAccount(userId) {
+    const user = await db('designers').where('id', userId).first();
+    if (!user) {
+      throw Object.assign(new Error('用户不存在'), { status: 404 });
+    }
+    if (!['guest', 'owner'].includes(user.role)) {
+      throw Object.assign(new Error('员工账号请联系管理员注销'), { status: 403 });
+    }
+
+    const placeholderPhone = '注销_' + user.id; // phone 非空且唯一，占位释放真实号码
+    const hasLottery = await db.schema.hasTable('lottery_users');
+
+    await db.transaction(async (trx) => {
+      // 1. 匿名化选材订单中冗余存储的联系人信息（保留订单本身）
+      await trx('material_orders')
+        .where('user_id', userId)
+        .update({ applicant_name: '已注销用户', applicant_phone: '' });
+
+      // 2. 匿名化抽奖身份（独立表，按 openid / 手机号匹配；该模块可能未部署）
+      if (hasLottery) {
+        await trx('lottery_users')
+          .where((builder) => {
+            builder.where('phone', user.phone);
+            if (user.openid) builder.orWhere('openid', user.openid);
+          })
+          .update({ name: '已注销用户', phone: '', openid: null });
+      }
+
+      // 3. 覆盖账号行：置为已注销并清除个人信息
+      await trx('designers')
+        .where('id', userId)
+        .update({
+          status: 'cancelled',
+          openid: null,
+          is_bound: 0,
+          phone: placeholderPhone,
+          name: '已注销用户',
+          avatar_url: null,
+          pending_avatar_url: null,
+          avatar_review_status: null,
+          bio: null,
+          owner_property_id: null,
+          building: null,
+          room: null,
+        });
+    });
+
+    return { cancelled: true };
+  },
+
+  // ==========================================
   // 内部工具
   // ==========================================
   _signToken(user) {

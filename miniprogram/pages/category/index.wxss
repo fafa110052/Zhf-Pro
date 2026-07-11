@@ -49,6 +49,7 @@
 }
 
 .search-clear {
+  position: relative;
   width: 40rpx;
   height: 40rpx;
   border-radius: 20rpx;
@@ -59,6 +60,17 @@
   font-size: 22rpx;
   color: var(--text-tertiary);
   flex-shrink: 0;
+}
+
+/* 扩大触控区至 88rpx（视觉圆点仍为 40rpx，热区不可见） */
+.search-clear::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 88rpx;
+  height: 88rpx;
+  transform: translate(-50%, -50%);
 }
 
 /* ═══ 维度 Tab 栏 ═══ */
@@ -77,6 +89,8 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  min-height: 88rpx;
+  box-sizing: border-box;
   padding: 24rpx 0 18rpx;
   position: relative;
 }
@@ -162,6 +176,8 @@
 .tag-chip {
   display: inline-flex;
   align-items: center;
+  min-height: 72rpx;
+  box-sizing: border-box;
   padding: 12rpx 24rpx;
   background: #f5f0e8;
   border-radius: 32rpx;
@@ -211,6 +227,8 @@
   display: inline-flex;
   align-items: center;
   gap: 6rpx;
+  min-height: 64rpx;
+  box-sizing: border-box;
   padding: 8rpx 16rpx;
   background: var(--color-accent-light);
   border: 2rpx solid var(--border-color);
@@ -236,6 +254,8 @@
 .filter-clear {
   display: inline-flex;
   align-items: center;
+  min-height: 64rpx;
+  box-sizing: border-box;
   padding: 8rpx 16rpx;
   font-size: 24rpx;
   color: var(--color-danger);
@@ -247,7 +267,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16rpx 24rpx;
+  padding: 8rpx 24rpx;
   background: var(--bg-card);
   border-bottom: 2rpx solid var(--border-color);
 }
@@ -263,9 +283,12 @@
 }
 
 .sort-item {
+  display: inline-flex;
+  align-items: center;
+  min-height: 64rpx;
+  padding: 6rpx 10rpx;
   font-size: 26rpx;
   color: var(--text-secondary);
-  padding: 6rpx 0;
   position: relative;
 }
 

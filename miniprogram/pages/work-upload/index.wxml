@@ -79,7 +79,7 @@
             <text class="add-text">添加图片</text>
           </view>
         </view>
-        <text class="image-hint">📷 最多 9 张，点击图片可设为封面。支持拍照或相册选择</text>
+        <text class="image-hint"><text class="zhficon"></text> 最多 9 张，点击图片可设为封面。支持拍照或相册选择</text>
       </view>
 
       <!-- ─── 基本信息 ─── -->
@@ -235,20 +235,20 @@
           bindtap="onSaveDraft"
           disabled="{{saving || submitting}}"
         >
-          {{saving ? '保存中...' : '📝 保存草稿'}}
+          <text class="zhficon"></text> {{saving ? '保存中...' : '保存草稿'}}
         </button>
         <button
           class="btn btn-primary btn-block action-btn"
           bindtap="onSubmit"
           disabled="{{saving || submitting}}"
         >
-          {{submitting ? '提交中...' : '✅ 保存并提交审核'}}
+          <text class="zhficon"></text> {{submitting ? '提交中...' : '保存并提交审核'}}
         </button>
       </view>
 
       <!-- 提示信息 -->
       <view class="form-notice">
-        <text>💡 草稿仅自己可见，提交审核后由管理员审核发布</text>
+        <text><text class="zhficon"></text> 草稿仅自己可见，提交审核后由管理员审核发布</text>
       </view>
 
     </view>

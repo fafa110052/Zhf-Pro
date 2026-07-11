@@ -45,10 +45,15 @@
 }
 
 .guest-login-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 88rpx;
+  box-sizing: border-box;
   padding: 16rpx 56rpx;
   background: var(--gradient-warm);
   color: #fff;
-  border-radius: 40rpx;
+  border-radius: 44rpx;
   font-size: 28rpx;
   font-weight: 500;
 }
@@ -149,8 +154,21 @@
 }
 
 .role-designer {
+  position: relative;
   color: var(--color-accent);
   background: var(--color-accent-light);
+}
+
+/* 该标签可点击进入设计师中心 — 扩大触控热区至 88rpx（视觉不变） */
+.role-designer::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  min-width: 88rpx;
+  height: 88rpx;
 }
 
 .role-owner {
@@ -189,6 +207,8 @@
 .apply-designer-bar {
   display: flex;
   align-items: center;
+  min-height: 88rpx;
+  box-sizing: border-box;
   margin-top: 24rpx;
   padding: 20rpx 24rpx;
   background: linear-gradient(135deg, #fdf8f0, #faf5ed);

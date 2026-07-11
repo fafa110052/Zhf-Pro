@@ -18,6 +18,8 @@ const BREADCRUMB_MAP = {
   categories: '分类字典',
   'measurement-appointments': '量房预约',
   lottery: '摇一摇抽奖',
+  'operation-data': '运营数据',
+  reports: '举报管理',
 };
 
 /**

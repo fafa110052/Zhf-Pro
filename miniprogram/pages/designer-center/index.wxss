@@ -206,6 +206,14 @@
   margin-bottom: 10rpx;
 }
 
+.action-primary .action-icon {
+  color: #fff;
+}
+
+.action-secondary .action-icon {
+  color: var(--color-accent);
+}
+
 .action-label {
   font-size: var(--font-md);
   font-weight: 600;

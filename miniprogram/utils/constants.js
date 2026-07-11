@@ -50,21 +50,21 @@ const DESIGNER_STATUS_MAP = {
 
 // V1.1 — 选材申请状态映射
 const ORDER_STATUS_MAP = {
-  pending:   { label: '待审核',  colorClass: 'tag-yellow', icon: '⏳' },
-  approved:  { label: '已通过',  colorClass: 'tag-green',  icon: '✅' },
-  rejected:  { label: '已驳回',  colorClass: 'tag-red',    icon: '❌' },
-  completed: { label: '待验收',  colorClass: 'tag-blue',   icon: '🎉' },
-  accepted:  { label: '已验收',  colorClass: 'tag-green',  icon: '🏆' },
-  disputed:  { label: '异议中',  colorClass: 'tag-orange', icon: '🔄' },
+  pending:   { label: '待审核',  colorClass: 'tag-yellow', icon: '\uf123' },
+  approved:  { label: '已通过',  colorClass: 'tag-green',  icon: '\uf117' },
+  rejected:  { label: '已驳回',  colorClass: 'tag-red',    icon: '\uf122' },
+  completed: { label: '待验收',  colorClass: 'tag-blue',   icon: '\uf106' },
+  accepted:  { label: '已验收',  colorClass: 'tag-green',  icon: '\uf124' },
+  disputed:  { label: '异议中',  colorClass: 'tag-orange', icon: '\uf125' },
 };
 
 // V1.3 — 施工阶段类型
 const PHASE_TYPE_MAP = {
-  demolition:       { label: '打拆', icon: '🔨' },
-  water_electric:   { label: '水电', icon: '💧' },
-  painting:         { label: '油工', icon: '🎨' },
-  material_install: { label: '主材安装', icon: '🏗️' },
-  completion:       { label: '竣工', icon: '🏠' },
+  demolition:       { label: '打拆', icon: '\uf111' },
+  water_electric:   { label: '水电', icon: '\uf126' },
+  painting:         { label: '油工', icon: '\uf107' },
+  material_install: { label: '主材安装', icon: '\uf10f' },
+  completion:       { label: '竣工', icon: '\uf10e' },
 };
 
 // V1.3 — 施工阶段状态

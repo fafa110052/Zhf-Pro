@@ -10,6 +10,7 @@
  */
 const api = require('../../utils/api');
 const util = require('../../utils/util');
+const { IC } = require('../../utils/icons');
 
 Page({
   data: {
@@ -19,10 +20,10 @@ Page({
 
     // 核心优势（2×2 图文网格）
     advantages: [
-      { icon: '🏗️', label: '匠心工艺', desc: '精工细作品质保障' },
-      { icon: '🌿', label: '环保材料', desc: '品牌主材直供' },
-      { icon: '💡', label: '透明报价', desc: '预算清晰无增项' },
-      { icon: '👤', label: '一对一服务', desc: '专属设计师全程跟进' },
+      { icon: IC.hardhat, label: '匠心工艺', desc: '精工细作品质保障' },
+      { icon: IC.leaf, label: '环保材料', desc: '品牌主材直供' },
+      { icon: IC.bulb, label: '透明报价', desc: '预算清晰无增项' },
+      { icon: IC.user, label: '一对一服务', desc: '专属设计师全程跟进' },
     ],
 
     // 设计团队（从 API 读取）
@@ -35,13 +36,20 @@ Page({
 
     // 免费量房步骤
     measureSteps: [
-      { icon: '📋', label: '在线预约', desc: '填写房屋信息' },
-      { icon: '📐', label: '上门测量', desc: '专业免费量房' },
-      { icon: '📊', label: '出方案报价', desc: '透明无增项' },
+      { icon: IC.clipboard, label: '在线预约', desc: '填写房屋信息' },
+      { icon: IC.ruler, label: '上门测量', desc: '专业免费量房' },
+      { icon: IC.chart, label: '出方案报价', desc: '透明无增项' },
     ],
 
     // 隐私协议弹窗
     showPrivacy: false,
+
+    // 运营数据（后端可配，兜底默认值）
+    stats: {
+      families: '500+',
+      works: '1200+',
+      slogan: '匠心工艺·品质交付',
+    },
   },
 
   onLoad() {
@@ -49,6 +57,7 @@ Page({
     var agreed = wx.getStorageSync('privacy_agreed');
     if (!agreed) {
       this.setData({ showPrivacy: true });
+      wx.hideTabBar();
     }
 
     this.loadHomepageConfig();
@@ -86,7 +95,20 @@ Page({
           link: cfg.link || '',
         };
       });
-      this.setData({ banners: banners, bannerLoading: false });
+
+      // 运营数据（stats 类型，取第一条；无则保持默认）
+      var update = { banners: banners, bannerLoading: false };
+      var statsList = data.stats || [];
+      if (statsList.length > 0) {
+        var s = statsList[0].config_value || {};
+        update.stats = {
+          families: s.families || this.data.stats.families,
+          works: s.works || this.data.stats.works,
+          slogan: s.slogan || this.data.stats.slogan,
+        };
+      }
+
+      this.setData(update);
     } catch (err) {
       console.error('加载首页配置失败:', err);
       this.setData({ bannerLoading: false });
@@ -210,6 +232,7 @@ Page({
   onAgreePrivacy() {
     wx.setStorageSync('privacy_agreed', Date.now());
     this.setData({ showPrivacy: false });
+    wx.showTabBar();
   },
 
   /** 暂不同意 */

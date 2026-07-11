@@ -156,22 +156,10 @@ Page({
     this.setData({ loading: true });
 
     try {
-      var result;
-      var code = null;
-      try {
-        var loginRes = await new Promise(function (resolve, reject) {
-          wx.login({ success: resolve, fail: reject, timeout: 5000 });
-        });
-        code = loginRes.code;
-      } catch (wxErr) {
-        console.warn('wx.login 失败，使用开发模式:', wxErr);
-      }
-
-      if (code) {
-        result = await api.designerLogin(code, phone);
-      } else {
-        result = await api.designerLoginDev(phone);
-      }
+      var loginRes = await new Promise(function (resolve, reject) {
+        wx.login({ success: resolve, fail: reject, timeout: 5000 });
+      });
+      var result = await api.designerLogin(loginRes.code, phone);
 
       this._handleLoginSuccess(result);
     } catch (err) {

@@ -1,7 +1,7 @@
 const db = require('../db/connection');
 
 // 允许的配置类型
-const ALLOWED_TYPES = ['banner', 'hot_works'];
+const ALLOWED_TYPES = ['banner', 'hot_works', 'stats'];
 
 /**
  * 解析 hot_works 配置中的 work_ids → 实际作品信息

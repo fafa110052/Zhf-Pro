@@ -5,7 +5,7 @@
       <text class="loading-hint">加载中...</text>
     </view>
     <view wx:elif="{{error}}" class="page-error" bindtap="onRetry">
-      <text class="error-icon">⚠️</text><text class="error-msg">加载失败</text><text class="error-hint">点击重试</text>
+      <text class="error-icon zhficon"></text><text class="error-msg">加载失败</text><text class="error-hint">点击重试</text>
     </view>
     <block wx:elif="{{phase}}">
       <view class="status-header">
@@ -54,8 +54,8 @@
 
   <!-- 操作栏 -->
   <view wx:if="{{ready && phase && phase.status === 'design_uploaded'}}" class="action-bar">
-    <button class="action-btn dispute-btn" bindtap="onOpenReject" disabled="{{acting}}">❌ 驳回</button>
-    <button class="action-btn accept-btn" bindtap="onApprove" loading="{{acting}}" disabled="{{acting}}">✅ 通过</button>
+    <button class="action-btn dispute-btn" bindtap="onOpenReject" disabled="{{acting}}"><text class="zhficon"></text> 驳回</button>
+    <button class="action-btn accept-btn" bindtap="onApprove" loading="{{acting}}" disabled="{{acting}}"><text class="zhficon"></text> 通过</button>
   </view>
 
   <!-- 驳回弹窗 -->

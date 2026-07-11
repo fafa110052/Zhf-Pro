@@ -1,6 +1,6 @@
 <view class="page"><block wx:if="{{ready}}">
 <view wx:if="{{loading}}" class="page-loading"><view class="loading-dot-pulse"><view class="dot"></view><view class="dot"></view><view class="dot"></view></view><text class="loading-hint">加载中...</text></view>
-<view wx:elif="{{error}}" class="page-error" bindtap="onRetry"><text class="error-icon">⚠️</text><text class="error-msg">加载失败</text><text class="error-hint">点击重试</text></view>
+<view wx:elif="{{error}}" class="page-error" bindtap="onRetry"><text class="error-icon zhficon"></text><text class="error-msg">加载失败</text><text class="error-hint">点击重试</text></view>
 <block wx:elif="{{phase}}"><view class="status-header">
 <view class="status-tag {{PHASE_STATUS_MAP[phase.status].colorClass}}"><text>{{PHASE_STATUS_MAP[phase.status].label}}</text></view>
 <text class="order-no">阶段{{phase.phase_order}} · {{PHASE_TYPE_MAP[phase.phase_type].label}}</text></view>
@@ -17,15 +17,15 @@
 <view class="bottom-spacer"></view></block></block>
 <view wx:if="{{ready && phase && phase.status === 'engineer_design_confirmed'}}" class="action-bar">
     <button class="action-btn accept-btn" bindtap="onConfirmDesign" loading="{{acting}}" disabled="{{acting}}">
-      ✅ 确认设计图，进入施工
+      <text class="zhficon"></text> 确认设计图，进入施工
     </button>
   </view>
   <view wx:if="{{ready && phase && phase.status === 'construction_uploaded'}}" class="action-bar">
   <view class="remark-input-wrap">
     <textarea class="remark-textarea" placeholder="备注（选填，业主可见）" value="{{approveRemark}}" bindinput="onRemarkInput" maxlength="500" auto-height/>
   </view>
-<button class="action-btn dispute-btn" bindtap="onOpenReject" disabled="{{acting}}">❌ 驳回</button>
-<button class="action-btn accept-btn" bindtap="onApprove" loading="{{acting}}" disabled="{{acting}}">✅ 通过</button></view>
+<button class="action-btn dispute-btn" bindtap="onOpenReject" disabled="{{acting}}"><text class="zhficon"></text> 驳回</button>
+<button class="action-btn accept-btn" bindtap="onApprove" loading="{{acting}}" disabled="{{acting}}"><text class="zhficon"></text> 通过</button></view>
 <view wx:if="{{rejectOpen}}" class="modal-mask" bindtap="onCloseReject"></view>
 <view wx:if="{{rejectOpen}}" class="modal-panel"><view class="modal-header"><text class="modal-title">驳完工</text><text class="modal-close" bindtap="onCloseReject">✕</text></view>
 <view class="modal-body"><view class="modal-field"><text class="modal-label">驳回原因 *</text>

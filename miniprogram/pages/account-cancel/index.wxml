@@ -1,0 +1,31 @@
+<!-- 注销账号 -->
+<scroll-view scroll-y="true" class="cancel-page">
+  <view class="content">
+    <view class="warn-badge">
+      <text class="warn-icon zhficon"></text>
+    </view>
+    <view class="page-title">注销账号</view>
+    <view class="page-subtitle">请谨慎操作，账号注销后无法恢复</view>
+
+    <view class="card">
+      <view class="card-title">注销后将会</view>
+      <view class="line">
+        <text class="line-dot"></text>
+        <text class="line-text">永久删除您的手机号、微信绑定、昵称、头像等个人信息</text>
+      </view>
+      <view class="line">
+        <text class="line-dot"></text>
+        <text class="line-text">账号立即失效，需重新登录注册后方可再次使用</text>
+      </view>
+      <view class="line">
+        <text class="line-dot"></text>
+        <text class="line-text">您已提交的选材申请等记录将被匿名保留，不再关联您的身份</text>
+      </view>
+    </view>
+
+    <view class="hint">如仍有进行中的服务或订单，建议先联系客服确认后再注销。客服电话 0774-3880466</view>
+
+    <button class="btn-danger" bindtap="onConfirmCancel" loading="{{submitting}}" disabled="{{submitting}}">确认注销账号</button>
+    <button class="btn-plain" bindtap="onBack">再想想</button>
+  </view>
+</scroll-view>

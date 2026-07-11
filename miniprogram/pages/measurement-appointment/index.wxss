@@ -134,7 +134,7 @@
 
 .form-input {
   width: 100%;
-  height: 80rpx;
+  height: 88rpx;
   background: var(--bg-page);
   border-radius: 12rpx;
   padding: 0 20rpx;
@@ -172,7 +172,7 @@
 
 .phone-wx-btn {
   flex-shrink: 0;
-  height: 80rpx;
+  height: 88rpx;
   padding: 0 24rpx;
   background: var(--color-accent-light);
   color: var(--color-accent-deep);
@@ -198,7 +198,7 @@
 
 .picker-value {
   width: 100%;
-  height: 80rpx;
+  height: 88rpx;
   background: var(--bg-page);
   border-radius: 12rpx;
   padding: 0 20rpx;

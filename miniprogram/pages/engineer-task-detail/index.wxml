@@ -5,7 +5,7 @@
       <text class="loading-hint">加载中...</text>
     </view>
     <view wx:elif="{{error}}" class="page-error" bindtap="onRetry">
-      <text class="error-icon">⚠️</text><text class="error-msg">加载失败</text><text class="error-hint">点击重试</text>
+      <text class="error-icon zhficon"></text><text class="error-msg">加载失败</text><text class="error-hint">点击重试</text>
     </view>
     <block wx:elif="{{phase}}">
       <view class="status-header">
@@ -89,7 +89,7 @@
   <!-- 确认设计按钮 -->
   <view wx:if="{{ready && phase && (phase.status === 'design_admin_approved' || phase.status === 'owner_design_reviewed')}}" class="action-bar">
     <button class="action-btn accept-btn" bindtap="onConfirmDesign" loading="{{acting}}" disabled="{{acting}}">
-      ✅ 确认设计图无误
+      <text class="zhficon"></text> 确认设计图无误
     </button>
   </view>
 

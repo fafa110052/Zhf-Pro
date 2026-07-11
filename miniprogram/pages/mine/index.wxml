@@ -5,7 +5,7 @@
   <block wx:if="{{!isLoggedIn && !loading}}">
     <view class="guest-header">
       <view class="guest-avatar-wrap">
-        <text class="guest-avatar-icon">👤</text>
+        <text class="guest-avatar-icon zhficon"></text>
       </view>
       <text class="guest-title">未登录</text>
       <text class="guest-subtitle">登录后享受更多精彩功能</text>
@@ -15,13 +15,18 @@
     </view>
 
     <view class="menu-section">
-      <view class="menu-item" bindtap="onGoLogin">
-        <text class="menu-icon">🔑</text>
-        <text class="menu-label">登录 / 注册</text>
+      <view class="menu-item" bindtap="onGoAgreement">
+        <text class="menu-icon zhficon"></text>
+        <text class="menu-label">用户协议</text>
+        <text class="menu-arrow">›</text>
+      </view>
+      <view class="menu-item" bindtap="onGoPrivacy">
+        <text class="menu-icon zhficon"></text>
+        <text class="menu-label">隐私政策</text>
         <text class="menu-arrow">›</text>
       </view>
       <view class="menu-item" bindtap="onContact">
-        <text class="menu-icon">📞</text>
+        <text class="menu-icon zhficon"></text>
         <text class="menu-label">联系客服</text>
         <text class="menu-arrow">›</text>
       </view>
@@ -39,9 +44,9 @@
             src="{{userInfo.avatar_url}}"
             mode="aspectFill"
           />
-          <text wx:else class="profile-avatar-placeholder">👤</text>
+          <text wx:else class="profile-avatar-placeholder zhficon"></text>
           <view wx:if="{{userInfo.avatar_review_status === 'pending'}}" class="avatar-pending-tag">
-            <text>⏳</text>
+            <text class="zhficon"></text>
           </view>
         </view>
         <view class="profile-body">
@@ -56,7 +61,7 @@
 
       <!-- 申请设计师入口 -->
       <view class="apply-designer-bar" bindtap="onApplyDesigner">
-        <text class="apply-icon">✋</text>
+        <text class="apply-icon zhficon"></text>
         <text class="apply-text">申请成为设计师</text>
         <text class="apply-arrow">›</text>
       </view>
@@ -65,18 +70,23 @@
     <view class="menu-section">
       <view class="menu-group-title">服务</view>
       <view class="menu-item" bindtap="onApplyDesigner">
-        <text class="menu-icon">🎨</text>
+        <text class="menu-icon zhficon"></text>
         <text class="menu-label">申请成为设计师</text>
         <text class="menu-arrow">›</text>
       </view>
       <view class="menu-item" bindtap="onContact">
-        <text class="menu-icon">📞</text>
+        <text class="menu-icon zhficon"></text>
         <text class="menu-label">联系客服</text>
         <text class="menu-arrow">›</text>
       </view>
       <view class="menu-item menu-item-danger" bindtap="onLogout">
-        <text class="menu-icon">🚪</text>
+        <text class="menu-icon zhficon"></text>
         <text class="menu-label menu-label-danger">退出登录</text>
+        <text class="menu-arrow">›</text>
+      </view>
+      <view class="menu-item menu-item-danger" bindtap="onGoCancelAccount">
+        <text class="menu-icon zhficon"></text>
+        <text class="menu-label menu-label-danger">注销账号</text>
         <text class="menu-arrow">›</text>
       </view>
     </view>
@@ -94,7 +104,7 @@
             src="{{userInfo.avatar_url}}"
             mode="aspectFill"
           />
-          <text wx:else class="profile-avatar-placeholder">👤</text>
+          <text wx:else class="profile-avatar-placeholder zhficon"></text>
         </view>
         <view class="profile-body">
           <text class="profile-name">{{userInfo.name || '业主'}}</text>
@@ -120,7 +130,7 @@
     <view class="menu-section">
       <view class="menu-group-title">业主功能</view>
       <view class="menu-item" bindtap="onGoMaterialOrders">
-        <text class="menu-icon">🛠️</text>
+        <text class="menu-icon zhficon"></text>
         <text class="menu-label">我的选材申请</text>
         <text class="menu-arrow">›</text>
       </view>
@@ -129,13 +139,18 @@
     <view class="menu-section">
       <view class="menu-group-title">其他</view>
       <view class="menu-item" bindtap="onContact">
-        <text class="menu-icon">📞</text>
+        <text class="menu-icon zhficon"></text>
         <text class="menu-label">联系客服</text>
         <text class="menu-arrow">›</text>
       </view>
       <view class="menu-item menu-item-danger" bindtap="onLogout">
-        <text class="menu-icon">🚪</text>
+        <text class="menu-icon zhficon"></text>
         <text class="menu-label menu-label-danger">退出登录</text>
+        <text class="menu-arrow">›</text>
+      </view>
+      <view class="menu-item menu-item-danger" bindtap="onGoCancelAccount">
+        <text class="menu-icon zhficon"></text>
+        <text class="menu-label menu-label-danger">注销账号</text>
         <text class="menu-arrow">›</text>
       </view>
     </view>
@@ -152,9 +167,9 @@
             src="{{userInfo.avatar_url}}"
             mode="aspectFill"
           />
-          <text wx:else class="profile-avatar-placeholder">👤</text>
+          <text wx:else class="profile-avatar-placeholder zhficon"></text>
           <view wx:if="{{userInfo.avatar_review_status === 'pending'}}" class="avatar-pending-tag">
-            <text>⏳</text>
+            <text class="zhficon"></text>
           </view>
         </view>
         <view class="profile-body">
@@ -178,12 +193,12 @@
     <view class="menu-section">
       <view class="menu-group-title">设计师功能</view>
       <view class="menu-item" bindtap="onGoWorks">
-        <text class="menu-icon">📋</text>
+        <text class="menu-icon zhficon"></text>
         <text class="menu-label">我的作品</text>
         <text class="menu-arrow">›</text>
       </view>
       <view class="menu-item" bindtap="onGoDesignerCenter">
-        <text class="menu-icon">📊</text>
+        <text class="menu-icon zhficon"></text>
         <text class="menu-label">设计师中心</text>
         <text class="menu-arrow">›</text>
       </view>
@@ -192,13 +207,13 @@
     <view class="menu-section">
       <view class="menu-group-title">工程管理</view>
       <view class="menu-item" bindtap="onGoDesignerTasks">
-        <text class="menu-icon">🔨</text>
+        <text class="menu-icon zhficon"></text>
         <text class="menu-label">施工任务</text>
         <text wx:if="{{taskCount > 0}}" class="menu-badge">{{taskCount}}</text>
         <text class="menu-arrow">›</text>
       </view>
       <view class="menu-item" bindtap="onGoMyProjects">
-        <text class="menu-icon">📁</text>
+        <text class="menu-icon zhficon"></text>
         <text class="menu-label">全部项目</text>
         <text class="menu-arrow">›</text>
       </view>
@@ -207,12 +222,12 @@
     <view class="menu-section">
       <view class="menu-group-title">其他</view>
       <view class="menu-item" bindtap="onContact">
-        <text class="menu-icon">📞</text>
+        <text class="menu-icon zhficon"></text>
         <text class="menu-label">联系客服</text>
         <text class="menu-arrow">›</text>
       </view>
       <view class="menu-item menu-item-danger" bindtap="onLogout">
-        <text class="menu-icon">🚪</text>
+        <text class="menu-icon zhficon"></text>
         <text class="menu-label menu-label-danger">退出登录</text>
         <text class="menu-arrow">›</text>
       </view>
@@ -225,7 +240,7 @@
       <view class="profile-row">
         <view class="profile-avatar-wrap">
           <image lazy-load wx:if="{{userInfo.avatar_url}}" class="profile-avatar" src="{{userInfo.avatar_url}}" mode="aspectFill"/>
-          <text wx:else class="profile-avatar-placeholder">👤</text>
+          <text wx:else class="profile-avatar-placeholder zhficon"></text>
         </view>
         <view class="profile-body">
           <text class="profile-name">{{userInfo.name || '设计总监'}}</text>
@@ -237,12 +252,12 @@
     <view class="menu-section">
       <view class="menu-group-title">设计师功能</view>
       <view class="menu-item" bindtap="onGoWorks">
-        <text class="menu-icon">📋</text>
+        <text class="menu-icon zhficon"></text>
         <text class="menu-label">我的作品</text>
         <text class="menu-arrow">›</text>
       </view>
       <view class="menu-item" bindtap="onGoDesignerCenter">
-        <text class="menu-icon">📊</text>
+        <text class="menu-icon zhficon"></text>
         <text class="menu-label">设计师中心</text>
         <text class="menu-arrow">›</text>
       </view>
@@ -250,13 +265,13 @@
     <view class="menu-section">
       <view class="menu-group-title">工程管理</view>
       <view class="menu-item" bindtap="onGoDesignDirectorReviews">
-        <text class="menu-icon">✅</text>
+        <text class="menu-icon zhficon"></text>
         <text class="menu-label">待审核设计</text>
         <text wx:if="{{taskCount > 0}}" class="menu-badge">{{taskCount}}</text>
         <text class="menu-arrow">›</text>
       </view>
       <view class="menu-item" bindtap="onGoMyProjects">
-        <text class="menu-icon">📁</text>
+        <text class="menu-icon zhficon"></text>
         <text class="menu-label">全部项目</text>
         <text class="menu-arrow">›</text>
       </view>
@@ -264,12 +279,12 @@
     <view class="menu-section">
       <view class="menu-group-title">其他</view>
       <view class="menu-item" bindtap="onContact">
-        <text class="menu-icon">📞</text>
+        <text class="menu-icon zhficon"></text>
         <text class="menu-label">联系客服</text>
         <text class="menu-arrow">›</text>
       </view>
       <view class="menu-item menu-item-danger" bindtap="onLogout">
-        <text class="menu-icon">🚪</text>
+        <text class="menu-icon zhficon"></text>
         <text class="menu-label menu-label-danger">退出登录</text>
         <text class="menu-arrow">›</text>
       </view>
@@ -282,7 +297,7 @@
       <view class="profile-row">
         <view class="profile-avatar-wrap">
           <image lazy-load wx:if="{{userInfo.avatar_url}}" class="profile-avatar" src="{{userInfo.avatar_url}}" mode="aspectFill"/>
-          <text wx:else class="profile-avatar-placeholder">👤</text>
+          <text wx:else class="profile-avatar-placeholder zhficon"></text>
         </view>
         <view class="profile-body">
           <text class="profile-name">{{userInfo.name || '工程师'}}</text>
@@ -294,13 +309,13 @@
     <view class="menu-section">
       <view class="menu-group-title">工程管理</view>
       <view class="menu-item" bindtap="onGoEngineerTasks">
-        <text class="menu-icon">🔧</text>
+        <text class="menu-icon zhficon"></text>
         <text class="menu-label">我的任务</text>
         <text wx:if="{{taskCount > 0}}" class="menu-badge">{{taskCount}}</text>
         <text class="menu-arrow">›</text>
       </view>
       <view class="menu-item" bindtap="onGoMyProjects">
-        <text class="menu-icon">📁</text>
+        <text class="menu-icon zhficon"></text>
         <text class="menu-label">全部项目</text>
         <text class="menu-arrow">›</text>
       </view>
@@ -308,12 +323,12 @@
     <view class="menu-section">
       <view class="menu-group-title">其他</view>
       <view class="menu-item" bindtap="onContact">
-        <text class="menu-icon">📞</text>
+        <text class="menu-icon zhficon"></text>
         <text class="menu-label">联系客服</text>
         <text class="menu-arrow">›</text>
       </view>
       <view class="menu-item menu-item-danger" bindtap="onLogout">
-        <text class="menu-icon">🚪</text>
+        <text class="menu-icon zhficon"></text>
         <text class="menu-label menu-label-danger">退出登录</text>
         <text class="menu-arrow">›</text>
       </view>
@@ -326,7 +341,7 @@
       <view class="profile-row">
         <view class="profile-avatar-wrap">
           <image lazy-load wx:if="{{userInfo.avatar_url}}" class="profile-avatar" src="{{userInfo.avatar_url}}" mode="aspectFill"/>
-          <text wx:else class="profile-avatar-placeholder">👤</text>
+          <text wx:else class="profile-avatar-placeholder zhficon"></text>
         </view>
         <view class="profile-body">
           <text class="profile-name">{{userInfo.name || '工程总监'}}</text>
@@ -338,13 +353,13 @@
     <view class="menu-section">
       <view class="menu-group-title">工程管理</view>
       <view class="menu-item" bindtap="onGoEngineeringDirectorReviews">
-        <text class="menu-icon">✅</text>
+        <text class="menu-icon zhficon"></text>
         <text class="menu-label">待审核完工</text>
         <text wx:if="{{taskCount > 0}}" class="menu-badge">{{taskCount}}</text>
         <text class="menu-arrow">›</text>
       </view>
       <view class="menu-item" bindtap="onGoMyProjects">
-        <text class="menu-icon">📁</text>
+        <text class="menu-icon zhficon"></text>
         <text class="menu-label">全部项目</text>
         <text class="menu-arrow">›</text>
       </view>
@@ -352,12 +367,12 @@
     <view class="menu-section">
       <view class="menu-group-title">其他</view>
       <view class="menu-item" bindtap="onContact">
-        <text class="menu-icon">📞</text>
+        <text class="menu-icon zhficon"></text>
         <text class="menu-label">联系客服</text>
         <text class="menu-arrow">›</text>
       </view>
       <view class="menu-item menu-item-danger" bindtap="onLogout">
-        <text class="menu-icon">🚪</text>
+        <text class="menu-icon zhficon"></text>
         <text class="menu-label menu-label-danger">退出登录</text>
         <text class="menu-arrow">›</text>
       </view>

@@ -1,16 +1,17 @@
 <!-- 作品卡片 -->
 <view class="work-card" bindtap="onTap">
-  <!-- 封面图 -->
-  <view class="card-cover">
+  <!-- 封面图 — 中心裁剪填充，高度按比例动态计算 -->
+  <view class="card-cover" style="height: {{coverH}}rpx;">
     <image
       wx:if="{{work.cover_url}}"
       class="cover-img"
       src="{{work.cover_url}}"
-      mode="widthFix"
+      mode="aspectFill"
       lazy-load
+      bindload="onCoverLoad"
     />
-    <view wx:else class="cover-placeholder">
-      <text class="placeholder-icon">🖼️</text>
+    <view wx:else class="cover-placeholder" style="height: {{coverH}}rpx;">
+      <text class="placeholder-icon zhficon"></text>
     </view>
     <!-- 风格标签（右上角） -->
     <view wx:if="{{showStyle && work.style_category_name}}" class="style-tag">
@@ -27,7 +28,7 @@
       <text wx:if="{{work.area_text && work.budget_text}}" class="meta-dot">·</text>
       <text wx:if="{{work.budget_text}}" class="meta-text">{{work.budget_text}}</text>
       <view wx:if="{{work.view_count !== undefined}}" class="meta-views">
-        <text class="views-icon">👁</text>
+        <text class="views-icon zhficon"></text>
         <text class="views-num">{{work.view_count}}</text>
       </view>
     </view>

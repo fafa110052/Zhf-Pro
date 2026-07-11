@@ -10,7 +10,7 @@
     />
   </view>
   <view wx:elif="{{!bannerLoading && banners.length === 0}}" class="banner-empty">
-    <text class="banner-empty-icon">🏠</text>
+    <text class="banner-empty-icon zhficon"></text>
     <text class="banner-empty-title">住好房装修展示平台</text>
     <text class="banner-empty-sub">让每个家，都住好</text>
   </view>
@@ -28,7 +28,7 @@
             <view class="step-num">{{index + 1}}</view>
           </view>
           <view class="step-icon-wrap">
-            <text class="step-icon">{{item.icon}}</text>
+            <text class="step-icon zhficon">{{item.icon}}</text>
           </view>
           <text class="step-label">{{item.label}}</text>
           <text class="step-desc">{{item.desc}}</text>
@@ -50,7 +50,7 @@
     <view class="adv-grid">
       <view wx:for="{{advantages}}" wx:key="label" class="adv-card">
         <view class="adv-icon-wrap">
-          <text class="adv-icon">{{item.icon}}</text>
+          <text class="adv-icon zhficon">{{item.icon}}</text>
         </view>
         <text class="adv-label">{{item.label}}</text>
         <text class="adv-desc">{{item.desc}}</text>
@@ -77,11 +77,11 @@
     </scroll-view>
 
     <view class="team-stats">
-      <text class="team-stat"><text class="team-stat-num">500+</text> 服务家庭</text>
+      <text class="team-stat"><text class="team-stat-num">{{stats.families}}</text> 服务业主</text>
       <text class="team-stat-dot">·</text>
-      <text class="team-stat"><text class="team-stat-num">1200+</text> 设计作品</text>
+      <text class="team-stat"><text class="team-stat-num">{{stats.works}}</text> 设计案例</text>
       <text class="team-stat-dot">·</text>
-      <text class="team-stat"><text class="team-stat-num">98%</text> 好评率</text>
+      <text class="team-stat team-stat-slogan">{{stats.slogan}}</text>
     </view>
   </view>
 
@@ -97,7 +97,7 @@
     </view>
 
     <view wx:elif="{{hotError}}" class="section-error" bindtap="onRetryHot">
-      <text class="error-icon">⚠️</text>
+      <text class="error-icon zhficon"></text>
       <text class="error-text">加载失败，点击重试</text>
     </view>
 
@@ -119,7 +119,7 @@
     </view>
 
     <empty-state wx:elif="{{hotWorks.length === 0}}"
-      icon="🔥" title="暂无热门推荐" desc="管理员正在精选优质作品"/>
+      icon="flame" title="暂无热门推荐" desc="管理员正在精选优质作品"/>
   </view>
 
   <view class="safe-bottom"></view>
@@ -146,9 +146,9 @@
     <!-- 协议文案 — navigator 原生导航 -->
     <view class="privacy-body">
       <text class="privacy-text">为了保障您的合法权益，我们将依据</text>
-      <navigator url="/pages/agreement/index" class="privacy-link">《用户协议》</navigator>
+      <navigator url="/pages/agreement/index" class="privacy-link" hover-class="none">《用户协议》</navigator>
       <text class="privacy-text">和</text>
-      <navigator url="/pages/privacy/index" class="privacy-link">《隐私政策》</navigator>
+      <navigator url="/pages/privacy/index" class="privacy-link" hover-class="none">《隐私政策》</navigator>
       <text class="privacy-text">处理您的个人信息。点击"同意并继续"即表示您已阅读并同意上述协议的全部内容。</text>
     </view>
 

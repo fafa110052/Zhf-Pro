@@ -178,6 +178,16 @@ Page({
     wx.navigateTo({ url: '/pages/designer-login/index' });
   },
 
+  /** 用户协议 */
+  onGoAgreement() {
+    wx.navigateTo({ url: '/pages/agreement/index' });
+  },
+
+  /** 隐私政策 */
+  onGoPrivacy() {
+    wx.navigateTo({ url: '/pages/privacy/index' });
+  },
+
   /** 跳转设计师中心 */
   onGoDesignerCenter() {
     wx.navigateTo({ url: '/pages/designer-center/index' });
@@ -215,6 +225,11 @@ Page({
         wx.showToast({ title: '已退出', icon: 'success' });
       }
     });
+  },
+
+  /** 跳转注销账号页 */
+  onGoCancelAccount() {
+    wx.navigateTo({ url: '/pages/account-cancel/index' });
   },
 
   /** 我的选材申请 */

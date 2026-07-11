@@ -94,7 +94,6 @@ Page({
   async onSubmit() {
     if (this.data.submitting) return;
     if (!this.validate()) {
-      console.log('[量房预约] 校验不通过:', this.data.errors);
       return;
     }
 
@@ -114,9 +113,7 @@ Page({
         source_page: 'home_button',
       };
 
-      console.log('[量房预约] 提交数据:', JSON.stringify(data));
-      const result = await api.submitMeasureAppointment(data);
-      console.log('[量房预约] 提交成功:', JSON.stringify(result));
+      await api.submitMeasureAppointment(data);
 
       wx.showToast({ title: '预约成功', icon: 'success', duration: 2000 });
       setTimeout(() => {

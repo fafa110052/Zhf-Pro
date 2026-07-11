@@ -49,6 +49,16 @@ function getWorkDetail(id) {
   return http.get(`/works/${id}`);
 }
 
+/**
+ * 提交作品举报（公开，游客可提交）
+ * @param {number} caseId — 作品 ID
+ * @param {object} data — { reason_type, reason_detail?, contact? }
+ * @returns {Promise<object>}
+ */
+function submitReport(caseId, data) {
+  return http.post(`/works/${caseId}/reports`, data);
+}
+
 // ═══════════════════════════════════════════
 // 首页配置 API（公开）
 // ═══════════════════════════════════════════
@@ -86,15 +96,6 @@ function wechatPhoneLogin(wxCode, phoneCode) {
 }
 
 /**
- * 设计师开发模式登录（仅需手机号，自动生成 mock openid）
- * @param {string} phone — 手机号
- * @returns {Promise<{token:string, designer:object}>}
- */
-function designerLoginDev(phone) {
-  return http.post('/auth/designer/login/dev', { phone });
-}
-
-/**
  * 获取当前登录设计师信息
  * @returns {Promise<object>}
  */
@@ -114,6 +115,14 @@ async function checkLogin() {
   } catch {
     return false;
   }
+}
+
+/**
+ * 账号注销（仅游客/业主）—— 匿名化个人信息并使账号立即失效
+ * @returns {Promise<{cancelled:boolean}>}
+ */
+function cancelAccount() {
+  return http.post('/auth/designer/cancel', {}, { auth: true });
 }
 
 // ═══════════════════════════════════════════
@@ -420,14 +429,15 @@ module.exports = {
   getWorks,
   getHotWorks,
   getWorkDetail,
+  submitReport,
   // 首页配置
   getHomepageConfig,
   // 认证
   designerLogin,
-  designerLoginDev,
   wechatPhoneLogin,
   getDesignerProfile,
   checkLogin,
+  cancelAccount,
   // 设计师作品
   getMyWorks,
   getMyWorkDetail,

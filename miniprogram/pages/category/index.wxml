@@ -4,7 +4,7 @@
   <!-- ═══ 搜索栏 ═══ -->
   <view class="search-bar">
     <view class="search-box">
-      <text class="search-icon">🔍</text>
+      <text class="search-icon zhficon"></text>
       <input
         class="search-input"
         type="text"
@@ -51,7 +51,7 @@
 
     <!-- 分类加载失败 -->
     <view wx:if="{{categoryError}}" class="tag-empty tag-error">
-      <text>⚠️ 分类加载失败</text>
+      <text><text class="zhficon"></text> 分类加载失败</text>
       <text class="tag-error-hint">请检查网络后下拉刷新</text>
     </view>
     <!-- 无分类时的占位 -->
@@ -131,7 +131,7 @@
     <!-- 空状态 -->
     <empty-state
       wx:if="{{works.length === 0}}"
-      icon="🔍"
+      icon="search"
       title="暂无作品"
       desc="试试切换筛选条件或清除筛选"
       showAction="{{hasAnyFilter}}"
@@ -156,7 +156,7 @@
 
   <!-- 加载失败 -->
   <view wx:elif="{{error && works.length === 0}}" class="error-state" bindtap="onRetry">
-    <text class="error-icon">⚠️</text>
+    <text class="error-icon zhficon"></text>
     <text class="error-msg">加载失败</text>
     <text class="error-hint">点击重试</text>
   </view>

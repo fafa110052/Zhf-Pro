@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const authService = require('../services/authService');
-const { authenticate } = require('../middleware/auth');
+const { authenticate, requireRole } = require('../middleware/auth');
 
 // ═══════════════════════════════════════════
 // 管理员认证
@@ -129,6 +129,21 @@ router.get('/designer/me', authenticate, async (req, res, next) => {
     }
     const profile = await authService.getProfile(req.user.id);
     res.json({ success: true, data: profile });
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * POST /api/v1/auth/designer/cancel
+ * 账号注销（仅 C 端用户：游客 / 业主）
+ * Header: Authorization: Bearer <token>
+ * → 匿名化个人信息 + 账号置为已注销并立即失效
+ */
+router.post('/designer/cancel', authenticate, requireRole('guest', 'owner'), async (req, res, next) => {
+  try {
+    const result = await authService.cancelAccount(req.user.id);
+    res.json({ success: true, data: result });
   } catch (err) {
     next(err);
   }
