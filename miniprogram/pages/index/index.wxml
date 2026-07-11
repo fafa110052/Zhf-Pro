@@ -142,9 +142,9 @@
     <!-- 协议文案 — 富文本内联链接 -->
     <view class="privacy-body">
       <text class="privacy-text">为了保障您的合法权益，我们将依据</text>
-      <text class="privacy-link" catchtap="onOpenAgreement">《用户协议》</text>
+      <view class="privacy-link-wrap" bindtap="onOpenAgreement"><text class="privacy-link">《用户协议》</text></view>
       <text class="privacy-text">和</text>
-      <text class="privacy-link" catchtap="onOpenPrivacy">《隐私政策》</text>
+      <view class="privacy-link-wrap" bindtap="onOpenPrivacy"><text class="privacy-link">《隐私政策》</text></view>
       <text class="privacy-text">处理您的个人信息。点击"同意并继续"即表示您已阅读并同意上述协议的全部内容。</text>
     </view>
 

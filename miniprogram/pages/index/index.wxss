@@ -492,12 +492,21 @@
   line-height: 1.8;
 }
 
+.privacy-link-wrap {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.privacy-link-wrap:active {
+  opacity: 0.7;
+}
+
 .privacy-link {
   font-size: 28rpx;
   color: var(--color-accent);
   font-weight: 500;
   line-height: 1.8;
-  display: inline;
+  padding: 12rpx 4rpx;
 }
 
 /* ═══ 同意按钮 ═══ */
