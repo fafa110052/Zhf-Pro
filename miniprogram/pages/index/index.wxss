@@ -471,71 +471,32 @@
   transform: translate(-50%, -60%);
 }
 
-/* ═══ 标题与描述 ═══ */
+/* ═══ 标题 ═══ */
 .privacy-title {
   font-size: 36rpx;
   font-weight: 700;
   color: var(--text-primary);
-  margin-bottom: 12rpx;
+  margin-bottom: 20rpx;
   text-align: center;
 }
 
-.privacy-desc {
-  font-size: 26rpx;
-  color: var(--text-secondary);
-  line-height: 1.6;
-  text-align: center;
-  margin-bottom: 32rpx;
-  padding: 0 8rpx;
-}
-
-/* ═══ 协议勾选区 ═══ */
-.privacy-check-row {
-  display: flex;
-  align-items: flex-start;
-  gap: 16rpx;
-  min-height: 88rpx;
-  padding: 16rpx 0;
+/* ═══ 协议文案 — 内联富文本 ═══ */
+.privacy-body {
   width: 100%;
+  margin-bottom: 28rpx;
 }
 
-.privacy-checkbox {
-  width: 40rpx;
-  height: 40rpx;
-  min-width: 40rpx;
-  border: 3rpx solid var(--border-color);
-  border-radius: 8rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-top: 2rpx;
-  transition: all 0.15s ease;
-  box-sizing: border-box;
-}
-
-.privacy-checkbox.checked {
-  background: var(--color-accent);
-  border-color: var(--color-accent);
-}
-
-.privacy-check-mark {
-  font-size: 24rpx;
-  color: #fff;
-  font-weight: 700;
-  line-height: 1;
-}
-
-.privacy-check-text {
-  flex: 1;
-  font-size: 26rpx;
+.privacy-text {
+  font-size: 28rpx;
   color: var(--text-secondary);
-  line-height: 1.6;
+  line-height: 1.8;
 }
 
 .privacy-link {
+  font-size: 28rpx;
   color: var(--color-accent);
   font-weight: 500;
-  padding: 4rpx 0;
+  line-height: 1.8;
   display: inline;
 }
 
@@ -548,18 +509,12 @@
   justify-content: center;
   background: var(--gradient-warm);
   border-radius: 44rpx;
-  margin-top: 24rpx;
   transition: opacity 0.15s ease;
 }
 
 .privacy-agree-btn:active {
   opacity: 0.9;
   transform: scale(0.98);
-}
-
-.privacy-agree-btn.disabled {
-  opacity: 0.45;
-  pointer-events: none;
 }
 
 .privacy-agree-text {

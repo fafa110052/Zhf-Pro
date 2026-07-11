@@ -128,7 +128,7 @@
 <!-- ═══ 隐私协议弹窗 ═══ -->
 <view wx:if="{{showPrivacy}}" class="privacy-overlay" catchtap>
   <view class="privacy-modal">
-    <!-- 图标 — 纯 CSS 几何，无 Unicode -->
+    <!-- 图标 — 纯 CSS 几何 -->
     <view class="privacy-icon-wrap">
       <view class="privacy-icon-circle">
         <view class="privacy-icon-shield"></view>
@@ -136,31 +136,26 @@
       </view>
     </view>
 
-    <!-- 标题与说明 -->
+    <!-- 标题 -->
     <text class="privacy-title">欢迎来到住好房</text>
-    <text class="privacy-desc">为了更好地保障您的权益，使用前请阅读并同意以下协议</text>
 
-    <!-- 协议勾选区 -->
-    <view class="privacy-check-row" bindtap="onTogglePrivacy">
-      <view class="privacy-checkbox {{privacyChecked ? 'checked' : ''}}">
-        <text wx:if="{{privacyChecked}}" class="privacy-check-mark">&#x2713;</text>
-      </view>
-      <view class="privacy-check-text">
-        <text>我已阅读并同意</text>
-        <text class="privacy-link" catchtap="onOpenAgreement">《用户协议》</text>
-        <text>和</text>
-        <text class="privacy-link" catchtap="onOpenPrivacy">《隐私政策》</text>
-      </view>
+    <!-- 协议文案 — 富文本内联链接 -->
+    <view class="privacy-body">
+      <text class="privacy-text">为了保障您的合法权益，我们将依据</text>
+      <text class="privacy-link" catchtap="onOpenAgreement">《用户协议》</text>
+      <text class="privacy-text">和</text>
+      <text class="privacy-link" catchtap="onOpenPrivacy">《隐私政策》</text>
+      <text class="privacy-text">处理您的个人信息。点击"同意并继续"即表示您已阅读并同意上述协议的全部内容。</text>
     </view>
 
     <!-- 同意按钮 -->
-    <view class="privacy-agree-btn {{privacyChecked ? '' : 'disabled'}}" bindtap="onAgreePrivacy">
+    <view class="privacy-agree-btn" bindtap="onAgreePrivacy">
       <text class="privacy-agree-text">同意并继续</text>
     </view>
 
     <!-- 退出 -->
     <view class="privacy-exit" bindtap="onDisagreePrivacy">
-      <text class="privacy-exit-text">暂不同意，退出应用</text>
+      <text class="privacy-exit-text">暂不同意</text>
     </view>
   </view>
 </view>

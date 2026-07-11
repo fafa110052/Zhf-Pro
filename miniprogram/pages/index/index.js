@@ -42,7 +42,6 @@ Page({
 
     // 隐私协议弹窗
     showPrivacy: false,
-    privacyChecked: false,
   },
 
   onLoad() {
@@ -202,21 +201,14 @@ Page({
   // 隐私协议弹窗
   // ═══════════════════════════════════════════
 
-  /** 勾选/取消勾选 */
-  onTogglePrivacy() {
-    this.setData({ privacyChecked: !this.data.privacyChecked });
-  },
-
   /** 同意并继续 */
   onAgreePrivacy() {
-    if (!this.data.privacyChecked) return;
     wx.setStorageSync('privacy_agreed', Date.now());
     this.setData({ showPrivacy: false });
   },
 
   /** 暂不同意 */
   onDisagreePrivacy() {
-    var that = this;
     wx.showModal({
       title: '温馨提示',
       content: '需要同意《用户协议》和《隐私政策》才能使用住好房的所有服务。确定要退出吗？',
