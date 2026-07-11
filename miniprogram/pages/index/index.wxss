@@ -503,13 +503,15 @@
 }
 
 .privacy-link {
+  display: inline-flex;
+  align-items: center;
   font-size: 28rpx;
   color: var(--color-accent);
   font-weight: 500;
   line-height: 2;
   padding: 16rpx 6rpx;
-  display: inline-block;
   min-height: 44rpx;
+  vertical-align: middle;
 }
 
 .privacy-link:active {

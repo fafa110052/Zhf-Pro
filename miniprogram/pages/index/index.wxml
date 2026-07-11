@@ -143,12 +143,12 @@
     <!-- 标题 -->
     <text class="privacy-title">欢迎来到住好房</text>
 
-    <!-- 协议文案 — 内联链接 -->
+    <!-- 协议文案 — navigator 原生导航 -->
     <view class="privacy-body">
       <text class="privacy-text">为了保障您的合法权益，我们将依据</text>
-      <text class="privacy-link" bindtap="onOpenAgreement">《用户协议》</text>
+      <navigator url="/pages/agreement/index" class="privacy-link">《用户协议》</navigator>
       <text class="privacy-text">和</text>
-      <text class="privacy-link" bindtap="onOpenPrivacy">《隐私政策》</text>
+      <navigator url="/pages/privacy/index" class="privacy-link">《隐私政策》</navigator>
       <text class="privacy-text">处理您的个人信息。点击"同意并继续"即表示您已阅读并同意上述协议的全部内容。</text>
     </view>
 
