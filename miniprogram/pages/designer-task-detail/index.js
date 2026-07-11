@@ -2,7 +2,7 @@
  * 设计师 — 上传设计图 + 查看审核结果
  */
 const api = require('../../utils/api');
-const { PHASE_STATUS_MAP, PHASE_TYPE_MAP, UPLOAD_MAX_COUNT } = require('../../utils/constants');
+const { PHASE_STATUS_MAP, PHASE_TYPE_MAP, UPLOAD_MAX_COUNT, TEMPLATE_IDS } = require('../../utils/constants');
 const { fullImageUrl } = require('../../utils/util');
 
 Page({
@@ -103,7 +103,7 @@ Page({
     }
     // 请求订阅
     wx.requestSubscribeMessage({
-      tmplIds: [''],
+      tmplIds: [TEMPLATE_IDS.todoNotify, TEMPLATE_IDS.reviewResult],
       success: () => {},
       fail: () => {},
       complete: () => {},

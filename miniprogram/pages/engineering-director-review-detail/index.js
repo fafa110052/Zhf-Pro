@@ -1,5 +1,5 @@
 const api = require('../../utils/api');
-const { PHASE_STATUS_MAP, PHASE_TYPE_MAP } = require('../../utils/constants');
+const { PHASE_STATUS_MAP, PHASE_TYPE_MAP, TEMPLATE_IDS } = require('../../utils/constants');
 const { fullImageUrl } = require('../../utils/util');
 
 Page({
@@ -50,7 +50,7 @@ Page({
         this.setData({ acting: true });
         try {
           await api.directorConfirmDesign(this.data.phaseId);
-          wx.requestSubscribeMessage({ tmplIds: [], success: () => {}, fail: () => {} });
+          wx.requestSubscribeMessage({ tmplIds: [TEMPLATE_IDS.todoNotify, TEMPLATE_IDS.reviewResult], success: () => {}, fail: () => {} });
           wx.showToast({ title: '已确认', icon: 'success' });
           setTimeout(() => wx.navigateBack(), 1000);
         } catch (err) { wx.showToast({ title: err?.message || '失败', icon: 'none' }); }
@@ -63,7 +63,7 @@ Page({
     wx.showModal({ title: '确认通过', content: '确定审核通过该完工图吗？', confirmText: '通过',
       success: async (res) => { if (!res.confirm) return; this.setData({ acting: true });
         try { await api.approveEngineeringDirector(this.data.phaseId, this.data.approveRemark.trim());
-          wx.requestSubscribeMessage({ tmplIds: [], success: () => {}, fail: () => {} });
+          wx.requestSubscribeMessage({ tmplIds: [TEMPLATE_IDS.todoNotify, TEMPLATE_IDS.reviewResult], success: () => {}, fail: () => {} });
           wx.showToast({ title: '已通过', icon: 'success' }); setTimeout(() => wx.navigateBack(), 1000); }
         catch (err) { wx.showToast({ title: err?.message || '操作失败', icon: 'none' }); } finally { this.setData({ acting: false }); } },
     });
@@ -78,7 +78,7 @@ Page({
     if (!this.data.rejectReason.trim()) { wx.showToast({ title: '请填写驳回原因', icon: 'none' }); return; }
     this.setData({ rejecting: true });
     try { await api.rejectEngineeringDirector(this.data.phaseId, this.data.rejectReason.trim());
-      wx.requestSubscribeMessage({ tmplIds: [], success: () => {}, fail: () => {} });
+      wx.requestSubscribeMessage({ tmplIds: [TEMPLATE_IDS.todoNotify, TEMPLATE_IDS.reviewResult], success: () => {}, fail: () => {} });
       wx.showToast({ title: '已驳回', icon: 'success' }); setTimeout(() => wx.navigateBack(), 1000); }
     catch (err) { wx.showToast({ title: err?.message || '操作失败', icon: 'none' }); } finally { this.setData({ rejecting: false }); }
   },

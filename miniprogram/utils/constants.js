@@ -92,11 +92,11 @@ const PHASE_STATUS_MAP = {
 
 // V1.3 — 订阅消息模板 ID
 const TEMPLATE_IDS = {
-  todoNotify: '',
-  reviewResult: '',
-  acceptNotify: '',
-  acceptResult: '',
-  phasePass: '',
+  todoNotify: 'FcVV6DAzlPBsOaVFn55z4OfLTIGtjlaJFWtROh5e5TE',   // 装修任务变化通知
+  reviewResult: 'hNKcPc3yuyJL0kj3ZhUjPODIJXxGx_gtKcqUnPfPKtY', // 审核结果通知
+  acceptNotify: 'o2KzHcZuwDZIy6AHc9nz0jW5bpzjeOE8YGLhlchBkmw', // 装修验收提醒
+  acceptResult: 'hNKcPc3yuyJL0kj3ZhUjPODIJXxGx_gtKcqUnPfPKtY', // 审核结果通知（复用）
+  phasePass: 'o2KzHcZuwDZIy6AHc9nz0jW5bpzjeOE8YGLhlchBkmw',    // 装修验收提醒（复用）
 };
 
 module.exports = {

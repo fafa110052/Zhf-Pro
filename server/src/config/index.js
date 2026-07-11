@@ -27,11 +27,11 @@ module.exports = {
   // 小程序订阅消息模板 ID（需在小程序后台申请后填入环境变量）
   subscribeMessage: {
     templates: {
-      todoNotify: process.env.WX_TEMPLATE_TODO || '',
-      reviewResult: process.env.WX_TEMPLATE_REVIEW || '',
-      acceptNotify: process.env.WX_TEMPLATE_ACCEPT || '',
-      acceptResult: process.env.WX_TEMPLATE_ACCEPT_RESULT || '',
-      phasePass: process.env.WX_TEMPLATE_PHASE_PASS || '',
+      todoNotify: process.env.WX_TEMPLATE_TODO || 'FcVV6DAzlPBsOaVFn55z4OfLTIGtjlaJFWtROh5e5TE',
+      reviewResult: process.env.WX_TEMPLATE_REVIEW || 'hNKcPc3yuyJL0kj3ZhUjPODIJXxGx_gtKcqUnPfPKtY',
+      acceptNotify: process.env.WX_TEMPLATE_ACCEPT || 'o2KzHcZuwDZIy6AHc9nz0jW5bpzjeOE8YGLhlchBkmw',
+      acceptResult: process.env.WX_TEMPLATE_ACCEPT_RESULT || 'hNKcPc3yuyJL0kj3ZhUjPODIJXxGx_gtKcqUnPfPKtY',
+      phasePass: process.env.WX_TEMPLATE_PHASE_PASS || 'o2KzHcZuwDZIy6AHc9nz0jW5bpzjeOE8YGLhlchBkmw',
     },
   },
 };

@@ -1,5 +1,5 @@
 const api = require('../../utils/api');
-const { PHASE_STATUS_MAP, PHASE_TYPE_MAP, UPLOAD_MAX_COUNT } = require('../../utils/constants');
+const { PHASE_STATUS_MAP, PHASE_TYPE_MAP, UPLOAD_MAX_COUNT, TEMPLATE_IDS } = require('../../utils/constants');
 const { fullImageUrl } = require('../../utils/util');
 
 Page({
@@ -56,7 +56,7 @@ Page({
         this.setData({ acting: true });
         try {
           await api.confirmDesign(this.data.phaseId);
-          wx.requestSubscribeMessage({ tmplIds: [], success: () => {}, fail: () => {} });
+          wx.requestSubscribeMessage({ tmplIds: [TEMPLATE_IDS.todoNotify, TEMPLATE_IDS.reviewResult], success: () => {}, fail: () => {} });
           wx.showToast({ title: '已确认', icon: 'success' });
           setTimeout(() => wx.navigateBack(), 1000);
         } catch (err) { wx.showToast({ title: err?.message || '失败', icon: 'none' }); }
@@ -92,7 +92,7 @@ Page({
     if (this.data.selectedImages.length === 0) {
       wx.showToast({ title: '请至少选择一张完工图', icon: 'none' }); return;
     }
-    wx.requestSubscribeMessage({ tmplIds: [], success: () => {}, fail: () => {} });
+    wx.requestSubscribeMessage({ tmplIds: [TEMPLATE_IDS.todoNotify, TEMPLATE_IDS.reviewResult], success: () => {}, fail: () => {} });
     this.setData({ uploading: true });
     try {
       const urls = [];
