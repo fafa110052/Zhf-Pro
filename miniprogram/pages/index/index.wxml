@@ -126,7 +126,7 @@
 </view>
 
 <!-- ═══ 隐私协议弹窗 ═══ -->
-<view wx:if="{{showPrivacy}}" class="privacy-overlay" catchtap>
+<view wx:if="{{showPrivacy}}" class="privacy-overlay" catchtap="onOverlayTap" catchtouchmove="onOverlayTap">
   <view class="privacy-modal">
     <!-- 图标 — 纯 CSS 几何 -->
     <view class="privacy-icon-wrap">
@@ -139,12 +139,12 @@
     <!-- 标题 -->
     <text class="privacy-title">欢迎来到住好房</text>
 
-    <!-- 协议文案 — 富文本内联链接 -->
+    <!-- 协议文案 — 内联链接 -->
     <view class="privacy-body">
       <text class="privacy-text">为了保障您的合法权益，我们将依据</text>
-      <view class="privacy-link-wrap" bindtap="onOpenAgreement"><text class="privacy-link">《用户协议》</text></view>
+      <text class="privacy-link" bindtap="onOpenAgreement">《用户协议》</text>
       <text class="privacy-text">和</text>
-      <view class="privacy-link-wrap" bindtap="onOpenPrivacy"><text class="privacy-link">《隐私政策》</text></view>
+      <text class="privacy-link" bindtap="onOpenPrivacy">《隐私政策》</text>
       <text class="privacy-text">处理您的个人信息。点击"同意并继续"即表示您已阅读并同意上述协议的全部内容。</text>
     </view>
 

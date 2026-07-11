@@ -201,6 +201,11 @@ Page({
   // 隐私协议弹窗
   // ═══════════════════════════════════════════
 
+  /** 遮罩点击 — 阻止穿透操作背景 */
+  onOverlayTap() {
+    // 空函数，仅用于 catchtap 阻止事件穿透
+  },
+
   /** 同意并继续 */
   onAgreePrivacy() {
     wx.setStorageSync('privacy_agreed', Date.now());
