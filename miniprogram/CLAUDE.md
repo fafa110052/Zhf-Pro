@@ -113,7 +113,7 @@ URL = `BASE_URL + API_PREFIX + url`（如 `http://test.wzzhfservice.cloud/api/v1
 | 公开作品 | `getWorks` / `getHotWorks` / `getWorkDetail` | `/works` |
 | 首页 | `getHomepageConfig` | `/homepage/config` |
 | 分类 | `getCategories` | `/categories` |
-| 认证 | `designerLogin` / `wechatPhoneLogin` / `getDesignerProfile` / `checkLogin` | `/auth/*` |
+| 认证 | `designerLogin` / `wechatPhoneLogin` / `getDesignerProfile` / `checkLogin` / `cancelAccount` | `/auth/*` |
 | 设计师 | `getMyWorks` / `createWork` / `updateWork` / `deleteWork` / `submitWork` / `getMyStats` | `/designer/works*` |
 | 上传 | `uploadImage` / `uploadImages` | `/upload` |
 | 选材 | `getProperties` / `getPropertyMaterials` / `submitMaterialOrder` / `getMyMaterialOrders` / `getOwnerCheck` | `/properties*` `/material-orders*` |

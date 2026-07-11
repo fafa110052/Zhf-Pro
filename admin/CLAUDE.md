@@ -10,7 +10,7 @@ admin/src/
 ├── App.jsx             # AuthProvider + RouterProvider
 ├── index.css           # Tailwind, PingFang SC 字体
 ├── api/client.js       # Axios 实例（baseURL=/api/v1, Bearer 拦截器, 自动解包 .data）
-├── router/index.jsx    # 14 条路由
+├── router/index.jsx    # 20 条路由
 ├── contexts/AuthContext.jsx  # 认证上下文
 ├── hooks/useKeyboardNav.js   # Ctrl/Cmd 快捷键
 ├── components/
@@ -23,7 +23,7 @@ admin/src/
 │   ├── EmptyState.jsx  # 空状态（prop: description 不是 desc）
 │   ├── ErrorState.jsx  # 错误+重试
 │   └── Toast.jsx       # Toast 通知（useToast）
-└── pages/              # 14 个页面
+└── pages/              # 18 个页面
 ```
 
 ## 路由 + 菜单（MENU_ITEMS）
@@ -38,6 +38,10 @@ admin/src/
 | `/material-categories` | MaterialCategories | 材料分类 | 标签 |
 | `/materials` | Materials | 材料管理 | 立方体 |
 | `/material-orders` | MaterialOrders | 工程管理 | 对勾 |
+| `/measurement-appointments` | MeasurementAppointments | 量房预约 | 日历 |
+| `/lottery` | LotteryConfig | 摇一摇抽奖 | 礼物 |
+| `/operation-data` | OperationData | 运营数据 | 图表 |
+| `/reports` | Reports | 举报管理 | 旗帜 |
 | `/categories` | Categories | 分类字典 | 标签 |
 | `/images` | Images | 图片库 | 图片 |
 | `/settings` | Settings | 系统设置 | 齿轮 |

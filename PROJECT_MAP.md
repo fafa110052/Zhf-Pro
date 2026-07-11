@@ -9,8 +9,8 @@
 
 | 项目 | 入口文档 | 部署路径 | 用途 |
 |------|---------|---------|------|
-| 后端 | [server/CLAUDE.md](server/CLAUDE.md) | `server/src/` | Express 5 API，SQLite，15 个路由模块，14 张表 |
-| 管理后台 | [admin/CLAUDE.md](admin/CLAUDE.md) | `admin/src/` | React 19 + Tailwind 4，14 个页面 |
+| 后端 | [server/CLAUDE.md](server/CLAUDE.md) | `server/src/` | Express 5 API，SQLite，19 路由模块，21 张表 |
+| 管理后台 | [admin/CLAUDE.md](admin/CLAUDE.md) | `admin/src/` | React 19 + Tailwind 4，18 个页面 |
 | 小程序 | [miniprogram/CLAUDE.md](miniprogram/CLAUDE.md) | `miniprogram/` | 微信原生，4 tab，26 个页面 |
 | H5 移动端 | [h5/CLAUDE.md](h5/CLAUDE.md) | `h5/src/` | React 19 + Tailwind 4，7 个路由 |
 | 摇一摇抽奖 | [lottery_replica/CLAUDE.md](lottery_replica/CLAUDE.md) | `lottery_replica/lottery_clean/` | 静态 H5，托管于 `/lottery/` |

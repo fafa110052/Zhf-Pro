@@ -11,13 +11,13 @@ server/src/
 ├── config/index.js     # JWT_SECRET, PORT(3000), uploadDir, wechat
 ├── db/
 │   ├── connection.js   # Knex + better-sqlite3 实例
-│   └── migrations/     # 6 个迁移文件（001-006）
+│   └── migrations/     # 12 个迁移文件（001–011，含两个 006）
 ├── middleware/
 │   ├── auth.js         # authenticate + requireRole + requirePersonnelType
 │   ├── upload.js       # Multer 配置（存储+过滤+文件命名）
 │   └── validate.js     # requireFields / idParam / pagination
-├── routes/             # 15 个路由模块
-└── services/           # 14 个 Service 文件
+├── routes/             # 19 个路由模块
+└── services/           # 22 个 Service 文件
 ```
 
 ## 中间件栈（app.js 顺序）
@@ -48,6 +48,10 @@ server/src/
 | `materials.js` | `/api/v1/admin` | 材料 CRUD |
 | `material-orders.js` | `/api/v1` | 选材申请：提交+我的列表+详情+管理审核+派单 |
 | `construction-phases.js` | `/api/v1` | 施工阶段：派单→设计审核→施工审核→业主验收，全流程 23 状态 |
+| `measurement-appointments.js` | `/api/v1` | 量房预约：提交 + 管理列表 |
+| `lottery.js` | `/api/v1` | 摇一摇抽奖：抽奖 + 中奖记录 + 配置 |
+| `design-team.js` | `/api/v1` | 设计团队展示 |
+| `reports.js` | `/api/v1` | 作品举报：公开提交 + 管理处理 |
 | `reviews.js` | — | 已弃用，空文件占位 |
 
 ## Service 规范
@@ -56,7 +60,7 @@ server/src/
 - 错误：`throw Object.assign(new Error('中文消息'), { status: 400 })`
 - SQLite 错误映射（app.js）：UNIQUE → "已存在"，FOREIGNKEY → "被引用无法删除"
 
-## 数据库（14 张表）
+## 数据库（21 张表）
 
 | 表 | 用途 |
 |---|------|
@@ -74,6 +78,10 @@ server/src/
 | `material_order_logs` | 订单操作日志 |
 | `construction_phases` | 施工阶段（5阶段，23状态） |
 | `construction_phase_logs` | 阶段操作日志 |
+| `measurement_appointments` | 量房预约 |
+| `lottery_users/records/prizes/config` | 摇一摇抽奖（身份/记录/奖品/配置） |
+| `design_team` | 设计团队成员 |
+| `reports` | 作品举报 |
 
 ## 响应格式
 
