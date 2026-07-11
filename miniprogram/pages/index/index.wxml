@@ -124,3 +124,48 @@
 
   <view class="safe-bottom"></view>
 </view>
+
+<!-- ═══ 隐私协议弹窗 ═══ -->
+<view wx:if="{{showPrivacy}}" class="privacy-overlay">
+  <view class="privacy-sheet">
+    <!-- 拖拽指示条 -->
+    <view class="privacy-drag-bar"></view>
+
+    <!-- 图标 -->
+    <view class="privacy-icon-wrap">
+      <view class="privacy-icon-shield">
+        <text class="privacy-icon-mark">&#x25C9;</text>
+      </view>
+    </view>
+
+    <!-- 标题与说明 -->
+    <text class="privacy-title">欢迎来到住好房</text>
+    <text class="privacy-desc">为了更好地保障您的权益，使用前请阅读并同意以下协议</text>
+
+    <!-- 协议勾选区 -->
+    <view class="privacy-check-row" bindtap="onTogglePrivacy">
+      <view class="privacy-checkbox {{privacyChecked ? 'checked' : ''}}">
+        <text wx:if="{{privacyChecked}}" class="privacy-check-mark">&#x2713;</text>
+      </view>
+      <view class="privacy-check-text">
+        <text>我已阅读并同意</text>
+        <text class="privacy-link" catchtap="onOpenAgreement">《用户协议》</text>
+        <text>和</text>
+        <text class="privacy-link" catchtap="onOpenPrivacy">《隐私政策》</text>
+      </view>
+    </view>
+
+    <!-- 同意按钮 -->
+    <view class="privacy-agree-btn {{privacyChecked ? '' : 'disabled'}}" bindtap="onAgreePrivacy">
+      <text class="privacy-agree-text">同意并继续</text>
+    </view>
+
+    <!-- 退出 -->
+    <view class="privacy-exit" bindtap="onDisagreePrivacy">
+      <text class="privacy-exit-text">暂不同意，退出应用</text>
+    </view>
+
+    <!-- 安全区 -->
+    <view class="privacy-safe"></view>
+  </view>
+</view>

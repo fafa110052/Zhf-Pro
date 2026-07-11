@@ -384,3 +384,188 @@
 .safe-bottom {
   height: 24rpx;
 }
+
+/* ═══════════════════════════════════════════
+   隐私协议弹窗
+   ═══════════════════════════════════════════ */
+
+/* 遮罩层 */
+.privacy-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: flex-end;
+  animation: privacyFadeIn 280ms ease-out;
+}
+
+@keyframes privacyFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* 底部面板 */
+.privacy-sheet {
+  width: 100%;
+  background: var(--bg-card);
+  border-radius: 32rpx 32rpx 0 0;
+  padding: 0 40rpx;
+  box-sizing: border-box;
+  animation: privacySlideUp 320ms cubic-bezier(0.32, 0.72, 0, 1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+@keyframes privacySlideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+/* 拖拽指示条 */
+.privacy-drag-bar {
+  width: 64rpx;
+  height: 8rpx;
+  background: var(--border-color);
+  border-radius: 4rpx;
+  margin: 16rpx 0 32rpx;
+}
+
+/* 图标 */
+.privacy-icon-wrap {
+  margin-bottom: 24rpx;
+}
+
+.privacy-icon-shield {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 48rpx;
+  background: linear-gradient(135deg, #fdf8f0, #f5efe0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.privacy-icon-mark {
+  font-size: 44rpx;
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+/* 标题 */
+.privacy-title {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 12rpx;
+  text-align: center;
+}
+
+.privacy-desc {
+  font-size: 26rpx;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  text-align: center;
+  margin-bottom: 32rpx;
+  padding: 0 8rpx;
+}
+
+/* 协议勾选区 */
+.privacy-check-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 16rpx;
+  min-height: 88rpx;
+  padding: 16rpx 0;
+  width: 100%;
+}
+
+.privacy-checkbox {
+  width: 40rpx;
+  height: 40rpx;
+  min-width: 40rpx;
+  border: 3rpx solid var(--border-color);
+  border-radius: 8rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2rpx;
+  transition: all 0.15s ease;
+  box-sizing: border-box;
+}
+
+.privacy-checkbox.checked {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.privacy-check-mark {
+  font-size: 24rpx;
+  color: #fff;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.privacy-check-text {
+  flex: 1;
+  font-size: 26rpx;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.privacy-link {
+  color: var(--color-accent);
+  font-weight: 500;
+  padding: 4rpx 0;
+  display: inline;
+}
+
+/* 同意按钮 */
+.privacy-agree-btn {
+  width: 100%;
+  height: 88rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--gradient-warm);
+  border-radius: 44rpx;
+  margin-top: 24rpx;
+  transition: opacity 0.15s ease;
+}
+
+.privacy-agree-btn:active {
+  opacity: 0.9;
+  transform: scale(0.98);
+}
+
+.privacy-agree-btn.disabled {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.privacy-agree-text {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: 2rpx;
+}
+
+/* 退出链接 */
+.privacy-exit {
+  min-height: 88rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24rpx 0 8rpx;
+}
+
+.privacy-exit-text {
+  font-size: 26rpx;
+  color: var(--text-tertiary);
+}
+
+/* 底部安全区 */
+.privacy-safe {
+  height: calc(32rpx + env(safe-area-inset-bottom));
+}

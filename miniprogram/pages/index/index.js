@@ -39,9 +39,19 @@ Page({
       { icon: '📐', label: '上门测量', desc: '专业免费量房' },
       { icon: '📊', label: '出方案报价', desc: '透明无增项' },
     ],
+
+    // 隐私协议弹窗
+    showPrivacy: false,
+    privacyChecked: false,
   },
 
   onLoad() {
+    // 首次启动检查隐私协议
+    var agreed = wx.getStorageSync('privacy_agreed');
+    if (!agreed) {
+      this.setData({ showPrivacy: true });
+    }
+
     this.loadHomepageConfig();
     this.loadHotWorks();
     this.loadDesignTeam();
@@ -186,6 +196,48 @@ Page({
   /** 免费量房预约 */
   onFreeMeasureTap() {
     wx.navigateTo({ url: '/pages/measurement-appointment/index' });
+  },
+
+  // ═══════════════════════════════════════════
+  // 隐私协议弹窗
+  // ═══════════════════════════════════════════
+
+  /** 勾选/取消勾选 */
+  onTogglePrivacy() {
+    this.setData({ privacyChecked: !this.data.privacyChecked });
+  },
+
+  /** 同意并继续 */
+  onAgreePrivacy() {
+    if (!this.data.privacyChecked) return;
+    wx.setStorageSync('privacy_agreed', Date.now());
+    this.setData({ showPrivacy: false });
+  },
+
+  /** 暂不同意 */
+  onDisagreePrivacy() {
+    var that = this;
+    wx.showModal({
+      title: '温馨提示',
+      content: '需要同意《用户协议》和《隐私政策》才能使用住好房的所有服务。确定要退出吗？',
+      confirmText: '退出',
+      cancelText: '再想想',
+      success: function (res) {
+        if (res.confirm) {
+          wx.exitMiniProgram();
+        }
+      },
+    });
+  },
+
+  /** 打开用户协议 */
+  onOpenAgreement() {
+    wx.navigateTo({ url: '/pages/agreement/index' });
+  },
+
+  /** 打开隐私政策 */
+  onOpenPrivacy() {
+    wx.navigateTo({ url: '/pages/privacy/index' });
   },
 });
 
