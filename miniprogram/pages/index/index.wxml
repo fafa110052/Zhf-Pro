@@ -126,7 +126,11 @@
 </view>
 
 <!-- ═══ 隐私协议弹窗 ═══ -->
-<view wx:if="{{showPrivacy}}" class="privacy-overlay" catchtap="onOverlayTap" catchtouchmove="onOverlayTap">
+<view wx:if="{{showPrivacy}}" class="privacy-wrapper">
+  <!-- 遮罩层 — 独立层级，拦截背景点击 -->
+  <view class="privacy-overlay" catchtap="onOverlayTap" catchtouchmove="onOverlayTap"></view>
+
+  <!-- 模态卡片 — 独立层级，不受 overlay catchtap 影响 -->
   <view class="privacy-modal">
     <!-- 图标 — 纯 CSS 几何 -->
     <view class="privacy-icon-wrap">
