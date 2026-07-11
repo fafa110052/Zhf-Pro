@@ -126,15 +126,13 @@
 </view>
 
 <!-- ═══ 隐私协议弹窗 ═══ -->
-<view wx:if="{{showPrivacy}}" class="privacy-overlay">
-  <view class="privacy-sheet">
-    <!-- 拖拽指示条 -->
-    <view class="privacy-drag-bar"></view>
-
-    <!-- 图标 -->
+<view wx:if="{{showPrivacy}}" class="privacy-overlay" catchtap>
+  <view class="privacy-modal">
+    <!-- 图标 — 纯 CSS 几何，无 Unicode -->
     <view class="privacy-icon-wrap">
-      <view class="privacy-icon-shield">
-        <text class="privacy-icon-mark">&#x25C9;</text>
+      <view class="privacy-icon-circle">
+        <view class="privacy-icon-shield"></view>
+        <view class="privacy-icon-dot"></view>
       </view>
     </view>
 
@@ -164,8 +162,5 @@
     <view class="privacy-exit" bindtap="onDisagreePrivacy">
       <text class="privacy-exit-text">暂不同意，退出应用</text>
     </view>
-
-    <!-- 安全区 -->
-    <view class="privacy-safe"></view>
   </view>
 </view>
