@@ -23,7 +23,7 @@ Page({
     // picker 数据
     timeOptions: ['工作日', '周末', '不限'],
     timeIndex: -1,
-    periodOptions: ['上午', '下午', '全天'],
+    periodOptions: ['09:00-11:00', '11:00-13:00', '13:00-15:00', '15:00-17:00', '17:00-19:00'],
     periodIndex: -1,
     budgetOptions: ['5万以下', '5-10万', '10-20万', '20-30万', '30万以上'],
     budgetIndex: -1,

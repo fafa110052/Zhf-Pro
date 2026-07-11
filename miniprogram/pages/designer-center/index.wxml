@@ -35,12 +35,6 @@
         <text>🏗️ 从业 {{userInfo.years_of_exp}} 年</text>
       </view>
 
-      <!-- 状态标签 -->
-      <view class="status-badge">
-        <view class="tag {{userInfo.status === 'active' ? 'tag-green' : 'tag-red'}}">
-          <text>{{userInfo.status === 'active' ? '✅ 已启用' : '⛔ 已禁用'}}</text>
-        </view>
-      </view>
     </view>
   </view>
 

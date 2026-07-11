@@ -192,7 +192,7 @@ Page({
   onApplyDesigner() {
     wx.showModal({
       title: '申请设计师',
-      content: '请联系管理员将您的账号升级为设计师，客服电话：400-000-0000',
+      content: '请联系管理员将您的账号升级为设计师，客服电话：0774-3880466',
       showCancel: false,
       confirmText: '知道了',
     });
@@ -238,7 +238,7 @@ Page({
   onContact() {
     wx.showModal({
       title: '联系客服',
-      content: '客服电话：400-000-0000\n工作时间：9:00-18:00',
+      content: '客服电话：0774-3880466\n工作时间：9:00-18:00',
       showCancel: false,
       confirmText: '知道了',
     });
