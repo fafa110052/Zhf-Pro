@@ -390,7 +390,7 @@ function CreateModal({ open, onClose, onCreated }) {
       for (let i = 0; i < Math.min(files.length, 9); i++) {
         formData.append('files', files[i]);
       }
-      const res = await client.post('/upload/multiple', formData);
+      const res = await client.post('/upload/multiple?category=works', formData);
       const newImages = res.data.uploaded || [];
       setUploadedImages(prev => {
         const all = [...prev, ...newImages];

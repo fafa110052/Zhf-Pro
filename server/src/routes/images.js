@@ -15,9 +15,9 @@ const { authenticate, requireRole } = require('../middleware/auth');
  */
 router.get('/admin/images', authenticate, requireRole('admin'), async (req, res, next) => {
   try {
-    const { uploaded_by, date_from, date_to, page, page_size } = req.query;
+    const { uploaded_by, date_from, date_to, category, keyword, page, page_size } = req.query;
     const result = await imageService.list(
-      { uploaded_by, date_from, date_to },
+      { uploaded_by, date_from, date_to, category, keyword },
       { page, page_size }
     );
     res.json({ success: true, data: result });

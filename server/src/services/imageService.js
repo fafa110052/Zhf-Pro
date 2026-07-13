@@ -36,6 +36,20 @@ const imageService = {
       query = query.where('image_library.created_at', '<=', `${filters.date_to} 23:59:59`);
     }
 
+    // 按业务分类筛选
+    if (filters.category) {
+      query = query.where('image_library.category', filters.category);
+    }
+
+    // 关键词：原名 或 上传者姓名
+    if (filters.keyword) {
+      const kw = `%${filters.keyword}%`;
+      query = query.where(function () {
+        this.where('image_library.original_name', 'like', kw)
+          .orWhere('designers.name', 'like', kw);
+      });
+    }
+
     const [{ count }] = await query.clone().count('* as count');
 
     const list = await query
@@ -43,8 +57,27 @@ const imageService = {
       .offset(offset)
       .limit(pageSize);
 
+    // 各分类计数（用于前端 Tab）—— 复用同样的非分类筛选条件
+    let countQuery = db('image_library')
+      .leftJoin('designers', 'image_library.uploaded_by', 'designers.id');
+    if (filters.uploaded_by) countQuery = countQuery.where('image_library.uploaded_by', filters.uploaded_by);
+    if (filters.date_from) countQuery = countQuery.where('image_library.created_at', '>=', filters.date_from);
+    if (filters.date_to) countQuery = countQuery.where('image_library.created_at', '<=', `${filters.date_to} 23:59:59`);
+    if (filters.keyword) {
+      const kw = `%${filters.keyword}%`;
+      countQuery = countQuery.where(function () {
+        this.where('image_library.original_name', 'like', kw).orWhere('designers.name', 'like', kw);
+      });
+    }
+    const countRows = await countQuery
+      .select('image_library.category')
+      .count('* as count')
+      .groupBy('image_library.category');
+    const counts = countRows.reduce((acc, r) => { acc[r.category] = Number(r.count); return acc; }, {});
+
     return {
       list,
+      counts,
       pagination: { page, page_size: pageSize, total: count, total_pages: Math.ceil(count / pageSize) },
     };
   },

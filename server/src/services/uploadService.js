@@ -9,7 +9,7 @@ const THUMB_WIDTH = 400;
 // 接近无损保留渲染图细节，手机放大看材质纹理不丢
 const MAX_DIMENSION = 5120;
 const WEBP_QUALITY = 95;
-const THUMBS_DIR = path.join(__dirname, '..', '..', 'uploads', 'thumbnails');
+const { normalizeCategory } = require('../config/imageCategories');
 
 /**
  * 文件上传 + 图片处理业务逻辑
@@ -26,9 +26,13 @@ const uploadService = {
       throw Object.assign(new Error('未选择文件'), { status: 400 });
     }
 
-    // 生成缩略图（先用原图生成，保证最佳清晰度）
+    // 分类目录 = 文件所在目录（multer 已按分类放好）
+    const category = normalizeCategory(options.imageCategory);
+    const categoryDir = path.dirname(file.path);
+
+    // 生成缩略图（写入同一分类目录）
     const thumbFilename = `thumb_${file.filename}`;
-    const thumbPath = path.join(THUMBS_DIR, thumbFilename);
+    const thumbPath = path.join(categoryDir, thumbFilename);
 
     try {
       await sharp(file.path)
@@ -77,13 +81,14 @@ const uploadService = {
       ? `${designerName}-${workName}-${dateStr}${ext}`
       : `${designerName}-${dateStr}${ext}`;
 
-    // 插入 image_library
+    // 插入 image_library（路径带分类目录）
     const [id] = await db('image_library').insert({
-      image_url: `/uploads/originals/${finalFilename}`,
-      thumb_url: `/uploads/thumbnails/${thumbFilename}`,
+      image_url: `/uploads/${category}/${finalFilename}`,
+      thumb_url: `/uploads/${category}/${thumbFilename}`,
       original_name: displayName,
       file_size: finalSize,
       uploaded_by: userId || null,
+      category,
     });
 
     return db('image_library').where('id', id).first();

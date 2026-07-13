@@ -216,7 +216,7 @@ Page({
       const urls = [];
       for (const path of this.data.designRejectImages) {
         try {
-          const res = await api.uploadImage(path);
+          const res = await api.uploadImage(path, 'materials');
           urls.push(res.url || res);
         } catch (_) { /* skip failed */ }
       }
@@ -306,7 +306,7 @@ Page({
       const urls = [];
       for (const path of this.data.disputeImages) {
         try {
-          const res = await api.uploadImage(path);
+          const res = await api.uploadImage(path, 'construction');
           urls.push(res.url || res);
         } catch (_) { /* skip failed */ }
       }

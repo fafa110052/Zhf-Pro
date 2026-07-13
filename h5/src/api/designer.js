@@ -24,12 +24,12 @@ export const deleteWork = (id) =>
 export const submitWork = (id) =>
   client.post(`/designer/works/${id}/submit`).then((r) => r.data);
 
-// 上传图片（可选传作品名称用于命名）
-export const uploadImage = (file, workName) => {
+// 上传图片（可选传作品名称用于命名；category 用于业务分类归档）
+export const uploadImage = (file, workName, category = 'works') => {
   const formData = new FormData();
   formData.append('file', file);
   if (workName) {
     formData.append('work_name', workName);
   }
-  return client.post('/upload', formData).then((r) => r.data);
+  return client.post(`/upload?category=${category}`, formData).then((r) => r.data);
 };

@@ -318,7 +318,7 @@ export default function Settings() {
       formData.append('file', file);
 
       const token = localStorage.getItem('admin_token');
-      const response = await fetch('/api/v1/upload', {
+      const response = await fetch('/api/v1/upload?category=banners', {
         method: 'POST',
         headers: { Authorization: token ? `Bearer ${token}` : '' },
         body: formData,
@@ -423,7 +423,7 @@ export default function Settings() {
       const formData = new FormData();
       formData.append('file', file);
       const token = localStorage.getItem('admin_token');
-      const response = await fetch('/api/v1/upload', {
+      const response = await fetch('/api/v1/upload?category=avatars', {
         method: 'POST',
         headers: { Authorization: token ? `Bearer ${token}` : '' },
         body: formData,

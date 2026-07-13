@@ -208,15 +208,15 @@ function getMyStats(opts = {}) {
  * @param {string} filePath — 本地文件路径
  * @returns {Promise<{id:int, url:string, thumbnail_url:string}>}
  */
-function uploadImage(filePath) {
+function uploadImage(filePath, category = '') {
   // 先压缩再上传，减少流量
-  return compressAndUpload(filePath);
+  return compressAndUpload(filePath, category);
 }
 
 /**
  * 压缩图片后上传
  */
-function compressAndUpload(filePath) {
+function compressAndUpload(filePath, category = '') {
   const { compressImage } = require('./imageCompress');
 
   return compressImage(filePath).then((compressedPath) => {
@@ -225,7 +225,7 @@ function compressAndUpload(filePath) {
       const token = app.globalData.token;
 
       wx.uploadFile({
-        url: `${app.globalData.baseUrl}/api/v1/upload`,
+        url: `${app.globalData.baseUrl}/api/v1/upload${category ? `?category=${category}` : ''}`,
         filePath: compressedPath,
       name: 'file',
       header: token ? { Authorization: `Bearer ${token}` } : {},
@@ -256,11 +256,11 @@ function compressAndUpload(filePath) {
  * @param {string[]} filePaths
  * @returns {Promise<Array>}
  */
-async function uploadImages(filePaths) {
+async function uploadImages(filePaths, category = '') {
   const results = [];
   for (const filePath of filePaths) {
     try {
-      const res = await uploadImage(filePath);
+      const res = await uploadImage(filePath, category);
       results.push(res);
     } catch (err) {
       console.error('上传失败:', filePath, err);

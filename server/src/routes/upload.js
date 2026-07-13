@@ -1,19 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const path = require('path');
-const fs = require('fs');
 const upload = require('../middleware/upload');
 const uploadService = require('../services/uploadService');
 const { authenticate } = require('../middleware/auth');
-
-// 确保上传目录存在
-const originalsDir = path.join(__dirname, '..', '..', 'uploads', 'originals');
-const thumbnailsDir = path.join(__dirname, '..', '..', 'uploads', 'thumbnails');
-[originalsDir, thumbnailsDir].forEach((dir) => {
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
-});
 
 /**
  * POST /api/v1/upload
@@ -36,6 +25,7 @@ router.post('/upload', authenticate, upload.single('file'), async (req, res, nex
       designerName: req.user.name || 'unknown',
       workName: req.body.work_name || '',
       category: req.body.category || '',
+      imageCategory: req.query.category || '',
     };
     const record = await uploadService.uploadSingle(req.file, uploadedBy, options);
     res.status(201).json({ success: true, data: record });
@@ -64,6 +54,7 @@ router.post('/upload/multiple', authenticate, upload.array('files', 9), async (r
       designerName: req.user.name || 'unknown',
       workName: req.body.work_name || '',
       category: req.body.category || '',
+      imageCategory: req.query.category || '',
     };
     const result = await uploadService.uploadMultiple(req.files, uploadedBy, options);
     res.status(201).json({ success: true, data: result });

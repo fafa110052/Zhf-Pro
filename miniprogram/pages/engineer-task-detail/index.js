@@ -97,7 +97,7 @@ Page({
     try {
       const urls = [];
       for (const path of this.data.selectedImages) {
-        const r = await api.uploadImage(path);
+        const r = await api.uploadImage(path, 'construction');
         urls.push(r.image_url);
       }
       await api.uploadConstructionImages(this.data.phaseId, urls, this.data.constructionDescription);
