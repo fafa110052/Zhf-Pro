@@ -158,7 +158,7 @@ export default function WorkUpload() {
     const uploaded = [];
     for (const img of localImages) {
       try {
-        const result = await uploadImage(img.file, form.title.trim());
+        const result = await uploadImage(img.file, form.title.trim(), 'works');
         uploaded.push({ id: result.id, image_url: result.image_url, thumb_url: result.thumb_url });
       } catch (err) {
         throw new Error(`图片上传失败: ${err?.message || '未知错误'}`);
