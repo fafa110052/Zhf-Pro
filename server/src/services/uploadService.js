@@ -9,13 +9,13 @@ const THUMB_WIDTH = 400;
 // 接近无损保留渲染图细节，手机放大看材质纹理不丢
 const MAX_DIMENSION = 5120;
 const WEBP_QUALITY = 95;
-const { normalizeCategory } = require('../config/imageCategories');
+const { normalizeCategory, CATEGORY_LABELS } = require('../config/imageCategories');
 
 /**
  * 文件上传 + 图片处理业务逻辑
  */
-// 文件名安全化
-const sanitize = (s) => (s || '').replace(/[^a-zA-Z0-9一-鿿_-]/g, '').replace(/\s+/g, '_') || 'unknown';
+// 文件名安全化（空值返回空串，不再用 unknown 兜底）
+const sanitize = (s) => (s || '').replace(/[^a-zA-Z0-9一-鿿_-]/g, '').replace(/\s+/g, '_');
 
 const uploadService = {
   // ==========================================
@@ -72,14 +72,21 @@ const uploadService = {
       console.warn(`⚠️ 图片压缩失败，保留原图: ${err.message}`);
     }
 
-    // original_name 格式：设计师-作品名字-日期.扩展名
+    // original_name 显示名：分类-上传人-日期-作品名（无作品名则用序号，永不出现 unknown）
     const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-    const designerName = sanitize(options.designerName || 'unknown');
-    const workName = sanitize(options.workName || options.category || '');
-    const ext = path.extname(finalFilename);
-    const displayName = workName
-      ? `${designerName}-${workName}-${dateStr}${ext}`
-      : `${designerName}-${dateStr}${ext}`;
+    const catLabel = CATEGORY_LABELS[category] || '未分类';
+    let uploader = sanitize(options.designerName);
+    if (!uploader || uploader === 'unknown') uploader = '用户';
+    const workName = sanitize(options.workName || options.category);
+    let displayName;
+    if (workName) {
+      displayName = `${catLabel}-${uploader}-${dateStr}-${workName}`;
+    } else {
+      // 同分类+上传人+同日 递增序号，避免重名
+      const prefix = `${catLabel}-${uploader}-${dateStr}-`;
+      const [{ c }] = await db('image_library').where('original_name', 'like', `${prefix}%`).count('* as c');
+      displayName = `${prefix}${Number(c) + 1}`;
+    }
 
     // 插入 image_library（路径带分类目录）
     const [id] = await db('image_library').insert({
