@@ -254,7 +254,7 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
           fixed top-0 left-0 z-50 h-screen
           flex flex-col bg-slate-900 text-white
           transition-all duration-300 ease-in-out
-          lg:relative lg:z-auto
+          lg:relative lg:z-50
           ${mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
           ${collapsed ? 'lg:w-16' : 'lg:w-56'}
         `}
