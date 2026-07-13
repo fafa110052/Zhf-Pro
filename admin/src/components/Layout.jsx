@@ -48,7 +48,7 @@ export default function Layout() {
           />
 
           <main className="flex-1 overflow-auto">
-            <Outlet />
+            <Outlet context={{ collapsed }} />
           </main>
 
           {/* ICP备案号 */}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useOutletContext } from 'react-router-dom';
 import client from '../api/client';
 import Modal from '../components/Modal';
 import ErrorState from '../components/ErrorState';
@@ -147,6 +147,7 @@ export default function MaterialOrderDetail() {
   const { orderNo } = useParams();
   const navigate = useNavigate();
   const toast = useToast();
+  const { collapsed } = useOutletContext();
 
   const [detail, setDetail] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -350,6 +351,9 @@ export default function MaterialOrderDetail() {
   const showStartConstruction = status === 'approved' && constructionStatus === 'not_started';
   const showReviewDesign = dp && (dp.status === 'design_director_approved' || dp.status === 'owner_design_disputed');
   const hasActions = showApproveAssign || showStartConstruction || showReviewDesign;
+
+  // 底部操作栏 left 跟随侧边栏宽度：移动端 left-0，桌面端 collapsed=left-16(64px) / expanded=left-56(224px)
+  const barLeft = collapsed ? 'lg:left-16' : 'lg:left-56';
 
   return (
     <div className="p-4 lg:p-6 space-y-6 pb-24">
@@ -927,7 +931,7 @@ export default function MaterialOrderDetail() {
       {/* 固定操作底栏 */}
       {/* ═══════════════════════════════════════════════ */}
       {hasActions && (
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 px-6 py-4 flex items-center justify-between z-30 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+        <div className={`fixed bottom-0 left-0 right-0 ${barLeft} bg-white border-t border-slate-200 px-6 py-4 flex items-center justify-between z-30 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]`}>
           <div>
             {showApproveAssign && (
               <button onClick={() => { setRejectReason(''); setRejectOpen(true); }}
