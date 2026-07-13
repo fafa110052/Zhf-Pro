@@ -1,19 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const path = require('path');
-const fs = require('fs');
 const upload = require('../middleware/upload');
 const uploadService = require('../services/uploadService');
 const { authenticate } = require('../middleware/auth');
-
-// 确保上传目录存在
-const originalsDir = path.join(__dirname, '..', '..', 'uploads', 'originals');
-const thumbnailsDir = path.join(__dirname, '..', '..', 'uploads', 'thumbnails');
-[originalsDir, thumbnailsDir].forEach((dir) => {
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
-});
 
 /**
  * POST /api/v1/upload
