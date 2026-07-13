@@ -376,7 +376,7 @@ function CreateModal({ open, onClose, onCreated }) {
     if (!open) return;
     setFormError('');
     Promise.all([
-      client.get('/admin/designers').then(r => setDesigners(r.data.list || [])).catch(() => {}),
+      client.get('/admin/designers', { params: { personnel_type: 'designer,design_director', page_size: 50 } }).then(r => setDesigners(r.data.list || [])).catch(() => {}),
       client.get('/categories').then(r => setCategories(r.data)).catch(() => {}),
     ]);
   }, [open]);

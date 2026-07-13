@@ -74,7 +74,11 @@ const designerService = {
       query = query.where('status', filters.status);
     }
     if (filters.personnel_type) {
-      query = query.where('personnel_type', filters.personnel_type);
+      // 支持逗号分隔多值（如 designer,design_director）
+      const types = String(filters.personnel_type).split(',').map((s) => s.trim()).filter(Boolean);
+      query = types.length > 1
+        ? query.whereIn('personnel_type', types)
+        : query.where('personnel_type', types[0]);
     }
     if (filters.keyword) {
       const kw = `%${filters.keyword}%`;
