@@ -1,59 +1,47 @@
 #!/bin/bash
 # ═══════════════════════════════════════════════════
-# 住好房数据库备份脚本
+# 住好房每日备份：SQLite 数据库 + 上传图片
 #
 # 用法:
-#   ./scripts/backup.sh              # 手动备份
-#   0 3 * * * /path/to/backup.sh     # crontab 每天凌晨 3 点自动备份
+#   ./scripts/backup.sh                      # 手动备份（备份到 /root/backups）
+#   BACKUP_DIR=/tmp/bk ./scripts/backup.sh   # 指定备份目录（测试用）
+#   30 17 * * * /root/Zhf-Pro/server/scripts/backup.sh >> /root/backups/cron.log 2>&1
+#                                            # crontab 每天 17:30（时区 Asia/Shanghai）
 #
-# 备份策略:
-#   - 保留最近 7 天的每日备份
-#   - 保留最近 4 周的每周备份（每周日）
+# 说明:
+# - DB 为 SQLite DELETE 日志模式，主库 database.sqlite 始终是已提交状态，
+#   直接打包即得一致快照（本机无 sqlite3 CLI，故用文件级打包而非 .backup）。
+# - 图片多为已压缩 jpg/webp，gzip 收益有限，体积≈原始大小。
+# - 保留最近 7 份，自动轮转。
+# - 同盘备份只防「误删/误操作/迁移出错」，不防整机磁盘损坏；如需异地容灾，
+#   后续可把备份目录再同步到对象存储（COS）冷备。
 # ═══════════════════════════════════════════════════
 
-set -e
+set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
-DB_FILE="$PROJECT_DIR/data/database.sqlite"
-BACKUP_DIR="$PROJECT_DIR/backups"
-LOG_FILE="$BACKUP_DIR/backup.log"
+PROJECT_DIR="$(dirname "$SCRIPT_DIR")"     # server 根目录（含 data/ 与 uploads/）
+BACKUP_DIR="${BACKUP_DIR:-/root/backups}"  # 可用环境变量覆盖
+KEEP=7
+TS=$(date +%Y%m%d-%H%M%S)
+FILE="$BACKUP_DIR/zhf-backup-$TS.tar.gz"
+LOG="$BACKUP_DIR/backup.log"
 
-# 创建备份目录
 mkdir -p "$BACKUP_DIR"
 
-# 检查数据库文件是否存在
-if [ ! -f "$DB_FILE" ]; then
-  echo "[$(date '+%Y-%m-%d %H:%M:%S')] ❌ 数据库文件不存在: $DB_FILE" | tee -a "$LOG_FILE"
-  exit 1
-fi
+# 失败也记日志（cron 环境无邮件通知）
+trap 'echo "$(date "+%F %T") FAIL 备份失败（脚本第 $LINENO 行）" >> "$LOG"' ERR
 
-# 备份文件名
-DATE=$(date +%Y%m%d)
-DAY_OF_WEEK=$(date +%u)  # 1=周一 7=周日
-BACKUP_NAME="zhuhaofang_${DATE}.sqlite"
+# 校验源目录
+[ -f "$PROJECT_DIR/data/database.sqlite" ] || { echo "$(date '+%F %T') FAIL 找不到数据库 $PROJECT_DIR/data/database.sqlite" >> "$LOG"; exit 1; }
 
-# ═══ 1. 执行备份（SQLite 在线备份） ═══
-echo "[$(date '+%Y-%m-%d %H:%M:%S')] 开始备份..." | tee -a "$LOG_FILE"
+# 打包：数据库目录 + 上传图片目录
+tar czf "$FILE" -C "$PROJECT_DIR" data uploads
 
-sqlite3 "$DB_FILE" ".backup '$BACKUP_DIR/$BACKUP_NAME'"
+# 轮转：只保留最近 KEEP 份
+ls -1t "$BACKUP_DIR"/zhf-backup-*.tar.gz 2>/dev/null | tail -n +$((KEEP + 1)) | xargs -r rm -f
 
-# 压缩（节省约 70% 空间）
-gzip -f "$BACKUP_DIR/$BACKUP_NAME"
-echo "[$(date '+%Y-%m-%d %H:%M:%S')] ✅ 备份完成: ${BACKUP_NAME}.gz" | tee -a "$LOG_FILE"
-
-# ═══ 2. 清理旧备份 ═══
-
-# 删除 7 天前的每日备份
-find "$BACKUP_DIR" -name "zhuhaofang_*.sqlite.gz" -mtime +7 -delete 2>/dev/null
-
-# 保留每周日的备份作为周备份（30 天内的）
-# （周日的备份文件名天然区分，只需保留更久）
-find "$BACKUP_DIR" -name "zhuhaofang_*7.sqlite.gz" -mtime +30 -delete 2>/dev/null
-
-# ═══ 3. 统计 ═══
-BACKUP_COUNT=$(ls -1 "$BACKUP_DIR"/*.sqlite.gz 2>/dev/null | wc -l | tr -d ' ')
-BACKUP_SIZE=$(du -sh "$BACKUP_DIR" 2>/dev/null | cut -f1)
-echo "[$(date '+%Y-%m-%d %H:%M:%S')] 备份总数: ${BACKUP_COUNT} 个，占用: ${BACKUP_SIZE}" | tee -a "$LOG_FILE"
-
-echo "完成"
+SIZE=$(du -h "$FILE" | cut -f1)
+COUNT=$(ls -1 "$BACKUP_DIR"/zhf-backup-*.tar.gz 2>/dev/null | wc -l | tr -d ' ')
+echo "$(date '+%F %T') OK  $(basename "$FILE") ($SIZE)  当前共 $COUNT 份" >> "$LOG"
+echo "✅ 备份完成: $FILE ($SIZE)"
