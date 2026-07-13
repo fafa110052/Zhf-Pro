@@ -494,7 +494,7 @@ Page({
 
     wx.showLoading({ title: '上传图片中...' });
     try {
-      const results = await uploadImages(this.data.localImages);
+      const results = await uploadImages(this.data.localImages, 'works');
       return results;
     } finally {
       wx.hideLoading();

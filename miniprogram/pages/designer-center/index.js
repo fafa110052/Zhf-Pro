@@ -179,7 +179,7 @@ Page({
         const filePath = res.tempFilePaths[0];
         try {
           const { uploadImage } = require('../../utils/api');
-          const result = await uploadImage(filePath);
+          const result = await uploadImage(filePath, 'avatars');
           this._avatarChanged = true;
           this.setData({
             ['editForm.avatar_url']: result.image_url,
