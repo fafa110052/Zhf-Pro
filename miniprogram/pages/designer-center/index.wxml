@@ -131,9 +131,9 @@
     <!-- 头像编辑 -->
     <view class="edit-avatar" bindtap="onChooseAvatar">
       <image
-        wx:if="{{editForm.avatar_url}}"
+        wx:if="{{editForm.avatar_preview}}"
         class="edit-avatar-img"
-        src="{{editForm.avatar_url}}"
+        src="{{editForm.avatar_preview}}"
         mode="aspectFill"
       />
       <view wx:else class="edit-avatar-placeholder">

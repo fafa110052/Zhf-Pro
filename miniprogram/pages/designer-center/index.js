@@ -131,6 +131,8 @@ Page({
   onEdit() {
     const { userInfo } = this.data;
     const bio = userInfo.bio || '';
+    // 标记本次编辑是否真正更换了头像，未更换则保存时不提交 avatar_url，避免误触发头像审核
+    this._avatarChanged = false;
     this.setData({
       editing: true,
       editForm: {
@@ -139,6 +141,7 @@ Page({
         bio: bio,
         years_of_exp: userInfo.years_of_exp || 0,
         avatar_url: userInfo.avatar_url || '',
+        avatar_preview: userInfo.avatar_url || '',
         bioLength: bio.length,
       },
     });
@@ -177,8 +180,10 @@ Page({
         try {
           const { uploadImage } = require('../../utils/api');
           const result = await uploadImage(filePath);
+          this._avatarChanged = true;
           this.setData({
             ['editForm.avatar_url']: result.image_url,
+            ['editForm.avatar_preview']: fullImageUrl(result.image_url),
           });
           wx.showToast({ title: '头像已更新', icon: 'success' });
         } catch (err) {
@@ -206,8 +211,19 @@ Page({
 
     this.setData({ saving: true });
 
+    // 只提交需要更新的字段；未更换头像时不带 avatar_url，避免后端误判为换头像触发审核
+    const payload = {
+      name: editForm.name,
+      phone: editForm.phone,
+      bio: editForm.bio,
+      years_of_exp: editForm.years_of_exp,
+    };
+    if (this._avatarChanged) {
+      payload.avatar_url = editForm.avatar_url;
+    }
+
     try {
-      await http.put('/designer/profile', editForm, { auth: true });
+      await http.put('/designer/profile', payload, { auth: true });
 
       // 重新拉取服务端数据（确保一致性）
       await this.loadProfile();
