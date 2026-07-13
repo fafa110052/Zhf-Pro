@@ -373,17 +373,18 @@ const designerService = {
 
     // 使用事务确保数据一致性
     await db.transaction(async (trx) => {
+      // 获取管理员账号（NOT NULL FK 列需要转移给 admin）
+      const admin = await trx('designers').where('role', 'admin').first();
+
       if (count > 0) {
         if (keepWorks === true) {
           // 保留作品：转移归属至管理员
-          const admin = await trx('designers').where('role', 'admin').first();
           if (!admin) {
             throw Object.assign(new Error('系统错误：未找到管理员账号'), { status: 500 });
           }
           await trx('cases').where('designer_id', id).update({ designer_id: admin.id });
         } else if (keepWorks === false) {
-          // 删除作品：先删 case_images（CASCADE 已自动处理），再删 works
-          // 同时清理 image_library 引用计数
+          // 删除作品：先清理 image_library 引用计数，再删 works
           const images = await trx('case_images')
             .whereIn('case_id', trx('cases').where('designer_id', id).select('id'));
           for (const img of images) {
@@ -391,6 +392,33 @@ const designerService = {
           }
           await trx('cases').where('designer_id', id).del();
         }
+      }
+
+      // 清理所有 FK 引用（nullable → SET NULL，NOT NULL → 转移给 admin）
+      await trx('cases').where('reviewed_by', id).update({ reviewed_by: null });
+      await trx('image_library').where('uploaded_by', id).update({ uploaded_by: null });
+
+      // material_orders — user_id 是 NOT NULL，其余 nullable
+      await trx('material_orders').where('designer_id', id).update({ designer_id: null });
+      await trx('material_orders').where('supervisor_id', id).update({ supervisor_id: null });
+      await trx('material_orders').where('reviewed_by', id).update({ reviewed_by: null });
+      if (admin) {
+        await trx('material_orders').where('user_id', id).update({ user_id: admin.id });
+      }
+
+      await trx('material_order_logs').where('operator_id', id).update({ operator_id: null });
+
+      // construction_phases — 6 个 FK 列，全部 nullable
+      await trx('construction_phases').where('designer_id', id).update({ designer_id: null });
+      await trx('construction_phases').where('design_director_id', id).update({ design_director_id: null });
+      await trx('construction_phases').where('engineer_id', id).update({ engineer_id: null });
+      await trx('construction_phases').where('engineering_director_id', id).update({ engineering_director_id: null });
+      await trx('construction_phases').where('design_reviewed_by', id).update({ design_reviewed_by: null });
+      await trx('construction_phases').where('construction_reviewed_by', id).update({ construction_reviewed_by: null });
+
+      // construction_phase_logs.operator_id — NOT NULL，转移给 admin
+      if (admin) {
+        await trx('construction_phase_logs').where('operator_id', id).update({ operator_id: admin.id });
       }
 
       // 删除设计师
