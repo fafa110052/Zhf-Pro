@@ -2,12 +2,61 @@ import { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 
 /**
+ * 功能色彩体系 — 每个分组独立强调色，一眼辨识功能区域
+ */
+const GROUP_COLORS = {
+  dashboard: {
+    accent: 'text-cyan-400',
+    bg: 'bg-cyan-400',
+    bgActive: 'bg-cyan-400/10',
+    border: 'border-cyan-400',
+    ring: 'ring-cyan-400/20',
+  },
+  content: {
+    accent: 'text-blue-400',
+    bg: 'bg-blue-400',
+    bgActive: 'bg-blue-400/10',
+    border: 'border-blue-400',
+    ring: 'ring-blue-400/20',
+  },
+  business: {
+    accent: 'text-emerald-400',
+    bg: 'bg-emerald-400',
+    bgActive: 'bg-emerald-400/10',
+    border: 'border-emerald-400',
+    ring: 'ring-emerald-400/20',
+  },
+  materials: {
+    accent: 'text-amber-400',
+    bg: 'bg-amber-400',
+    bgActive: 'bg-amber-400/10',
+    border: 'border-amber-400',
+    ring: 'ring-amber-400/20',
+  },
+  marketing: {
+    accent: 'text-violet-400',
+    bg: 'bg-violet-400',
+    bgActive: 'bg-violet-400/10',
+    border: 'border-violet-400',
+    ring: 'ring-violet-400/20',
+  },
+  settings: {
+    accent: 'text-stone-400',
+    bg: 'bg-stone-400',
+    bgActive: 'bg-stone-400/10',
+    border: 'border-stone-400',
+    ring: 'ring-stone-400/20',
+  },
+};
+
+/**
  * 菜单分组配置
  */
 const MENU_GROUPS = [
   {
     key: 'content',
     label: '内容管理',
+    colorKey: 'content',
     icon: (
       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
@@ -24,6 +73,7 @@ const MENU_GROUPS = [
   {
     key: 'business',
     label: '业务管理',
+    colorKey: 'business',
     icon: (
       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
@@ -40,6 +90,7 @@ const MENU_GROUPS = [
   {
     key: 'materials',
     label: '装修选材',
+    colorKey: 'materials',
     icon: (
       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
@@ -54,6 +105,7 @@ const MENU_GROUPS = [
   {
     key: 'marketing',
     label: '运营工具',
+    colorKey: 'marketing',
     icon: (
       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
@@ -160,7 +212,7 @@ const ITEM_ICONS = {
     </svg>
   ),
   '/dashboard': (
-    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
         d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z" />
     </svg>
@@ -168,13 +220,13 @@ const ITEM_ICONS = {
 };
 
 /**
- * 左侧垂直导航栏 — 分组卡片版
+ * 左侧垂直导航栏 — 功能色彩分区 · 清晰字体层级 · 精致高级感
  *
- * 设计系统：Data-Dense Dashboard + Dark Mode
- * - 深色侧边栏（slate-900），分组采用微凸起容器
- * - 激活分组：左侧 accent 色条 + 背景高亮
- * - 间距：8px 节奏（组间 8px，组内子项 2px）
- * - 动画：200ms ease-in-out
+ * 设计理念：
+ * - 暖黑底色（stone-950）取代冷灰，营造高级质感
+ * - 每个功能分组独立强调色，一眼辨识所在区域
+ * - 三层字体层级：Logo → 分组标题 → 菜单项
+ * - 8px 间距节奏，统一的卡片/列表圆角
  */
 export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }) {
   const location = useLocation();
@@ -200,35 +252,43 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
   const isGroupActive = (group) => group.items.some((item) => isItemActive(item.path));
 
   /** 渲染菜单项 */
-  const renderItem = (item, { indent = true, compact = false } = {}) => {
+  const renderItem = (item, { indent = true, compact = false, colorKey = null } = {}) => {
     const active = isItemActive(item.path);
+    const c = GROUP_COLORS[colorKey] || GROUP_COLORS.settings;
+
     return (
       <NavLink
         key={item.path}
         to={item.path}
         onClick={onMobileClose}
         className={`
-          flex items-center rounded-lg transition-all duration-200 group
+          flex items-center rounded-lg transition-all duration-200
           ${compact
             ? 'justify-center px-0 h-9'
             : indent
-              ? 'pl-9 pr-2 h-8'
-              : 'px-2.5 space-x-3 h-9'
+              ? 'pl-9 pr-3 h-8'
+              : 'px-3 space-x-3 h-9'
           }
           ${active
-            ? 'bg-slate-700/80 text-white shadow-sm'
-            : 'text-slate-400 hover:bg-slate-800/60 hover:text-slate-200'
+            ? `${c.bgActive} text-stone-100`
+            : 'text-stone-400 hover:bg-white/[0.04] hover:text-stone-200'
           }
         `}
         title={collapsed ? item.label : undefined}
       >
-        <span className={`shrink-0 transition-colors duration-200 ${
-          active ? 'text-blue-400' : 'text-slate-500 group-hover:text-slate-300'
+        {/* 激活态左侧色条 */}
+        {active && !compact && indent && (
+          <span className={`absolute left-0 top-1.5 bottom-1.5 w-0.5 rounded-r-full ${c.bg}`} />
+        )}
+
+        <span className={`shrink-0 relative transition-colors duration-200 ${
+          active ? c.accent : 'text-stone-500 group-hover:text-stone-300'
         }`}>
           {ITEM_ICONS[item.path]}
         </span>
+
         <span
-          className={`text-[13px] font-medium whitespace-nowrap transition-opacity ${
+          className={`text-[13px] font-medium whitespace-nowrap transition-opacity leading-tight ${
             collapsed ? 'lg:hidden' : ''
           }`}
         >
@@ -252,25 +312,28 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
       <aside
         className={`
           fixed top-0 left-0 z-50 h-screen
-          flex flex-col bg-slate-900 text-white
+          flex flex-col bg-stone-950 text-white
           transition-all duration-300 ease-in-out
           lg:relative lg:z-50
           ${mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
           ${collapsed ? 'lg:w-16' : 'lg:w-56'}
         `}
       >
-        {/* Logo + 折叠按钮 */}
-        <div className="flex items-center h-14 px-3 border-b border-white/6 shrink-0">
+        {/* ─── Logo 区域 — 金色底部边框 ─── */}
+        <div className="flex items-center h-14 px-3 border-b border-amber-700/20 shrink-0">
           <div className={`flex items-center overflow-hidden ${collapsed ? 'lg:hidden' : ''}`}>
-            <img src="/admin/zhfanglogo.png" alt="住好房" className="w-7 h-7 rounded-lg shrink-0" />
-            <h1 className="text-[15px] font-bold whitespace-nowrap ml-2.5 tracking-tight">
+            <div className="w-7 h-7 rounded-lg bg-amber-500/15 flex items-center justify-center shrink-0">
+              <img src="/admin/zhfanglogo.png" alt="住好房" className="w-6 h-6 rounded" />
+            </div>
+            <h1 className="text-[15px] font-bold whitespace-nowrap ml-2.5 tracking-tight text-stone-100">
               住好房
             </h1>
           </div>
+
           {/* 折叠按钮 — 仅桌面端可见 */}
           <button
             onClick={onToggle}
-            className="hidden lg:flex items-center justify-center w-7 h-7 ml-auto rounded-lg text-slate-500 hover:text-slate-200 hover:bg-slate-800 transition-colors shrink-0"
+            className="hidden lg:flex items-center justify-center w-7 h-7 ml-auto rounded-lg text-stone-500 hover:text-stone-200 hover:bg-white/[0.06] transition-colors shrink-0"
             title={collapsed ? '展开菜单' : '收起菜单'}
           >
             <svg
@@ -280,10 +343,11 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
           </button>
+
           {/* 移动端关闭按钮 */}
           <button
             onClick={onMobileClose}
-            className="lg:hidden flex items-center justify-center w-8 h-8 ml-auto rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            className="lg:hidden flex items-center justify-center w-8 h-8 ml-auto rounded-lg text-stone-400 hover:text-white hover:bg-white/[0.06] transition-colors"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -291,110 +355,119 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
           </button>
         </div>
 
-        {/* 菜单列表 */}
-        <nav className="flex-1 py-3 px-2.5 overflow-y-auto">
-          {/* ── 仪表盘（独立，不分组）── */}
-          <div className={collapsed ? 'lg:flex lg:justify-center' : ''}>
+        {/* ─── 导航菜单 ─── */}
+        <nav className="flex-1 py-4 px-2.5 overflow-y-auto space-y-1">
+          {/* ── 仪表盘（独立，无分组）── */}
+          <div className={collapsed ? 'lg:flex lg:justify-center relative' : 'relative'}>
             {renderItem(
               { path: '/dashboard', label: '仪表盘' },
-              { indent: false, compact: collapsed }
+              { indent: false, compact: collapsed, colorKey: 'dashboard' }
+            )}
+            {/* 折叠态激活指示点 */}
+            {collapsed && isItemActive('/dashboard') && (
+              <span className="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-cyan-400 lg:block hidden" />
             )}
           </div>
 
           {/* ── 分隔线 ── */}
-          <div className="my-3 mx-1 border-t border-white/6" />
+          <div className="my-3 mx-2 border-t border-white/[0.06]" />
 
-          {/* ── 分组菜单 ── */}
-          <div className="space-y-2">
-            {MENU_GROUPS.map((group) => {
-              const isOpen = expanded[group.key];
-              const active = isGroupActive(group);
+          {/* ── 功能分组 ── */}
+          {MENU_GROUPS.map((group) => {
+            const isOpen = expanded[group.key];
+            const active = isGroupActive(group);
+            const c = GROUP_COLORS[group.colorKey];
 
-              return (
-                <div
-                  key={group.key}
+            return (
+              <div
+                key={group.key}
+                className={`
+                  rounded-xl transition-all duration-200 relative
+                  ${active && !collapsed
+                    ? `bg-white/[0.03] ring-1 ${c.ring}`
+                    : 'bg-transparent'
+                  }
+                  ${collapsed ? 'lg:bg-transparent lg:ring-0' : ''}
+                `}
+              >
+                {/* 分组标题行 */}
+                <button
+                  onClick={() => toggleGroup(group.key)}
                   className={`
-                    rounded-xl transition-all duration-200 relative
-                    ${active && !collapsed
-                      ? 'bg-white/5 ring-1 ring-white/6 border-l-2 border-l-blue-400'
-                      : 'bg-transparent hover:bg-white/2'
+                    w-full flex items-center rounded-xl transition-all duration-200
+                    ${collapsed ? 'lg:justify-center lg:px-0 lg:h-9' : 'px-2.5 h-9'}
+                    ${active
+                      ? 'text-stone-100'
+                      : 'text-stone-500 hover:text-stone-300'
                     }
-                    ${collapsed ? 'lg:bg-transparent lg:ring-0 lg:border-l-0' : ''}
                   `}
+                  title={collapsed ? group.label : undefined}
                 >
-                  {/* 分组标题 */}
-                  <button
-                    onClick={() => toggleGroup(group.key)}
-                    className={`
-                      w-full flex items-center rounded-xl transition-all duration-200
-                      ${collapsed ? 'lg:justify-center lg:px-0 lg:h-9 lg:relative' : 'px-2.5 h-9'}
-                      ${active && !collapsed
-                        ? 'text-slate-100'
-                        : 'text-slate-500 hover:text-slate-300'
-                      }
-                    `}
-                    title={collapsed ? group.label : undefined}
-                  >
-                    <span className={`shrink-0 transition-colors duration-200 ${
-                      active ? 'text-blue-400' : ''
-                    }`}>
-                      {group.icon}
-                    </span>
-                    <span className={`flex-1 text-left ml-2.5 text-xs font-medium whitespace-nowrap ${
-                      collapsed ? 'lg:hidden' : ''
-                    }`}>
-                      {group.label}
-                    </span>
-                    {/* 折叠箭头 */}
-                    {!collapsed && (
-                      <svg
-                        className={`w-3 h-3 shrink-0 transition-transform duration-200 ${
-                          isOpen ? 'rotate-90' : ''
-                        } ${active ? 'text-slate-300' : 'text-slate-600'}`}
-                        fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
-                    )}
-                    {/* 折叠态：激活分组用小圆点提示 */}
-                    {collapsed && active && (
-                      <span className="absolute right-0.5 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-blue-400 lg:block hidden" />
-                    )}
-                  </button>
+                  {/* 分组图标 — 活动时着分组色 */}
+                  <span className={`shrink-0 transition-colors duration-200 ${active ? c.accent : ''}`}>
+                    {group.icon}
+                  </span>
 
-                  {/* 分组子项 */}
-                  <div
-                    className={`space-y-0.5 overflow-hidden transition-all duration-200 ease-in-out ${
-                      collapsed
-                        ? 'lg:block'
-                        : isOpen
-                          ? 'max-h-64 opacity-100 pb-1.5 px-1.5'
-                          : 'max-h-0 opacity-0'
-                    }`}
-                  >
-                    {group.items.map((item) => renderItem(item, { compact: collapsed }))}
-                  </div>
+                  {/* 分组名称 — 小号大写风格 */}
+                  <span className={`flex-1 text-left ml-2.5 text-[11px] font-semibold tracking-widest whitespace-nowrap ${
+                    collapsed ? 'lg:hidden' : ''
+                  } ${active ? c.accent : ''}`}>
+                    {group.label}
+                  </span>
+
+                  {/* 折叠箭头 */}
+                  {!collapsed && (
+                    <svg
+                      className={`w-3 h-3 shrink-0 transition-transform duration-200 ${
+                        isOpen ? 'rotate-90' : ''
+                      } ${active ? c.accent : 'text-stone-600'}`}
+                      fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  )}
+
+                  {/* 折叠态：激活分组用小色点提示 */}
+                  {collapsed && active && (
+                    <span className={`absolute right-0.5 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full ${c.bg} lg:block hidden`} />
+                  )}
+                </button>
+
+                {/* 分组子项列表 */}
+                <div
+                  className={`overflow-hidden transition-all duration-200 ease-in-out ${
+                    collapsed
+                      ? 'lg:block'
+                      : isOpen
+                        ? 'max-h-64 opacity-100 pb-2 px-1'
+                        : 'max-h-0 opacity-0'
+                  }`}
+                >
+                  {group.items.map((item) => renderItem(item, {
+                    compact: collapsed,
+                    colorKey: group.colorKey,
+                  }))}
                 </div>
-              );
-            })}
-          </div>
+              </div>
+            );
+          })}
 
           {/* ── 分隔线 ── */}
-          <div className="my-3 mx-1 border-t border-white/6" />
+          <div className="my-3 mx-2 border-t border-white/[0.06]" />
 
-          {/* ── 系统设置（独立，最后）── */}
-          <div className={collapsed ? 'lg:flex lg:justify-center' : ''}>
+          {/* ── 系统设置（独立，底部风格）── */}
+          <div className={collapsed ? 'lg:flex lg:justify-center relative' : 'relative'}>
             {renderItem(
               { path: '/settings', label: '系统设置' },
-              { indent: false, compact: collapsed }
+              { indent: false, compact: collapsed, colorKey: 'settings' }
             )}
           </div>
         </nav>
 
-        {/* 底部版本号 */}
-        <div className={`px-4 py-3 border-t border-white/6 text-xs text-slate-600 ${collapsed ? 'lg:text-center' : ''}`}>
+        {/* ─── 底部版本号 ─── */}
+        <div className={`px-4 py-3 border-t border-white/[0.06] text-[10px] text-stone-600 tracking-wide ${collapsed ? 'lg:text-center' : ''}`}>
           {collapsed ? (
-            <span className="hidden lg:inline" title="住好房 v1.1">🏠</span>
+            <span className="hidden lg:inline" title="住好房 v1.1">v1.1</span>
           ) : (
             <span>住好房 v1.1</span>
           )}
