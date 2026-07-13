@@ -33,6 +33,7 @@ async function runStandalone(knex) {
     owner = await knex('designers').where('id', owner.id).first();
     console.log(`  ✓ 已更新为业主角色: ${owner.name} (role=${owner.role})`);
   } else {
+    const [ownerId] = await knex('designers').insert({
       username: 'auditor_owner',
       password_hash: pw,
       name: '审核员业主',
