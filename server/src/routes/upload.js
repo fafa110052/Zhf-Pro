@@ -25,6 +25,7 @@ router.post('/upload', authenticate, upload.single('file'), async (req, res, nex
       designerName: req.user.name || 'unknown',
       workName: req.body.work_name || '',
       category: req.body.category || '',
+      imageCategory: req.query.category || '',
     };
     const record = await uploadService.uploadSingle(req.file, uploadedBy, options);
     res.status(201).json({ success: true, data: record });
@@ -53,6 +54,7 @@ router.post('/upload/multiple', authenticate, upload.array('files', 9), async (r
       designerName: req.user.name || 'unknown',
       workName: req.body.work_name || '',
       category: req.body.category || '',
+      imageCategory: req.query.category || '',
     };
     const result = await uploadService.uploadMultiple(req.files, uploadedBy, options);
     res.status(201).json({ success: true, data: result });
