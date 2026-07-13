@@ -19,6 +19,30 @@ import { useToast } from '../components/Toast';
 
 const PAGE_SIZE = 20;
 
+// 业务分类元数据（与后端 imageCategories.js 对应）；角标 6 色互不相同
+const CATEGORIES = [
+  { key: '', label: '全部' },
+  { key: 'works', label: '作品' },
+  { key: 'avatars', label: '头像' },
+  { key: 'properties', label: '楼盘' },
+  { key: 'materials', label: '材料' },
+  { key: 'construction', label: '施工图' },
+  { key: 'banners', label: '运营' },
+  { key: 'misc', label: '未分类' },
+];
+const BADGE_CLASS = {
+  works: 'bg-indigo-100 text-indigo-700',
+  avatars: 'bg-sky-100 text-sky-700',
+  properties: 'bg-emerald-100 text-emerald-700',
+  materials: 'bg-amber-100 text-amber-700',
+  construction: 'bg-violet-100 text-violet-700',
+  banners: 'bg-rose-100 text-rose-700',
+  misc: 'bg-slate-100 text-slate-600',
+};
+const CAT_LABEL = { works: '作品', avatars: '头像', properties: '楼盘', materials: '材料', construction: '施工图', banners: '运营', misc: '未分类' };
+// 上传弹窗可选分类（不含"全部"）
+const UPLOAD_CATEGORIES = CATEGORIES.filter((c) => c.key);
+
 // 通用复制到剪贴板（兼容 HTTP 环境）
 // Clipboard API 仅 HTTPS/localhost 可用，HTTP 需 execCommand 回退
 function copyToClipboard(text) {
@@ -60,6 +84,8 @@ export default function Images() {
   // ─── 视图 & 筛选 ───
   const [viewMode, setViewMode] = useState('grid');
   const [filterUploader, setFilterUploader] = useState('');
+  const [filterCategory, setFilterCategory] = useState('');
+  const [counts, setCounts] = useState({});
   const [filterDateFrom, setFilterDateFrom] = useState('');
   const [filterDateTo, setFilterDateTo] = useState('');
 
@@ -74,6 +100,7 @@ export default function Images() {
   const [uploadResult, setUploadResult] = useState(null);
   const [uploadDesignerId, setUploadDesignerId] = useState('');
   const [uploadWorkName, setUploadWorkName] = useState('');
+  const [uploadCategory, setUploadCategory] = useState('works');
   const fileInputRef = useRef(null);
 
   const [previewImage, setPreviewImage] = useState(null);
@@ -106,13 +133,15 @@ export default function Images() {
     setError('');
     try {
       const params = { page, page_size: PAGE_SIZE };
-      if (filterUploader) params.uploaded_by = filterUploader;
+      if (filterCategory) params.category = filterCategory;
+      if (filterUploader) params.keyword = filterUploader;
       if (filterDateFrom) params.date_from = filterDateFrom;
       if (filterDateTo) params.date_to = filterDateTo;
 
       const res = await client.get('/admin/images', { params });
       setImages(res.data.list);
       setPagination(res.data.pagination);
+      setCounts(res.data.counts || {});
     } catch (err) {
       setError(err.message || '加载失败');
     } finally {
@@ -123,6 +152,8 @@ export default function Images() {
   useEffect(() => {
     fetchImages(1);
   }, []);
+
+  useEffect(() => { fetchImages(1); }, [filterCategory]);
 
   // 打开上传弹窗时加载设计师列表
   useEffect(() => {
@@ -196,7 +227,7 @@ export default function Images() {
 
       if (uploadFiles.length === 1) {
         formData.append('file', uploadFiles[0].file);
-        const res = await fetch('/api/v1/upload', {
+        const res = await fetch(`/api/v1/upload?category=${uploadCategory}`, {
           method: 'POST',
           headers: { Authorization: `Bearer ${token}` },
           body: formData,
@@ -206,7 +237,7 @@ export default function Images() {
         setUploadResult({ success: 1, failed: 0, message: '上传成功' });
       } else {
         uploadFiles.forEach((f) => formData.append('files', f.file));
-        const res = await fetch('/api/v1/upload/multiple', {
+        const res = await fetch(`/api/v1/upload/multiple?category=${uploadCategory}`, {
           method: 'POST',
           headers: { Authorization: `Bearer ${token}` },
           body: formData,
@@ -225,6 +256,7 @@ export default function Images() {
       setUploadFiles([]);
       setUploadDesignerId('');
       setUploadWorkName('');
+      setUploadCategory('works');
       fetchImages(1);
       const count = uploadFiles.length;
       toast.success(count === 1 ? '图片上传成功' : `${count} 张图片上传成功`);
@@ -243,6 +275,7 @@ export default function Images() {
     setUploadResult(null);
     setUploadDesignerId('');
     setUploadWorkName('');
+    setUploadCategory('works');
     setUploadOpen(false);
   };
 
@@ -338,6 +371,19 @@ export default function Images() {
     <div className="p-4 lg:p-6 space-y-4">
       {/* ─── 操作栏 ─── */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 space-y-3">
+        {/* 分类 Tab */}
+        <div className="flex flex-wrap gap-1.5">
+          {CATEGORIES.map((c) => {
+            const active = filterCategory === c.key;
+            const n = c.key ? (counts[c.key] || 0) : Object.values(counts).reduce((a, b) => a + b, 0);
+            return (
+              <button key={c.key || 'all'} onClick={() => setFilterCategory(c.key)}
+                className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${active ? 'bg-slate-900 text-white' : 'bg-gray-50 text-gray-600 hover:bg-gray-100'}`}>
+                {c.label}<span className={`ml-1 text-xs ${active ? 'text-white/70' : 'text-gray-400'}`}>{n}</span>
+              </button>
+            );
+          })}
+        </div>
         <div className="flex flex-wrap items-center justify-between gap-3">
           {/* 视图切换 */}
           <div className="flex p-0.5 bg-gray-100 rounded-lg">
@@ -383,7 +429,7 @@ export default function Images() {
 
         {/* 筛选行 */}
         <div className="flex flex-wrap items-center gap-3">
-          <input type="text" placeholder="上传者姓名筛选..." value={filterUploader}
+          <input type="text" placeholder="原名/上传者搜索..." value={filterUploader}
             onChange={(e) => setFilterUploader(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
             className="px-3 py-1.5 text-sm border border-gray-200 rounded-lg w-40 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
@@ -449,10 +495,13 @@ export default function Images() {
                     </svg>
                   </button>
                   {/* 缩略图 */}
-                  <div className="aspect-square bg-gray-100 flex items-center justify-center overflow-hidden">
+                  <div className="aspect-square bg-gray-100 flex items-center justify-center overflow-hidden relative">
                     <img src={img.thumb_url || img.image_url} alt={img.original_name || ''}
                       className="w-full h-full object-cover" loading="lazy"
                       onError={(e) => { e.target.style.display = 'none'; }} />
+                    <span className={`absolute bottom-2 left-2 px-1.5 py-0.5 rounded text-[10px] font-medium ${BADGE_CLASS[img.category] || BADGE_CLASS.misc}`}>
+                      {CAT_LABEL[img.category] || '未分类'}
+                    </span>
                   </div>
                   {/* 底部信息 */}
                   <div className="p-2 text-xs">
@@ -481,6 +530,7 @@ export default function Images() {
                   </th>
                   <th className="text-left px-4 py-3 text-gray-500 font-medium">缩略图</th>
                   <th className="text-left px-4 py-3 text-gray-500 font-medium">文件名</th>
+                  <th className="text-left px-4 py-3 text-gray-500 font-medium">分类</th>
                   <th className="text-left px-4 py-3 text-gray-500 font-medium">大小</th>
                   <th className="text-left px-4 py-3 text-gray-500 font-medium">尺寸</th>
                   <th className="text-left px-4 py-3 text-gray-500 font-medium">上传者</th>
@@ -508,6 +558,11 @@ export default function Images() {
                         className="text-blue-600 hover:underline truncate max-w-[200px] block text-left">
                         {img.original_name || '未命名'}
                       </button>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${BADGE_CLASS[img.category] || BADGE_CLASS.misc}`}>
+                        {CAT_LABEL[img.category] || '未分类'}
+                      </span>
                     </td>
                     <td className="px-4 py-3 text-gray-500">{formatSize(img.file_size || 0)}</td>
                     <td className="px-4 py-3 text-gray-500">{img.width && img.height ? `${img.width}×${img.height}` : '-'}</td>
@@ -574,6 +629,16 @@ export default function Images() {
               <p className="text-xs text-gray-400 mt-1">选择设计师后，图片将归属到该设计师名下</p>
             </div>
           )}
+
+          {/* 业务分类 */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">图片分类</label>
+            <select value={uploadCategory} onChange={(e) => setUploadCategory(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              {UPLOAD_CATEGORIES.map((c) => <option key={c.key} value={c.key}>{c.label}</option>)}
+            </select>
+            <p className="text-xs text-gray-400 mt-1">决定图片存入哪个分类目录</p>
+          </div>
 
           {/* 作品名称 */}
           <div>
