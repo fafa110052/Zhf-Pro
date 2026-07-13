@@ -233,8 +233,8 @@ const ITEM_ICONS = {
  * Layer 2  文字层（深色字体，高对比度，清晰可辨）
  *
  * 字体层级（三重对比：大小 + 粗细 + 颜色深浅）
- *   一级菜单: 16px / bold 700 / slate-800  ← 最大最重最深，一眼识别
- *   二级菜单: 14px / medium 500 / slate-600 ← 小一号，但比旧版更深更清晰
+ *   一级菜单: 15px / bold 700 / slate-800  ← 最大最重最深，一眼识别
+ *   二级菜单: 13px / medium 500 / slate-600 ← 小一号，但色彩加深保证辨识
  */
 export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }) {
   const location = useLocation();
@@ -289,8 +289,8 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
         }`}>
           {ITEM_ICONS[item.path]}
         </span>
-        {/* TIER 2: 14px medium — 清晰可读的二级文字 */}
-        <span className={`text-[14px] font-medium whitespace-nowrap leading-tight ${
+        {/* TIER 2: 13px medium — 清晰可读的二级文字 */}
+        <span className={`text-[13px] font-medium whitespace-nowrap leading-tight ${
           collapsed ? 'lg:hidden' : ''
         }`}>
           {item.label}
@@ -407,7 +407,7 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
                     {group.icon}
                   </span>
                   <span className={`flex-1 text-left ml-2.5 font-bold whitespace-nowrap ${
-                    collapsed ? 'lg:hidden' : 'text-[16px]'
+                    collapsed ? 'lg:hidden' : 'text-[15px]'
                   }`}>
                     {group.label}
                   </span>
