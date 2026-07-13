@@ -40,7 +40,7 @@ export default function Layout() {
           onMobileClose={handleMobileClose}
         />
 
-        <div className="flex flex-col flex-1 min-w-0">
+        <div className="flex flex-col flex-1 min-w-0 relative">
           <HeaderBar
             onMenuClick={handleMobileToggle}
             user={user}
