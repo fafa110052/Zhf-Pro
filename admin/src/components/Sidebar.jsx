@@ -226,15 +226,15 @@ const ITEM_ICONS = {
 };
 
 /**
- * 侧边栏 — 三层深度模型
+ * 侧边栏 — 霜玻璃质感
  *
- * Layer 0  渐变底色（暖色渐变，最底层空间感）
- * Layer 1  菜单卡片（半透明白浮在底色之上，激活时完全不透明+阴影抬升）
- * Layer 2  文字层（深色字体，与卡片表面高对比）
+ * Layer 0  冷色渐变底色（slate → sky → slate，蓝灰调明亮背景）
+ * Layer 1  菜单卡片（半透明白 + backdrop-blur + 微阴影，仿毛玻璃）
+ * Layer 2  文字层（深色字体，高对比度，清晰可辨）
  *
  * 字体层级（三重对比：大小 + 粗细 + 颜色深浅）
- *   大分类: 15px / bold 700 / slate-800  ← 第一层级，最大最重最深
- *   子菜单: 13px / medium 500 / slate-500 ← 第二层级，逐级缩小
+ *   一级菜单: 16px / bold 700 / slate-800  ← 最大最重最深，一眼识别
+ *   二级菜单: 14px / medium 500 / slate-600 ← 小一号，但比旧版更深更清晰
  */
 export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }) {
   const location = useLocation();
@@ -256,7 +256,7 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
 
   const isGroupActive = (group) => group.items.some((item) => isItemActive(item.path));
 
-  /** 子菜单项 — TIER 2 字体 */
+  /** 子菜单项 — TIER 2 字体（14px medium slate-600） */
   const renderItem = (item, { indent = true, compact = false, colorKey = null } = {}) => {
     const active = isItemActive(item.path);
     const c = GROUP_COLORS[colorKey] || GROUP_COLORS.settings;
@@ -276,7 +276,7 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
           }
           ${active
             ? `${c.bgLight} ${c.accentStrong}`
-            : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700'
+            : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
           }
         `}
         title={collapsed ? item.label : undefined}
@@ -285,12 +285,12 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
           <span className={`absolute left-0 top-1.5 bottom-1.5 w-0.5 rounded-r-full ${c.bg}`} />
         )}
         <span className={`shrink-0 transition-colors duration-200 ${
-          active ? c.accentStrong : 'text-slate-400 group-hover:text-slate-500'
+          active ? c.accentStrong : 'text-slate-500'
         }`}>
           {ITEM_ICONS[item.path]}
         </span>
-        {/* TIER 2: 13px medium — 比大分类小一号 */}
-        <span className={`text-[13px] font-medium whitespace-nowrap leading-tight ${
+        {/* TIER 2: 14px medium — 清晰可读的二级文字 */}
+        <span className={`text-[14px] font-medium whitespace-nowrap leading-tight ${
           collapsed ? 'lg:hidden' : ''
         }`}>
           {item.label}
@@ -308,13 +308,13 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
         />
       )}
 
-      {/* Layer 0: 暖色渐变底色 */}
+      {/* Layer 0: 冷色渐变底色 — slate → sky → slate */}
       <aside
         className={`
           fixed top-0 left-0 z-50 h-screen
           flex flex-col
-          bg-gradient-to-b from-amber-50/40 via-white to-stone-100/60
-          text-slate-800 border-r border-slate-200/80
+          bg-gradient-to-b from-slate-100 via-sky-50/70 to-slate-50
+          text-slate-800 border-r border-slate-200/60
           transition-all duration-300 ease-in-out
           lg:relative lg:z-50
           ${mobileOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full lg:translate-x-0 lg:shadow-none'}
@@ -322,7 +322,7 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
         `}
       >
         {/* Logo 区域 */}
-        <div className="flex items-center h-14 px-3 border-b border-slate-200/70 shrink-0">
+        <div className="flex items-center h-14 px-3 border-b border-slate-200/60 shrink-0">
           <div className={`flex items-center overflow-hidden ${collapsed ? 'lg:hidden' : ''}`}>
             <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shrink-0 shadow-sm shadow-amber-500/20">
               <img src="/admin/zhfanglogo.png" alt="住好房" className="w-5 h-5 rounded" />
@@ -368,7 +368,7 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
             )}
           </div>
 
-          <div className="my-2.5 mx-1 border-t border-slate-200/70" />
+          <div className="my-2.5 mx-1 border-t border-slate-200/60" />
 
           {/* 功能分组 */}
           {MENU_GROUPS.map((group) => {
@@ -382,15 +382,15 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
                 className={`
                   rounded-xl transition-all duration-200 relative
                   ${active && !collapsed
-                    /* 激活分组：卡片浮起 — 白底不透明 + 阴影 + 左侧色条 */
-                    ? `bg-white shadow-sm ring-1 ring-slate-200/80 border-l-[3px] ${c.border}`
-                    /* 默认分组：半透明白 — 让渐变底色透出 */
-                    : 'bg-white/60 hover:bg-white/80'
+                    /* 激活分组：卡片抬升 — 近白不透明 + 阴影 + 左侧色条 */
+                    ? `bg-white/95 shadow-md ring-1 ring-slate-200/60 border-l-[3px] ${c.border}`
+                    /* 默认分组：毛玻璃 — 半透明白、微阴影、backdrop-blur 让底层渐变透过 */
+                    : 'bg-white/70 backdrop-blur-sm shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:bg-white/85'
                   }
-                  ${collapsed ? 'lg:bg-transparent lg:shadow-none lg:ring-0 lg:border-l-0' : ''}
+                  ${collapsed ? 'lg:bg-transparent lg:shadow-none lg:ring-0 lg:border-l-0 lg:backdrop-blur-none' : ''}
                 `}
               >
-                {/* TIER 1: 大分类标题 — 15px bold，第一层级最大字体 */}
+                {/* TIER 1: 一级菜单标题 — 16px bold，最大最重最深 */}
                 <button
                   onClick={() => toggleGroup(group.key)}
                   className={`
@@ -398,7 +398,7 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
                     ${collapsed ? 'lg:justify-center lg:px-0 lg:h-9' : 'px-3 h-10'}
                     ${active
                       ? c.accentStrong
-                      : 'text-slate-500 hover:text-slate-700'
+                      : 'text-slate-600 hover:text-slate-800'
                     }
                   `}
                   title={collapsed ? group.label : undefined}
@@ -407,7 +407,7 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
                     {group.icon}
                   </span>
                   <span className={`flex-1 text-left ml-2.5 font-bold whitespace-nowrap ${
-                    collapsed ? 'lg:hidden' : 'text-[15px]'
+                    collapsed ? 'lg:hidden' : 'text-[16px]'
                   }`}>
                     {group.label}
                   </span>
@@ -445,7 +445,7 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
             );
           })}
 
-          <div className="my-2.5 mx-1 border-t border-slate-200/70" />
+          <div className="my-2.5 mx-1 border-t border-slate-200/60" />
 
           {/* 系统设置 */}
           <div className={collapsed ? 'lg:flex lg:justify-center relative' : 'relative'}>
@@ -457,7 +457,7 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
         </nav>
 
         {/* 版本号 */}
-        <div className={`px-4 py-3 border-t border-slate-200/70 text-[10px] text-slate-400 tracking-wide ${collapsed ? 'lg:text-center' : ''}`}>
+        <div className={`px-4 py-3 border-t border-slate-200/60 text-[10px] text-slate-400 tracking-wide ${collapsed ? 'lg:text-center' : ''}`}>
           {collapsed ? (
             <span className="hidden lg:inline" title="住好房 v1.1">v1.1</span>
           ) : (
