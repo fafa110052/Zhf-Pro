@@ -24,3 +24,5 @@ backups/*.sqlite
 # 临时文件
 zmJvQTnjYJ.txt
 lijizixun.png
+.codegraph/
+.superpowers/
