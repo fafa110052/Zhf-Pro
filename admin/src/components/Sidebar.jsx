@@ -2,61 +2,55 @@ import { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 
 /**
- * 功能色彩体系 — 浅色背景下提高饱和度，保证对比度
+ * 功能色彩 — 浅色背景下用 600/700 档保证 4.5:1 对比度
  */
 const GROUP_COLORS = {
   dashboard: {
     accent: 'text-cyan-600',
-    accentLight: 'text-cyan-500',
+    accentStrong: 'text-cyan-700',
     bg: 'bg-cyan-500',
-    bgActive: 'bg-cyan-50',
+    bgLight: 'bg-cyan-50',
     border: 'border-cyan-500',
-    hoverBg: 'hover:bg-cyan-50',
     dot: 'bg-cyan-500',
   },
   content: {
     accent: 'text-blue-600',
-    accentLight: 'text-blue-500',
+    accentStrong: 'text-blue-700',
     bg: 'bg-blue-500',
-    bgActive: 'bg-blue-50',
+    bgLight: 'bg-blue-50',
     border: 'border-blue-500',
-    hoverBg: 'hover:bg-blue-50',
     dot: 'bg-blue-500',
   },
   business: {
     accent: 'text-emerald-600',
-    accentLight: 'text-emerald-500',
+    accentStrong: 'text-emerald-700',
     bg: 'bg-emerald-500',
-    bgActive: 'bg-emerald-50',
+    bgLight: 'bg-emerald-50',
     border: 'border-emerald-500',
-    hoverBg: 'hover:bg-emerald-50',
     dot: 'bg-emerald-500',
   },
   materials: {
     accent: 'text-amber-600',
-    accentLight: 'text-amber-500',
+    accentStrong: 'text-amber-700',
     bg: 'bg-amber-500',
-    bgActive: 'bg-amber-50',
+    bgLight: 'bg-amber-50',
     border: 'border-amber-500',
-    hoverBg: 'hover:bg-amber-50',
     dot: 'bg-amber-500',
   },
   marketing: {
     accent: 'text-violet-600',
-    accentLight: 'text-violet-500',
+    accentStrong: 'text-violet-700',
     bg: 'bg-violet-500',
-    bgActive: 'bg-violet-50',
+    bgLight: 'bg-violet-50',
     border: 'border-violet-500',
-    hoverBg: 'hover:bg-violet-50',
     dot: 'bg-violet-500',
   },
   settings: {
     accent: 'text-slate-500',
-    accentLight: 'text-slate-400',
+    accentStrong: 'text-slate-600',
     bg: 'bg-slate-400',
-    bgActive: 'bg-slate-100',
+    bgLight: 'bg-slate-100',
     border: 'border-slate-400',
-    hoverBg: 'hover:bg-slate-100',
     dot: 'bg-slate-400',
   },
 };
@@ -134,7 +128,7 @@ const MENU_GROUPS = [
   },
 ];
 
-// 各菜单项图标（按 path 索引）
+// 子菜单图标（15px，小于分组图标）
 const ITEM_ICONS = {
   '/works': (
     <svg className="w-[15px] h-[15px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -232,18 +226,19 @@ const ITEM_ICONS = {
 };
 
 /**
- * 左侧垂直导航栏 — 浅色渐变 · 字体层级 · 功能色彩 · 精致高级
+ * 侧边栏 — 三层深度模型
  *
- * 设计理念：
- * - 浅色渐变背景（白→靛蓝微染），干净明亮
- * - 双层字体：大分类(15px bold) → 子菜单(13px medium)，层次分明
- * - 功能色标：每组独立强调色，深色字体确保 4.5:1 对比度
- * - 8px 间距节奏，白卡片分组容器+柔和阴影
+ * Layer 0  渐变底色（暖色渐变，最底层空间感）
+ * Layer 1  菜单卡片（半透明白浮在底色之上，激活时完全不透明+阴影抬升）
+ * Layer 2  文字层（深色字体，与卡片表面高对比）
+ *
+ * 字体层级（三重对比：大小 + 粗细 + 颜色深浅）
+ *   大分类: 15px / bold 700 / slate-800  ← 第一层级，最大最重最深
+ *   子菜单: 13px / medium 500 / slate-500 ← 第二层级，逐级缩小
  */
 export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }) {
   const location = useLocation();
 
-  // 分组展开状态（默认全部展开）
   const [expanded, setExpanded] = useState(() => {
     const init = {};
     MENU_GROUPS.forEach((g) => { init[g.key] = true; });
@@ -254,16 +249,14 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
     setExpanded((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
-  /** 判断菜单项是否激活 */
   const isItemActive = (path) => {
     if (path === '/dashboard') return location.pathname === '/dashboard';
     return location.pathname.startsWith(path);
   };
 
-  /** 判断分组是否有激活子项 */
   const isGroupActive = (group) => group.items.some((item) => isItemActive(item.path));
 
-  /** 渲染菜单项 — TIER 2 字体（子分类） */
+  /** 子菜单项 — TIER 2 字体 */
   const renderItem = (item, { indent = true, compact = false, colorKey = null } = {}) => {
     const active = isItemActive(item.path);
     const c = GROUP_COLORS[colorKey] || GROUP_COLORS.settings;
@@ -282,29 +275,24 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
               : 'px-3 gap-3 h-9'
           }
           ${active
-            ? `${c.bgActive} ${c.accent}`
+            ? `${c.bgLight} ${c.accentStrong}`
             : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700'
           }
         `}
         title={collapsed ? item.label : undefined}
       >
-        {/* 激活态左侧色条 */}
         {active && !compact && indent && (
           <span className={`absolute left-0 top-1.5 bottom-1.5 w-0.5 rounded-r-full ${c.bg}`} />
         )}
-
         <span className={`shrink-0 transition-colors duration-200 ${
-          active ? c.accent : 'text-slate-400 group-hover:text-slate-500'
+          active ? c.accentStrong : 'text-slate-400 group-hover:text-slate-500'
         }`}>
           {ITEM_ICONS[item.path]}
         </span>
-
-        {/* TIER 2：子分类字体 — 13px medium */}
-        <span
-          className={`text-[13px] font-medium whitespace-nowrap transition-opacity leading-tight ${
-            collapsed ? 'lg:hidden' : ''
-          }`}
-        >
+        {/* TIER 2: 13px medium — 比大分类小一号 */}
+        <span className={`text-[13px] font-medium whitespace-nowrap leading-tight ${
+          collapsed ? 'lg:hidden' : ''
+        }`}>
           {item.label}
         </span>
       </NavLink>
@@ -313,7 +301,6 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
 
   return (
     <>
-      {/* ─── 移动端遮罩层 ─── */}
       {mobileOpen && (
         <div
           className="fixed inset-0 bg-black/30 z-40 lg:hidden backdrop-blur-sm"
@@ -321,12 +308,12 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
         />
       )}
 
-      {/* ─── 侧边栏本体 ─── */}
+      {/* Layer 0: 暖色渐变底色 */}
       <aside
         className={`
           fixed top-0 left-0 z-50 h-screen
           flex flex-col
-          bg-gradient-to-b from-white via-blue-50/30 to-slate-50
+          bg-gradient-to-b from-amber-50/40 via-white to-stone-100/60
           text-slate-800 border-r border-slate-200/80
           transition-all duration-300 ease-in-out
           lg:relative lg:z-50
@@ -334,18 +321,17 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
           ${collapsed ? 'lg:w-16' : 'lg:w-56'}
         `}
       >
-        {/* ─── Logo 区域 ─── */}
+        {/* Logo 区域 */}
         <div className="flex items-center h-14 px-3 border-b border-slate-200/70 shrink-0">
           <div className={`flex items-center overflow-hidden ${collapsed ? 'lg:hidden' : ''}`}>
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shrink-0 shadow-sm shadow-blue-500/20">
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shrink-0 shadow-sm shadow-amber-500/20">
               <img src="/admin/zhfanglogo.png" alt="住好房" className="w-5 h-5 rounded" />
             </div>
-            <h1 className="text-[16px] font-bold whitespace-nowrap ml-2.5 tracking-tight text-slate-800">
+            <h1 className="text-[17px] font-bold whitespace-nowrap ml-2.5 tracking-tight text-slate-800">
               住好房
             </h1>
           </div>
 
-          {/* 折叠按钮 — 桌面端 */}
           <button
             onClick={onToggle}
             className="hidden lg:flex items-center justify-center w-7 h-7 ml-auto rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors shrink-0"
@@ -359,7 +345,6 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
             </svg>
           </button>
 
-          {/* 移动端关闭按钮 */}
           <button
             onClick={onMobileClose}
             className="lg:hidden flex items-center justify-center w-8 h-8 ml-auto rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
@@ -370,9 +355,9 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
           </button>
         </div>
 
-        {/* ─── 导航菜单 ─── */}
+        {/* 导航区 */}
         <nav className="flex-1 py-4 px-3 overflow-y-auto space-y-1.5">
-          {/* ── 仪表盘（独立，无分组）── */}
+          {/* 仪表盘 */}
           <div className={collapsed ? 'lg:flex lg:justify-center relative' : 'relative'}>
             {renderItem(
               { path: '/dashboard', label: '仪表盘' },
@@ -383,10 +368,9 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
             )}
           </div>
 
-          {/* ── 分隔线 ── */}
           <div className="my-2.5 mx-1 border-t border-slate-200/70" />
 
-          {/* ── 功能分组 ── */}
+          {/* 功能分组 */}
           {MENU_GROUPS.map((group) => {
             const isOpen = expanded[group.key];
             const active = isGroupActive(group);
@@ -398,56 +382,51 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
                 className={`
                   rounded-xl transition-all duration-200 relative
                   ${active && !collapsed
-                    ? 'bg-white shadow-sm ring-1 ring-slate-200/80'
-                    : 'bg-transparent hover:bg-white/60'
+                    /* 激活分组：卡片浮起 — 白底不透明 + 阴影 + 左侧色条 */
+                    ? `bg-white shadow-sm ring-1 ring-slate-200/80 border-l-[3px] ${c.border}`
+                    /* 默认分组：半透明白 — 让渐变底色透出 */
+                    : 'bg-white/60 hover:bg-white/80'
                   }
-                  ${collapsed ? 'lg:bg-transparent lg:shadow-none lg:ring-0' : ''}
+                  ${collapsed ? 'lg:bg-transparent lg:shadow-none lg:ring-0 lg:border-l-0' : ''}
                 `}
               >
-                {/* ── 分组标题 — TIER 1 大分类字体 ── */}
+                {/* TIER 1: 大分类标题 — 15px bold，第一层级最大字体 */}
                 <button
                   onClick={() => toggleGroup(group.key)}
                   className={`
                     w-full flex items-center rounded-xl transition-all duration-200
                     ${collapsed ? 'lg:justify-center lg:px-0 lg:h-9' : 'px-3 h-10'}
                     ${active
-                      ? c.accent
+                      ? c.accentStrong
                       : 'text-slate-500 hover:text-slate-700'
                     }
                   `}
                   title={collapsed ? group.label : undefined}
                 >
-                  {/* 分组图标 */}
-                  <span className={`shrink-0 transition-colors duration-200 ${active ? c.accent : ''}`}>
+                  <span className={`shrink-0 transition-colors duration-200 ${active ? c.accentStrong : ''}`}>
                     {group.icon}
                   </span>
-
-                  {/* TIER 1：大分类名称 — 15px bold，最大字号 */}
                   <span className={`flex-1 text-left ml-2.5 font-bold whitespace-nowrap ${
                     collapsed ? 'lg:hidden' : 'text-[15px]'
-                  } ${active ? c.accent : ''}`}>
+                  }`}>
                     {group.label}
                   </span>
-
-                  {/* 折叠箭头 */}
                   {!collapsed && (
                     <svg
                       className={`w-3.5 h-3.5 shrink-0 transition-transform duration-200 ${
                         isOpen ? 'rotate-90' : ''
-                      } ${active ? c.accentLight : 'text-slate-400'}`}
+                      } ${active ? c.accent : 'text-slate-400'}`}
                       fill="none" stroke="currentColor" viewBox="0 0 24 24"
                     >
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
                   )}
-
-                  {/* 折叠态激活指示点 */}
                   {collapsed && active && (
                     <span className={`absolute right-0.5 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full ${c.dot} lg:block hidden`} />
                   )}
                 </button>
 
-                {/* ── 子项列表 — TIER 2 字体 ── */}
+                {/* 子项列表 */}
                 <div
                   className={`overflow-hidden transition-all duration-200 ease-in-out ${
                     collapsed
@@ -466,10 +445,9 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
             );
           })}
 
-          {/* ── 分隔线 ── */}
           <div className="my-2.5 mx-1 border-t border-slate-200/70" />
 
-          {/* ── 系统设置（独立）── */}
+          {/* 系统设置 */}
           <div className={collapsed ? 'lg:flex lg:justify-center relative' : 'relative'}>
             {renderItem(
               { path: '/settings', label: '系统设置' },
@@ -478,7 +456,7 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
           </div>
         </nav>
 
-        {/* ─── 底部版本号 ─── */}
+        {/* 版本号 */}
         <div className={`px-4 py-3 border-t border-slate-200/70 text-[10px] text-slate-400 tracking-wide ${collapsed ? 'lg:text-center' : ''}`}>
           {collapsed ? (
             <span className="hidden lg:inline" title="住好房 v1.1">v1.1</span>
