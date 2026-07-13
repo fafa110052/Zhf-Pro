@@ -149,10 +149,7 @@ export default function Images() {
     }
   };
 
-  useEffect(() => {
-    fetchImages(1);
-  }, []);
-
+  // 首屏加载 + 切换分类刷新（filterCategory 初值 '' 已覆盖首屏，无需单独的 mount effect）
   useEffect(() => { fetchImages(1); }, [filterCategory]);
 
   // 打开上传弹窗时加载设计师列表
