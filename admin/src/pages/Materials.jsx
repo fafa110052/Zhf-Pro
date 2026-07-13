@@ -115,7 +115,7 @@ export default function Materials() {
       formData.append('file', file);
 
       const token = localStorage.getItem('admin_token');
-      const res = await fetch('/api/v1/upload', {
+      const res = await fetch('/api/v1/upload?category=materials', {
         method: 'POST',
         headers: token ? { Authorization: `Bearer ${token}` } : {},
         body: formData,
