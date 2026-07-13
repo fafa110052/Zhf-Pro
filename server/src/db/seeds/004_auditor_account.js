@@ -19,9 +19,20 @@ async function runStandalone(knex) {
   // ═══ 1. 业主账号 ═══
   let owner = await knex('designers').where('phone', '13800001111').first();
   if (owner) {
-    console.log(`  ✓ 账号已存在: ${owner.name} (id=${owner.id})`);
+    console.log(`  ✓ 账号已存在: ${owner.name} (id=${owner.id}, role=${owner.role})`);
+    // 确保角色和名称为提审专用
+    await knex('designers').where('id', owner.id).update({
+      name: '审核员业主',
+      role: 'owner',
+      personnel_type: 'designer',
+      status: 'active',
+      username: 'auditor_owner',
+      password_hash: pw,
+      updated_at: now.toISOString(),
+    });
+    owner = await knex('designers').where('id', owner.id).first();
+    console.log(`  ✓ 已更新为业主角色: ${owner.name} (role=${owner.role})`);
   } else {
-    const [ownerId] = await knex('designers').insert({
       username: 'auditor_owner',
       password_hash: pw,
       name: '审核员业主',
