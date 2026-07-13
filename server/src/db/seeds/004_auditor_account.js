@@ -71,16 +71,20 @@ async function runStandalone(knex) {
   });
   console.log('  ✓ 绑定业主到 碧桂园·翡翠湾 1栋101');
 
-  // ═══ 3. 获取施工角色 ═══
-  const zhangsan = await knex('designers').where('phone', '13800000001').first();
-  const lisi = await knex('designers').where('phone', '13800000002').first();
-  const wangwu = await knex('designers').where('phone', '13800000003').first();
-  const zhaoliu = await knex('designers').where('phone', '13800000004').first();
+  // ═══ 3. 施工角色（不存在则创建）═══
+  const upsertStaff = async (data) => {
+    let user = await knex('designers').where('phone', data.phone).first();
+    if (user) return user;
+    const [id] = await knex('designers').insert({ ...data, created_at: now.toISOString(), updated_at: now.toISOString() });
+    return await knex('designers').where('id', id).first();
+  };
+  const zhangsan = await upsertStaff({ username: 'zhangsan', password_hash: pw, name: '张三', phone: '13800000001', role: 'designer', status: 'active', personnel_type: 'designer', employee_id: 'D003', years_of_exp: 6 });
+  const lisi = await upsertStaff({ username: 'lisi', password_hash: pw, name: '李四', phone: '13800000002', role: 'designer', status: 'active', personnel_type: 'design_director', employee_id: 'DD001', years_of_exp: 15 });
+  const wangwu = await upsertStaff({ username: 'wangwu', password_hash: pw, name: '王五', phone: '13800000003', role: 'designer', status: 'active', personnel_type: 'engineer', employee_id: 'E001', years_of_exp: 10 });
+  const zhaoliu = await upsertStaff({ username: 'zhaoliu', password_hash: pw, name: '赵六', phone: '13800000004', role: 'designer', status: 'active', personnel_type: 'engineering_director', employee_id: 'ED001', years_of_exp: 18 });
   const admin = await knex('designers').where('role', 'admin').first();
 
-  if (!zhangsan || !lisi || !wangwu || !zhaoliu) {
-    console.log('  ⚠️  施工角色账号不存在，将不创建施工阶段数据');
-  }
+  console.log('  ✓ 施工角色就绪');
 
   // ═══ 4. 选材申请订单 ═══
   const orderNo = `${ym}0102`;
