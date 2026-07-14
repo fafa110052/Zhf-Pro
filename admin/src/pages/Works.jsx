@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import client from '../api/client';
 import EmptyState from '../components/EmptyState';
 import ErrorState from '../components/ErrorState';
@@ -362,10 +362,11 @@ function CreateModal({ open, onClose, onCreated }) {
   const [loading, setLoading] = useState(false);
   const [formError, setFormError] = useState('');
 
-  // 图片
-  const [uploadedImages, setUploadedImages] = useState([]); // { id, image_url, thumb_url }
+  // 图片（每项：{ key, status:'uploading'|'done'|'error', progress, previewUrl, id?, image_url?, thumb_url?, error? }）
+  const [uploadedImages, setUploadedImages] = useState([]);
   const [coverImage, setCoverImage] = useState('');
-  const [uploading, setUploading] = useState(false);
+  const uploadKeyRef = useRef(0);
+  const isUploading = uploadedImages.some((img) => img.status === 'uploading');
 
   // 下拉数据
   const [designers, setDesigners] = useState([]);
@@ -381,33 +382,54 @@ function CreateModal({ open, onClose, onCreated }) {
     ]);
   }, [open]);
 
-  const handleUpload = async (e) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
-    setUploading(true);
-    try {
+  // 逐张上传：选好后立即显示缩略图 + 进度条，单张独立上传互不阻塞
+  const handleUpload = (e) => {
+    const files = Array.from(e.target.files || []);
+    e.target.value = ''; // 允许再次选择相同文件
+    if (files.length === 0) return;
+
+    const remaining = 9 - uploadedImages.length;
+    if (remaining <= 0) { toast.warning('最多上传 9 张图片'); return; }
+    const toUpload = files.slice(0, remaining);
+    if (files.length > remaining) {
+      toast.warning(`最多上传 9 张，已忽略多余的 ${files.length - remaining} 张`);
+    }
+
+    toUpload.forEach((file) => {
+      const key = ++uploadKeyRef.current;
+      const previewUrl = URL.createObjectURL(file);
+      setUploadedImages((prev) => [...prev, { key, status: 'uploading', progress: 0, previewUrl }]);
+
       const formData = new FormData();
-      for (let i = 0; i < Math.min(files.length, 9); i++) {
-        formData.append('files', files[i]);
-      }
-      const res = await client.post('/upload/multiple?category=works', formData);
-      const newImages = res.data.uploaded || [];
-      setUploadedImages(prev => {
-        const all = [...prev, ...newImages];
-        // 自动选第一张为封面
-        if (!coverImage && all.length > 0) setCoverImage(all[0].image_url);
-        return all;
+      formData.append('file', file);
+      client.post('/upload?category=works', formData, {
+        timeout: 120000, // 4K 渲染图较大，放宽单张上传超时
+        onUploadProgress: (evt) => {
+          const pct = evt.total ? Math.round((evt.loaded / evt.total) * 100) : 0;
+          setUploadedImages((prev) => prev.map((img) => img.key === key ? { ...img, progress: pct } : img));
+        },
+      }).then((res) => {
+        const record = res.data; // { id, image_url, thumb_url }
+        setUploadedImages((prev) => prev.map((img) => img.key === key
+          ? { ...img, status: 'done', progress: 100, id: record.id, image_url: record.image_url, thumb_url: record.thumb_url }
+          : img));
+        setCoverImage((prev) => prev || record.image_url); // 首张自动设为封面
+      }).catch((err) => {
+        setUploadedImages((prev) => prev.map((img) => img.key === key
+          ? { ...img, status: 'error', error: err?.message || '上传失败' }
+          : img));
+        toast.error(err?.message || '图片上传失败');
       });
-    } catch (err) {
-      toast.error(err?.message || '上传失败');
-    } finally { setUploading(false); }
+    });
   };
 
-  const removeImage = (id) => {
-    setUploadedImages(prev => {
-      const next = prev.filter(img => img.id !== id);
-      if (coverImage && !next.find(img => img.image_url === coverImage)) {
-        setCoverImage(next[0]?.image_url || '');
+  const removeImage = (key) => {
+    setUploadedImages((prev) => {
+      const target = prev.find((img) => img.key === key);
+      if (target?.previewUrl) URL.revokeObjectURL(target.previewUrl);
+      const next = prev.filter((img) => img.key !== key);
+      if (coverImage && !next.find((img) => img.image_url === coverImage)) {
+        setCoverImage(next.find((img) => img.image_url)?.image_url || '');
       }
       return next;
     });
@@ -422,6 +444,7 @@ function CreateModal({ open, onClose, onCreated }) {
     if (!houseTypeId) { setFormError('请选择户型'); return; }
     if (!areaId) { setFormError('请选择空间'); return; }
     if (!styleId) { setFormError('请选择风格'); return; }
+    if (isUploading) { setFormError('图片上传中，请等待全部完成后再提交'); return; }
 
     setLoading(true);
     try {
@@ -436,7 +459,7 @@ function CreateModal({ open, onClose, onCreated }) {
         budget_min: budgetMin ? Number(budgetMin) : null,
         budget_max: budgetMax ? Number(budgetMax) : null,
         cover_image: coverImage || null,
-        images: uploadedImages.map(img => ({ id: img.id })),
+        images: uploadedImages.filter((img) => img.status === 'done').map((img) => ({ id: img.id })),
       });
       toast.success('作品创建成功');
       onCreated();
@@ -450,6 +473,7 @@ function CreateModal({ open, onClose, onCreated }) {
     setTitle(''); setDescription(''); setDesignerId('');
     setHouseTypeId(''); setAreaId(''); setStyleId('');
     setAreaSqm(''); setBudgetMin(''); setBudgetMax('');
+    uploadedImages.forEach((img) => { if (img.previewUrl) URL.revokeObjectURL(img.previewUrl); });
     setUploadedImages([]); setCoverImage(''); setFormError('');
   };
 
@@ -553,30 +577,55 @@ function CreateModal({ open, onClose, onCreated }) {
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">作品图片</label>
             <div className="grid grid-cols-4 gap-2 mb-2">
-              {uploadedImages.map(img => (
-                <div key={img.id} className={`relative aspect-square rounded-lg bg-gray-100 overflow-hidden border-2 ${
-                  coverImage === img.image_url ? 'border-slate-900' : 'border-transparent'
+              {uploadedImages.map((img) => (
+                <div key={img.key} className={`relative aspect-square rounded-lg bg-gray-100 overflow-hidden border-2 ${
+                  coverImage && coverImage === img.image_url ? 'border-slate-900' : 'border-transparent'
                 }`}>
-                  <img src={img.thumb_url || img.image_url} alt="" className="w-full h-full object-cover"
-                    onClick={() => setCoverImage(img.image_url)} />
-                  <button type="button" onClick={() => removeImage(img.id)}
-                    className="absolute top-0.5 right-0.5 w-5 h-5 bg-black/50 text-white rounded-full text-[10px] flex items-center justify-center">✕</button>
-                  {coverImage === img.image_url && (
+                  <img src={img.thumb_url || img.previewUrl || img.image_url} alt=""
+                    className={`w-full h-full object-cover ${img.status === 'done' ? 'cursor-pointer' : ''} ${img.status !== 'done' ? 'opacity-60' : ''}`}
+                    onClick={() => img.status === 'done' && setCoverImage(img.image_url)} />
+
+                  {/* 上传中：进度遮罩 */}
+                  {img.status === 'uploading' && (
+                    <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center text-white">
+                      <span className="text-sm font-semibold">{img.progress}%</span>
+                      <div className="w-4/5 h-1 mt-1 bg-white/30 rounded-full overflow-hidden">
+                        <div className="h-full bg-white transition-all duration-150" style={{ width: `${img.progress}%` }} />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 失败态 */}
+                  {img.status === 'error' && (
+                    <div className="absolute inset-0 bg-red-900/50 flex items-center justify-center text-white text-[10px] px-1 text-center">
+                      上传失败
+                    </div>
+                  )}
+
+                  {/* 删除按钮 */}
+                  <button type="button" onClick={() => removeImage(img.key)}
+                    className="absolute top-0.5 right-0.5 w-5 h-5 bg-black/50 text-white rounded-full text-[10px] flex items-center justify-center hover:bg-black/70">✕</button>
+
+                  {/* 封面标记 */}
+                  {img.status === 'done' && coverImage === img.image_url && (
                     <span className="absolute bottom-0 left-0 right-0 bg-slate-900 text-white text-[10px] text-center py-0.5">封面</span>
                   )}
                 </div>
               ))}
-              {/* 上传按钮 */}
-              <label className="aspect-square rounded-lg border-2 border-dashed border-gray-300 flex flex-col items-center justify-center cursor-pointer hover:border-gray-400 transition-colors text-gray-400 hover:text-gray-500">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
-                <span className="text-[10px] mt-1">{uploading ? '上传中...' : '上传图片'}</span>
-                <input type="file" accept="image/jpeg,image/png" multiple onChange={handleUpload}
-                  disabled={uploading} className="hidden" />
-              </label>
+              {/* 上传按钮（满 9 张后隐藏） */}
+              {uploadedImages.length < 9 && (
+                <label className="aspect-square rounded-lg border-2 border-dashed border-gray-300 flex flex-col items-center justify-center cursor-pointer hover:border-gray-400 transition-colors text-gray-400 hover:text-gray-500">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                  <span className="text-[10px] mt-1">上传图片</span>
+                  <input type="file" accept="image/jpeg,image/png" multiple onChange={handleUpload} className="hidden" />
+                </label>
+              )}
             </div>
-            <p className="text-xs text-gray-400">支持 JPG/PNG，最多 9 张。点击图片设为封面。</p>
+            <p className="text-xs text-gray-400">
+              {isUploading ? '图片上传中，请稍候…' : '支持 JPG/PNG，最多 9 张。点击图片设为封面。'}
+            </p>
           </div>
 
           {/* 按钮 */}
@@ -585,9 +634,10 @@ function CreateModal({ open, onClose, onCreated }) {
               className="flex-1 py-2.5 text-sm text-gray-600 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors">
               取消
             </button>
-            <button type="submit" disabled={loading}
-              className="flex-1 py-2.5 text-sm text-white bg-slate-900 rounded-xl hover:bg-slate-800 disabled:opacity-50 transition-colors flex items-center justify-center gap-2">
-              {loading ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />创建中...</> : '创建作品'}
+            <button type="submit" disabled={loading || isUploading}
+              className="flex-1 py-2.5 text-sm text-white bg-slate-900 rounded-xl hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2">
+              {loading ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />创建中...</>
+                : isUploading ? '图片上传中…' : '创建作品'}
             </button>
           </div>
         </form>
