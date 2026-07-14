@@ -96,7 +96,7 @@ Page({
         wxCode = loginRes.code;
       } catch (wxErr) {
         console.warn('wx.login 失败:', wxErr);
-        throw new Error('微信登录失败，请尝试手动输入');
+        throw new Error('登录失败，请尝试手动输入手机号');
       }
 
       const result = await api.wechatPhoneLogin(wxCode, phoneCode);

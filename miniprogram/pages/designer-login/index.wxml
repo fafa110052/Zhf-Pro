@@ -26,14 +26,14 @@
     <!-- 手机号登录 -->
     <button class="phone-btn" bindtap="onLogin" disabled="{{loading || quickLoginLoading}}">手机号登录</button>
 
-    <!-- 微信授权快捷登录 -->
+    <!-- 手机号快捷登录 -->
     <button
       class="wechat-btn"
       open-type="getPhoneNumber"
       bindgetphonenumber="onGetPhoneNumber"
       loading="{{quickLoginLoading}}"
       disabled="{{quickLoginLoading}}"
-    >{{quickLoginLoading ? '加载中...' : '微信授权快捷登录'}}</button>
+    >{{quickLoginLoading ? '加载中...' : '手机号快捷登录'}}</button>
   </view>
 
   <!-- ═══ 协议勾选 ═══ -->
