@@ -401,7 +401,7 @@ export default function Settings() {
   const handleDtSave = async () => {
     setDtFormError('');
     if (!dtName.trim()) {
-      setDtFormError('请输入设计师姓名');
+      setDtFormError(dtFormMode === 'add' ? '请选择人员' : '请输入设计师姓名');
       return;
     }
     setDtSaving(true);
@@ -924,6 +924,21 @@ export default function Settings() {
         <div className="space-y-4">
           {dtFormError && (
             <div className="p-3 bg-red-50 text-red-700 text-sm rounded-lg">{dtFormError}</div>
+          )}
+
+          {/* 选择人员（仅新增）*/}
+          {dtFormMode === 'add' && (
+            <div>
+              <label className="block text-sm text-gray-600 mb-1">选择人员 <span className="text-red-400">*</span></label>
+              <select value={dtPersonId} onChange={handleDtPersonSelect} disabled={dtPersonnelLoading}
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50">
+                <option value="">{dtPersonnelLoading ? '加载中...' : '请选择设计师 / 设计总监'}</option>
+                {dtPersonnel.map((p) => (
+                  <option key={p.id} value={p.id}>{p.name}（{DT_PERSONNEL_LABEL[p.personnel_type] || '员工'}）</option>
+                ))}
+              </select>
+              <p className="text-xs text-gray-400 mt-0.5">选中后自动带出姓名和头像，可再修改</p>
+            </div>
           )}
 
           {/* 姓名 */}
