@@ -197,7 +197,8 @@ Page({
 
   /** 点击热门作品 → 跳转详情 */
   onWorkTap(e) {
-    var id = e.detail.id;
+    var id = e.detail && e.detail.id;
+    if (!id) return; // 忽略无 id 的触发（防组件原生 tap 与自定义事件双触发导致 ?id=undefined）
     wx.navigateTo({ url: '/pages/work-detail/index?id=' + id });
   },
 

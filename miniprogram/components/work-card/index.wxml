@@ -1,5 +1,5 @@
 <!-- 作品卡片 -->
-<view class="work-card" bindtap="onTap">
+<view class="work-card" catchtap="onTap">
   <!-- 封面图 — 中心裁剪填充，高度按比例动态计算 -->
   <view class="card-cover" style="height: {{coverH}}rpx;">
     <image
