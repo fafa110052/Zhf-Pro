@@ -27,6 +27,9 @@ const parseValue = (raw) => {
   try { return JSON.parse(raw); } catch { return {}; }
 };
 
+// ─── 设计团队可选岗位中文映射 ───
+const DT_PERSONNEL_LABEL = { designer: '设计师', design_director: '设计总监' };
+
 export default function Settings() {
   const toast = useToast();
 
@@ -80,6 +83,11 @@ export default function Settings() {
   const [dtSaving, setDtSaving] = useState(false);
   const [dtUploading, setDtUploading] = useState(false);
   const [dtFormError, setDtFormError] = useState('');
+
+  // ─── 设计团队：人员选择（仅新增用）───
+  const [dtPersonId, setDtPersonId] = useState('');
+  const [dtPersonnel, setDtPersonnel] = useState([]);
+  const [dtPersonnelLoading, setDtPersonnelLoading] = useState(false);
 
   // ─── 设计团队删除 ───
   const [dtDeleteTarget, setDtDeleteTarget] = useState(null);
@@ -339,16 +347,32 @@ export default function Settings() {
     }
   };
 
-  // ─── 设计团队：打开表单 ───
-  const openDtAddForm = () => {
+  // ─── 设计团队：打开新增表单（拉取可选人员）───
+  const openDtAddForm = async () => {
     setDtFormMode('add');
     setDtFormId(null);
+    setDtPersonId('');
     setDtName('');
     setDtAvatar('');
     setDtStyles('');
     setDtSortOrder(designTeam.length);
     setDtFormError('');
     setDtFormOpen(true);
+
+    setDtPersonnelLoading(true);
+    try {
+      const res = await client.get('/admin/designers', {
+        params: { personnel_type: 'designer,design_director', page_size: 50 },
+      });
+      const list = (res.data.list || []).filter(
+        (p) => !designTeam.some((t) => t.name === p.name)
+      );
+      setDtPersonnel(list);
+    } catch {
+      setDtPersonnel([]);
+    } finally {
+      setDtPersonnelLoading(false);
+    }
   };
 
   const openDtEditForm = (item) => {
@@ -360,6 +384,17 @@ export default function Settings() {
     setDtSortOrder(item.sort_order || 0);
     setDtFormError('');
     setDtFormOpen(true);
+  };
+
+  // ─── 设计团队：选中人员 → 预填姓名+头像（仍可再改）───
+  const handleDtPersonSelect = (e) => {
+    const id = e.target.value;
+    setDtPersonId(id);
+    const p = dtPersonnel.find((x) => String(x.id) === String(id));
+    if (p) {
+      setDtName(p.name || '');
+      setDtAvatar(p.avatar_url || '');
+    }
   };
 
   // ─── 设计团队：保存 ───
