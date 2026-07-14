@@ -1,8 +1,8 @@
 # 住好房展示平台 (ZHFPro)
 
-装修展示平台：C端小程序 + H5 + B端管理后台（Express 5 + SQLite + React 19 + 微信原生）。
+装修展示平台：C端小程序 + B端管理后台（Express 5 + SQLite + React 19 + 微信原生）。
 
-> 📂 [server](server/CLAUDE.md) · [admin](admin/CLAUDE.md) · [小程序](miniprogram/CLAUDE.md) · [H5](h5/CLAUDE.md) · [抽奖](lottery_replica/CLAUDE.md) · [项目索引](PROJECT_MAP.md)
+> 📂 [server](server/CLAUDE.md) · [admin](admin/CLAUDE.md) · [小程序](miniprogram/CLAUDE.md) · [抽奖](lottery_replica/CLAUDE.md) · [项目索引](PROJECT_MAP.md)
 
 ---
 ## 按需加载
@@ -14,7 +14,6 @@
 | 后端 API/数据库/业务逻辑 | `server/CLAUDE.md` |
 | 管理后台页面/组件/路由 | `admin/CLAUDE.md` |
 | 小程序页面/组件 | `miniprogram/CLAUDE.md` |
-| H5 移动端页面/路由 | `h5/CLAUDE.md` |
 | 摇一摇抽奖 H5 | `lottery_replica/CLAUDE.md` |
 | 跨项目概览/环境/部署 | `PROJECT_MAP.md` |
 

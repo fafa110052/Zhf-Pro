@@ -29,9 +29,6 @@ cd $PROJECT
 echo "📦 拉取最新代码..."
 git pull origin main
 
-echo "🔨 构建 H5..."
-cd $PROJECT/h5 && npm run build 2>&1 | tail -2
-
 echo "🔨 构建管理后台..."
 cd $PROJECT/admin && npm run build 2>&1 | tail -2
 
@@ -48,9 +45,7 @@ DOMAIN=$(node -e "console.log(require('$CONFIG').server.domain || 'wzzhfservice.
 
 echo ""
 if [ "$TARGET" = "prod" ]; then
-  echo "📱 H5:      http://${DOMAIN}"
   echo "🖥️  后台:    http://${DOMAIN}/admin"
 else
-  echo "📱 H5(测试): http://test.${DOMAIN}"
   echo "🖥️  后台(测): http://test.${DOMAIN}/admin"
 fi

@@ -12,14 +12,13 @@
 | 后端 | [server/CLAUDE.md](server/CLAUDE.md) | `server/src/` | Express 5 API，SQLite，19 路由模块，21 张表 |
 | 管理后台 | [admin/CLAUDE.md](admin/CLAUDE.md) | `admin/src/` | React 19 + Tailwind 4，18 个页面 |
 | 小程序 | [miniprogram/CLAUDE.md](miniprogram/CLAUDE.md) | `miniprogram/` | 微信原生，4 tab，26 个页面 |
-| H5 移动端 | [h5/CLAUDE.md](h5/CLAUDE.md) | `h5/src/` | React 19 + Tailwind 4，7 个路由 |
 | 摇一摇抽奖 | [lottery_replica/CLAUDE.md](lottery_replica/CLAUDE.md) | `lottery_replica/lottery_clean/` | 静态 H5，托管于 `/lottery/` |
 
 ## 环境配置
 
 - **唯一入口**：根目录 `env.config.json`，`active` 字段切换环境（test/prod）
 - **小程序**：`constants.js` → `env.js`（`require()` 不能引用 miniprogram 外的文件）
-- **Admin/H5**：相对路径 `/api/v1`，不依赖环境配置
+- **Admin**：相对路径 `/api/v1`，不依赖环境配置
 - **部署**：`./deploy.sh` = test，`./deploy.sh prod` = prod
 
 ## 密钥同步（不经 git）
@@ -78,10 +77,10 @@
 
 ## 部署后访问地址
 
-| 环境 | 管理后台 | H5 | 抽奖 |
-|------|---------|-----|------|
-| 测试 | `test.wzzhfservice.cloud/admin/` | `test.wzzhfservice.cloud/` | `test.wzzhfservice.cloud/lottery/` |
-| 生产 | `wzzhfservice.cloud/admin/` | `wzzhfservice.cloud/` | `wzzhfservice.cloud/lottery/` |
+| 环境 | 管理后台 | 抽奖 |
+|------|---------|------|
+| 测试 | `test.wzzhfservice.cloud/admin/` | `test.wzzhfservice.cloud/lottery/` |
+| 生产 | `wzzhfservice.cloud/admin/` | `wzzhfservice.cloud/lottery/` |
 
 ## 生产服务器
 

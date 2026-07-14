@@ -23,7 +23,6 @@ model: haiku
 | `miniprogram/` | 微信小程序（4 tab：首页→分类→在线选材→我的） |
 | `server/` | Express 5 + SQLite 后端 |
 | `admin/` | React 19 管理后台 |
-| `h5/` | H5 移动端 |
 | `lottery_replica/` | 摇一摇抽奖 H5 |
 
 ## 输出格式
