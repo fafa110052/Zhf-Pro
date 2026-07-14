@@ -65,8 +65,12 @@ function request({ url, method = 'GET', data = {}, auth = false, loading = false
         const msg = err.errMsg.includes('timeout')
           ? '请求超时，请检查网络'
           : '网络异常，请稍后重试';
-        wx.showToast({ title: msg, icon: 'none', duration: 2000 });
-        reject(new Error(msg));
+        if (!silent) {
+          wx.showToast({ title: msg, icon: 'none', duration: 2000 });
+        }
+        const e = new Error(msg);
+        e.status = 0; // 0 = 网络错误（非服务端状态码），供调用方区分"没连上"和"被拒绝"
+        reject(e);
       },
       complete() {
         if (loading) {
@@ -100,7 +104,9 @@ function handleError(statusCode, message, reject, silent) {
         break;
     }
   }
-  reject(new Error(message));
+  const err = new Error(message);
+  err.status = statusCode; // 携带服务端状态码，供调用方区分 401（登录失效）与其他错误
+  reject(err);
 }
 
 /**

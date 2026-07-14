@@ -112,8 +112,11 @@ async function checkLogin() {
     // silent: 仅后台校验，不弹 toast，不触发 clearLogin（防止竞态条件清掉刚登录的 token）
     await http.get('/auth/designer/me', {}, { auth: true, silent: true });
     return true;
-  } catch {
-    return false;
+  } catch (err) {
+    // 仅当服务端明确回 401（token 确实失效）才判定无效并登出；
+    // 网络/超时/冷启动请求未就绪/服务偶发错误一律保留登录（本地 token 有效期 7 天）。
+    // 这样"重新进入小程序"不会因一次校验没连上就被清空登录态。
+    return err && err.status === 401 ? false : true;
   }
 }
 
