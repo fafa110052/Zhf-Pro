@@ -75,12 +75,12 @@ function Pagination({ page, totalPages, total, onPage }) {
 
 /** 审核详情侧边面板 */
 function DetailPanel({ work, loading, onClose, onApprove, onReject, onToggleHot, onArchive, onSetCover, onOffline, onOnline, onDelete, onDeleteImage, onSaveVrUrl }) {
+  const [vrInput, setVrInput] = useState('');
+  useEffect(() => { setVrInput(work?.vr_url || ''); }, [work?.id, work?.vr_url]);
+
   if (!work && !loading) return null;
 
   const s = STATUS_MAP[work?.review_status] || {};
-
-  const [vrInput, setVrInput] = useState('');
-  useEffect(() => { setVrInput(work?.vr_url || ''); }, [work?.id, work?.vr_url]);
 
   return (
     <>
