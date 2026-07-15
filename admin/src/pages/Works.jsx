@@ -425,9 +425,11 @@ function WorkFormModal({ open, work, onClose, onSaved }) {
   // 编辑模式：打开时拉取作品详情预填
   useEffect(() => {
     if (!open || !isEdit) return;
+    let ignore = false; // 关闭/切换作品后丢弃迟到的响应，防止污染后续会话
     setDetailError('');
     removedExistingIdsRef.current = [];
     client.get(`/admin/works/${work.id}`).then((res) => {
+      if (ignore) return;
       const w = res.data;
       setTitle(w.title || '');
       setDescription(w.description || '');
@@ -448,7 +450,8 @@ function WorkFormModal({ open, work, onClose, onSaved }) {
         image_url: img.image_url,
         thumb_url: img.thumb_url,
       })));
-    }).catch((err) => setDetailError(err?.message || '作品详情加载失败'));
+    }).catch((err) => { if (!ignore) setDetailError(err?.message || '作品详情加载失败'); });
+    return () => { ignore = true; };
   }, [open, isEdit, work?.id]);
 
   // 逐张上传：选好后立即显示缩略图 + 进度条，限流同时最多 UPLOAD_CONCURRENCY 张
