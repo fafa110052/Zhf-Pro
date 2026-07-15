@@ -10,7 +10,6 @@
     "pages/material-order-detail/index",
     "pages/mine/index",
     "pages/work-detail/index",
-    "pages/vr-view/index",
     "pages/designer-login/index",
     "pages/designer-center/index",
     "pages/work-manage/index",
@@ -69,5 +68,6 @@
   },
   "style": "v2",
   "lazyCodeLoading": "requiredComponents",
+  "navigateToMiniProgramAppIdList": ["wxc2d8d319dfc12a95"],
   "sitemapLocation": "sitemap.json"
 }

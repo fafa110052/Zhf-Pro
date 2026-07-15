@@ -219,7 +219,21 @@ Page({
   onTapVR() {
     const vrUrl = this.data.work && this.data.work.vr_url;
     if (!vrUrl) return;
-    wx.navigateTo({ url: '/pages/vr-view/index?u=' + encodeURIComponent(vrUrl) });
+
+    // 从酷家乐链接中提取设计 ID，如 https://www.kujiale.com/cloud/design/3FO3DXSFRQ94/airoaming
+    const designId = vrUrl.match(/\/design\/([A-Za-z0-9]+)\//);
+    const id = designId ? designId[1] : '';
+
+    wx.navigateToMiniProgram({
+      appId: 'wxc2d8d319dfc12a95',
+      path: id ? 'pages/index/index?designId=' + id : '',
+      extraData: { url: vrUrl },
+      envVersion: 'release',
+      fail(err) {
+        console.error('跳转全景720失败:', err);
+        wx.showToast({ title: '打开失败，请稍后重试', icon: 'none' });
+      },
+    });
   },
 
   onOpenReport() {
