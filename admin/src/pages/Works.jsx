@@ -74,10 +74,13 @@ function Pagination({ page, totalPages, total, onPage }) {
 }
 
 /** 审核详情侧边面板 */
-function DetailPanel({ work, loading, onClose, onApprove, onReject, onToggleHot, onArchive, onSetCover, onOffline, onOnline, onDelete, onDeleteImage }) {
+function DetailPanel({ work, loading, onClose, onApprove, onReject, onToggleHot, onArchive, onSetCover, onOffline, onOnline, onDelete, onDeleteImage, onSaveVrUrl }) {
   if (!work && !loading) return null;
 
   const s = STATUS_MAP[work?.review_status] || {};
+
+  const [vrInput, setVrInput] = useState('');
+  useEffect(() => { setVrInput(work?.vr_url || ''); }, [work?.id, work?.vr_url]);
 
   return (
     <>
@@ -148,6 +151,28 @@ function DetailPanel({ work, loading, onClose, onApprove, onReject, onToggleHot,
                     <p className="text-gray-800">{item.value || '—'}</p>
                   </div>
                 ))}
+              </div>
+
+              {/* VR 链接（酷家乐） */}
+              <div>
+                <p className="text-xs text-gray-400 mb-1">酷家乐 VR 链接</p>
+                <div className="flex items-center space-x-2">
+                  <input
+                    value={vrInput}
+                    onChange={(e) => setVrInput(e.target.value)}
+                    placeholder="粘贴酷家乐分享链接，留空保存即清除"
+                    className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-slate-300"
+                  />
+                  <button
+                    onClick={() => onSaveVrUrl(work, vrInput.trim())}
+                    className="px-3 py-2 bg-slate-900 text-white text-xs rounded-lg hover:bg-slate-700 transition-colors shrink-0"
+                  >
+                    保存
+                  </button>
+                </div>
+                {work.vr_url && (
+                  <p className="text-xs text-green-600 mt-1">已配置 — 小程序详情页将显示"VR看房"按钮</p>
+                )}
               </div>
 
               {/* 描述 */}
@@ -803,6 +828,14 @@ export default function Works() {
     } catch (err) { toast.error(err?.message || '操作失败'); }
   };
 
+  const handleSaveVrUrl = async (work, vrUrl) => {
+    try {
+      const res = await client.patch(`/admin/works/${work.id}/vr-url`, { vr_url: vrUrl });
+      toast.success(vrUrl ? 'VR 链接已保存' : 'VR 链接已清除');
+      setDetailWork((prev) => (prev ? { ...prev, vr_url: res.data.vr_url } : null));
+    } catch (err) { toast.error(err?.message || '操作失败'); }
+  };
+
   const handleDeleteImage = async (work, img) => {
     if (!confirm(`确定从作品「${work.title}」中删除此图片吗？`)) return;
     try {
@@ -1100,6 +1133,7 @@ export default function Works() {
         onApprove={handleApprove} onReject={handleReject} onToggleHot={handleToggleHot} onArchive={handleArchive}
         onSetCover={handleSetCover} onOffline={handleOffline} onOnline={handleOnline} onDelete={handleDelete}
         onDeleteImage={handleDeleteImage}
+        onSaveVrUrl={handleSaveVrUrl}
       />
 
       {/* ═══ 单个驳回弹窗 ═══ */}
