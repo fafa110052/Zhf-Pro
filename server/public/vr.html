@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>VR全景看房</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #000; }
+  iframe { display: block; width: 100%; height: 100%; border: 0; }
+  .tip { color: #999; font: 14px/1.6 -apple-system, sans-serif; text-align: center; padding-top: 40vh; }
+</style>
+</head>
+<body>
+<div id="app" class="tip">全景加载中…</div>
+<script>
+(function () {
+  var app = document.getElementById('app');
+  function fail(msg) { app.textContent = msg; }
+  try {
+    var u = new URLSearchParams(location.search).get('u') || '';
+    var url = new URL(u);
+    var host = url.hostname.toLowerCase();
+    var ok = url.protocol === 'https:' &&
+             (host === 'kujiale.com' || /\.kujiale\.com$/.test(host));
+    if (!ok) { fail('链接无效'); return; }
+    var iframe = document.createElement('iframe');
+    iframe.src = url.href;
+    iframe.allow = 'fullscreen; gyroscope; accelerometer; xr-spatial-tracking';
+    iframe.onload = function () { app.style.display = 'none'; };
+    document.body.appendChild(iframe);
+  } catch (e) { fail('链接无效'); }
+})();
+</script>
+</body>
+</html>

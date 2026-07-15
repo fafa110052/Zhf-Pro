@@ -63,6 +63,13 @@ if (fs.existsSync(adminDist)) {
   app.use(express.static(adminDist));
 }
 
+// ═══ VR 中转页（小程序 web-view 内嵌酷家乐）═══
+// 注意：必须在 SPA 兜底之前注册，否则会被 index.html 接管
+app.get('/vr.html', (req, res) => {
+  res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+  res.sendFile(path.join(__dirname, '..', 'public', 'vr.html'));
+});
+
 // ═══ 占位图生成（picsum.photos 国内被墙，用本地 SVG 替代）═══
 app.get('/api/v1/placeholder/:seed/:width/:height', (req, res) => {
   const w = Math.max(10, Math.min(1200, parseInt(req.params.width) || 600));
