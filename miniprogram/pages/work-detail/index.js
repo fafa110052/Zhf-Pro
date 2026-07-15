@@ -220,13 +220,9 @@ Page({
     const vrUrl = this.data.work && this.data.work.vr_url;
     if (!vrUrl) return;
 
-    // 从酷家乐链接提取设计ID，小程序码用 scene 传参
-    const designId = vrUrl.match(/\/design\/([A-Za-z0-9]+)\//);
-    const id = designId ? designId[1] : '';
-
     wx.navigateToMiniProgram({
       appId: 'wxc2d8d319dfc12a95',
-      path: 'pages/design-detail/pano/pano?scene=' + (id || ''),
+      path: 'pages/design-detail/pano/pano?url=' + encodeURIComponent(vrUrl),
       envVersion: 'release',
       fail: function () {
         wx.showToast({ title: '打开失败，请稍后重试', icon: 'none' });
