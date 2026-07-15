@@ -443,10 +443,12 @@ function CreateModal({ open, onClose, onCreated }) {
     for (let i = 0; i < UPLOAD_CONCURRENCY && i < tasks.length; i++) runNext();
   };
 
+  // 删除单张已上传图片（同步从图库删除，避免无主图片堆积）
   const removeImage = (key) => {
+    const target = uploadedImages.find((img) => img.key === key);
+    if (target?.previewUrl) URL.revokeObjectURL(target.previewUrl);
+    if (target?.id) client.delete(`/admin/images/${target.id}`).catch(() => {});
     setUploadedImages((prev) => {
-      const target = prev.find((img) => img.key === key);
-      if (target?.previewUrl) URL.revokeObjectURL(target.previewUrl);
       const next = prev.filter((img) => img.key !== key);
       if (coverImage && !next.find((img) => img.image_url === coverImage)) {
         setCoverImage(next.find((img) => img.image_url)?.image_url || '');
@@ -482,6 +484,7 @@ function CreateModal({ open, onClose, onCreated }) {
         images: uploadedImages.filter((img) => img.status === 'done').map((img) => ({ id: img.id })),
       });
       toast.success('作品创建成功');
+      resetForm(); // 创建成功：图片已绑定作品，只重置表单，不删图库
       onCreated();
     } catch (err) {
       setFormError(err?.message || '创建失败');
@@ -498,6 +501,11 @@ function CreateModal({ open, onClose, onCreated }) {
   };
 
   const handleClose = () => {
+    if (isUploading) { toast.warning('图片上传中，请等待完成后再关闭'); return; }
+    // 未创建作品就关闭：把已上传的图片从图库删除，避免无主图片堆积
+    uploadedImages.forEach((img) => {
+      if (img.id) client.delete(`/admin/images/${img.id}`).catch(() => {});
+    });
     resetForm();
     onClose();
   };
