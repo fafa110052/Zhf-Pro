@@ -29,7 +29,8 @@ const PAGE_SIZE_DEFAULT = 12;
 const PAGE_SIZE_MAX = 50;
 
 // 图片上传限制
-const UPLOAD_MAX_COUNT = 9;       // 单次最多上传 9 张
+const UPLOAD_MAX_COUNT = 9;       // 单次最多上传 9 张（施工阶段用，后端硬限制 9）
+const WORK_UPLOAD_MAX_COUNT = 15; // 作品图片上限 15 张
 const UPLOAD_MAX_SIZE = 10 * 1024 * 1024;  // 单张最大 10MB
 
 // 作品状态映射
@@ -106,6 +107,7 @@ module.exports = {
   PAGE_SIZE_DEFAULT,
   PAGE_SIZE_MAX,
   UPLOAD_MAX_COUNT,
+  WORK_UPLOAD_MAX_COUNT,
   UPLOAD_MAX_SIZE,
   WORK_STATUS_MAP,
   DESIGNER_STATUS_MAP,

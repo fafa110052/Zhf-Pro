@@ -34,6 +34,11 @@ const REJECT_REASONS = [
   '重复提交',
 ];
 
+// 作品图片上限
+const MAX_IMAGES = 15;
+// 同时上传张数（限流，避免服务器同时压缩过多大图导致内存峰值）
+const UPLOAD_CONCURRENCY = 3;
+
 // ═══════════════════════════════════
 // 子组件
 // ═══════════════════════════════════
@@ -382,27 +387,34 @@ function CreateModal({ open, onClose, onCreated }) {
     ]);
   }, [open]);
 
-  // 逐张上传：选好后立即显示缩略图 + 进度条，单张独立上传互不阻塞
+  // 逐张上传：选好后立即显示缩略图 + 进度条，限流同时最多 UPLOAD_CONCURRENCY 张
   const handleUpload = (e) => {
     const files = Array.from(e.target.files || []);
     e.target.value = ''; // 允许再次选择相同文件
     if (files.length === 0) return;
 
-    const remaining = 9 - uploadedImages.length;
-    if (remaining <= 0) { toast.warning('最多上传 9 张图片'); return; }
+    const remaining = MAX_IMAGES - uploadedImages.length;
+    if (remaining <= 0) { toast.warning(`最多上传 ${MAX_IMAGES} 张图片`); return; }
     const toUpload = files.slice(0, remaining);
     if (files.length > remaining) {
-      toast.warning(`最多上传 9 张，已忽略多余的 ${files.length - remaining} 张`);
+      toast.warning(`最多上传 ${MAX_IMAGES} 张，已忽略多余的 ${files.length - remaining} 张`);
     }
 
-    toUpload.forEach((file) => {
-      const key = ++uploadKeyRef.current;
-      const previewUrl = URL.createObjectURL(file);
-      setUploadedImages((prev) => [...prev, { key, status: 'uploading', progress: 0, previewUrl }]);
+    // 先全部生成本地预览占位，再限流上传，避免服务器同时压缩过多大图
+    const tasks = toUpload.map((file) => ({
+      key: ++uploadKeyRef.current,
+      file,
+      previewUrl: URL.createObjectURL(file),
+    }));
+    setUploadedImages((prev) => [
+      ...prev,
+      ...tasks.map(({ key, previewUrl }) => ({ key, status: 'uploading', progress: 0, previewUrl })),
+    ]);
 
+    const uploadOne = ({ key, file }) => {
       const formData = new FormData();
       formData.append('file', file);
-      client.post('/upload?category=works', formData, {
+      return client.post('/upload?category=works', formData, {
         timeout: 120000, // 4K 渲染图较大，放宽单张上传超时
         onUploadProgress: (evt) => {
           const pct = evt.total ? Math.round((evt.loaded / evt.total) * 100) : 0;
@@ -420,7 +432,15 @@ function CreateModal({ open, onClose, onCreated }) {
           : img));
         toast.error(err?.message || '图片上传失败');
       });
-    });
+    };
+
+    // 并发池：传完一张自动补下一张
+    let next = 0;
+    const runNext = () => {
+      if (next >= tasks.length) return;
+      uploadOne(tasks[next++]).finally(runNext);
+    };
+    for (let i = 0; i < UPLOAD_CONCURRENCY && i < tasks.length; i++) runNext();
   };
 
   const removeImage = (key) => {
@@ -612,8 +632,8 @@ function CreateModal({ open, onClose, onCreated }) {
                   )}
                 </div>
               ))}
-              {/* 上传按钮（满 9 张后隐藏） */}
-              {uploadedImages.length < 9 && (
+              {/* 上传按钮（满 MAX_IMAGES 张后隐藏） */}
+              {uploadedImages.length < MAX_IMAGES && (
                 <label className="aspect-square rounded-lg border-2 border-dashed border-gray-300 flex flex-col items-center justify-center cursor-pointer hover:border-gray-400 transition-colors text-gray-400 hover:text-gray-500">
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -624,7 +644,7 @@ function CreateModal({ open, onClose, onCreated }) {
               )}
             </div>
             <p className="text-xs text-gray-400">
-              {isUploading ? '图片上传中，请稍候…' : '支持 JPG/PNG，最多 9 张。点击图片设为封面。'}
+              {isUploading ? '图片上传中，请稍候…' : `支持 JPG/PNG，最多 ${MAX_IMAGES} 张。点击图片设为封面。`}
             </p>
           </div>
 

@@ -71,7 +71,7 @@
 
           <!-- 添加按钮 -->
           <view
-            wx:if="{{images.length + localImages.length < 9}}"
+            wx:if="{{images.length + localImages.length < maxCount}}"
             class="image-cell image-add"
             bindtap="onChooseImage"
           >
@@ -79,7 +79,7 @@
             <text class="add-text">添加图片</text>
           </view>
         </view>
-        <text class="image-hint"><text class="zhficon"></text> 最多 9 张，点击图片可设为封面。支持拍照或相册选择</text>
+        <text class="image-hint"><text class="zhficon"></text> 最多 {{maxCount}} 张，点击图片可设为封面。支持拍照或相册选择</text>
       </view>
 
       <!-- ─── 基本信息 ─── -->

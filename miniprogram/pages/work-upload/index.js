@@ -14,9 +14,9 @@
  *   前端 form.budget_max      → 后端 budget_max
  *   分类 categories.house_type / categories.area / categories.style
  */
-const { getCategories, getMyWorkDetail, createWork, updateWork, submitWork, uploadImages } = require('../../utils/api');
+const { getCategories, getMyWorkDetail, createWork, updateWork, submitWork, uploadImage } = require('../../utils/api');
 const { fullImageUrl, showConfirm, debounce } = require('../../utils/util');
-const { UPLOAD_MAX_COUNT } = require('../../utils/constants');
+const { WORK_UPLOAD_MAX_COUNT } = require('../../utils/constants');
 
 // 草稿存储 key
 const DRAFT_KEY = 'work_upload_draft';
@@ -27,6 +27,7 @@ Page({
   data: {
     isEdit: false,
     editId: '',
+    maxCount: WORK_UPLOAD_MAX_COUNT,  // 作品图片上限（wxml 用）
 
     // 表单
     form: {
@@ -327,19 +328,22 @@ Page({
    * 选择图片（拍照或相册）
    */
   onChooseImage() {
-    const remain = UPLOAD_MAX_COUNT - this.data.images.length - this.data.localImages.length;
+    const remain = WORK_UPLOAD_MAX_COUNT - this.data.images.length - this.data.localImages.length;
     if (remain <= 0) {
-      wx.showToast({ title: `最多上传 ${UPLOAD_MAX_COUNT} 张图片`, icon: 'none' });
+      wx.showToast({ title: `最多上传 ${WORK_UPLOAD_MAX_COUNT} 张图片`, icon: 'none' });
       return;
     }
 
-    wx.chooseImage({
+    // chooseMedia 单次最多 20 张（chooseImage 只能 9 张）；只返回临时文件路径，不占内存
+    wx.chooseMedia({
       count: remain,
+      mediaType: ['image'],
       sizeType: ['compressed'],
       sourceType: ['album', 'camera'],
       success: (res) => {
+        const paths = (res.tempFiles || []).map((f) => f.tempFilePath);
         this.setData({
-          localImages: [...this.data.localImages, ...res.tempFilePaths],
+          localImages: [...this.data.localImages, ...paths],
         });
       },
     });
@@ -488,13 +492,23 @@ Page({
 
   /**
    * 批量上传本地图片到服务器
+   * 逐张压缩+上传（串行，避免多图同时读入内存），loading 显示进度
    */
   async uploadLocalImages() {
-    if (this.data.localImages.length === 0) return [];
+    const { localImages } = this.data;
+    if (localImages.length === 0) return [];
 
-    wx.showLoading({ title: '上传图片中...' });
+    const results = [];
     try {
-      const results = await uploadImages(this.data.localImages, 'works');
+      for (let i = 0; i < localImages.length; i++) {
+        wx.showLoading({ title: `上传图片 ${i + 1}/${localImages.length}` });
+        try {
+          results.push(await uploadImage(localImages[i], 'works'));
+        } catch (err) {
+          console.error('上传失败:', localImages[i], err);
+          // 继续上传剩余图片
+        }
+      }
       return results;
     } finally {
       wx.hideLoading();
