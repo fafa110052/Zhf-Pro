@@ -545,11 +545,6 @@ Page({
       wx.showToast({ title: '请至少上传一张图片', icon: 'none' });
       return false;
     }
-    const vr = form.vr_url && form.vr_url.trim();
-    if (vr && !/^https:\/\/([a-z0-9-]+\.)*kujiale\.com(\/|\?|$)/i.test(vr)) {
-      wx.showToast({ title: '请填写酷家乐链接', icon: 'none' });
-      return false;
-    }
     return true;
   },
 });

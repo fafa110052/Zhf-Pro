@@ -47,26 +47,13 @@ function normalizeCoverImage(url) {
 }
 
 /**
- * 校验酷家乐 VR 链接
- * undefined → undefined（不更新）；null/空串 → null（清空）
- * 合法：https + 域名为 kujiale.com 或其子域；否则抛 400
+ * 清理 VR 链接
+ * undefined → undefined（不更新）；null/空串 → null（清空）；其他 trim 后存库
  */
 function normalizeVrUrl(url) {
   if (url === undefined) return undefined;
   if (url === null || String(url).trim() === '') return null;
-  const trimmed = String(url).trim();
-  let parsed;
-  try {
-    parsed = new URL(trimmed);
-  } catch (e) {
-    throw Object.assign(new Error('请填写有效的酷家乐链接（kujiale.com）'), { status: 400 });
-  }
-  const host = parsed.hostname.toLowerCase();
-  const ok = parsed.protocol === 'https:' && (host === 'kujiale.com' || host.endsWith('.kujiale.com'));
-  if (!ok) {
-    throw Object.assign(new Error('请填写有效的酷家乐链接（kujiale.com）'), { status: 400 });
-  }
-  return trimmed;
+  return String(url).trim();
 }
 
 /** 从请求体构建 cases 表的更新字段（白名单 + 归一化，不含 designer_id / review_status） */
