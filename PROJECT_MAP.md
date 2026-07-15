@@ -57,6 +57,8 @@
 - **价格快照**：下单时存储于 `material_order_items.price_snapshot`
 - **图片库命名**：`设计师-作品名字-日期.扩展名`
 - **缩略图**：`cover_thumb`（400px 宽），优先回退原图
+- **作品图片上限**：作品 15 张（`WORK_UPLOAD_MAX_COUNT`）；施工上传仍 9 张（`UPLOAD_MAX_COUNT`，后端硬限）
+- **作品编辑**：后台 `PUT /admin/works/:id` 直接生效不重审；`designer_id`/`review_status` 不可改；删旧图在保存成功之后、被引用则跳过
 - **两套分类**：`categories`（作品分类）≠ `material_categories`（材料分类）
 
 ## 新增功能 — 文件修改检查清单
@@ -85,5 +87,5 @@
 ## 生产服务器
 
 - IP：`43.136.71.64`
-- 服务管理：`pm2 restart zhfpro-server`
+- 服务管理：`pm2 restart zhf-server`（测试环境 `zhf-server-test`）
 - 部署脚本：`./deploy.sh [test|prod]`
