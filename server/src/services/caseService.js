@@ -47,6 +47,29 @@ function normalizeCoverImage(url) {
 }
 
 /**
+ * 校验酷家乐 VR 链接
+ * undefined → undefined（不更新）；null/空串 → null（清空）
+ * 合法：https + 域名为 kujiale.com 或其子域；否则抛 400
+ */
+function normalizeVrUrl(url) {
+  if (url === undefined) return undefined;
+  if (url === null || String(url).trim() === '') return null;
+  const trimmed = String(url).trim();
+  let parsed;
+  try {
+    parsed = new URL(trimmed);
+  } catch (e) {
+    throw Object.assign(new Error('请填写有效的酷家乐链接（kujiale.com）'), { status: 400 });
+  }
+  const host = parsed.hostname.toLowerCase();
+  const ok = parsed.protocol === 'https:' && (host === 'kujiale.com' || host.endsWith('.kujiale.com'));
+  if (!ok) {
+    throw Object.assign(new Error('请填写有效的酷家乐链接（kujiale.com）'), { status: 400 });
+  }
+  return trimmed;
+}
+
+/**
  * 装修作品业务逻辑
  * 负责作品列表的多维筛选、分页、详情（含浏览量）、热门推荐
  */
@@ -334,7 +357,7 @@ const caseService = {
   /** 创建新作品（默认草稿状态） */
   async create(designerId, data) {
     const { title, description, house_type_id, area_category_id, style_category_id,
-            area_sqm, budget_min, budget_max, completion_date, cover_image, images } = data;
+            area_sqm, budget_min, budget_max, completion_date, cover_image, images, vr_url } = data;
 
     if (!title) {
       throw Object.assign(new Error('作品标题不能为空'), { status: 400 });
@@ -366,6 +389,7 @@ const caseService = {
       completion_date: completion_date || null,
       cover_image: normalizedCover || null,
       designer_id: designerId,
+      vr_url: normalizeVrUrl(vr_url) || null,
       review_status: 'draft',
     });
 
@@ -405,11 +429,17 @@ const caseService = {
 
     const allowed = ['title', 'description', 'house_type_id', 'area_category_id',
                      'style_category_id', 'area_sqm', 'budget_min', 'budget_max',
-                     'completion_date', 'cover_image'];
+                     'completion_date', 'cover_image', 'vr_url'];
     const updates = {};
     for (const key of allowed) {
       if (data[key] !== undefined) {
-        updates[key] = key === 'cover_image' ? normalizeCoverImage(data[key]) : data[key];
+        if (key === 'cover_image') {
+          updates[key] = normalizeCoverImage(data[key]);
+        } else if (key === 'vr_url') {
+          updates[key] = normalizeVrUrl(data[key]);
+        } else {
+          updates[key] = data[key];
+        }
       }
     }
     // 编辑后回到草稿状态（驳回后重编）
@@ -703,6 +733,19 @@ const caseService = {
     const newHot = work.is_hot ? 0 : 1;
     await db('cases').where('id', workId).update({ is_hot: newHot });
     return db('cases').where('id', workId).select('id', 'title', 'is_hot').first();
+  },
+
+  /** 管理端设置/清空 VR 链接（任意状态可改，不影响审核状态） */
+  async setVrUrl(workId, vrUrl) {
+    const work = await db('cases').where('id', workId).first();
+    if (!work) {
+      throw Object.assign(new Error('作品不存在'), { status: 404 });
+    }
+    await db('cases').where('id', workId).update({
+      vr_url: normalizeVrUrl(vrUrl) || null,
+      updated_at: db.fn.now(),
+    });
+    return db('cases').where('id', workId).first();
   },
 
   /** 管理端 — 获取所有热门作品（is_hot = 1） */

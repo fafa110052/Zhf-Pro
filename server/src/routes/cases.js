@@ -317,6 +317,21 @@ router.patch('/admin/works/:id/hot', authenticate, requireRole('admin'), async (
 });
 
 /**
+ * PATCH /api/v1/admin/works/:id/vr-url
+ * 设置/清空作品的酷家乐 VR 链接（任意状态可改，不触发重新审核）
+ *
+ * Body: { vr_url } — 空字符串或 null 即清空
+ */
+router.patch('/admin/works/:id/vr-url', authenticate, requireRole('admin'), async (req, res, next) => {
+  try {
+    const work = await caseService.setVrUrl(Number(req.params.id), req.body.vr_url);
+    res.json({ success: true, data: work });
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
  * POST /api/v1/admin/works/:id/offline
  * 下架作品（approved → offline）
  */
