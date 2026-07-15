@@ -91,14 +91,24 @@ function buildCaseUpdates(data) {
 
 /** 整组替换作品图片关联（先删后插，保持 sort_order） */
 async function replaceCaseImages(workId, images) {
-  await db('case_images').where('case_id', workId).delete();
+  // 校验先行：任何一个图片 ID 无效都直接拒绝，避免把作品图片静默清空
+  // （历史数据中存在 library_image_id 为空的关联行，编辑此类作品需先做数据回填）
+  let urlMap = {};
   if (images && images.length > 0) {
-    const imageIds = images.map(img => img.id);
+    const imageIds = images.map(img => img && img.id).filter(id => id != null);
+    if (imageIds.length !== images.length) {
+      throw Object.assign(new Error('存在无效的图片ID（历史作品需先修复图片数据）'), { status: 400 });
+    }
     const libImages = await db('image_library').whereIn('id', imageIds).select('id', 'image_url', 'thumb_url');
-    const urlMap = {};
+    if (libImages.length !== new Set(imageIds).size) {
+      throw Object.assign(new Error('部分图片在图库中不存在'), { status: 400 });
+    }
     for (const li of libImages) {
       urlMap[li.id] = { image_url: li.image_url, thumb_url: li.thumb_url || null };
     }
+  }
+  await db('case_images').where('case_id', workId).delete();
+  if (images && images.length > 0) {
     const caseImages = images.map((img, idx) => ({
       case_id: workId,
       library_image_id: img.id,
@@ -455,8 +465,7 @@ const caseService = {
     return db('cases').where('id', id).first();
   },
 
-
-/** 编辑作品（仅草稿/已驳回状态可编辑） */
+  /** 编辑作品（仅草稿/已驳回状态可编辑） */
   async update(designerId, workId, data) {
     const work = await db('cases').where('id', workId).first();
     if (!work) {
