@@ -39,6 +39,7 @@ Page({
       area_sqm: '',
       budget_min: '',
       budget_max: '',
+      vr_url: '',
     },
 
     // 图片
@@ -165,6 +166,7 @@ Page({
       form.area_sqm ||
       form.budget_min ||
       form.budget_max ||
+      form.vr_url ||
       images.length > 0
     );
   },
@@ -254,6 +256,7 @@ Page({
           area_sqm: work.area_sqm != null ? String(work.area_sqm) : '',
           budget_min: work.budget_min != null ? String(work.budget_min) : '',
           budget_max: work.budget_max != null ? String(work.budget_max) : '',
+          vr_url: work.vr_url || '',
         },
         images: (work.images || []).map((img) => ({
           id: img.id,
@@ -418,6 +421,7 @@ Page({
       area_sqm: form.area_sqm ? parseFloat(form.area_sqm) : undefined,
       budget_min: form.budget_min ? parseFloat(form.budget_min) : undefined,
       budget_max: form.budget_max ? parseFloat(form.budget_max) : undefined,
+      vr_url: form.vr_url.trim(),
       cover_image: coverUrl || undefined,
       images: allImages,
     };
@@ -539,6 +543,11 @@ Page({
     }
     if (images.length + localImages.length === 0) {
       wx.showToast({ title: '请至少上传一张图片', icon: 'none' });
+      return false;
+    }
+    const vr = form.vr_url && form.vr_url.trim();
+    if (vr && !/^https:\/\/([a-z0-9-]+\.)*kujiale\.com(\/|\?|$)/i.test(vr)) {
+      wx.showToast({ title: '请填写酷家乐链接', icon: 'none' });
       return false;
     }
     return true;

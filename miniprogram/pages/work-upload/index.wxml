@@ -226,6 +226,17 @@
             placeholder="如：30（选填）"
           />
         </view>
+
+        <view class="form-item">
+          <text class="form-label">VR 全景链接</text>
+          <input
+            class="form-input"
+            value="{{form.vr_url}}"
+            data-field="vr_url"
+            bindinput="onFieldInput"
+            placeholder="粘贴酷家乐分享链接（选填）"
+          />
+        </view>
       </view>
 
       <!-- ─── 操作按钮 ─── -->
