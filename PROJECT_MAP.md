@@ -60,6 +60,7 @@
 - **作品图片上限**：作品 15 张（`WORK_UPLOAD_MAX_COUNT`）；施工上传仍 9 张（`UPLOAD_MAX_COUNT`，后端硬限）
 - **作品编辑**：后台 `PUT /admin/works/:id` 直接生效不重审；`designer_id`/`review_status` 不可改；删旧图在保存成功之后、被引用则跳过
 - **两套分类**：`categories`（作品分类）≠ `material_categories`（材料分类）
+- **VR 看房**：作品 `vr_url` 存酷家乐链接；小程序 `wx.navigateToMiniProgram("全景720")` 打开；web-view 中转不可行（微信拦截 iframe 内小程序跳转）
 
 ## 新增功能 — 文件修改检查清单
 

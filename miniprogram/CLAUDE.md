@@ -7,7 +7,7 @@
 ```
 miniprogram/
 ├── app.js              # 全局状态 + 角色判断 + onLaunch
-├── app.json            # 页面注册 + tabBar + 窗口配置
+├── app.json            # 页面注册 + tabBar + 窗口配置 + navigateToMiniProgramAppIdList
 ├── app.wxss            # 全局样式
 ├── env.js              # BASE_URL（切换环境只改这个文件）
 ├── pages/              # 26 个页面
@@ -133,6 +133,28 @@ URL = `BASE_URL + API_PREFIX + url`（如 `http://test.wzzhfservice.cloud/api/v1
 - `formatNumber(num)` — 万/千缩写
 - `showConfirm(message, title)` — 返回 Promise
 - `formatArea` / `formatBudget`
+
+## VR 看房
+
+作品详情页右下角悬浮按钮，调起全景720小程序打开酷家乐VR全景：
+
+```js
+// work-detail/index.js
+onTapVR() {
+  const vrUrl = this.data.work && this.data.work.vr_url;
+  if (!vrUrl) return;
+  wx.navigateToMiniProgram({
+    appId: 'wxc2d8d319dfc12a95',  // 全景720
+    path: 'pages/design-detail/pano/pano?url=' + encodeURIComponent(vrUrl),
+    envVersion: 'release',
+    fail() { wx.showToast({ title: '打开失败，请稍后重试', icon: 'none' }); },
+  });
+},
+```
+
+- 按钮仅 `vr_url` 有值时显示（`wx:if="{{ready && work.vr_url}}"`）
+- 上传表单 `work-upload` 支持输入 vr_url，正则校验酷家乐域名
+- ⚠️ web-view + iframe 中转方案不可行（微信拦截 iframe 内小程序跳转）
 
 ## 常见陷阱
 

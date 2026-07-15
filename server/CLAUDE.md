@@ -11,7 +11,7 @@ server/src/
 ├── config/index.js     # JWT_SECRET, PORT(3000), uploadDir, wechat
 ├── db/
 │   ├── connection.js   # Knex + better-sqlite3 实例
-│   └── migrations/     # 12 个迁移文件（001–011，含两个 006）
+│   └── migrations/     # 14 个迁移文件（001–013，含两个 006）
 ├── middleware/
 │   ├── auth.js         # authenticate + requireRole + requirePersonnelType
 │   ├── upload.js       # Multer 配置（存储+过滤+文件命名）
@@ -35,7 +35,7 @@ server/src/
 | 文件 | 挂载路径 | 主要功能 |
 |------|---------|---------|
 | `auth.js` | `/api/v1/auth` | 登录（admin/designer/dev/wechat-phone）、获取当前用户 |
-| `cases.js` | `/api/v1` | 公开作品列表+详情、设计师 CRUD、管理员审核+上下架+热门 |
+| `cases.js` | `/api/v1` | 公开作品列表+详情、设计师 CRUD、管理员审核+上下架+热门+VR链接 |
 | `categories.js` | `/api/v1` | 公开/管理分类（户型/部位/风格），含启用/禁用 |
 | `designers.js` | `/api/v1` | 人员管理、设计师 CRUD、头像审核、个人资料编辑 |
 | `images.js` | `/api/v1/admin` | 图片库列表+删除（force）+引用查询+批量删除 |
@@ -67,7 +67,7 @@ server/src/
 | `designers` | 统一用户表（含 role + personnel_type） |
 | `categories` | 分类字典（house_type/area/style） |
 | `image_library` | 全局图片库（original_name 格式：设计师-作品名-日期） |
-| `cases` | 装修作品（review_status 状态机） |
+| `cases` | 装修作品（review_status 状态机，含 vr_url 酷家乐全景链接） |
 | `case_images` | 作品-图片关联 |
 | `homepage_config` | 首页配置（banner/hot_works） |
 | `properties` | 楼盘（property_code 2位唯一码） |
