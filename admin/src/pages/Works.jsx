@@ -74,7 +74,7 @@ function Pagination({ page, totalPages, total, onPage }) {
 }
 
 /** 审核详情侧边面板 */
-function DetailPanel({ work, loading, onClose, onApprove, onReject, onToggleHot, onArchive, onSetCover, onOffline, onOnline, onDelete, onDeleteImage, onSaveVrUrl }) {
+function DetailPanel({ work, loading, onClose, onApprove, onReject, onToggleHot, onArchive, onSetCover, onOffline, onOnline, onDelete, onDeleteImage, onSaveVrUrl, onEdit }) {
   const [vrInput, setVrInput] = useState('');
   useEffect(() => { setVrInput(work?.vr_url || ''); }, [work?.id, work?.vr_url]);
 
@@ -237,6 +237,13 @@ function DetailPanel({ work, loading, onClose, onApprove, onReject, onToggleHot,
 
             {/* 底部操作按钮 */}
             <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 shrink-0 space-y-2">
+              {/* 编辑（所有状态可见） */}
+              <button
+                onClick={() => onEdit(work)}
+                className="w-full py-2.5 border-2 border-slate-300 text-slate-700 text-sm font-medium rounded-xl hover:bg-slate-50 transition-colors"
+              >
+                编辑作品
+              </button>
               {/* 待审核 → 通过/驳回 */}
               {work.review_status === 'pending' && (
                 <div className="flex space-x-3">
@@ -375,10 +382,11 @@ function RejectModal({ open, work, loading, onClose, onConfirm }) {
 }
 
 // ═══════════════════════════════════
-// 创建作品弹窗
+// 创建/编辑作品弹窗
 // ═══════════════════════════════════
 
-function CreateModal({ open, onClose, onCreated }) {
+function WorkFormModal({ open, work, onClose, onSaved }) {
+  const isEdit = !!work;
   const toast = useToast();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -396,6 +404,8 @@ function CreateModal({ open, onClose, onCreated }) {
   const [uploadedImages, setUploadedImages] = useState([]);
   const [coverImage, setCoverImage] = useState('');
   const uploadKeyRef = useRef(0);
+  const [detailError, setDetailError] = useState('');       // 编辑模式详情加载失败
+  const removedExistingIdsRef = useRef([]);                 // 被删除旧图的图库ID，保存成功后才真正删除
   const isUploading = uploadedImages.some((img) => img.status === 'uploading');
 
   // 下拉数据
@@ -411,6 +421,35 @@ function CreateModal({ open, onClose, onCreated }) {
       client.get('/categories').then(r => setCategories(r.data)).catch(() => {}),
     ]);
   }, [open]);
+
+  // 编辑模式：打开时拉取作品详情预填
+  useEffect(() => {
+    if (!open || !isEdit) return;
+    setDetailError('');
+    removedExistingIdsRef.current = [];
+    client.get(`/admin/works/${work.id}`).then((res) => {
+      const w = res.data;
+      setTitle(w.title || '');
+      setDescription(w.description || '');
+      setDesignerId(String(w.designer_id || ''));
+      setHouseTypeId(String(w.house_type_id || ''));
+      setAreaId(String(w.area_category_id || ''));
+      setStyleId(String(w.style_category_id || ''));
+      setAreaSqm(w.area_sqm != null ? String(w.area_sqm) : '');
+      setBudgetMin(w.budget_min != null ? String(w.budget_min) : '');
+      setBudgetMax(w.budget_max != null ? String(w.budget_max) : '');
+      setCoverImage(w.cover_image || '');
+      setUploadedImages((w.images || []).map((img) => ({
+        key: ++uploadKeyRef.current,
+        status: 'done',
+        progress: 100,
+        existing: true,                 // 旧图标记：删除走延迟删除，取消时不清理
+        id: img.library_image_id,
+        image_url: img.image_url,
+        thumb_url: img.thumb_url,
+      })));
+    }).catch((err) => setDetailError(err?.message || '作品详情加载失败'));
+  }, [open, isEdit, work?.id]);
 
   // 逐张上传：选好后立即显示缩略图 + 进度条，限流同时最多 UPLOAD_CONCURRENCY 张
   const handleUpload = (e) => {
@@ -472,7 +511,13 @@ function CreateModal({ open, onClose, onCreated }) {
   const removeImage = (key) => {
     const target = uploadedImages.find((img) => img.key === key);
     if (target?.previewUrl) URL.revokeObjectURL(target.previewUrl);
-    if (target?.id) client.delete(`/admin/images/${target.id}`).catch(() => {});
+    if (target?.id) {
+      if (target.existing) {
+        removedExistingIdsRef.current.push(target.id); // 旧图：保存成功后才真正删
+      } else {
+        client.delete(`/admin/images/${target.id}`).catch(() => {}); // 新图：立即清理
+      }
+    }
     setUploadedImages((prev) => {
       const next = prev.filter((img) => img.key !== key);
       if (coverImage && !next.find((img) => img.image_url === coverImage)) {
@@ -487,18 +532,18 @@ function CreateModal({ open, onClose, onCreated }) {
     setFormError('');
 
     if (!title.trim()) { setFormError('请输入作品标题'); return; }
-    if (!designerId) { setFormError('请选择设计师'); return; }
+    if (!isEdit && !designerId) { setFormError('请选择设计师'); return; }
     if (!houseTypeId) { setFormError('请选择户型'); return; }
     if (!areaId) { setFormError('请选择空间'); return; }
     if (!styleId) { setFormError('请选择风格'); return; }
     if (isUploading) { setFormError('图片上传中，请等待全部完成后再提交'); return; }
+    if (isEdit && detailError) { setFormError('详情未加载成功，不能保存'); return; }
 
     setLoading(true);
     try {
-      await client.post('/admin/works', {
+      const payload = {
         title: title.trim(),
         description: description.trim(),
-        designer_id: Number(designerId),
         house_type_id: Number(houseTypeId),
         area_category_id: Number(areaId),
         style_category_id: Number(styleId),
@@ -507,12 +552,22 @@ function CreateModal({ open, onClose, onCreated }) {
         budget_max: budgetMax ? Number(budgetMax) : null,
         cover_image: coverImage || null,
         images: uploadedImages.filter((img) => img.status === 'done').map((img) => ({ id: img.id })),
-      });
-      toast.success('作品创建成功');
-      resetForm(); // 创建成功：图片已绑定作品，只重置表单，不删图库
-      onCreated();
+      };
+      if (isEdit) {
+        await client.put(`/admin/works/${work.id}`, payload);
+        // 保存成功后才真正删除被移除的旧图（不带 force，仍被别处引用的自动跳过）
+        removedExistingIdsRef.current.forEach((id) => {
+          client.delete(`/admin/images/${id}`).catch(() => {});
+        });
+        toast.success('作品已更新');
+      } else {
+        await client.post('/admin/works', { ...payload, designer_id: Number(designerId) });
+        toast.success('作品创建成功');
+      }
+      resetForm(); // 成功：图片已绑定作品，只重置表单，不删图库
+      onSaved();
     } catch (err) {
-      setFormError(err?.message || '创建失败');
+      setFormError(err?.message || (isEdit ? '保存失败' : '创建失败'));
     } finally { setLoading(false); }
   };
 
@@ -523,13 +578,14 @@ function CreateModal({ open, onClose, onCreated }) {
     setAreaSqm(''); setBudgetMin(''); setBudgetMax('');
     uploadedImages.forEach((img) => { if (img.previewUrl) URL.revokeObjectURL(img.previewUrl); });
     setUploadedImages([]); setCoverImage(''); setFormError('');
+    removedExistingIdsRef.current = []; setDetailError('');
   };
 
   const handleClose = () => {
     if (isUploading) { toast.warning('图片上传中，请等待完成后再关闭'); return; }
-    // 未创建作品就关闭：把已上传的图片从图库删除，避免无主图片堆积
+    // 未保存就关闭：只清理本次新上传的图片，旧图（含被标记删除的）不动
     uploadedImages.forEach((img) => {
-      if (img.id) client.delete(`/admin/images/${img.id}`).catch(() => {});
+      if (img.id && !img.existing) client.delete(`/admin/images/${img.id}`).catch(() => {});
     });
     resetForm();
     onClose();
@@ -545,7 +601,7 @@ function CreateModal({ open, onClose, onCreated }) {
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl my-8">
         {/* 头部 */}
         <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white rounded-t-2xl z-10">
-          <h3 className="text-base font-semibold text-gray-900">创建作品</h3>
+          <h3 className="text-base font-semibold text-gray-900">{isEdit ? '编辑作品' : '创建作品'}</h3>
           <button onClick={handleClose} className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -554,6 +610,12 @@ function CreateModal({ open, onClose, onCreated }) {
         </div>
 
         <form onSubmit={handleSubmit} className="px-6 py-4 space-y-5">
+          {/* 编辑模式：详情加载失败提示 */}
+          {isEdit && detailError && (
+            <div className="bg-red-50 text-red-600 text-sm px-3 py-2 rounded-lg">
+              {detailError}（请关闭弹窗后重试）
+            </div>
+          )}
           {/* 错误提示 */}
           {formError && (
             <div className="bg-red-50 text-red-600 text-sm px-3 py-2 rounded-lg">{formError}</div>
@@ -576,10 +638,15 @@ function CreateModal({ open, onClose, onCreated }) {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">设计师 <span className="text-red-400">*</span></label>
-              <select value={designerId} onChange={e => setDesignerId(e.target.value)} className={`w-full ${selectClass}`}>
-                <option value="">请选择</option>
-                {designers.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
-              </select>
+              {isEdit ? (
+                <input type="text" value={work.designer_name || ''} disabled
+                  className={`w-full ${inputClass} bg-gray-50 text-gray-500 cursor-not-allowed`} />
+              ) : (
+                <select value={designerId} onChange={e => setDesignerId(e.target.value)} className={`w-full ${selectClass}`}>
+                  <option value="">请选择</option>
+                  {designers.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
+                </select>
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">面积 (㎡)</label>
@@ -689,8 +756,8 @@ function CreateModal({ open, onClose, onCreated }) {
             </button>
             <button type="submit" disabled={loading || isUploading}
               className="flex-1 py-2.5 text-sm text-white bg-slate-900 rounded-xl hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2">
-              {loading ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />创建中...</>
-                : isUploading ? '图片上传中…' : '创建作品'}
+              {loading ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />{isEdit ? '保存中...' : '创建中...'}</>
+                : isUploading ? '图片上传中…' : (isEdit ? '保存修改' : '创建作品')}
             </button>
           </div>
         </form>
@@ -733,8 +800,9 @@ export default function Works() {
   const [batchRejectCustom, setBatchRejectCustom] = useState('');
   const [batchLoading, setBatchLoading] = useState(false);
 
-  // 创建作品
+  // 创建/编辑作品
   const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [editWork, setEditWork] = useState(null);
 
   // ═══ 加载列表 ═══
   const fetchList = useCallback(async (params = {}) => {
@@ -1114,6 +1182,8 @@ export default function Works() {
                               className="px-2 py-1 text-xs text-red-500 hover:bg-red-50 rounded transition-colors">删除</button>
                           </>
                         )}
+                        <button onClick={() => setEditWork(w)}
+                          className="px-2 py-1 text-xs text-slate-600 hover:bg-slate-100 rounded transition-colors">编辑</button>
                         <button onClick={() => openDetail(w)}
                           className="px-2 py-1 text-xs text-blue-600 hover:bg-blue-50 rounded transition-colors">详情</button>
                       </div>
@@ -1134,6 +1204,7 @@ export default function Works() {
         onSetCover={handleSetCover} onOffline={handleOffline} onOnline={handleOnline} onDelete={handleDelete}
         onDeleteImage={handleDeleteImage}
         onSaveVrUrl={handleSaveVrUrl}
+        onEdit={(w) => { setDetailWork(null); setEditWork(w); }}
       />
 
       {/* ═══ 单个驳回弹窗 ═══ */}
@@ -1183,15 +1254,10 @@ export default function Works() {
         </div>
       )}
 
-      {/* ═══ 创建作品弹窗 ═══ */}
-      <CreateModal
-        open={createModalOpen}
-        onClose={() => setCreateModalOpen(false)}
-        onCreated={() => {
-          setCreateModalOpen(false);
-          refresh();
-        }}
-      />
+      {/* ═══ 创建/编辑作品弹窗 ═══ */}
+      <WorkFormModal open={createModalOpen || !!editWork} work={editWork}
+        onClose={() => { setCreateModalOpen(false); setEditWork(null); }}
+        onSaved={() => { setCreateModalOpen(false); setEditWork(null); refresh(); }} />
     </div>
   );
 }
