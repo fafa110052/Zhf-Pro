@@ -10,6 +10,7 @@
     "pages/material-order-detail/index",
     "pages/mine/index",
     "pages/work-detail/index",
+    "pages/vr-view/index",
     "pages/designer-login/index",
     "pages/designer-center/index",
     "pages/work-manage/index",
