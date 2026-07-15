@@ -69,6 +69,47 @@ function normalizeVrUrl(url) {
   return trimmed;
 }
 
+/** 从请求体构建 cases 表的更新字段（白名单 + 归一化，不含 designer_id / review_status） */
+function buildCaseUpdates(data) {
+  const allowed = ['title', 'description', 'house_type_id', 'area_category_id',
+                   'style_category_id', 'area_sqm', 'budget_min', 'budget_max',
+                   'completion_date', 'cover_image', 'vr_url'];
+  const updates = {};
+  for (const key of allowed) {
+    if (data[key] !== undefined) {
+      if (key === 'cover_image') {
+        updates[key] = normalizeCoverImage(data[key]);
+      } else if (key === 'vr_url') {
+        updates[key] = normalizeVrUrl(data[key]);
+      } else {
+        updates[key] = data[key];
+      }
+    }
+  }
+  return updates;
+}
+
+/** 整组替换作品图片关联（先删后插，保持 sort_order） */
+async function replaceCaseImages(workId, images) {
+  await db('case_images').where('case_id', workId).delete();
+  if (images && images.length > 0) {
+    const imageIds = images.map(img => img.id);
+    const libImages = await db('image_library').whereIn('id', imageIds).select('id', 'image_url', 'thumb_url');
+    const urlMap = {};
+    for (const li of libImages) {
+      urlMap[li.id] = { image_url: li.image_url, thumb_url: li.thumb_url || null };
+    }
+    const caseImages = images.map((img, idx) => ({
+      case_id: workId,
+      library_image_id: img.id,
+      image_url: (urlMap[img.id] && urlMap[img.id].image_url) || '',
+      thumb_url: (urlMap[img.id] && urlMap[img.id].thumb_url) || null,
+      sort_order: idx,
+    }));
+    await db('case_images').insert(caseImages);
+  }
+}
+
 /**
  * 装修作品业务逻辑
  * 负责作品列表的多维筛选、分页、详情（含浏览量）、热门推荐
@@ -414,7 +455,8 @@ const caseService = {
     return db('cases').where('id', id).first();
   },
 
-  /** 编辑作品（仅草稿/已驳回状态可编辑） */
+
+/** 编辑作品（仅草稿/已驳回状态可编辑） */
   async update(designerId, workId, data) {
     const work = await db('cases').where('id', workId).first();
     if (!work) {
@@ -427,21 +469,7 @@ const caseService = {
       throw Object.assign(new Error(`当前状态（${work.review_status}）不可编辑`), { status: 409 });
     }
 
-    const allowed = ['title', 'description', 'house_type_id', 'area_category_id',
-                     'style_category_id', 'area_sqm', 'budget_min', 'budget_max',
-                     'completion_date', 'cover_image', 'vr_url'];
-    const updates = {};
-    for (const key of allowed) {
-      if (data[key] !== undefined) {
-        if (key === 'cover_image') {
-          updates[key] = normalizeCoverImage(data[key]);
-        } else if (key === 'vr_url') {
-          updates[key] = normalizeVrUrl(data[key]);
-        } else {
-          updates[key] = data[key];
-        }
-      }
-    }
+    const updates = buildCaseUpdates(data);
     // 编辑后回到草稿状态（驳回后重编）
     if (work.review_status === 'rejected') {
       updates.review_status = 'draft';
@@ -452,23 +480,7 @@ const caseService = {
 
     // 更新图片关联（先删后插，保持 sort_order）
     if (data.images !== undefined) {
-      await db('case_images').where('case_id', workId).delete();
-      if (data.images && data.images.length > 0) {
-        const imageIds = data.images.map(img => img.id);
-        const libImages = await db('image_library').whereIn('id', imageIds).select('id', 'image_url', 'thumb_url');
-        const urlMap = {};
-        for (const li of libImages) {
-          urlMap[li.id] = { image_url: li.image_url, thumb_url: li.thumb_url || null };
-        }
-        const caseImages = data.images.map((img, idx) => ({
-          case_id: workId,
-          library_image_id: img.id,
-          image_url: (urlMap[img.id] && urlMap[img.id].image_url) || '',
-          thumb_url: (urlMap[img.id] && urlMap[img.id].thumb_url) || null,
-          sort_order: idx,
-        }));
-        await db('case_images').insert(caseImages);
-      }
+      await replaceCaseImages(workId, data.images);
     }
 
     return db('cases').where('id', workId).first();
@@ -621,9 +633,29 @@ const caseService = {
     const images = await db('case_images')
       .where('case_id', workId)
       .orderBy('sort_order', 'asc')
-      .select('id', 'image_url', 'thumb_url', 'sort_order');
+      .select('id', 'library_image_id', 'image_url', 'thumb_url', 'sort_order');
 
     return { ...work, images };
+  },
+
+  /** 管理员编辑作品（任意状态可编辑，不改审核状态，不可改归属） */
+  async adminUpdate(workId, data) {
+    const work = await db('cases').where('id', workId).first();
+    if (!work) {
+      throw Object.assign(new Error('作品不存在'), { status: 404 });
+    }
+    if (data.title !== undefined && !data.title) {
+      throw Object.assign(new Error('作品标题不能为空'), { status: 400 });
+    }
+
+    const updates = buildCaseUpdates(data);
+    if (Object.keys(updates).length > 0) {
+      await db('cases').where('id', workId).update(updates);
+    }
+    if (data.images !== undefined) {
+      await replaceCaseImages(workId, data.images);
+    }
+    return this.getByIdAdmin(workId);
   },
 
   /** 审核通过 */

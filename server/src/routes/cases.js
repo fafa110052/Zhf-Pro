@@ -230,6 +230,20 @@ router.get('/admin/works/:id', authenticate, requireRole('admin'), async (req, r
 });
 
 /**
+ * PUT /api/v1/admin/works/:id
+ * 管理员编辑作品（任意状态，直接生效，不改审核状态；不可改设计师归属）
+ */
+router.put('/admin/works/:id', authenticate, requireRole('admin'), async (req, res, next) => {
+  try {
+    const { designer_id, review_status, ...data } = req.body; // 接口层剔除不可改字段
+    const work = await caseService.adminUpdate(Number(req.params.id), data);
+    res.json({ success: true, data: work });
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
  * POST /api/v1/admin/works/:id/approve
  * 审核通过（pending → approved）
  */
