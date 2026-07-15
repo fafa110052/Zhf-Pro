@@ -220,17 +220,12 @@ Page({
     const vrUrl = this.data.work && this.data.work.vr_url;
     if (!vrUrl) return;
 
-    // 从酷家乐链接中提取设计 ID，如 https://www.kujiale.com/cloud/design/3FO3DXSFRQ94/airoaming
-    const designId = vrUrl.match(/\/design\/([A-Za-z0-9]+)\//);
-    const id = designId ? designId[1] : '';
-
+    // 直接跳转全景720，传酷家乐链接
     wx.navigateToMiniProgram({
-      appId: 'wx1cc2786c668c9619',
-      path: id ? 'pages/index/index?designId=' + id : '',
-      extraData: { designId: id, url: vrUrl },
+      appId: 'wxc2d8d319dfc12a95',
+      path: 'pages/index/index?url=' + encodeURIComponent(vrUrl),
       envVersion: 'release',
-      fail(err) {
-        console.error('跳转酷家乐小程序失败:', err);
+      fail: function () {
         wx.showToast({ title: '打开失败，请稍后重试', icon: 'none' });
       },
     });
