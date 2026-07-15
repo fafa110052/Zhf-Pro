@@ -68,6 +68,6 @@
   },
   "style": "v2",
   "lazyCodeLoading": "requiredComponents",
-  "navigateToMiniProgramAppIdList": ["wxc2d8d319dfc12a95", "wx1cc2786c668c9619"],
+  "navigateToMiniProgramAppIdList": ["wxc2d8d319dfc12a95"],
   "sitemapLocation": "sitemap.json"
 }
