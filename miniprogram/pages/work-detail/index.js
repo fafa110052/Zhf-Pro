@@ -225,12 +225,12 @@ Page({
     const id = designId ? designId[1] : '';
 
     wx.navigateToMiniProgram({
-      appId: 'wxc2d8d319dfc12a95',
+      appId: 'wx1cc2786c668c9619',
       path: id ? 'pages/index/index?designId=' + id : '',
-      extraData: { url: vrUrl },
+      extraData: { designId: id, url: vrUrl },
       envVersion: 'release',
       fail(err) {
-        console.error('跳转全景720失败:', err);
+        console.error('跳转酷家乐小程序失败:', err);
         wx.showToast({ title: '打开失败，请稍后重试', icon: 'none' });
       },
     });
