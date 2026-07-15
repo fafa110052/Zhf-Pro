@@ -119,6 +119,7 @@ Page({
           view_count: work.view_count || 0,
           created_at_text: util.formatTime(work.created_at, 'date'),
           cover_image: util.fullImageUrl(work.cover_image),
+          vr_url: work.vr_url || '',
         },
         images: images,
         designer: designer,
@@ -213,6 +214,13 @@ Page({
   // ═══════════════════════════════════════════
   // 举报
   // ═══════════════════════════════════════════
+
+  // ─── VR 看房 ───
+  onTapVR() {
+    const vrUrl = this.data.work && this.data.work.vr_url;
+    if (!vrUrl) return;
+    wx.navigateTo({ url: '/pages/vr-view/index?u=' + encodeURIComponent(vrUrl) });
+  },
 
   onOpenReport() {
     this.setData({

@@ -561,3 +561,51 @@
   font-size: 26rpx;
   color: var(--text-tertiary);
 }
+
+/* ─── VR 看房悬浮按钮 ─── */
+.vr-fab {
+  position: fixed;
+  right: 32rpx;
+  bottom: calc(64rpx + env(safe-area-inset-bottom));
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  height: 88rpx;
+  padding: 0 36rpx 0 28rpx;
+  border-radius: 44rpx;
+  background: linear-gradient(135deg, #8B5CF6, #6366F1);
+  box-shadow: 0 8rpx 24rpx rgba(99, 102, 241, 0.45);
+}
+
+/* 呼吸光晕：外圈同色放大淡出，2s 循环 */
+.vr-fab-halo {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 44rpx;
+  background: linear-gradient(135deg, #8B5CF6, #6366F1);
+  animation: vr-breathe 2s ease-in-out infinite;
+  z-index: -1;
+}
+
+@keyframes vr-breathe {
+  0%, 100% { transform: scale(1); opacity: 0.6; }
+  50% { transform: scale(1.18); opacity: 0; }
+}
+
+/* VR 眼镜图标（内联 SVG，白色） */
+.vr-fab-icon {
+  width: 44rpx;
+  height: 44rpx;
+  margin-right: 12rpx;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23fff'%3E%3Cpath d='M20.74 6H3.21C2.55 6 2 6.57 2 7.28v9.44c0 .7.55 1.28 1.23 1.28h4.79c.52 0 .96-.33 1.14-.79l1.4-3.48c.23-.59.79-1.01 1.44-1.01s1.21.42 1.45 1.01l1.39 3.48c.19.46.63.79 1.11.79h4.79c.71 0 1.26-.57 1.26-1.28V7.28c0-.71-.55-1.28-1.26-1.28zM7.5 14.09c-1.17 0-2.13-.95-2.13-2.09s.96-2.09 2.13-2.09 2.12.95 2.12 2.09-.95 2.09-2.12 2.09zm9 0c-1.17 0-2.13-.95-2.13-2.09s.96-2.09 2.13-2.09 2.12.95 2.12 2.09-.95 2.09-2.12 2.09z'/%3E%3C/svg%3E") no-repeat center / contain;
+}
+
+.vr-fab-text {
+  color: #ffffff;
+  font-size: 30rpx;
+  font-weight: 700;
+  letter-spacing: 2rpx;
+}

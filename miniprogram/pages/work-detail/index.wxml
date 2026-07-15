@@ -210,3 +210,10 @@
     </view>
   </view>
 </view>
+
+<!-- VR 看房悬浮按钮（固定右下角，不随滚动） -->
+<view wx:if="{{ready && work.vr_url}}" class="vr-fab" catchtap="onTapVR">
+  <view class="vr-fab-halo"></view>
+  <view class="vr-fab-icon"></view>
+  <text class="vr-fab-text">VR看房</text>
+</view>
