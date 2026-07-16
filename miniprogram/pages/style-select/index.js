@@ -32,14 +32,16 @@ Page({
     if (!silent) this.setData({ loading: true, error: false });
     try {
       const res = await api.getStyles();
-      const styles = ((res && res.data) || []).map(s => Object.assign({}, s, {
+      const styles = (res || []).map(s => Object.assign({}, s, {
         cover_image: util.fullImageUrl(s.cover_image),
       }));
       const pageData = { styles, loading: false, error: false };
       if (this._readyFired) this.setData(Object.assign({ ready: true }, pageData));
       else this._pageData = pageData;
     } catch (err) {
-      this.setData({ loading: false, error: true, ready: true });
+      const pageData = { loading: false, error: true };
+      if (this._readyFired) this.setData(Object.assign({ ready: true }, pageData));
+      else this._pageData = pageData;
     }
   },
 
