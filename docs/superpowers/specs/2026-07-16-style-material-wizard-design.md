@@ -159,10 +159,58 @@ tab「风格选材」（新增）
 ## 8. UI/UX 规范
 
 - **配色**：暖白奢华 — 米白底#FAF8F5 / 炭黑字#1A1A1A / 香槟金#C9A96E
+- **Icon**：禁用 emoji（过不了微信审核），全部用 ui-ux-pro-max 自绘 SVG/CSS 图标和插画
 - **选中态**：金边+微缩放+对勾动画
 - **图片**：点击lightbox全屏，左右滑切换同类目选项，放大态可选中
 - **步骤过渡**：右进左出横滑
-- **标题**：借鉴PDF编号+中英文版式
+- **字体**：微信小程序使用系统字体栈 `PingFang SC, -apple-system, sans-serif`（ui-ux-pro-max 推荐的 Cinzel+Josefin 为 Google Fonts，小程序不可用；系统字体能最大化加载性能且符合 iOS/Android 原生观感）
+
+### 8.2 Icon 系统（SVG 自绘，零 emoji）
+
+**硬性约束**：微信审核禁止 emoji 作为界面图标，所有图标自行绘制。
+
+**绘制方式**：SVG 矢量图标 → 存储于 `miniprogram/assets/icons/` → 小程序 `<image src="...">` 加载。对于需动态变色（选中/未选中态切换）的图标，提供两套 SVG 或通过 CSS `filter` 控制。
+
+**风格**：ui-ux-pro-max Exaggerated Minimalism — 等高线条(stroke-width:1.5px)、圆角、留白充裕，与暖白奢华基调统一。
+
+**图标清单**（共 ~35 个）：
+
+| 类别 | 图标 | 文件名 | 说明 |
+|---|---|---|---|
+| **Tab 栏** | 风格选材入口 | `tab-selection.svg` | 菱形/宝石切割轮廓，代表"精选"，区别于其他 tab |
+| **七步向导** | 瓷砖 | `step-tile.svg` | 方形叠层 + 斜纹纹理 |
+| | 木门 | `step-door.svg` | 门板轮廓 + 竖线纹理 |
+| | 卫浴 | `step-bath.svg` | 椭圆浴缸/水滴轮廓 |
+| | 装饰定制 | `step-custom.svg` | 尺规 + 面板 |
+| | 沙发 | `step-sofa.svg` | L 形沙发俯视轮廓 |
+| | 家具 | `step-furniture.svg` | 床 + 柜组合 |
+| | 灯具 | `step-lighting.svg` | 吊灯轮廓 + 光线 |
+| **功能** | 选中对勾 | `check.svg` | 圆底 + 对勾，香槟金色填充态 |
+| | 下一步箭头 | `arrow-right.svg` | 右指箭头，响应"下一步"按钮 |
+| | 上一步箭头 | `arrow-left.svg` | 左指箭头 |
+| | lightbox 关闭 | `close.svg` | X 形，白色或炭黑色 |
+| | 左滑指示 | `chevron-left.svg` | 轻量左箭头，用于 lightbox 内切换提示 |
+| | 右滑指示 | `chevron-right.svg` | 轻量右箭头 |
+| | 跳过/不选 | `skip.svg` | 减号圆圈 |
+| | 编辑 | `edit.svg` | 铅笔简笔 |
+| | 展开/折叠 | `chevron-down.svg` | 下指箭头，用于手风琴/折叠卡片 |
+| | 图片放大 | `zoom-in.svg` | 放大镜 + 加号 |
+| **状态** | 步骤已完成 | `step-done.svg` | 实心圆 + 对勾（金色） |
+| | 步骤当前 | `step-active.svg` | 脉冲发光圆点（金色） |
+| | 步骤未完成 | `step-pending.svg` | 灰色空心圆 |
+| **小徽标** | 定制柜柜体 | `badge-cabinet-body.svg` | 柜体轮廓徽标 |
+| | 定制柜柜门 | `badge-cabinet-door.svg` | 柜门轮廓徽标 |
+| | 橱柜柜体 | `badge-kitchen-body.svg` | 下柜轮廓徽标 |
+| | 橱柜柜门 | `badge-kitchen-door.svg` | 柜门轮廓徽标 |
+| **通用** | 选中态标记 | `selected-mark.svg` | 卡片右上角金色角标 + 对勾 |
+| | 价格标签 | `tag-price.svg` | 价格标签形状，用于标注优惠价 |
+
+**色彩规则**：
+- 未选中态：炭黑 `#1A1A1A`
+- 选中态/当前：香槟金 `#C9A96E`
+- 禁用/未完成：浅灰 `#D1D5DB`
+
+> 实施阶段将用 SVG 逐一手绘这 ~35 个图标，输出到 `miniprogram/assets/icons/`。
 
 ### 8.1 图片放大查看（Lightbox）
 
