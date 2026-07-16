@@ -1,0 +1,17 @@
+<!-- 步骤进度条 -->
+<view class="progress-steps">
+  <view class="step-item" wx:for="{{steps}}" wx:key="index">
+    <!-- 圆点行：左连线 + 圆点 + 右连线 -->
+    <view class="dot-row">
+      <view class="line {{index < current ? 'line-done' : ''}} {{index === 0 ? 'line-hidden' : ''}}"></view>
+      <image
+        class="step-dot"
+        src="/assets/icons/{{index + 1 < current ? 'step-done' : (index + 1 === current ? 'step-active' : 'step-pending')}}.svg"
+        mode="aspectFit"
+      />
+      <view class="line {{index + 1 < current ? 'line-done' : ''}} {{index === steps.length - 1 ? 'line-hidden' : ''}}"></view>
+    </view>
+    <!-- 标签 -->
+    <text class="step-label {{index + 1 <= current ? 'label-active' : ''}}">{{item.label}}</text>
+  </view>
+</view>

@@ -1,0 +1,79 @@
+/**
+ * 手风琴卡片组件样式 — 暖白奢华
+ */
+.accordion-card {
+  background: #ffffff;
+  border-radius: 16rpx;
+  margin-bottom: 16rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+}
+
+/* 已完成：香槟金左边线 */
+.accordion-card.is-completed {
+  border-left: 4rpx solid #C9A96E;
+}
+
+/* ─── 头部 ─── */
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24rpx 28rpx;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  min-width: 0;
+}
+
+.num-icon {
+  width: 48rpx;
+  height: 48rpx;
+  flex-shrink: 0;
+}
+
+.header-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #1A1A1A;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  min-width: 0;
+}
+
+.selected-label {
+  font-size: 24rpx;
+  color: #C9A96E;
+  max-width: 320rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.placeholder-label {
+  font-size: 24rpx;
+  color: #D1D5DB;
+}
+
+.chevron {
+  width: 32rpx;
+  height: 32rpx;
+  flex-shrink: 0;
+  transition: transform 0.3s ease;
+}
+
+.chevron-up {
+  transform: rotate(180deg);
+}
+
+/* ─── 展开内容 ─── */
+.card-body {
+  padding: 0 28rpx 28rpx;
+}
