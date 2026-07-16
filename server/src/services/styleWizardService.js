@@ -12,12 +12,13 @@ const styleWizardService = {
     if (!s) throw Object.assign(new Error('风格不存在'), { status: 404 });
     return s;
   },
-  async createStyle({ name, cover_image, description, sort_order }) {
+  async createStyle({ name, cover_image, description, sort_order, enabled }) {
     if (!name) throw Object.assign(new Error('风格名称不能为空'), { status: 400 });
     const [id] = await db('styles').insert({
       name, cover_image: cover_image || null,
       description: description || null,
       sort_order: sort_order !== undefined ? sort_order : 0,
+      enabled: enabled !== undefined ? enabled : true,
     });
     return db('styles').where('id', id).first();
   },

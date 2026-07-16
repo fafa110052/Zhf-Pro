@@ -75,11 +75,7 @@ export default function StyleWizardStyles() {
         sort_order: Number(form.sort_order) || 0,
       };
       if (modalMode === 'add') {
-        const res = await client.post('/admin/styles', payload);
-        // 后端创建时默认启用，如选择禁用则补一次更新
-        if (Number(form.enabled) === 0 && res.data?.id) {
-          await client.put(`/admin/styles/${res.data.id}`, { enabled: 0 });
-        }
+        await client.post('/admin/styles', { ...payload, enabled: Number(form.enabled) });
         toast.success('风格添加成功');
       } else {
         await client.put(`/admin/styles/${editingId}`, { ...payload, enabled: Number(form.enabled) });
