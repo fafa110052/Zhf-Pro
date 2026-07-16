@@ -9,7 +9,7 @@ import { useEffect, useRef } from 'react';
  * - title: string
  * - children: ReactNode
  * - footer: ReactNode (optional, default null)
- * - size: 'sm' | 'md' (default 'md')
+ * - size: 'sm' | 'md' | 'lg' | 'xl' (default 'md')
  */
 export default function Modal({ open, onClose, title, children, footer, size = 'md' }) {
   const overlayRef = useRef(null);
@@ -42,7 +42,7 @@ export default function Modal({ open, onClose, title, children, footer, size = '
 
   if (!open) return null;
 
-  const maxW = size === 'sm' ? 'max-w-sm' : 'max-w-lg';
+  const maxW = { sm: 'max-w-sm', md: 'max-w-lg', lg: 'max-w-2xl', xl: 'max-w-4xl' }[size] || 'max-w-lg';
 
   return (
     <div
@@ -65,7 +65,7 @@ export default function Modal({ open, onClose, title, children, footer, size = '
         </div>
 
         {/* 内容 */}
-        <div className="px-6 py-5">{children}</div>
+        <div className="px-6 py-5 max-h-[calc(100vh-11rem)] overflow-y-auto">{children}</div>
 
         {/* 底部按钮 */}
         {footer && (

@@ -1,17 +1,536 @@
+import { useState, useEffect, useCallback } from 'react';
+import client from '../api/client';
+import Modal from '../components/Modal';
+import ConfirmDialog from '../components/ConfirmDialog';
 import EmptyState from '../components/EmptyState';
+import ErrorState from '../components/ErrorState';
+import { useToast } from '../components/Toast';
+
+const INPUT_CLS = 'w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent';
+const SELECT_CLS = `${INPUT_CLS} bg-white`;
+
+const SCOPE_OPTIONS = ['定制柜柜体', '定制柜柜门', '橱柜柜体', '橱柜柜门'];
+
+const EMPTY_FORM = {
+  subcategory_id: '', name: '', model: '', brand: '', brand_logo: '', image_url: '',
+  original_price: '', discount_price: '', specs: '', sort_order: 0,
+  has_chaise: false, old_code: '', new_code: '', applicable_scopes: [], style_ids: [],
+  attr_values: {}, attr_raw: '',
+};
+
+/** 解析子品类的属性模板：{ keys: string[]|null, invalid: boolean } */
+function parseTemplate(sub) {
+  if (!sub?.attribute_template) return { keys: null, invalid: false };
+  try {
+    const parsed = JSON.parse(sub.attribute_template);
+    if (Array.isArray(parsed) && parsed.length > 0) return { keys: parsed.map(String), invalid: false };
+    return { keys: null, invalid: !Array.isArray(parsed) };
+  } catch { return { keys: null, invalid: true }; }
+}
+
+function Pagination({ page, totalPages, total, onPage }) {
+  if (total === 0) return null;
+  const pages = [];
+  if (totalPages <= 7) {
+    for (let i = 1; i <= totalPages; i++) pages.push(i);
+  } else {
+    pages.push(1);
+    if (page > 3) pages.push('...');
+    for (let i = Math.max(2, page - 1); i <= Math.min(totalPages - 1, page + 1); i++) pages.push(i);
+    if (page < totalPages - 2) pages.push('...');
+    pages.push(totalPages);
+  }
+  return (
+    <div className="flex items-center justify-between px-4 py-3 border-t border-gray-100 text-sm text-gray-500">
+      <span>共 {total} 条</span>
+      <div className="flex items-center space-x-1">
+        <button onClick={() => onPage(page - 1)} disabled={page <= 1}
+          className="px-3 py-1.5 border rounded-lg text-xs hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed">上一页</button>
+        {pages.map((p, i) => p === '...'
+          ? <span key={`dot-${i}`} className="px-1 text-gray-300">...</span>
+          : <button key={p} onClick={() => onPage(p)}
+              className={`w-8 h-8 rounded-lg text-xs font-medium transition-colors ${page === p ? 'bg-slate-900 text-white' : 'hover:bg-gray-100 text-gray-600'}`}>{p}</button>
+        )}
+        <button onClick={() => onPage(page + 1)} disabled={page >= totalPages}
+          className="px-3 py-1.5 border rounded-lg text-xs hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed">下一页</button>
+      </div>
+    </div>
+  );
+}
 
 /**
- * 风格选材 — 材料管理（占位页面）
+ * 风格选材 — 材料管理（级联筛选 + 动态属性表单 + 风格关联）
  */
 export default function StyleWizardMaterials() {
+  const toast = useToast();
+
+  const [categories, setCategories] = useState([]);
+  const [styles, setStyles] = useState([]);
+
+  const [list, setList] = useState([]);
+  const [pagination, setPagination] = useState({ page: 1, page_size: 20, total: 0, total_pages: 0 });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  // 筛选
+  const [filterCategory, setFilterCategory] = useState('');
+  const [filterSubcategory, setFilterSubcategory] = useState('');
+  const [keyword, setKeyword] = useState('');
+
+  // 弹窗
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState('add');
+  const [modalLoading, setModalLoading] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const [form, setForm] = useState(EMPTY_FORM);
+  const [formErrors, setFormErrors] = useState({});
+  const [submitting, setSubmitting] = useState(false);
+
+  // 删除确认
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmAction, setConfirmAction] = useState(null);
+  const [confirmLoading, setConfirmLoading] = useState(false);
+
+  const fetchList = useCallback(async (params) => {
+    setLoading(true); setError('');
+    try {
+      const res = await client.get('/admin/style-materials', { params });
+      setList(res.data.list || []);
+      setPagination(res.data.pagination || { page: 1, page_size: 20, total: 0, total_pages: 0 });
+    } catch (err) { setError(err?.message || '加载失败'); }
+    finally { setLoading(false); }
+  }, []);
+
+  const buildParams = (page, over = {}) => {
+    const f = {
+      category_id: filterCategory, subcategory_id: filterSubcategory,
+      keyword: keyword.trim(), ...over,
+    };
+    const params = { page, page_size: pagination.page_size };
+    if (f.category_id) params.category_id = f.category_id;
+    if (f.subcategory_id) params.subcategory_id = f.subcategory_id;
+    if (f.keyword) params.keyword = f.keyword;
+    return params;
+  };
+
+  useEffect(() => {
+    fetchList({ page: 1, page_size: 20 });
+    client.get('/admin/style-categories').then((res) => setCategories(res.data || [])).catch(() => {});
+    client.get('/admin/styles').then((res) => setStyles(res.data || [])).catch(() => {});
+  }, [fetchList]);
+
+  const handleCategoryChange = (val) => {
+    setFilterCategory(val); setFilterSubcategory('');
+    fetchList(buildParams(1, { category_id: val, subcategory_id: '' }));
+  };
+  const handleSubcategoryChange = (val) => {
+    setFilterSubcategory(val);
+    fetchList(buildParams(1, { subcategory_id: val }));
+  };
+  const handleSearch = (e) => { e.preventDefault(); fetchList(buildParams(1)); };
+  const goPage = (p) => {
+    if (p < 1 || p > pagination.total_pages) return;
+    fetchList(buildParams(p));
+  };
+  const refresh = () => fetchList(buildParams(pagination.page));
+
+  // ─── 表单派生 ───
+  const findSub = (subId) => {
+    for (const cat of categories) {
+      const sub = (cat.subcategories || []).find((s) => String(s.id) === String(subId));
+      if (sub) return { cat, sub };
+    }
+    return { cat: null, sub: null };
+  };
+  const { cat: selectedCat, sub: selectedSub } = findSub(form.subcategory_id);
+  const tpl = parseTemplate(selectedSub);
+  const isSofa = !!selectedSub?.name?.includes('沙发');
+  const isDecoration = selectedCat?.name === '装饰定制';
+
+  const openAdd = () => {
+    setModalMode('add'); setEditingId(null);
+    setForm({ ...EMPTY_FORM, subcategory_id: filterSubcategory || '' });
+    setFormErrors({}); setModalOpen(true);
+  };
+
+  const openEdit = async (row) => {
+    setModalMode('edit'); setEditingId(row.id);
+    setForm(EMPTY_FORM); setFormErrors({});
+    setModalOpen(true); setModalLoading(true);
+    try {
+      const res = await client.get(`/admin/style-materials/${row.id}`);
+      const m = res.data;
+      let attrValues = {}; let attrRaw = '';
+      if (m.attributes) {
+        try {
+          const parsed = JSON.parse(m.attributes);
+          if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) attrValues = parsed;
+          attrRaw = m.attributes;
+        } catch { attrRaw = m.attributes; }
+      }
+      let scopes = [];
+      if (m.applicable_scopes) {
+        try { const s = JSON.parse(m.applicable_scopes); if (Array.isArray(s)) scopes = s; } catch { /* 忽略脏数据 */ }
+      }
+      setForm({
+        subcategory_id: String(m.subcategory_id),
+        name: m.name || '', model: m.model || '', brand: m.brand || '',
+        brand_logo: m.brand_logo || '', image_url: m.image_url || '',
+        original_price: m.original_price ?? '', discount_price: m.discount_price ?? '',
+        specs: m.specs || '', sort_order: m.sort_order ?? 0,
+        has_chaise: !!m.has_chaise, old_code: m.old_code || '', new_code: m.new_code || '',
+        applicable_scopes: scopes,
+        style_ids: (m.styles || []).map((s) => s.id),
+        attr_values: attrValues, attr_raw: attrRaw,
+      });
+    } catch (err) {
+      toast.error(err?.message || '加载材料详情失败');
+      setModalOpen(false);
+    } finally { setModalLoading(false); }
+  };
+
+  const closeModal = () => { setModalOpen(false); setSubmitting(false); };
+
+  const toggleInArray = (arr, val) => (arr.includes(val) ? arr.filter((v) => v !== val) : [...arr, val]);
+
+  const validateForm = () => {
+    const errs = {};
+    if (!form.subcategory_id) errs.subcategory_id = '请选择子品类';
+    if (!form.name.trim()) errs.name = '请输入材料名称';
+    if (!tpl.keys && tpl.invalid && form.attr_raw.trim()) {
+      try {
+        const parsed = JSON.parse(form.attr_raw);
+        if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) errs.attr_raw = '必须是 JSON 对象，如 {"功率":"36W"}';
+      } catch { errs.attr_raw = 'JSON 格式不正确'; }
+    }
+    setFormErrors(errs);
+    return Object.keys(errs).length === 0;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!validateForm()) return;
+    setSubmitting(true);
+    try {
+      const payload = {
+        subcategory_id: Number(form.subcategory_id),
+        name: form.name.trim(),
+        model: form.model.trim() || null,
+        brand: form.brand.trim() || null,
+        brand_logo: form.brand_logo.trim() || null,
+        image_url: form.image_url.trim() || null,
+        original_price: form.original_price === '' || form.original_price === null ? null : Number(form.original_price),
+        discount_price: form.discount_price === '' || form.discount_price === null ? null : Number(form.discount_price),
+        specs: form.specs.trim() || null,
+        sort_order: Number(form.sort_order) || 0,
+        has_chaise: isSofa && form.has_chaise ? 1 : 0,
+        style_ids: form.style_ids,
+      };
+      if (tpl.keys) {
+        const attrs = {};
+        tpl.keys.forEach((k) => {
+          const v = (form.attr_values[k] ?? '').toString().trim();
+          if (v) attrs[k] = v;
+        });
+        payload.attributes = attrs;
+      } else if (tpl.invalid) {
+        payload.attributes = form.attr_raw.trim() ? JSON.parse(form.attr_raw) : {};
+      }
+      if (isDecoration) {
+        payload.old_code = form.old_code.trim() || null;
+        payload.new_code = form.new_code.trim() || null;
+        payload.applicable_scopes = form.applicable_scopes;
+      }
+      if (modalMode === 'add') {
+        await client.post('/admin/style-materials', payload);
+        toast.success('材料添加成功');
+      } else {
+        await client.put(`/admin/style-materials/${editingId}`, payload);
+        toast.success('材料更新成功');
+      }
+      closeModal();
+      refresh();
+    } catch (err) { toast.error(err?.message || '保存失败'); }
+    finally { setSubmitting(false); }
+  };
+
+  const handleDelete = (row) => {
+    setConfirmAction({
+      title: '删除材料',
+      message: `确定要删除材料「${row.name}」吗？删除后其风格关联也会一并移除，不可恢复。`,
+      variant: 'danger', confirmText: '确认删除',
+      action: async () => {
+        setConfirmLoading(true);
+        try {
+          await client.delete(`/admin/style-materials/${row.id}`);
+          toast.success('材料已删除');
+          setConfirmOpen(false); setConfirmAction(null);
+          refresh();
+        } catch (err) { toast.error(err?.message || '删除失败'); setConfirmOpen(false); }
+        finally { setConfirmLoading(false); }
+      },
+    });
+    setConfirmOpen(true);
+  };
+
+  const filterSubOptions = categories.find((c) => String(c.id) === String(filterCategory))?.subcategories || [];
+
   return (
     <div className="p-4 lg:p-6 space-y-4">
+      {/* ─── 顶部操作栏 + 筛选 ─── */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
-        <h2 className="text-lg font-semibold text-gray-900">材料管理</h2>
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-lg font-bold text-gray-900">材料管理</h2>
+            <p className="text-sm text-gray-500 mt-0.5">管理选材向导各品类下的材料/产品，可关联多个风格</p>
+          </div>
+          <button onClick={openAdd} className="inline-flex items-center px-4 py-2 bg-slate-900 text-white text-sm font-medium rounded-lg hover:bg-slate-800 transition-colors">
+            <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+            添加材料
+          </button>
+        </div>
+        <form onSubmit={handleSearch} className="flex flex-wrap items-center gap-3 mt-4">
+          <select value={filterCategory} onChange={(e) => handleCategoryChange(e.target.value)}
+            className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <option value="">全部品类</option>
+            {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+          </select>
+          <select value={filterSubcategory} onChange={(e) => handleSubcategoryChange(e.target.value)} disabled={!filterCategory}
+            className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-400">
+            <option value="">全部子品类</option>
+            {filterSubOptions.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+          </select>
+          <input value={keyword} onChange={(e) => setKeyword(e.target.value)} placeholder="搜索名称/品牌"
+            className="w-52 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+          <button type="submit" className="px-4 py-2 text-sm text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">搜索</button>
+        </form>
       </div>
+
+      {/* ─── 错误提示 ─── */}
+      {error && (
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100">
+          <ErrorState message={error} onRetry={refresh} />
+        </div>
+      )}
+
+      {/* ─── 数据表格 ─── */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <EmptyState icon="⏳" title="功能开发中" description="材料管理功能即将上线" />
+        {loading ? (
+          <div className="flex items-center justify-center py-20">
+            <div className="w-8 h-8 border-2 border-gray-200 border-t-slate-600 rounded-full animate-spin" />
+          </div>
+        ) : list.length === 0 ? (
+          <EmptyState icon="🧱" title="暂无材料" description="点击右上角按钮添加材料" />
+        ) : (
+          <>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-gray-100 bg-gray-50/50">
+                    {['图片', '名称', '品牌', '型号', '品类', '子品类', '原价', '优惠价', '排序', '操作'].map((h) => (
+                      <th key={h} className={`${h === '排序' ? 'text-center' : 'text-left'} ${h === '操作' ? 'text-right' : ''} px-4 py-3 text-gray-500 font-medium text-xs whitespace-nowrap`}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {list.map((m) => (
+                    <tr key={m.id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
+                      <td className="px-4 py-3">
+                        <div className="w-12 h-12 rounded-lg bg-gray-100 overflow-hidden">
+                          {m.image_url
+                            ? <img src={m.image_url} alt="" className="w-full h-full object-cover" />
+                            : <div className="w-full h-full flex items-center justify-center text-gray-300">🧱</div>}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap">{m.name}</td>
+                      <td className="px-4 py-3 text-gray-600 whitespace-nowrap">{m.brand || '—'}</td>
+                      <td className="px-4 py-3 text-gray-500 whitespace-nowrap">{m.model || '—'}</td>
+                      <td className="px-4 py-3 text-gray-600 whitespace-nowrap">{m.category_name || '—'}</td>
+                      <td className="px-4 py-3 text-gray-600 whitespace-nowrap">{m.subcategory_name || '—'}</td>
+                      <td className="px-4 py-3 text-gray-500 whitespace-nowrap">{m.original_price != null ? `¥${m.original_price}` : '—'}</td>
+                      <td className="px-4 py-3 text-red-600 font-medium whitespace-nowrap">{m.discount_price != null ? `¥${m.discount_price}` : '—'}</td>
+                      <td className="px-4 py-3 text-center text-gray-500">{m.sort_order}</td>
+                      <td className="px-4 py-3 text-right">
+                        <div className="flex items-center justify-end space-x-1">
+                          <button onClick={() => openEdit(m)} className="px-2 py-1 text-xs text-blue-600 hover:bg-blue-50 rounded transition-colors">编辑</button>
+                          <button onClick={() => handleDelete(m)} className="px-2 py-1 text-xs text-red-500 hover:bg-red-50 rounded transition-colors">删除</button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <Pagination page={pagination.page} totalPages={pagination.total_pages} total={pagination.total} onPage={goPage} />
+          </>
+        )}
       </div>
+
+      {/* ─── 新增/编辑弹窗 ─── */}
+      {modalOpen && (
+        <Modal open={modalOpen} size="lg" title={modalMode === 'add' ? '添加材料' : '编辑材料'} onClose={closeModal}>
+          {modalLoading ? (
+            <div className="flex items-center justify-center py-16">
+              <div className="w-8 h-8 border-2 border-gray-200 border-t-slate-600 rounded-full animate-spin" />
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {/* 基础字段 */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">子品类 *</label>
+                  <select value={form.subcategory_id} onChange={(e) => setForm({ ...form, subcategory_id: e.target.value })} className={SELECT_CLS}>
+                    <option value="">请选择子品类</option>
+                    {categories.map((cat) => (
+                      <optgroup key={cat.id} label={cat.name}>
+                        {(cat.subcategories || []).map((sub) => <option key={sub.id} value={sub.id}>{sub.name}</option>)}
+                      </optgroup>
+                    ))}
+                  </select>
+                  {formErrors.subcategory_id && <p className="text-red-500 text-xs mt-1">{formErrors.subcategory_id}</p>}
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">材料名称 *</label>
+                  <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className={INPUT_CLS} maxLength={128} placeholder="如：原木风三人沙发" />
+                  {formErrors.name && <p className="text-red-500 text-xs mt-1">{formErrors.name}</p>}
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">品牌</label>
+                  <input value={form.brand} onChange={(e) => setForm({ ...form, brand: e.target.value })} className={INPUT_CLS} maxLength={64} />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">型号</label>
+                  <input value={form.model} onChange={(e) => setForm({ ...form, model: e.target.value })} className={INPUT_CLS} maxLength={128} />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">品牌 Logo URL</label>
+                  <input value={form.brand_logo} onChange={(e) => setForm({ ...form, brand_logo: e.target.value })} className={INPUT_CLS} placeholder="https://... 或 /uploads/..." />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">图片 URL</label>
+                  <input value={form.image_url} onChange={(e) => setForm({ ...form, image_url: e.target.value })} className={INPUT_CLS} placeholder="https://... 或 /uploads/..." />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">原价（元）</label>
+                  <input type="number" step="0.01" min="0" value={form.original_price} onChange={(e) => setForm({ ...form, original_price: e.target.value })} className={INPUT_CLS} />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">优惠价（元）</label>
+                  <input type="number" step="0.01" min="0" value={form.discount_price} onChange={(e) => setForm({ ...form, discount_price: e.target.value })} className={INPUT_CLS} />
+                </div>
+              </div>
+              <div className="grid grid-cols-3 gap-4">
+                <div className="col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">规格说明</label>
+                  <textarea rows={2} value={form.specs} onChange={(e) => setForm({ ...form, specs: e.target.value })} className={`${INPUT_CLS} resize-none`} placeholder="如：2400×950×850mm" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">排序号</label>
+                  <input type="number" value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: e.target.value })} className={INPUT_CLS} />
+                </div>
+              </div>
+
+              {/* 动态属性区 */}
+              {tpl.keys && (
+                <div className="border border-gray-100 rounded-lg p-3 bg-gray-50/50">
+                  <p className="text-sm font-medium text-gray-700 mb-2">产品属性</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    {tpl.keys.map((key) => (
+                      <div key={key}>
+                        <label className="block text-xs text-gray-500 mb-1">{key}</label>
+                        <input value={form.attr_values[key] ?? ''}
+                          onChange={(e) => setForm({ ...form, attr_values: { ...form.attr_values, [key]: e.target.value } })}
+                          className={INPUT_CLS} placeholder={`填写${key}`} />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {!tpl.keys && tpl.invalid && (
+                <div className="border border-gray-100 rounded-lg p-3 bg-gray-50/50">
+                  <p className="text-sm font-medium text-gray-700 mb-2">产品属性（JSON）</p>
+                  <textarea rows={3} value={form.attr_raw} onChange={(e) => setForm({ ...form, attr_raw: e.target.value })}
+                    className={`${INPUT_CLS} font-mono resize-none`} placeholder='{"功率":"36W","色温":"三色"}' />
+                  {formErrors.attr_raw
+                    ? <p className="text-red-500 text-xs mt-1">{formErrors.attr_raw}</p>
+                    : <p className="text-xs text-gray-400 mt-1">该子品类的属性模板解析失败，请直接编辑属性 JSON 对象</p>}
+                </div>
+              )}
+
+              {/* 沙发专属 */}
+              {isSofa && (
+                <label className="inline-flex items-center gap-2 text-sm text-gray-700">
+                  <input type="checkbox" checked={form.has_chaise} onChange={(e) => setForm({ ...form, has_chaise: e.target.checked })}
+                    className="w-4 h-4 rounded border-gray-300 text-slate-900 focus:ring-blue-500" />
+                  有贵妃（带贵妃榻）
+                </label>
+              )}
+
+              {/* 装饰定制专属 */}
+              {isDecoration && (
+                <div className="border border-gray-100 rounded-lg p-3 bg-gray-50/50 space-y-3">
+                  <p className="text-sm font-medium text-gray-700">装饰定制信息</p>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs text-gray-500 mb-1">旧编码</label>
+                      <input value={form.old_code} onChange={(e) => setForm({ ...form, old_code: e.target.value })} className={INPUT_CLS} maxLength={64} />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-gray-500 mb-1">新编码</label>
+                      <input value={form.new_code} onChange={(e) => setForm({ ...form, new_code: e.target.value })} className={INPUT_CLS} maxLength={64} />
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500 mb-1.5">适用范围</p>
+                    <div className="flex flex-wrap gap-x-4 gap-y-2">
+                      {SCOPE_OPTIONS.map((scope) => (
+                        <label key={scope} className="inline-flex items-center gap-1.5 text-sm text-gray-700">
+                          <input type="checkbox" checked={form.applicable_scopes.includes(scope)}
+                            onChange={() => setForm({ ...form, applicable_scopes: toggleInArray(form.applicable_scopes, scope) })}
+                            className="w-4 h-4 rounded border-gray-300 text-slate-900 focus:ring-blue-500" />
+                          {scope}
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* 风格关联 */}
+              <div className="border border-gray-100 rounded-lg p-3 bg-gray-50/50">
+                <p className="text-sm font-medium text-gray-700 mb-2">关联风格</p>
+                {styles.length === 0 ? (
+                  <p className="text-xs text-gray-400">暂无风格，请先在「风格管理」中添加</p>
+                ) : (
+                  <div className="flex flex-wrap gap-x-4 gap-y-2">
+                    {styles.map((s) => (
+                      <label key={s.id} className="inline-flex items-center gap-1.5 text-sm text-gray-700">
+                        <input type="checkbox" checked={form.style_ids.includes(s.id)}
+                          onChange={() => setForm({ ...form, style_ids: toggleInArray(form.style_ids, s.id) })}
+                          className="w-4 h-4 rounded border-gray-300 text-slate-900 focus:ring-blue-500" />
+                        {s.name}
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="flex justify-end gap-3 pt-2">
+                <button type="button" onClick={closeModal} className="px-4 py-2 text-sm text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">取消</button>
+                <button type="submit" disabled={submitting} className="px-4 py-2 bg-slate-900 text-white text-sm rounded-lg hover:bg-slate-800 disabled:opacity-50 transition-colors">{submitting ? '保存中...' : '保存'}</button>
+              </div>
+            </form>
+          )}
+        </Modal>
+      )}
+
+      {/* ─── 删除确认 ─── */}
+      {confirmOpen && confirmAction && (
+        <ConfirmDialog open={confirmOpen} title={confirmAction.title} message={confirmAction.message} variant={confirmAction.variant} confirmText={confirmAction.confirmText}
+          loading={confirmLoading} onConfirm={confirmAction.action} onClose={() => { setConfirmOpen(false); setConfirmAction(null); }} />
+      )}
     </div>
   );
 }
