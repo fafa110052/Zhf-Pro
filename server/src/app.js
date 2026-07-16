@@ -28,6 +28,7 @@ const measurementAppointmentRoutes = require('./routes/measurement-appointments'
 const lotteryRoutes = require('./routes/lottery');
 const designTeamRoutes = require('./routes/design-team');
 const reportsRoutes = require('./routes/reports');
+const styleWizardRoutes = require('./routes/style-wizard');
 
 const app = express();
 
@@ -151,6 +152,7 @@ app.use('/api/v1', measurementAppointmentRoutes); // 量房预约
 app.use('/api/v1', lotteryRoutes);              // 摇一摇抽奖
 app.use('/api/v1', designTeamRoutes);          // 设计团队
 app.use('/api/v1', reportsRoutes);             // 作品举报
+app.use('/api/v1', styleWizardRoutes);         // 风格选材向导
 
 // ═══ 404 / SPA 回退（必须在所有路由之后）═══
 app.use((req, res) => {
