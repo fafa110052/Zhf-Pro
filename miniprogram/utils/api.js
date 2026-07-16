@@ -425,6 +425,44 @@ function submitMeasureAppointment(data) {
   return http.post('/measurement-appointments', data);
 }
 
+// ═══════════════════════════════════════════
+// 风格选材向导 API（V2.0）
+// ═══════════════════════════════════════════
+
+function getStyles() {
+  return http.get('/styles', {}, { auth: false, silent: true });
+}
+function getStyleCategories() {
+  return http.get('/style-categories', {}, { auth: false, silent: true });
+}
+function getStyleMaterials(styleId, subcategoryId) {
+  return http.get(`/styles/${styleId}/materials`, { subcategory_id: subcategoryId }, { auth: false });
+}
+function getDoorSeries() {
+  return http.get('/door-series', {}, { auth: false, silent: true });
+}
+function getDoorMaterials(seriesId, styleId) {
+  return http.get('/door-materials', { series_id: seriesId, style_id: styleId }, { auth: false });
+}
+function getLightingPackages() {
+  return http.get('/lighting-packages', {}, { auth: false, silent: true });
+}
+function getLightingPackageDetail(id) {
+  return http.get(`/lighting-packages/${id}`, {}, { auth: false });
+}
+function saveDraft(data) {
+  return http.post('/drafts', data, { auth: true });
+}
+function getDraft() {
+  return http.get('/drafts', {}, { auth: true, silent: true });
+}
+function submitStyleOrder(data) {
+  return http.post('/orders', data, { auth: true });
+}
+function getMyStyleOrders(page = 1) {
+  return http.get('/orders', { page }, { auth: true });
+}
+
 module.exports = {
   // 分类
   getCategories,
@@ -485,4 +523,16 @@ module.exports = {
   getDesignTeam,
   // 量房预约
   submitMeasureAppointment,
+  // 风格选材向导（V2.0）
+  getStyles,
+  getStyleCategories,
+  getStyleMaterials,
+  getDoorSeries,
+  getDoorMaterials,
+  getLightingPackages,
+  getLightingPackageDetail,
+  saveDraft,
+  getDraft,
+  submitStyleOrder,
+  getMyStyleOrders,
 };
