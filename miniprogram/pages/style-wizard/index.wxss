@@ -1,0 +1,453 @@
+/**
+ * 风格选材向导页样式 — 暖白奢华
+ */
+.page {
+  min-height: 100vh;
+  background: #FAF8F5;
+  padding-bottom: 200rpx;
+}
+
+/* ─── Editorial 标题带 ─── */
+.title-band {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  height: 96rpx;
+  padding: 0 32rpx;
+  background: #1A1A1A;
+}
+
+.band-num {
+  width: 56rpx;
+  height: 56rpx;
+  flex-shrink: 0;
+  border: 2rpx solid #C9A96E;
+  border-radius: 50%;
+  box-sizing: border-box;
+}
+
+.band-title {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #ffffff;
+  flex-shrink: 0;
+}
+
+.band-en {
+  margin-left: auto;
+  font-size: 20rpx;
+  letter-spacing: 4rpx;
+  color: #C9A96E;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ─── 步骤内容区 ─── */
+.step-body {
+  padding: 24rpx;
+}
+
+/* 手风琴体内提示行 */
+.body-hint {
+  padding: 32rpx 0;
+  text-align: center;
+  font-size: 24rpx;
+  color: #9CA3AF;
+}
+
+.body-retry {
+  padding: 32rpx 0;
+  text-align: center;
+  font-size: 24rpx;
+  color: #C9A96E;
+}
+
+/* 步骤级提示（门系列/灯具列表加载） */
+.step-hint {
+  padding: 120rpx 0;
+}
+
+/* ─── 材料网格（2 列） ─── */
+.material-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+
+.material-card {
+  position: relative;
+  width: calc((100% - 16rpx) / 2);
+  box-sizing: border-box;
+  background: #FAF8F5;
+  border: 3rpx solid transparent;
+  border-radius: 12rpx;
+  overflow: hidden;
+}
+
+.material-card.is-selected {
+  border-color: #C9A96E;
+}
+
+.mat-image {
+  width: 100%;
+  height: 220rpx;
+  display: block;
+  background: #f0ece5;
+}
+
+.mat-badge {
+  position: absolute;
+  top: 12rpx;
+  right: 12rpx;
+  width: 40rpx;
+  height: 40rpx;
+}
+
+.mat-info {
+  padding: 12rpx 16rpx 16rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+
+.mat-name {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #1A1A1A;
+}
+
+.mat-brand {
+  font-size: 22rpx;
+  color: #6B7280;
+}
+
+.mat-specs {
+  font-size: 20rpx;
+  color: #9CA3AF;
+}
+
+/* ─── 价格行 ─── */
+.price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 12rpx;
+  margin-top: 4rpx;
+}
+
+.price-center {
+  justify-content: center;
+}
+
+.price-original {
+  font-size: 20rpx;
+  color: #9CA3AF;
+  text-decoration: line-through;
+}
+
+.price-discount {
+  font-size: 26rpx;
+  font-weight: 700;
+  color: #C9A96E;
+}
+
+/* ─── 方向选择（锁向/贵妃位） ─── */
+.direction-chooser {
+  margin-top: 24rpx;
+  padding: 24rpx;
+  background: #FAF8F5;
+  border: 2rpx dashed #C9A96E;
+  border-radius: 12rpx;
+}
+
+.chooser-title {
+  display: block;
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #1A1A1A;
+  margin-bottom: 16rpx;
+}
+
+.chooser-btns {
+  display: flex;
+  gap: 16rpx;
+}
+
+.chooser-btn {
+  flex: 1;
+  height: 72rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2rpx solid #C9A96E;
+  border-radius: 36rpx;
+  font-size: 26rpx;
+  color: #C9A96E;
+}
+
+.chooser-btn:active {
+  background: rgba(201, 169, 110, 0.12);
+}
+
+/* ─── 此项不选 ─── */
+.skip-btn {
+  margin-top: 24rpx;
+  padding: 12rpx 0;
+  text-align: center;
+  font-size: 24rpx;
+  color: #6B7280;
+}
+
+.skip-btn:active {
+  opacity: 0.7;
+}
+
+/* ─── 门系列色块网格（3 列） ─── */
+.color-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+
+.color-card {
+  position: relative;
+  width: calc((100% - 32rpx) / 3);
+  box-sizing: border-box;
+  background: #FAF8F5;
+  border: 3rpx solid transparent;
+  border-radius: 12rpx;
+  overflow: hidden;
+  padding-bottom: 12rpx;
+  text-align: center;
+}
+
+.color-card.is-selected {
+  border-color: #C9A96E;
+}
+
+.color-swatch {
+  width: 100%;
+  height: 160rpx;
+  display: block;
+  background: #f0ece5;
+}
+
+.color-badge {
+  position: absolute;
+  top: 8rpx;
+  right: 8rpx;
+  width: 36rpx;
+  height: 36rpx;
+}
+
+.color-name {
+  display: block;
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  color: #1A1A1A;
+}
+
+.color-specs {
+  display: block;
+  font-size: 20rpx;
+  color: #9CA3AF;
+}
+
+/* ─── 灯具套餐卡 ─── */
+.pkg-card {
+  position: relative;
+  background: #ffffff;
+  border: 3rpx solid transparent;
+  border-radius: 16rpx;
+  overflow: hidden;
+  box-sizing: border-box;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
+  margin-bottom: 24rpx;
+}
+
+.pkg-card.is-selected {
+  border-color: #C9A96E;
+}
+
+.pkg-image {
+  width: 100%;
+  height: 320rpx;
+  display: block;
+  background: #f0ece5;
+}
+
+.pkg-badge {
+  position: absolute;
+  top: 16rpx;
+  right: 16rpx;
+  width: 48rpx;
+  height: 48rpx;
+}
+
+.pkg-info {
+  padding: 20rpx 24rpx 24rpx;
+}
+
+.pkg-title-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16rpx;
+}
+
+.pkg-name {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #1A1A1A;
+}
+
+.pkg-price {
+  font-size: 32rpx;
+}
+
+.pkg-summary {
+  display: block;
+  margin-top: 8rpx;
+  font-size: 22rpx;
+  color: #6B7280;
+}
+
+.pkg-toggle {
+  margin-top: 16rpx;
+  padding: 8rpx 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8rpx;
+  font-size: 24rpx;
+  color: #C9A96E;
+}
+
+.pkg-chevron {
+  width: 28rpx;
+  height: 28rpx;
+  transition: transform 0.3s ease;
+}
+
+.pkg-chevron.is-up {
+  transform: rotate(180deg);
+}
+
+/* 套餐明细 */
+.pkg-items {
+  margin-top: 8rpx;
+  padding-top: 16rpx;
+  border-top: 2rpx solid #F3F0EA;
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.pkg-item {
+  display: flex;
+  gap: 16rpx;
+}
+
+.item-image {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 8rpx;
+  flex-shrink: 0;
+  background: #f0ece5;
+}
+
+.item-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+
+.item-name {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #1A1A1A;
+}
+
+.item-attrs {
+  font-size: 22rpx;
+  color: #6B7280;
+  line-height: 1.5;
+}
+
+.item-price {
+  font-size: 22rpx;
+  color: #DC2626;
+}
+
+/* ─── 底部操作栏 ─── */
+.bottom-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+  padding: 16rpx 32rpx;
+  padding-bottom: calc(16rpx + env(safe-area-inset-bottom));
+  background: rgba(250, 248, 245, 0.95);
+  z-index: 10;
+}
+
+.prev-btn {
+  flex-shrink: 0;
+  width: 160rpx;
+  height: 96rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  color: #6B7280;
+}
+
+.next-btn {
+  flex: 1;
+  height: 96rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #C9A96E, #B8944E);
+  border-radius: 48rpx;
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #ffffff;
+  box-shadow: 0 8rpx 24rpx rgba(201, 169, 110, 0.4);
+}
+
+.next-btn:active {
+  opacity: 0.85;
+}
+
+.next-btn.is-disabled {
+  background: #D1D5DB;
+  box-shadow: none;
+}
+
+/* ─── 错误状态 ─── */
+.page-error {
+  padding: 200rpx 32rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32rpx;
+}
+
+.error-msg {
+  font-size: 28rpx;
+  color: #6B7280;
+}
+
+.retry-btn {
+  padding: 16rpx 64rpx;
+  border: 2rpx solid #C9A96E;
+  border-radius: 40rpx;
+  font-size: 26rpx;
+  color: #C9A96E;
+}

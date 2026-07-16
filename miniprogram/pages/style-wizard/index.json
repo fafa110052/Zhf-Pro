@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "风格选材",
+  "usingComponents": {
+    "accordion-card": "/components/accordion-card/index",
+    "progress-steps": "/components/progress-steps/index",
+    "image-lightbox": "/components/image-lightbox/index"
+  }
+}
