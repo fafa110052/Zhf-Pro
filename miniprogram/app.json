@@ -25,7 +25,11 @@
     "pages/engineer-task-detail/index",
     "pages/engineering-director-reviews/index",
     "pages/engineering-director-review-detail/index",
-    "pages/measurement-appointment/index"
+    "pages/measurement-appointment/index",
+    "pages/style-select/index",
+    "pages/style-wizard/index",
+    "pages/style-summary/index",
+    "pages/style-my-selections/index"
   ],
   "window": {
     "backgroundTextStyle": "dark",
@@ -57,6 +61,12 @@
         "text": "在线选材",
         "iconPath": "images/tab-material.png",
         "selectedIconPath": "images/tab-material-active.png"
+      },
+      {
+        "pagePath": "pages/style-select/index",
+        "text": "风格选材",
+        "iconPath": "images/tab-style-wizard.png",
+        "selectedIconPath": "images/tab-style-wizard-active.png"
       },
       {
         "pagePath": "pages/mine/index",
