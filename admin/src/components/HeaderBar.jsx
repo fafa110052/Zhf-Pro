@@ -20,6 +20,20 @@ const BREADCRUMB_MAP = {
   lottery: '摇一摇抽奖',
   'operation-data': '运营数据',
   reports: '举报管理',
+  'style-wizard': '风格选材',
+};
+
+/**
+ * 完整路径 → 中文映射（优先于分段映射，解决同名分段冲突
+ * 如 /style-wizard/categories 是「品类管理」而非「分类字典」）
+ */
+const FULL_PATH_MAP = {
+  '/style-wizard/styles': '风格管理',
+  '/style-wizard/categories': '品类管理',
+  '/style-wizard/materials': '材料管理',
+  '/style-wizard/doors': '门系列管理',
+  '/style-wizard/lighting': '灯具套餐',
+  '/style-wizard/orders': '选材单管理',
 };
 
 /**
@@ -33,7 +47,7 @@ function getBreadcrumbs(pathname) {
 
   for (const seg of segments) {
     accumulated += `/${seg}`;
-    const label = BREADCRUMB_MAP[seg] || seg;
+    const label = FULL_PATH_MAP[accumulated] || BREADCRUMB_MAP[seg] || seg;
     crumbs.push({ label, path: accumulated });
   }
 

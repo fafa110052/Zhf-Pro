@@ -17,6 +17,12 @@ import MeasurementAppointments from '../pages/MeasurementAppointments';
 import LotteryConfig from '../pages/LotteryConfig';
 import OperationData from '../pages/OperationData';
 import Reports from '../pages/Reports';
+import StyleWizardStyles from '../pages/StyleWizardStyles';
+import StyleWizardCategories from '../pages/StyleWizardCategories';
+import StyleWizardMaterials from '../pages/StyleWizardMaterials';
+import StyleWizardDoors from '../pages/StyleWizardDoors';
+import StyleWizardLighting from '../pages/StyleWizardLighting';
+import StyleWizardOrders from '../pages/StyleWizardOrders';
 
 const router = createBrowserRouter([
   { path: '/login', element: <Login /> },
@@ -41,6 +47,12 @@ const router = createBrowserRouter([
       { path: 'measurement-appointments', element: <MeasurementAppointments /> },
       { path: 'lottery', element: <LotteryConfig /> },
       { path: 'operation-data', element: <OperationData /> },
+      { path: 'style-wizard/styles', element: <StyleWizardStyles /> },
+      { path: 'style-wizard/categories', element: <StyleWizardCategories /> },
+      { path: 'style-wizard/materials', element: <StyleWizardMaterials /> },
+      { path: 'style-wizard/doors', element: <StyleWizardDoors /> },
+      { path: 'style-wizard/lighting', element: <StyleWizardLighting /> },
+      { path: 'style-wizard/orders', element: <StyleWizardOrders /> },
       { path: 'reports', element: <Reports /> },
     ],
   },
