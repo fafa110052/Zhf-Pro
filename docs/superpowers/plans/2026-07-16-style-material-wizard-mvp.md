@@ -821,7 +821,7 @@ router.get('/drafts', authenticate, async (req, res, next) => {
   try { res.json({ success: true, data: await svc.getDraft(req.user.id) }); } catch (e) { next(e); }
 });
 router.post('/orders', authenticate, async (req, res, next) => {
-  try { res.status(201).json({ success: true, data: await svc.submitOrder({ user_id: req.user.id, ...req.body }) }); } catch (e) { next(e); }
+  try { res.status(201).json({ success: true, data: await svc.submitOrder({ ...req.body, user_id: req.user.id }) }); } catch (e) { next(e); }
 });
 router.get('/orders', authenticate, async (req, res, next) => {
   try { res.json({ success: true, data: await svc.listOrders({ user_id: req.user.id }, req.query) }); } catch (e) { next(e); }
