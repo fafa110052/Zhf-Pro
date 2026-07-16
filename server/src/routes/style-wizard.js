@@ -16,7 +16,7 @@ router.get('/styles/:styleId/materials', async (req, res, next) => {
     res.json({ success: true, data: await matSvc.getMaterialsByStyleAndSubcategory(Number(req.params.styleId), Number(subcategory_id)) });
   } catch (e) { next(e); }
 });
-router.get('/categories', async (req, res, next) => {
+router.get('/style-categories', async (req, res, next) => {
   try { res.json({ success: true, data: await svc.listCategories() }); } catch (e) { next(e); }
 });
 router.get('/door-series', async (req, res, next) => {
@@ -70,20 +70,20 @@ router.put('/admin/styles/:id', ...wrap(req => svc.updateStyle(Number(req.params
 router.delete('/admin/styles/:id', ...wrap(req => svc.deleteStyle(Number(req.params.id)).then(() => ({ success: true, message: '已删除' }))));
 
 // 品类+子品类
-router.get('/admin/categories', ...wrap(() => svc.listCategories().then(ok)));
+router.get('/admin/style-categories', ...wrap(() => svc.listCategories().then(ok)));
 router.post('/admin/subcategories', ...wrap201(req => svc.createSubcategory(req.body)));
 router.put('/admin/subcategories/:id', ...wrap(req => svc.updateSubcategory(Number(req.params.id), req.body).then(() => ({ success: true, message: '已更新' }))));
 router.delete('/admin/subcategories/:id', ...wrap(req => svc.deleteSubcategory(Number(req.params.id)).then(() => ({ success: true, message: '已删除' }))));
 
 // 材料
-router.get('/admin/materials', ...wrap(req => matSvc.listMaterials(
+router.get('/admin/style-materials', ...wrap(req => matSvc.listMaterials(
   { subcategory_id: req.query.subcategory_id, category_id: req.query.category_id, keyword: req.query.keyword },
   { page: req.query.page, page_size: req.query.page_size }
 ).then(ok)));
-router.get('/admin/materials/:id', ...wrap(req => matSvc.getMaterial(Number(req.params.id)).then(ok)));
-router.post('/admin/materials', ...wrap201(req => matSvc.createMaterial(req.body)));
-router.put('/admin/materials/:id', ...wrap(req => matSvc.updateMaterial(Number(req.params.id), req.body).then(() => ({ success: true, message: '已更新' }))));
-router.delete('/admin/materials/:id', ...wrap(req => matSvc.deleteMaterial(Number(req.params.id)).then(() => ({ success: true, message: '已删除' }))));
+router.get('/admin/style-materials/:id', ...wrap(req => matSvc.getMaterial(Number(req.params.id)).then(ok)));
+router.post('/admin/style-materials', ...wrap201(req => matSvc.createMaterial(req.body)));
+router.put('/admin/style-materials/:id', ...wrap(req => matSvc.updateMaterial(Number(req.params.id), req.body).then(() => ({ success: true, message: '已更新' }))));
+router.delete('/admin/style-materials/:id', ...wrap(req => matSvc.deleteMaterial(Number(req.params.id)).then(() => ({ success: true, message: '已删除' }))));
 
 // 门系列+颜色+门材料
 router.get('/admin/door-series', ...wrap(() => svc.listDoorSeries().then(ok)));
@@ -114,6 +114,7 @@ router.put('/admin/orders/:id', ...wrap(async (req) => {
   if (status) u.status = status;
   if (designer_id !== undefined) u.designer_id = designer_id;
   if (supervisor_id !== undefined) u.supervisor_id = supervisor_id;
+  if (Object.keys(u).length === 0) return { success: true, message: '无变更' };
   await db('selection_orders').where('id', Number(req.params.id)).update(u);
   return { success: true, message: '已更新' };
 }));
