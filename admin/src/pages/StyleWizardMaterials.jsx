@@ -233,9 +233,11 @@ export default function StyleWizardMaterials() {
     const errs = {};
     if (!form.subcategory_id) errs.subcategory_id = '请选择子品类';
     if (isTile) {
-      // 瓷砖：小程序标题行 = 品牌logo + 品牌名，故品牌和 logo 必填、名称可空
+      // 瓷砖：小程序标题行 = 品牌logo + 品牌名，品牌/logo/型号/规格必填，无名称与价格
       if (!form.brand.trim()) errs.brand = '请输入品牌';
       if (!form.brand_logo.trim()) errs.brand_logo = '请上传品牌 Logo';
+      if (!form.model.trim()) errs.model = '请输入型号';
+      if (!form.specs.trim()) errs.specs = '请输入规格';
     } else if (!form.name.trim()) {
       errs.name = '请输入材料名称';
     }
@@ -256,13 +258,13 @@ export default function StyleWizardMaterials() {
     try {
       const payload = {
         subcategory_id: Number(form.subcategory_id),
-        name: form.name.trim(),
+        name: isTile ? '' : form.name.trim(), // 瓷砖无名称，标题行用品牌
         model: form.model.trim() || null,
         brand: form.brand.trim() || null,
         brand_logo: form.brand_logo.trim() || null,
         image_url: form.image_url.trim() || null,
-        original_price: form.original_price === '' || form.original_price === null ? null : Number(form.original_price),
-        discount_price: form.discount_price === '' || form.discount_price === null ? null : Number(form.discount_price),
+        original_price: isTile || form.original_price === '' || form.original_price === null ? null : Number(form.original_price),
+        discount_price: isTile || form.discount_price === '' || form.discount_price === null ? null : Number(form.discount_price),
         specs: form.specs.trim() || null,
         sort_order: Number(form.sort_order) || 0,
         has_chaise: isSofa && form.has_chaise ? 1 : 0,
@@ -422,7 +424,7 @@ export default function StyleWizardMaterials() {
               {/* 基础字段 */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">子品类 *</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">子品类<span className="text-red-500"> *</span></label>
                   <select value={form.subcategory_id} onChange={(e) => setForm({ ...form, subcategory_id: e.target.value })} className={SELECT_CLS}>
                     <option value="">请选择子品类</option>
                     {categories.map((cat) => (
@@ -433,24 +435,26 @@ export default function StyleWizardMaterials() {
                   </select>
                   {formErrors.subcategory_id && <p className="text-red-500 text-xs mt-1">{formErrors.subcategory_id}</p>}
                 </div>
+                {/* 瓷砖标题行 = 品牌，无需名称，字段整体隐藏 */}
+                {!isTile && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">材料名称<span className="text-red-500"> *</span></label>
+                    <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className={INPUT_CLS} maxLength={128} placeholder="如：原木风三人沙发" />
+                    {formErrors.name && <p className="text-red-500 text-xs mt-1">{formErrors.name}</p>}
+                  </div>
+                )}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">材料名称{isTile ? '' : ' *'}</label>
-                  <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className={INPUT_CLS} maxLength={128} placeholder={isTile ? '瓷砖可不填' : '如：原木风三人沙发'} />
-                  {formErrors.name
-                    ? <p className="text-red-500 text-xs mt-1">{formErrors.name}</p>
-                    : isTile && <p className="text-xs text-gray-400 mt-1">瓷砖无需名称，小程序标题行直接显示品牌 Logo + 品牌名</p>}
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">品牌{isTile ? ' *' : ''}</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">品牌{isTile && <span className="text-red-500"> *</span>}</label>
                   <input value={form.brand} onChange={(e) => setForm({ ...form, brand: e.target.value })} className={INPUT_CLS} maxLength={64} />
                   {formErrors.brand && <p className="text-red-500 text-xs mt-1">{formErrors.brand}</p>}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">型号</label>
-                  <input value={form.model} onChange={(e) => setForm({ ...form, model: e.target.value })} className={INPUT_CLS} maxLength={128} />
+                  <label className="block text-sm font-medium text-gray-700 mb-1">型号{isTile && <span className="text-red-500"> *</span>}</label>
+                  <input value={form.model} onChange={(e) => setForm({ ...form, model: e.target.value })} className={INPUT_CLS} maxLength={128} placeholder={isTile ? '如：TB6023' : ''} />
+                  {formErrors.model && <p className="text-red-500 text-xs mt-1">{formErrors.model}</p>}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">品牌 Logo{isTile ? ' *' : ''}</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">品牌 Logo{isTile && <span className="text-red-500"> *</span>}</label>
                   <div className="flex gap-2">
                     <input value={form.brand_logo} onChange={(e) => setForm({ ...form, brand_logo: e.target.value })} className={`${INPUT_CLS} flex-1`} placeholder="点击右侧按钮上传" />
                     <button type="button" onClick={() => logoFileRef.current?.click()} disabled={uploadingField === 'brand_logo'}
@@ -472,19 +476,25 @@ export default function StyleWizardMaterials() {
                     <input ref={imageFileRef} type="file" accept="image/jpeg,image/png,image/gif,image/webp" className="hidden" onChange={(e) => handleFileUpload(e, 'image_url', imageFileRef)} />
                   </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">原价（元）</label>
-                  <input type="number" step="0.01" min="0" value={form.original_price} onChange={(e) => setForm({ ...form, original_price: e.target.value })} className={INPUT_CLS} />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">优惠价（元）</label>
-                  <input type="number" step="0.01" min="0" value={form.discount_price} onChange={(e) => setForm({ ...form, discount_price: e.target.value })} className={INPUT_CLS} />
-                </div>
+                {/* 瓷砖不展示价格，字段整体隐藏 */}
+                {!isTile && (
+                  <>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">原价（元）</label>
+                      <input type="number" step="0.01" min="0" value={form.original_price} onChange={(e) => setForm({ ...form, original_price: e.target.value })} className={INPUT_CLS} />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">优惠价（元）</label>
+                      <input type="number" step="0.01" min="0" value={form.discount_price} onChange={(e) => setForm({ ...form, discount_price: e.target.value })} className={INPUT_CLS} />
+                    </div>
+                  </>
+                )}
               </div>
               <div className="grid grid-cols-3 gap-4">
                 <div className="col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">规格说明</label>
-                  <textarea rows={2} value={form.specs} onChange={(e) => setForm({ ...form, specs: e.target.value })} className={`${INPUT_CLS} resize-none`} placeholder="如：2400×950×850mm" />
+                  <label className="block text-sm font-medium text-gray-700 mb-1">规格说明{isTile && <span className="text-red-500"> *</span>}</label>
+                  <textarea rows={2} value={form.specs} onChange={(e) => setForm({ ...form, specs: e.target.value })} className={`${INPUT_CLS} resize-none`} placeholder={isTile ? '如：200X800' : '如：2400×950×850mm'} />
+                  {formErrors.specs && <p className="text-red-500 text-xs mt-1">{formErrors.specs}</p>}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">排序号</label>
