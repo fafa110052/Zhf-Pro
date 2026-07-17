@@ -1,0 +1,113 @@
+<!-- 选材清单页 -->
+<view class="page">
+  <block wx:if="{{ready}}">
+    <!-- 无交接数据（直接进入/重启后打开） -->
+    <view wx:if="{{missing}}" class="page-empty">
+      <text class="empty-title">请先完成选材</text>
+      <text class="empty-desc">在「风格选材」选择喜欢的风格，完成 7 步选材后即可查看清单</text>
+      <view class="empty-btn" bindtap="onGoWizard">去风格选材</view>
+    </view>
+
+    <!-- 加载失败 -->
+    <view wx:elif="{{error}}" class="page-empty">
+      <text class="empty-desc">加载失败，请检查网络后重试</text>
+      <view class="empty-btn" bindtap="onRetry">重新加载</view>
+    </view>
+
+    <block wx:else>
+      <!-- ─── 分组清单（7 大品类） ─── -->
+      <view class="section" wx:for="{{sections}}" wx:key="page_number">
+        <view class="section-band">
+          <image class="band-num" src="/assets/icons/num-{{item.page_number}}.svg" mode="aspectFit" />
+          <text class="band-name">{{item.name}}</text>
+        </view>
+        <view class="section-body">
+          <block wx:for="{{item.rows}}" wx:for-item="row" wx:key="index">
+            <view wx:if="{{row.type === 'item'}}" class="item-row">
+              <image class="item-image" src="{{row.image}}" mode="aspectFill" />
+              <view class="item-main">
+                <text class="item-name">{{row.name}}</text>
+                <text class="item-sub">{{row.subLabel}}</text>
+                <text wx:if="{{row.extra}}" class="item-extra">{{row.extra}}</text>
+              </view>
+              <view class="item-prices">
+                <text wx:if="{{row.originalText}}" class="p-orig">¥{{row.originalText}}</text>
+                <text wx:if="{{row.discountText}}" class="p-disc">¥{{row.discountText}}</text>
+              </view>
+            </view>
+            <view wx:else class="skip-row">未选：{{row.subLabel}}</view>
+          </block>
+        </view>
+      </view>
+
+      <!-- ─── 价格汇总 ─── -->
+      <view class="summary-card">
+        <view class="sum-row">
+          <text class="sum-label">原价合计</text>
+          <text class="sum-orig">¥{{originalTotal}}</text>
+        </view>
+        <view class="sum-row">
+          <text class="sum-label">优惠价</text>
+          <text class="sum-disc">¥{{discountTotal}}</text>
+        </view>
+        <view wx:if="{{savedAmount}}" class="saved-tag">已省 ¥{{savedAmount}}</view>
+      </view>
+
+      <!-- ─── 业主信息 ─── -->
+      <view class="form-card">
+        <text class="form-title">业主信息</text>
+        <view class="form-field">
+          <view class="field-label">姓名<text class="required">*</text></view>
+          <input
+            class="field-input"
+            value="{{ownerName}}"
+            data-field="ownerName"
+            bindinput="onFieldInput"
+            placeholder="请输入姓名"
+            placeholder-class="field-placeholder"
+          />
+        </view>
+        <view class="form-field">
+          <view class="field-label">电话<text class="required">*</text></view>
+          <input
+            class="field-input"
+            type="number"
+            maxlength="11"
+            value="{{ownerPhone}}"
+            data-field="ownerPhone"
+            bindinput="onFieldInput"
+            placeholder="请输入11位手机号"
+            placeholder-class="field-placeholder"
+          />
+        </view>
+        <view class="form-field">
+          <view class="field-label">小区<text class="required">*</text></view>
+          <input
+            class="field-input"
+            value="{{community}}"
+            data-field="community"
+            bindinput="onFieldInput"
+            placeholder="请输入小区名称"
+            placeholder-class="field-placeholder"
+          />
+        </view>
+        <view class="form-field">
+          <view class="field-label">房号<text class="required">*</text></view>
+          <input
+            class="field-input"
+            value="{{roomNumber}}"
+            data-field="roomNumber"
+            bindinput="onFieldInput"
+            placeholder="如 3栋2单元1201"
+            placeholder-class="field-placeholder"
+          />
+        </view>
+      </view>
+
+      <!-- ─── 底部提交 ─── -->
+      <view class="bottom-bar">
+        <view class="submit-btn {{submitting ? 'is-disabled' : ''}}" bindtap="onSubmit">{{submitting ? '提交中...' : '提交选材单'}}</view>
+      </view>
+    </block>
+  </block>
+</view>

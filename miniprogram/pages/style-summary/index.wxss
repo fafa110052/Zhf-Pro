@@ -1,0 +1,287 @@
+/**
+ * 选材清单页样式 — 暖白奢华（与向导页同一套 token）
+ */
+.page {
+  min-height: 100vh;
+  background: #FAF8F5;
+  padding: 24rpx 24rpx 220rpx;
+  box-sizing: border-box;
+}
+
+/* ─── 空态 / 错误态 ─── */
+.page-empty {
+  padding: 200rpx 48rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24rpx;
+}
+
+.empty-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #1A1A1A;
+}
+
+.empty-desc {
+  font-size: 26rpx;
+  color: #6B7280;
+  text-align: center;
+  line-height: 1.6;
+}
+
+.empty-btn {
+  margin-top: 16rpx;
+  padding: 16rpx 64rpx;
+  border: 2rpx solid #C9A96E;
+  border-radius: 40rpx;
+  font-size: 26rpx;
+  color: #C9A96E;
+}
+
+.empty-btn:active {
+  background: rgba(201, 169, 110, 0.12);
+}
+
+/* ─── 品类分组 ─── */
+.section {
+  margin-bottom: 24rpx;
+  background: #ffffff;
+  border-radius: 16rpx;
+  overflow: hidden;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
+}
+
+/* Editorial mini 标题带 */
+.section-band {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  height: 72rpx;
+  padding: 0 24rpx;
+  background: #1A1A1A;
+}
+
+.band-num {
+  width: 40rpx;
+  height: 40rpx;
+  flex-shrink: 0;
+  border: 2rpx solid #C9A96E;
+  border-radius: 50%;
+  box-sizing: border-box;
+}
+
+.band-name {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.section-body {
+  padding: 8rpx 24rpx;
+}
+
+/* 已选材料行 */
+.item-row {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  padding: 20rpx 0;
+  border-bottom: 2rpx solid #F3F0EA;
+}
+
+.section-body .item-row:last-child,
+.section-body .skip-row:last-child {
+  border-bottom: none;
+}
+
+.item-image {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 8rpx;
+  flex-shrink: 0;
+  background: #f0ece5;
+}
+
+.item-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6rpx;
+}
+
+.item-name {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #1A1A1A;
+}
+
+.item-sub {
+  font-size: 22rpx;
+  color: #6B7280;
+}
+
+.item-extra {
+  font-size: 22rpx;
+  color: #C9A96E;
+}
+
+.item-prices {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4rpx;
+}
+
+.p-orig {
+  font-size: 22rpx;
+  color: #9CA3AF;
+  text-decoration: line-through;
+}
+
+.p-disc {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #C9A96E;
+}
+
+/* 未选行 */
+.skip-row {
+  padding: 20rpx 0;
+  font-size: 24rpx;
+  color: #9CA3AF;
+  border-bottom: 2rpx solid #F3F0EA;
+}
+
+/* ─── 价格汇总卡 ─── */
+.summary-card {
+  position: relative;
+  margin-bottom: 24rpx;
+  padding: 32rpx;
+  background: #ffffff;
+  border-radius: 16rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.sum-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.sum-label {
+  font-size: 26rpx;
+  color: #6B7280;
+}
+
+.sum-orig {
+  font-size: 28rpx;
+  color: #9CA3AF;
+  text-decoration: line-through;
+}
+
+.sum-disc {
+  font-size: 48rpx;
+  font-weight: 700;
+  color: #C9A96E;
+}
+
+.saved-tag {
+  position: absolute;
+  top: 32rpx;
+  right: 32rpx;
+  padding: 6rpx 20rpx;
+  background: rgba(220, 38, 38, 0.08);
+  border-radius: 24rpx;
+  font-size: 22rpx;
+  color: #DC2626;
+}
+
+/* ─── 业主信息表单 ─── */
+.form-card {
+  padding: 32rpx;
+  background: #ffffff;
+  border-radius: 16rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
+}
+
+.form-title {
+  display: block;
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #1A1A1A;
+  margin-bottom: 24rpx;
+}
+
+.form-field {
+  margin-bottom: 24rpx;
+}
+
+.form-field:last-child {
+  margin-bottom: 0;
+}
+
+.field-label {
+  font-size: 26rpx;
+  color: #1A1A1A;
+  margin-bottom: 12rpx;
+}
+
+.required {
+  margin-left: 4rpx;
+  color: #DC2626;
+}
+
+.field-input {
+  height: 88rpx;
+  padding: 0 24rpx;
+  background: #FAF8F5;
+  border: 2rpx solid #F3F0EA;
+  border-radius: 12rpx;
+  font-size: 28rpx;
+  color: #1A1A1A;
+  box-sizing: border-box;
+}
+
+.field-placeholder {
+  color: #9CA3AF;
+}
+
+/* ─── 底部提交栏 ─── */
+.bottom-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 16rpx 32rpx;
+  padding-bottom: calc(16rpx + env(safe-area-inset-bottom));
+  background: rgba(250, 248, 245, 0.95);
+  z-index: 10;
+}
+
+.submit-btn {
+  height: 96rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #C9A96E, #B8944E);
+  border-radius: 48rpx;
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #ffffff;
+  box-shadow: 0 8rpx 24rpx rgba(201, 169, 110, 0.4);
+}
+
+.submit-btn:active {
+  opacity: 0.85;
+}
+
+.submit-btn.is-disabled {
+  background: #D1D5DB;
+  box-shadow: none;
+}
