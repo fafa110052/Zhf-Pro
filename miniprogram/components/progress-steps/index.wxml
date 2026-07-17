@@ -12,6 +12,6 @@
       <view class="line {{index + 1 < current ? 'line-done' : ''}} {{index === steps.length - 1 ? 'line-hidden' : ''}}"></view>
     </view>
     <!-- 标签 -->
-    <text class="step-label {{index + 1 <= current ? 'label-active' : ''}}">{{item.label}}</text>
+    <text class="step-label {{index + 1 === current ? 'label-current' : (index + 1 < current ? 'label-active' : '')}}">{{item.label}}</text>
   </view>
 </view>

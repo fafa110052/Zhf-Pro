@@ -51,10 +51,10 @@
   box-shadow: 0 -12rpx 40rpx rgba(61, 50, 38, 0.12);
 }
 
-/* 进度条与下方标题带之间留出呼吸空间 */
+/* 进度条上下均留出呼吸空间 */
 .sheet progress-steps {
   display: block;
-  margin-bottom: 24rpx;
+  margin: 24rpx 0;
 }
 
 /* ─── Editorial 标题带 ─── */

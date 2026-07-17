@@ -61,3 +61,9 @@
 .label-active {
   color: #C9A96E;
 }
+
+/* 当前进行中步骤：酒红色（与已完成的香槟金区分） */
+.label-current {
+  color: #B0413E;
+  font-weight: 600;
+}
