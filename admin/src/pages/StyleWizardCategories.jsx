@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import client from '../api/client';
 import Modal from '../components/Modal';
 import ConfirmDialog from '../components/ConfirmDialog';
@@ -42,6 +42,8 @@ export default function StyleWizardCategories() {
   // 步骤封面图弹窗：{ cat, url }
   const [coverModal, setCoverModal] = useState(null);
   const [coverSaving, setCoverSaving] = useState(false);
+  const [coverUploading, setCoverUploading] = useState(false);
+  const coverFileRef = useRef(null);
 
   const fetchList = useCallback(async () => {
     setLoading(true); setError('');
@@ -82,6 +84,37 @@ export default function StyleWizardCategories() {
       fetchList();
     } catch (err) { toast.error(err?.message || '保存失败'); }
     finally { setCoverSaving(false); }
+  };
+
+  // 本地上传封面图（外链图床常有防盗链，自己服务器的图才稳定）
+  const handleCoverUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) { toast.error('仅支持 JPG/PNG/GIF/WebP 格式'); return; }
+    if (file.size > 10 * 1024 * 1024) { toast.error('图片大小不能超过 10MB'); return; }
+    setCoverUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const token = localStorage.getItem('admin_token');
+      const res = await fetch('/api/v1/upload?category=banners', {
+        method: 'POST',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        body: formData,
+      });
+      const data = await res.json();
+      if (data.success) {
+        setCoverModal(prev => ({ ...prev, url: data.data.image_url }));
+        toast.success('图片上传成功');
+      } else {
+        toast.error(data.error?.message || '上传失败');
+      }
+    } catch (err) { toast.error('图片上传失败，请检查网络'); }
+    finally {
+      setCoverUploading(false);
+      if (coverFileRef.current) coverFileRef.current.value = '';
+    }
   };
 
   const validateForm = () => {
@@ -286,10 +319,17 @@ export default function StyleWizardCategories() {
         <Modal open={true} title={`步骤封面图 — ${coverModal.cat.name}`} onClose={() => setCoverModal(null)}>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">封面图 URL</label>
-              <input value={coverModal.url} onChange={(e) => setCoverModal({ ...coverModal, url: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="https://... 或 /uploads/..." />
-              <p className="text-xs text-gray-400 mt-1">小程序向导页该步骤顶部展示的大图，上滑时被表单卡片盖住；留空则该步骤不显示头图</p>
+              <label className="block text-sm font-medium text-gray-700 mb-1">封面图</label>
+              <div className="flex gap-2">
+                <input value={coverModal.url} onChange={(e) => setCoverModal({ ...coverModal, url: e.target.value })}
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="点击右侧按钮上传，或粘贴图片地址" />
+                <button type="button" onClick={() => coverFileRef.current?.click()} disabled={coverUploading}
+                  className="px-3 py-2 bg-white border border-gray-300 text-gray-600 text-sm rounded-lg hover:bg-gray-50 disabled:opacity-50 transition-colors whitespace-nowrap">
+                  {coverUploading ? '上传中...' : '本地上传'}
+                </button>
+                <input ref={coverFileRef} type="file" accept="image/jpeg,image/png,image/gif,image/webp" className="hidden" onChange={handleCoverUpload} />
+              </div>
+              <p className="text-xs text-gray-400 mt-1">建议横版大图；百度等外部网站的图片链接有防盗链会显示破图，请用「本地上传」。留空保存则该步骤不显示头图</p>
             </div>
             {coverModal.url.trim() && (
               <div className="w-full h-36 rounded-lg overflow-hidden bg-gray-100">
