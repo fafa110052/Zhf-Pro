@@ -1,4 +1,5 @@
 const express = require('express');
+const QRCode = require('qrcode');
 const router = express.Router();
 const db = require('../db/connection');
 const svc = require('../services/styleWizardService');
@@ -11,6 +12,15 @@ router.get('/styles', async (req, res, next) => {
 });
 router.get('/style-select-config', async (req, res, next) => {
   try { res.json({ success: true, data: await svc.getSelectPageConfig() }); } catch (e) { next(e); }
+});
+// 风格 VR 链接二维码（PNG 图片）：小程序内长按识别打开非酷家乐的全景链接
+router.get('/styles/:id/vr-qrcode', async (req, res, next) => {
+  try {
+    const style = await svc.getStyle(Number(req.params.id));
+    if (!style.vr_url) return res.status(404).json({ error: { message: '该风格未配置VR链接', status: 404 } });
+    const png = await QRCode.toBuffer(style.vr_url, { width: 500, margin: 2 });
+    res.set('Cache-Control', 'public, max-age=3600').type('png').send(png);
+  } catch (e) { next(e); }
 });
 router.get('/styles/:styleId/materials', async (req, res, next) => {
   try {

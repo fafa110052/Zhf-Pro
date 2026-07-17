@@ -40,7 +40,7 @@
               <text class="card-name">{{item.name}}</text>
               <text wx:if="{{item.description}}" class="card-desc">{{item.description}}</text>
             </view>
-            <view wx:if="{{item.vr_url}}" class="band-vr" data-url="{{item.vr_url}}" catchtap="onTapVR">
+            <view wx:if="{{item.vr_url}}" class="band-vr" data-url="{{item.vr_url}}" data-id="{{item.id}}" catchtap="onTapVR">
               <view class="vr-icon"></view>
               <text class="vr-text">VR</text>
             </view>

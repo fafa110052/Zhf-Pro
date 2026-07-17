@@ -65,9 +65,9 @@ Page({
     wx.navigateTo({ url: `/pages/style-wizard/index?style_id=${id}&step=1` });
   },
 
-  // VR 看房：酷家乐链接跳全景720小程序；其他平台链接复制后引导浏览器打开
+  // VR 看房：酷家乐链接跳全景720小程序；其他平台链接展示二维码，长按识别打开
   onTapVR(e) {
-    const vrUrl = e.currentTarget.dataset.url;
+    const { url: vrUrl, id } = e.currentTarget.dataset;
     if (!vrUrl) return;
     if (vrUrl.indexOf('kujiale.com') > -1) {
       wx.navigateToMiniProgram({
@@ -80,16 +80,10 @@ Page({
       });
       return;
     }
-    wx.setClipboardData({
-      data: vrUrl,
-      success() {
-        wx.showModal({
-          title: 'VR看房',
-          content: 'VR链接已复制，请打开手机浏览器，粘贴到地址栏观看全景',
-          showCancel: false,
-          confirmText: '知道了',
-        });
-      },
+    // 非酷家乐链接：全屏展示后端生成的二维码，长按识别即可在微信内观看
+    wx.previewImage({
+      urls: [util.fullImageUrl(`/api/v1/styles/${id}/vr-qrcode`)],
+      showmenu: true,
     });
   },
 });
