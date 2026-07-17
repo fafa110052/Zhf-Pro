@@ -13,7 +13,7 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 480rpx;
+  height: 400rpx;
   z-index: 0;
   overflow: hidden;
   transform-origin: center top;
@@ -44,11 +44,17 @@
 }
 
 .sheet.has-hero {
-  margin-top: 420rpx;
+  margin-top: 340rpx;
   min-height: 100vh;
   border-radius: 32rpx 32rpx 0 0;
   overflow: hidden;
   box-shadow: 0 -12rpx 40rpx rgba(61, 50, 38, 0.12);
+}
+
+/* 进度条与下方标题带之间留出呼吸空间 */
+.sheet progress-steps {
+  display: block;
+  margin-bottom: 24rpx;
 }
 
 /* ─── Editorial 标题带 ─── */

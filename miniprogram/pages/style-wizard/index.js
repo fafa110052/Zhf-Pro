@@ -154,7 +154,7 @@ Page({
    */
   onPageScroll(e) {
     if (!this.data.heroImage) return;
-    const range = 210; // px，≈ 卡片初始距顶 420rpx 的滚动行程
+    const range = 170; // px，≈ 卡片初始距顶 340rpx 的滚动行程
     let p = e.scrollTop / range;
     p = p < 0 ? 0 : (p > 1 ? 1 : p);
     p = Math.round(p * 20) / 20;
