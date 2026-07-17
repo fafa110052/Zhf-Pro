@@ -96,11 +96,18 @@ const styleWizardService = {
   },
   async createSubcategory({ category_id, name, sort_order, layout_type, columns, attribute_template }) {
     if (!category_id || !name) throw Object.assign(new Error('品类和名称为必填'), { status: 400 });
-    const [id] = await db('style_subcategories').insert({
-      category_id, name, sort_order: sort_order || 0,
-      layout_type: layout_type || 'image_top_text_bottom',
-      columns: columns || 2,
-      attribute_template: attribute_template || null,
+    const sort = sort_order || 0;
+    const id = await db.transaction(async (trx) => {
+      // 排序值冲突时，同品类内 >= 该值的子品类整体后移一位
+      const clash = await trx('style_subcategories').where({ category_id, sort_order: sort }).first();
+      if (clash) await trx('style_subcategories').where('category_id', category_id).where('sort_order', '>=', sort).increment('sort_order', 1);
+      const [newId] = await trx('style_subcategories').insert({
+        category_id, name, sort_order: sort,
+        layout_type: layout_type || 'image_top_text_bottom',
+        columns: columns || 2,
+        attribute_template: attribute_template || null,
+      });
+      return newId;
     });
     return db('style_subcategories').where('id', id).first();
   },
@@ -113,7 +120,14 @@ const styleWizardService = {
     if (fields.layout_type !== undefined) u.layout_type = fields.layout_type;
     if (fields.columns !== undefined) u.columns = fields.columns;
     if (fields.attribute_template !== undefined) u.attribute_template = fields.attribute_template;
-    await db('style_subcategories').where('id', id).update(u);
+    await db.transaction(async (trx) => {
+      // 改到已被占用的排序值时，同品类内其余 >= 该值的子品类整体后移一位
+      if (u.sort_order !== undefined && u.sort_order !== ex.sort_order) {
+        const clash = await trx('style_subcategories').where({ category_id: ex.category_id, sort_order: u.sort_order }).whereNot('id', id).first();
+        if (clash) await trx('style_subcategories').where('category_id', ex.category_id).where('sort_order', '>=', u.sort_order).whereNot('id', id).increment('sort_order', 1);
+      }
+      await trx('style_subcategories').where('id', id).update(u);
+    });
     return db('style_subcategories').where('id', id).first();
   },
   async deleteSubcategory(id) {
@@ -136,7 +150,14 @@ const styleWizardService = {
   },
   async createDoorSeries({ name, image_url, sort_order }) {
     if (!name) throw Object.assign(new Error('系列名称不能为空'), { status: 400 });
-    const [id] = await db('door_series').insert({ name, image_url: image_url || null, sort_order: sort_order || 0 });
+    const sort = sort_order || 0;
+    const id = await db.transaction(async (trx) => {
+      // 排序值冲突时，>= 该值的系列整体后移一位
+      const clash = await trx('door_series').where('sort_order', sort).first();
+      if (clash) await trx('door_series').where('sort_order', '>=', sort).increment('sort_order', 1);
+      const [newId] = await trx('door_series').insert({ name, image_url: image_url || null, sort_order: sort });
+      return newId;
+    });
     return db('door_series').where('id', id).first();
   },
   async updateDoorSeries(id, fields) {
@@ -146,7 +167,14 @@ const styleWizardService = {
     if (fields.name !== undefined) u.name = fields.name;
     if (fields.image_url !== undefined) u.image_url = fields.image_url;
     if (fields.sort_order !== undefined) u.sort_order = fields.sort_order;
-    await db('door_series').where('id', id).update(u);
+    await db.transaction(async (trx) => {
+      // 改到已被占用的排序值时，其余 >= 该值的系列整体后移一位
+      if (u.sort_order !== undefined && u.sort_order !== ex.sort_order) {
+        const clash = await trx('door_series').where('sort_order', u.sort_order).whereNot('id', id).first();
+        if (clash) await trx('door_series').where('sort_order', '>=', u.sort_order).whereNot('id', id).increment('sort_order', 1);
+      }
+      await trx('door_series').where('id', id).update(u);
+    });
     return db('door_series').where('id', id).first();
   },
   async deleteDoorSeries(id) {
@@ -161,7 +189,14 @@ const styleWizardService = {
     if (!series_id || !name) throw Object.assign(new Error('系列和颜色名称为必填'), { status: 400 });
     const dup = await db('door_colors').where({ series_id, name }).first('id');
     if (dup) throw Object.assign(new Error('该系列已有同名颜色'), { status: 400 });
-    const [id] = await db('door_colors').insert({ series_id, name, image_url: image_url || null, sort_order: sort_order || 0 });
+    const sort = sort_order || 0;
+    const id = await db.transaction(async (trx) => {
+      // 排序值冲突时，同系列内 >= 该值的颜色整体后移一位
+      const clash = await trx('door_colors').where({ series_id, sort_order: sort }).first();
+      if (clash) await trx('door_colors').where('series_id', series_id).where('sort_order', '>=', sort).increment('sort_order', 1);
+      const [newId] = await trx('door_colors').insert({ series_id, name, image_url: image_url || null, sort_order: sort });
+      return newId;
+    });
     return db('door_colors').where('id', id).first();
   },
 
@@ -174,7 +209,14 @@ const styleWizardService = {
     if (!name || !image_url) throw Object.assign(new Error('颜色名称和色块图为必填'), { status: 400 });
     const dup = await db('door_color_library').where('name', name).first('id');
     if (dup) throw Object.assign(new Error('颜色库已有同名颜色'), { status: 400 });
-    const [id] = await db('door_color_library').insert({ name, image_url, sort_order: sort_order || 0 });
+    const sort = sort_order || 0;
+    const id = await db.transaction(async (trx) => {
+      // 排序值冲突时，>= 该值的库颜色整体后移一位
+      const clash = await trx('door_color_library').where('sort_order', sort).first();
+      if (clash) await trx('door_color_library').where('sort_order', '>=', sort).increment('sort_order', 1);
+      const [newId] = await trx('door_color_library').insert({ name, image_url, sort_order: sort });
+      return newId;
+    });
     return db('door_color_library').where('id', id).first();
   },
   async updateLibraryColor(id, fields) {
@@ -185,7 +227,14 @@ const styleWizardService = {
     if (fields.image_url !== undefined) u.image_url = fields.image_url;
     if (fields.sort_order !== undefined) u.sort_order = fields.sort_order;
     if (u.name === '' || u.image_url === '') throw Object.assign(new Error('颜色名称和色块图为必填'), { status: 400 });
-    await db('door_color_library').where('id', id).update(u);
+    await db.transaction(async (trx) => {
+      // 改到已被占用的排序值时，其余 >= 该值的库颜色整体后移一位
+      if (u.sort_order !== undefined && u.sort_order !== ex.sort_order) {
+        const clash = await trx('door_color_library').where('sort_order', u.sort_order).whereNot('id', id).first();
+        if (clash) await trx('door_color_library').where('sort_order', '>=', u.sort_order).whereNot('id', id).increment('sort_order', 1);
+      }
+      await trx('door_color_library').where('id', id).update(u);
+    });
     return db('door_color_library').where('id', id).first();
   },
   async deleteLibraryColor(id) {
@@ -240,15 +289,22 @@ const styleWizardService = {
   },
   async createLightingPackage({ name, image_url, original_price, discount_price, sort_order, items }) {
     if (!name) throw Object.assign(new Error('套餐名称不能为空'), { status: 400 });
-    const [id] = await db('lighting_packages').insert({
-      name, image_url: image_url || null,
-      original_price: original_price ?? null,
-      discount_price: discount_price ?? null,
-      sort_order: sort_order || 0,
+    const sort = sort_order || 0;
+    const id = await db.transaction(async (trx) => {
+      // 排序值冲突时，>= 该值的套餐整体后移一位
+      const clash = await trx('lighting_packages').where('sort_order', sort).first();
+      if (clash) await trx('lighting_packages').where('sort_order', '>=', sort).increment('sort_order', 1);
+      const [newId] = await trx('lighting_packages').insert({
+        name, image_url: image_url || null,
+        original_price: original_price ?? null,
+        discount_price: discount_price ?? null,
+        sort_order: sort,
+      });
+      if (items && items.length > 0) {
+        await trx('lighting_package_items').insert(items.map(it => ({ package_id: newId, ...it })));
+      }
+      return newId;
     });
-    if (items && items.length > 0) {
-      await db('lighting_package_items').insert(items.map(it => ({ package_id: id, ...it })));
-    }
     return db('lighting_packages').where('id', id).first();
   },
   async updateLightingPackage(id, fields) {
@@ -260,13 +316,20 @@ const styleWizardService = {
     if (fields.original_price !== undefined) u.original_price = fields.original_price;
     if (fields.discount_price !== undefined) u.discount_price = fields.discount_price;
     if (fields.sort_order !== undefined) u.sort_order = fields.sort_order;
-    await db('lighting_packages').where('id', id).update(u);
-    if (fields.items !== undefined) {
-      await db('lighting_package_items').where('package_id', id).del();
-      if (fields.items.length > 0) {
-        await db('lighting_package_items').insert(fields.items.map(it => ({ package_id: id, ...it })));
+    await db.transaction(async (trx) => {
+      // 改到已被占用的排序值时，其余 >= 该值的套餐整体后移一位
+      if (u.sort_order !== undefined && u.sort_order !== ex.sort_order) {
+        const clash = await trx('lighting_packages').where('sort_order', u.sort_order).whereNot('id', id).first();
+        if (clash) await trx('lighting_packages').where('sort_order', '>=', u.sort_order).whereNot('id', id).increment('sort_order', 1);
       }
-    }
+      await trx('lighting_packages').where('id', id).update(u);
+      if (fields.items !== undefined) {
+        await trx('lighting_package_items').where('package_id', id).del();
+        if (fields.items.length > 0) {
+          await trx('lighting_package_items').insert(fields.items.map(it => ({ package_id: id, ...it })));
+        }
+      }
+    });
     return db('lighting_packages').where('id', id).first();
   },
   async deleteLightingPackage(id) {
