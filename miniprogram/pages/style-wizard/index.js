@@ -47,6 +47,9 @@ Page({
     stepEnglish: '',
     stepComplete: false,
 
+    heroImage: '',          // 品类头图（后台配置，空则无头图）
+    heroProgress: 0,        // 头图折叠进度 0~1（驱动虚化/缩小）
+
     // 规范选材结构（选材清单页直接消费）：
     // sub_{id}: {kind:'material',...} | {kind:'skip'}；door / lighting 为特殊 key
     selections: {},
@@ -146,6 +149,19 @@ Page({
   },
 
   /**
+   * 头图折叠交互：表单卡片上滑覆盖头图，头图随进度虚化缩小。
+   * 进度量化到 0.05 一档，避免每帧 setData；过渡由 CSS transition 平滑。
+   */
+  onPageScroll(e) {
+    if (!this.data.heroImage) return;
+    const range = 210; // px，≈ 卡片初始距顶 420rpx 的滚动行程
+    let p = e.scrollTop / range;
+    p = p < 0 ? 0 : (p > 1 ? 1 : p);
+    p = Math.round(p * 20) / 20;
+    if (p !== this.data.heroProgress) this.setData({ heroProgress: p });
+  },
+
+  /**
    * 拉取草稿并询问是否继续；返回 { step, selections } 或 null（无草稿/重新开始）
    */
   async resolveDraft() {
@@ -212,6 +228,8 @@ Page({
       currentCategory,
       stepType,
       stepEnglish: STEP_ENGLISH[step] || '',
+      heroImage: currentCategory && currentCategory.cover_image ? util.fullImageUrl(currentCategory.cover_image) : '',
+      heroProgress: 0,
       expandedSub,
       pending: null,
       expandedPackage: null,

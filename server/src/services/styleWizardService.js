@@ -83,6 +83,14 @@ const styleWizardService = {
     const subs = await db('style_subcategories').orderBy('sort_order', 'asc');
     return cats.map(c => ({ ...c, subcategories: subs.filter(s => s.category_id === c.id) }));
   },
+  async updateCategory(id, fields) {
+    const ex = await db('style_categories').where('id', id).first();
+    if (!ex) throw Object.assign(new Error('品类不存在'), { status: 404 });
+    const u = {};
+    if (fields.cover_image !== undefined) u.cover_image = fields.cover_image || null;
+    if (Object.keys(u).length) await db('style_categories').where('id', id).update(u);
+    return db('style_categories').where('id', id).first();
+  },
   async getSubcategories(categoryId) {
     return db('style_subcategories').where('category_id', categoryId).orderBy('sort_order', 'asc');
   },

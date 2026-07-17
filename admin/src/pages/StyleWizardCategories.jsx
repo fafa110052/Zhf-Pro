@@ -39,6 +39,10 @@ export default function StyleWizardCategories() {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [confirmAction, setConfirmAction] = useState(null);
 
+  // 步骤封面图弹窗：{ cat, url }
+  const [coverModal, setCoverModal] = useState(null);
+  const [coverSaving, setCoverSaving] = useState(false);
+
   const fetchList = useCallback(async () => {
     setLoading(true); setError('');
     try {
@@ -68,6 +72,17 @@ export default function StyleWizardCategories() {
   };
 
   const closeModal = () => { setModalOpen(false); setSubmitting(false); };
+
+  const handleCoverSave = async () => {
+    setCoverSaving(true);
+    try {
+      await client.put(`/admin/style-categories/${coverModal.cat.id}`, { cover_image: coverModal.url.trim() || null });
+      toast.success('封面图已保存');
+      setCoverModal(null);
+      fetchList();
+    } catch (err) { toast.error(err?.message || '保存失败'); }
+    finally { setCoverSaving(false); }
+  };
 
   const validateForm = () => {
     const errs = {};
@@ -153,17 +168,28 @@ export default function StyleWizardCategories() {
       {!loading && !error && categories.map((cat) => (
         <div key={cat.id} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
           <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
-            <h3 className="text-sm font-bold text-gray-900">
+            <h3 className="text-sm font-bold text-gray-900 flex items-center">
               <span className="text-gray-400 font-mono mr-2">{String(cat.page_number).padStart(2, '0')}</span>
               {cat.name}
+              {cat.cover_image && (
+                <span className="ml-3 w-10 h-6 rounded overflow-hidden bg-gray-100 inline-block align-middle">
+                  <img src={cat.cover_image} alt="" className="w-full h-full object-cover" />
+                </span>
+              )}
             </h3>
-            <button onClick={() => openAdd(cat)}
-              className="inline-flex items-center px-3 py-1.5 bg-slate-900 text-white text-xs font-medium rounded-lg hover:bg-slate-800 transition-colors">
-              <svg className="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-              新增子品类
-            </button>
+            <div className="flex items-center gap-2">
+              <button onClick={() => setCoverModal({ cat, url: cat.cover_image || '' })}
+                className="px-3 py-1.5 bg-white border border-gray-300 text-gray-600 text-xs font-medium rounded-lg hover:bg-gray-50 transition-colors">
+                步骤封面图
+              </button>
+              <button onClick={() => openAdd(cat)}
+                className="inline-flex items-center px-3 py-1.5 bg-slate-900 text-white text-xs font-medium rounded-lg hover:bg-slate-800 transition-colors">
+                <svg className="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                新增子品类
+              </button>
+            </div>
           </div>
           {cat.subcategories?.length > 0 ? (
             <div className="overflow-x-auto">
@@ -252,6 +278,29 @@ export default function StyleWizardCategories() {
               <button type="submit" disabled={submitting} className="px-4 py-2 bg-slate-900 text-white text-sm rounded-lg hover:bg-slate-800 disabled:opacity-50 transition-colors">{submitting ? '保存中...' : '保存'}</button>
             </div>
           </form>
+        </Modal>
+      )}
+
+      {/* ─── 步骤封面图弹窗 ─── */}
+      {coverModal && (
+        <Modal open={true} title={`步骤封面图 — ${coverModal.cat.name}`} onClose={() => setCoverModal(null)}>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">封面图 URL</label>
+              <input value={coverModal.url} onChange={(e) => setCoverModal({ ...coverModal, url: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="https://... 或 /uploads/..." />
+              <p className="text-xs text-gray-400 mt-1">小程序向导页该步骤顶部展示的大图，上滑时被表单卡片盖住；留空则该步骤不显示头图</p>
+            </div>
+            {coverModal.url.trim() && (
+              <div className="w-full h-36 rounded-lg overflow-hidden bg-gray-100">
+                <img src={coverModal.url} alt="" className="w-full h-full object-cover" />
+              </div>
+            )}
+            <div className="flex justify-end gap-3 pt-2">
+              <button type="button" onClick={() => setCoverModal(null)} className="px-4 py-2 text-sm text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">取消</button>
+              <button type="button" onClick={handleCoverSave} disabled={coverSaving} className="px-4 py-2 bg-slate-900 text-white text-sm rounded-lg hover:bg-slate-800 disabled:opacity-50 transition-colors">{coverSaving ? '保存中...' : '保存'}</button>
+            </div>
+          </div>
         </Modal>
       )}
 

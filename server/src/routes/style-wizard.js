@@ -85,6 +85,7 @@ router.put('/admin/style-select-config', ...wrap(req => svc.updateSelectPageConf
 
 // 品类+子品类
 router.get('/admin/style-categories', ...wrap(() => svc.listCategories().then(ok)));
+router.put('/admin/style-categories/:id', ...wrap(req => svc.updateCategory(Number(req.params.id), req.body || {}).then(ok)));
 router.post('/admin/subcategories', ...wrap201(req => svc.createSubcategory(req.body)));
 router.put('/admin/subcategories/:id', ...wrap(req => svc.updateSubcategory(Number(req.params.id), req.body).then(() => ({ success: true, message: '已更新' }))));
 router.delete('/admin/subcategories/:id', ...wrap(req => svc.deleteSubcategory(Number(req.params.id)).then(() => ({ success: true, message: '已删除' }))));
