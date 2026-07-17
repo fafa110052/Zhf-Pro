@@ -61,6 +61,13 @@
   box-shadow: 0 2rpx 12rpx rgba(61, 50, 38, 0.06);
 }
 
+/* 标题带跟随吸附在进度条下方（110rpx = 进度条高度） */
+.sheet .title-band {
+  position: sticky;
+  top: 110rpx;
+  z-index: 4;
+}
+
 /* ─── Editorial 标题带 ─── */
 .title-band {
   display: flex;
