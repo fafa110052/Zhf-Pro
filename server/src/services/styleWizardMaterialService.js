@@ -40,20 +40,27 @@ const styleWizardMaterialService = {
       old_code, new_code, applicable_scopes, sort_order, style_ids } = fields;
     // 瓷砖类材料以品牌为标题、可不填名称，故名称与品牌至少一项
     if (!subcategory_id || (!name && !brand)) throw Object.assign(new Error('子品类必填，名称与品牌至少填一项'), { status: 400 });
-    const [id] = await db('style_materials').insert({
-      subcategory_id, name: name || '', model: model || null, brand: brand || null,
-      brand_logo: brand_logo || null, image_url: image_url || null,
-      original_price: original_price ?? null, discount_price: discount_price ?? null,
-      specs: specs || null,
-      attributes: attributes ? JSON.stringify(attributes) : null,
-      has_chaise: has_chaise ? 1 : 0,
-      old_code: old_code || null, new_code: new_code || null,
-      applicable_scopes: applicable_scopes ? JSON.stringify(applicable_scopes) : null,
-      sort_order: sort_order || 0,
+    const sort = sort_order || 0;
+    const id = await db.transaction(async (trx) => {
+      // 排序值冲突时，同子品类内 >= 该值的材料整体后移一位（与风格管理一致）
+      const clash = await trx('style_materials').where({ subcategory_id, sort_order: sort }).first();
+      if (clash) await trx('style_materials').where('subcategory_id', subcategory_id).where('sort_order', '>=', sort).increment('sort_order', 1);
+      const [newId] = await trx('style_materials').insert({
+        subcategory_id, name: name || '', model: model || null, brand: brand || null,
+        brand_logo: brand_logo || null, image_url: image_url || null,
+        original_price: original_price ?? null, discount_price: discount_price ?? null,
+        specs: specs || null,
+        attributes: attributes ? JSON.stringify(attributes) : null,
+        has_chaise: has_chaise ? 1 : 0,
+        old_code: old_code || null, new_code: new_code || null,
+        applicable_scopes: applicable_scopes ? JSON.stringify(applicable_scopes) : null,
+        sort_order: sort,
+      });
+      if (style_ids && style_ids.length > 0) {
+        await trx('material_styles').insert(style_ids.map(sid => ({ material_id: newId, style_id: sid })));
+      }
+      return newId;
     });
-    if (style_ids && style_ids.length > 0) {
-      await db('material_styles').insert(style_ids.map(sid => ({ material_id: id, style_id: sid })));
-    }
     return db('style_materials').where('id', id).first();
   },
 
@@ -76,13 +83,24 @@ const styleWizardMaterialService = {
     if (fields.enabled !== undefined) u.enabled = fields.enabled;
     if (fields.attributes !== undefined) u.attributes = JSON.stringify(fields.attributes);
     if (fields.applicable_scopes !== undefined) u.applicable_scopes = JSON.stringify(fields.applicable_scopes);
-    await db('style_materials').where('id', id).update(u);
-    if (fields.style_ids !== undefined) {
-      await db('material_styles').where('material_id', id).del();
-      if (fields.style_ids.length > 0) {
-        await db('material_styles').insert(fields.style_ids.map(sid => ({ material_id: id, style_id: sid })));
+    await db.transaction(async (trx) => {
+      // 改到已被占用的排序值（或换了子品类）时，目标子品类内 >= 该值的材料整体后移一位
+      const subId = u.subcategory_id !== undefined ? u.subcategory_id : ex.subcategory_id;
+      const targetSort = u.sort_order !== undefined ? u.sort_order : ex.sort_order;
+      const sortChanged = u.sort_order !== undefined && u.sort_order !== ex.sort_order;
+      const subChanged = u.subcategory_id !== undefined && u.subcategory_id !== ex.subcategory_id;
+      if (sortChanged || subChanged) {
+        const clash = await trx('style_materials').where({ subcategory_id: subId, sort_order: targetSort }).whereNot('id', id).first();
+        if (clash) await trx('style_materials').where('subcategory_id', subId).where('sort_order', '>=', targetSort).whereNot('id', id).increment('sort_order', 1);
       }
-    }
+      await trx('style_materials').where('id', id).update(u);
+      if (fields.style_ids !== undefined) {
+        await trx('material_styles').where('material_id', id).del();
+        if (fields.style_ids.length > 0) {
+          await trx('material_styles').insert(fields.style_ids.map(sid => ({ material_id: id, style_id: sid })));
+        }
+      }
+    });
     return db('style_materials').where('id', id).first();
   },
 
