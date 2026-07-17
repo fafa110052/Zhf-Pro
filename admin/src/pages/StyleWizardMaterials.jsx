@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import client from '../api/client';
 import Modal from '../components/Modal';
 import ConfirmDialog from '../components/ConfirmDialog';
@@ -91,6 +91,41 @@ export default function StyleWizardMaterials() {
   const [confirmAction, setConfirmAction] = useState(null);
   const [confirmLoading, setConfirmLoading] = useState(false);
 
+  // 图片本地上传（外链图床常有防盗链，自己服务器的图才稳定）
+  const [uploadingField, setUploadingField] = useState('');
+  const logoFileRef = useRef(null);
+  const imageFileRef = useRef(null);
+
+  const handleFileUpload = async (e, field, ref) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) { toast.error('仅支持 JPG/PNG/GIF/WebP 格式'); return; }
+    if (file.size > 10 * 1024 * 1024) { toast.error('图片大小不能超过 10MB'); return; }
+    setUploadingField(field);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const token = localStorage.getItem('admin_token');
+      const res = await fetch('/api/v1/upload?category=materials', {
+        method: 'POST',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        body: formData,
+      });
+      const data = await res.json();
+      if (data.success) {
+        setForm((prev) => ({ ...prev, [field]: data.data.image_url }));
+        toast.success('图片上传成功');
+      } else {
+        toast.error(data.error?.message || '上传失败');
+      }
+    } catch (err) { toast.error('图片上传失败，请检查网络'); }
+    finally {
+      setUploadingField('');
+      if (ref.current) ref.current.value = '';
+    }
+  };
+
   const fetchList = useCallback(async (params) => {
     setLoading(true); setError('');
     try {
@@ -146,6 +181,7 @@ export default function StyleWizardMaterials() {
   const tpl = parseTemplate(selectedSub);
   const isSofa = !!selectedSub?.name?.includes('沙发');
   const isDecoration = selectedCat?.name === '装饰定制';
+  const isTile = selectedCat?.page_number === 1; // 瓷砖选材：标题行显示品牌+logo，名称非必填
 
   const openAdd = () => {
     setModalMode('add'); setEditingId(null);
@@ -196,7 +232,13 @@ export default function StyleWizardMaterials() {
   const validateForm = () => {
     const errs = {};
     if (!form.subcategory_id) errs.subcategory_id = '请选择子品类';
-    if (!form.name.trim()) errs.name = '请输入材料名称';
+    if (isTile) {
+      // 瓷砖：小程序标题行 = 品牌logo + 品牌名，故品牌和 logo 必填、名称可空
+      if (!form.brand.trim()) errs.brand = '请输入品牌';
+      if (!form.brand_logo.trim()) errs.brand_logo = '请上传品牌 Logo';
+    } else if (!form.name.trim()) {
+      errs.name = '请输入材料名称';
+    }
     if (!tpl.keys && tpl.invalid && form.attr_raw.trim()) {
       try {
         const parsed = JSON.parse(form.attr_raw);
@@ -257,7 +299,7 @@ export default function StyleWizardMaterials() {
   const handleDelete = (row) => {
     setConfirmAction({
       title: '删除材料',
-      message: `确定要删除材料「${row.name}」吗？删除后其风格关联也会一并移除，不可恢复。`,
+      message: `确定要删除材料「${row.name || row.brand}」吗？删除后其风格关联也会一并移除，不可恢复。`,
       variant: 'danger', confirmText: '确认删除',
       action: async () => {
         setConfirmLoading(true);
@@ -344,7 +386,7 @@ export default function StyleWizardMaterials() {
                             : <div className="w-full h-full flex items-center justify-center text-gray-300">🧱</div>}
                         </div>
                       </td>
-                      <td className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap">{m.name}</td>
+                      <td className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap">{m.name || m.brand || '—'}</td>
                       <td className="px-4 py-3 text-gray-600 whitespace-nowrap">{m.brand || '—'}</td>
                       <td className="px-4 py-3 text-gray-500 whitespace-nowrap">{m.model || '—'}</td>
                       <td className="px-4 py-3 text-gray-600 whitespace-nowrap">{m.category_name || '—'}</td>
@@ -392,25 +434,43 @@ export default function StyleWizardMaterials() {
                   {formErrors.subcategory_id && <p className="text-red-500 text-xs mt-1">{formErrors.subcategory_id}</p>}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">材料名称 *</label>
-                  <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className={INPUT_CLS} maxLength={128} placeholder="如：原木风三人沙发" />
-                  {formErrors.name && <p className="text-red-500 text-xs mt-1">{formErrors.name}</p>}
+                  <label className="block text-sm font-medium text-gray-700 mb-1">材料名称{isTile ? '' : ' *'}</label>
+                  <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className={INPUT_CLS} maxLength={128} placeholder={isTile ? '瓷砖可不填' : '如：原木风三人沙发'} />
+                  {formErrors.name
+                    ? <p className="text-red-500 text-xs mt-1">{formErrors.name}</p>
+                    : isTile && <p className="text-xs text-gray-400 mt-1">瓷砖无需名称，小程序标题行直接显示品牌 Logo + 品牌名</p>}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">品牌</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">品牌{isTile ? ' *' : ''}</label>
                   <input value={form.brand} onChange={(e) => setForm({ ...form, brand: e.target.value })} className={INPUT_CLS} maxLength={64} />
+                  {formErrors.brand && <p className="text-red-500 text-xs mt-1">{formErrors.brand}</p>}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">型号</label>
                   <input value={form.model} onChange={(e) => setForm({ ...form, model: e.target.value })} className={INPUT_CLS} maxLength={128} />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">品牌 Logo URL</label>
-                  <input value={form.brand_logo} onChange={(e) => setForm({ ...form, brand_logo: e.target.value })} className={INPUT_CLS} placeholder="https://... 或 /uploads/..." />
+                  <label className="block text-sm font-medium text-gray-700 mb-1">品牌 Logo{isTile ? ' *' : ''}</label>
+                  <div className="flex gap-2">
+                    <input value={form.brand_logo} onChange={(e) => setForm({ ...form, brand_logo: e.target.value })} className={`${INPUT_CLS} flex-1`} placeholder="点击右侧按钮上传" />
+                    <button type="button" onClick={() => logoFileRef.current?.click()} disabled={uploadingField === 'brand_logo'}
+                      className="px-3 py-2 bg-white border border-gray-300 text-gray-600 text-sm rounded-lg hover:bg-gray-50 disabled:opacity-50 transition-colors whitespace-nowrap">
+                      {uploadingField === 'brand_logo' ? '上传中...' : '本地上传'}
+                    </button>
+                    <input ref={logoFileRef} type="file" accept="image/jpeg,image/png,image/gif,image/webp" className="hidden" onChange={(e) => handleFileUpload(e, 'brand_logo', logoFileRef)} />
+                  </div>
+                  {formErrors.brand_logo && <p className="text-red-500 text-xs mt-1">{formErrors.brand_logo}</p>}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">图片 URL</label>
-                  <input value={form.image_url} onChange={(e) => setForm({ ...form, image_url: e.target.value })} className={INPUT_CLS} placeholder="https://... 或 /uploads/..." />
+                  <div className="flex gap-2">
+                    <input value={form.image_url} onChange={(e) => setForm({ ...form, image_url: e.target.value })} className={`${INPUT_CLS} flex-1`} placeholder="点击右侧按钮上传" />
+                    <button type="button" onClick={() => imageFileRef.current?.click()} disabled={uploadingField === 'image_url'}
+                      className="px-3 py-2 bg-white border border-gray-300 text-gray-600 text-sm rounded-lg hover:bg-gray-50 disabled:opacity-50 transition-colors whitespace-nowrap">
+                      {uploadingField === 'image_url' ? '上传中...' : '本地上传'}
+                    </button>
+                    <input ref={imageFileRef} type="file" accept="image/jpeg,image/png,image/gif,image/webp" className="hidden" onChange={(e) => handleFileUpload(e, 'image_url', imageFileRef)} />
+                  </div>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">原价（元）</label>

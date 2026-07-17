@@ -180,6 +180,21 @@
   color: #1A1A1A;
 }
 
+/* 无名称材料（瓷砖类）：品牌logo + 品牌名作标题行 */
+.mat-brand-row {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+}
+
+.mat-logo {
+  width: 40rpx;
+  height: 40rpx;
+  flex-shrink: 0;
+  border-radius: 6rpx;
+  background: #f0ece5;
+}
+
 .mat-brand {
   font-size: 22rpx;
   color: #6B7280;

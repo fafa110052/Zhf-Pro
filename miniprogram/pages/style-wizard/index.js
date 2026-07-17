@@ -385,7 +385,7 @@ Page({
     const entry = Object.assign({
       kind: 'material',
       id: mat.id,
-      name: mat.name,
+      name: mat.name || mat.brand, // 瓷砖类无名称，回退品牌作标题（选中标签/总结页/快照共用）
       image_url: mat.image_url,
       brand: mat.brand,
       model: mat.model,
@@ -567,7 +567,7 @@ Page({
     const sel = this.data.selections['sub_' + subId];
     this._lightboxSubId = subId;
     this.setData({
-      lightboxImages: mats.map((m) => ({ id: m.id, url: m.image_url, name: m.name })),
+      lightboxImages: mats.map((m) => ({ id: m.id, url: m.image_url, name: m.name || m.brand })),
       lightboxIndex: index,
       lightboxSelectedId: sel && sel.kind === 'material' ? sel.id : null,
       lightboxVisible: true,
