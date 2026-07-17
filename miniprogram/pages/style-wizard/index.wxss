@@ -5,6 +5,7 @@
   min-height: 100vh;
   background: #FAF8F5;
   padding-bottom: 200rpx;
+  box-sizing: border-box; /* 内容不足一屏时页面不产生多余滚动 */
 }
 
 /* ─── 品类头图（折叠交互） ─── */
@@ -46,7 +47,8 @@
 
 .sheet.has-hero {
   margin-top: 340rpx;
-  min-height: 100vh;
+  /* 高度刚好推顶吸附即止：内容不超出时滑不到标题下方，超出多少才能再滑多少 */
+  min-height: calc(100vh - 200rpx);
   border-radius: 32rpx 32rpx 0 0;
   box-shadow: 0 -12rpx 40rpx rgba(61, 50, 38, 0.12);
 }
