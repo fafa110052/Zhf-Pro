@@ -9,6 +9,7 @@ Page({
     error: false,
     styles: [],
     header: { image_url: '', title: '选择你的装修风格', subtitle: 'CHOOSE YOUR STYLE' },
+    qrModal: { show: false, url: '' },
   },
 
   onLoad() {
@@ -80,10 +81,13 @@ Page({
       });
       return;
     }
-    // 非酷家乐链接：全屏展示后端生成的二维码，长按识别即可在微信内观看
-    wx.previewImage({
-      urls: [util.fullImageUrl(`/api/v1/styles/${id}/vr-qrcode`)],
-      showmenu: true,
-    });
+    // 非酷家乐链接：弹窗展示二维码，长按识别进入全景
+    this.setData({ qrModal: { show: true, url: util.fullImageUrl(`/api/v1/styles/${id}/vr-qrcode`) } });
   },
+
+  onCloseQr() {
+    this.setData({ 'qrModal.show': false });
+  },
+
+  noop() {},
 });

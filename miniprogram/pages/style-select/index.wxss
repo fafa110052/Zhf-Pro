@@ -233,3 +233,88 @@
   font-size: 26rpx;
   color: #C9A96E;
 }
+
+/* ─── VR 二维码弹窗 ─── */
+.qr-mask {
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(30, 24, 16, 0.55);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: qr-fade-in 0.2s ease-out both;
+}
+
+@keyframes qr-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.qr-card {
+  width: 560rpx;
+  background: #FFFFFF;
+  border-radius: 24rpx;
+  padding: 48rpx 40rpx 40rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: qr-card-in 0.25s ease-out both;
+}
+
+@keyframes qr-card-in {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.qr-title {
+  font-size: 34rpx;
+  font-weight: 700;
+  letter-spacing: 2rpx;
+  color: #3D3226;
+}
+
+.qr-divider {
+  width: 56rpx;
+  height: 4rpx;
+  background: #C9A96E;
+  border-radius: 2rpx;
+  margin: 16rpx 0 28rpx;
+}
+
+.qr-img {
+  width: 400rpx;
+  height: 400rpx;
+}
+
+.qr-hint {
+  margin-top: 24rpx;
+  font-size: 24rpx;
+  color: #8C6F47;
+}
+
+.qr-close-btn {
+  margin-top: 32rpx;
+  width: 100%;
+  height: 80rpx;
+  line-height: 80rpx;
+  text-align: center;
+  background: #C9A96E;
+  color: #FFFFFF;
+  font-size: 28rpx;
+  font-weight: 600;
+  border-radius: 40rpx;
+}
+
+.qr-close-btn:active {
+  opacity: 0.85;
+}
