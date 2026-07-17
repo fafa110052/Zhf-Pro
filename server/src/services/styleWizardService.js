@@ -14,11 +14,18 @@ const styleWizardService = {
   },
   async createStyle({ name, cover_image, description, sort_order, enabled }) {
     if (!name) throw Object.assign(new Error('风格名称不能为空'), { status: 400 });
-    const [id] = await db('styles').insert({
-      name, cover_image: cover_image || null,
-      description: description || null,
-      sort_order: sort_order !== undefined ? sort_order : 0,
-      enabled: enabled !== undefined ? enabled : true,
+    const sort = sort_order !== undefined ? sort_order : 0;
+    const id = await db.transaction(async (trx) => {
+      // 排序值冲突时，原有 >= 该值的风格整体后移一位，保证排序唯一
+      const clash = await trx('styles').where('sort_order', sort).first();
+      if (clash) await trx('styles').where('sort_order', '>=', sort).increment('sort_order', 1);
+      const [newId] = await trx('styles').insert({
+        name, cover_image: cover_image || null,
+        description: description || null,
+        sort_order: sort,
+        enabled: enabled !== undefined ? enabled : true,
+      });
+      return newId;
     });
     return db('styles').where('id', id).first();
   },
@@ -31,7 +38,14 @@ const styleWizardService = {
     if (fields.description !== undefined) u.description = fields.description;
     if (fields.sort_order !== undefined) u.sort_order = fields.sort_order;
     if (fields.enabled !== undefined) u.enabled = fields.enabled;
-    await db('styles').where('id', id).update(u);
+    await db.transaction(async (trx) => {
+      // 改到已被占用的排序值时，其余 >= 该值的风格整体后移一位
+      if (u.sort_order !== undefined && u.sort_order !== ex.sort_order) {
+        const clash = await trx('styles').where('sort_order', u.sort_order).whereNot('id', id).first();
+        if (clash) await trx('styles').where('sort_order', '>=', u.sort_order).whereNot('id', id).increment('sort_order', 1);
+      }
+      await trx('styles').where('id', id).update(u);
+    });
     return db('styles').where('id', id).first();
   },
   async deleteStyle(id) {
