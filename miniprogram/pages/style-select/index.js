@@ -65,16 +65,30 @@ Page({
     wx.navigateTo({ url: `/pages/style-wizard/index?style_id=${id}&step=1` });
   },
 
-  // VR 看房：跳转全景720小程序（与作品详情页一致）
+  // VR 看房：酷家乐链接跳全景720小程序；其他平台链接复制后引导浏览器打开
   onTapVR(e) {
     const vrUrl = e.currentTarget.dataset.url;
     if (!vrUrl) return;
-    wx.navigateToMiniProgram({
-      appId: 'wxc2d8d319dfc12a95',
-      path: 'pages/design-detail/pano/pano?url=' + encodeURIComponent(vrUrl),
-      envVersion: 'release',
-      fail() {
-        wx.showToast({ title: '打开失败，请稍后重试', icon: 'none' });
+    if (vrUrl.indexOf('kujiale.com') > -1) {
+      wx.navigateToMiniProgram({
+        appId: 'wxc2d8d319dfc12a95',
+        path: 'pages/design-detail/pano/pano?url=' + encodeURIComponent(vrUrl),
+        envVersion: 'release',
+        fail() {
+          wx.showToast({ title: '打开失败，请稍后重试', icon: 'none' });
+        },
+      });
+      return;
+    }
+    wx.setClipboardData({
+      data: vrUrl,
+      success() {
+        wx.showModal({
+          title: 'VR看房',
+          content: 'VR链接已复制，请打开手机浏览器，粘贴到地址栏观看全景',
+          showCancel: false,
+          confirmText: '知道了',
+        });
       },
     });
   },
