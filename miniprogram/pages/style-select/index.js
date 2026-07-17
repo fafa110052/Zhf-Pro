@@ -8,7 +8,6 @@ Page({
     loading: true,
     error: false,
     styles: [],
-    selectedId: null,
   },
 
   onLoad() {
@@ -49,16 +48,10 @@ Page({
     this.loadStyles();
   },
 
-  onSelectStyle(e) {
+  // 点击风格卡片直接进入向导
+  onTapStyle(e) {
     const id = e.currentTarget.dataset.id;
-    this.setData({ selectedId: id === this.data.selectedId ? null : id });
-  },
-
-  onStartWizard() {
-    if (!this.data.selectedId) {
-      wx.showToast({ title: '请先选择风格', icon: 'none' });
-      return;
-    }
-    wx.navigateTo({ url: `/pages/style-wizard/index?style_id=${this.data.selectedId}&step=1` });
+    if (!id) return;
+    wx.navigateTo({ url: `/pages/style-wizard/index?style_id=${id}&step=1` });
   },
 });

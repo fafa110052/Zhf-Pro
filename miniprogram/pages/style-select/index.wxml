@@ -10,50 +10,42 @@
     </view>
 
     <block wx:else>
-      <!-- 画册式页眉 -->
+      <!-- 卡片式页眉（居中） -->
       <view class="editorial-header">
-        <view class="header-bar"></view>
-        <text class="header-title">选择你的装修风格</text>
-        <text class="header-subtitle">CHOOSE YOUR STYLE</text>
+        <view class="header-card">
+          <text class="header-title">选择你的装修风格</text>
+          <view class="header-divider"></view>
+          <text class="header-subtitle">CHOOSE YOUR STYLE</text>
+        </view>
       </view>
 
-      <!-- 风格卡片列表 -->
+      <!-- 风格卡片列表：图片卡 + 错位文字小卡片，点击直接进入向导 -->
       <view wx:if="{{styles.length > 0}}" class="style-list">
         <view
           wx:for="{{styles}}"
           wx:key="id"
-          class="style-card {{item.id === selectedId ? 'is-selected' : ''}}"
+          class="style-item {{index % 2 === 1 ? 'is-even' : ''}}"
+          style="animation-delay: {{index * 60}}ms;"
           data-id="{{item.id}}"
-          bindtap="onSelectStyle"
+          bindtap="onTapStyle"
         >
-          <image class="card-image" src="{{item.cover_image}}" mode="aspectFill" lazy-load />
-          <!-- 底部渐变叠底 -->
-          <view class="card-gradient"></view>
-          <!-- 文字信息 -->
-          <view class="card-info">
-            <text class="card-name">{{item.name}}</text>
-            <text wx:if="{{item.description}}" class="card-desc">{{item.description}}</text>
+          <view class="card-image-wrap">
+            <image class="card-image" src="{{item.cover_image}}" mode="aspectFill" lazy-load />
           </view>
-          <!-- 选中标记 -->
-          <image
-            wx:if="{{item.id === selectedId}}"
-            class="selected-badge"
-            src="/assets/icons/selected-mark.svg"
-            mode="aspectFit"
-          />
+          <!-- 错位文字小卡片 -->
+          <view class="info-chip">
+            <view class="chip-text">
+              <text class="card-name">{{item.name}}</text>
+              <text wx:if="{{item.description}}" class="card-desc">{{item.description}}</text>
+            </view>
+            <view class="chip-arrow"></view>
+          </view>
         </view>
       </view>
 
       <!-- 空状态 -->
       <view wx:if="{{styles.length === 0}}" class="empty-state">
         <text class="empty-title">风格准备中，敬请期待</text>
-      </view>
-
-      <!-- 底部固定操作栏 -->
-      <view wx:if="{{selectedId}}" class="bottom-bar">
-        <view class="start-btn" bindtap="onStartWizard">
-          <text>开始选材</text>
-        </view>
       </view>
     </block>
   </block>

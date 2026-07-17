@@ -1,118 +1,143 @@
 /**
  * 风格选择页样式 — 杂志画册式（暖白奢华）
+ * 标题色 #3D3226（深棕，与 tabBar 选中色呼应，对比度 ~12:1）
  */
 .page {
   min-height: 100vh;
   background: #FAF8F5;
-  padding-bottom: 160rpx;
+  padding-bottom: 48rpx;
 }
 
-/* ─── 画册式页眉 ─── */
+/* ─── 卡片式页眉（居中） ─── */
 .editorial-header {
-  padding: 24rpx 32rpx 32rpx;
+  padding: 32rpx 32rpx 16rpx;
 }
 
-.header-bar {
-  height: 8rpx;
-  background: #1A1A1A;
-  border-top: 2rpx solid #C9A96E;
-  border-bottom: 2rpx solid #C9A96E;
-  margin-bottom: 32rpx;
+.header-card {
+  background: #FFFFFF;
+  border-radius: 20rpx;
+  padding: 44rpx 32rpx 40rpx;
+  text-align: center;
+  box-shadow: 0 6rpx 24rpx rgba(61, 50, 38, 0.06);
 }
 
 .header-title {
   display: block;
   font-size: 40rpx;
   font-weight: 700;
-  color: #1A1A1A;
+  letter-spacing: 2rpx;
+  color: #3D3226;
   line-height: 1.4;
+}
+
+.header-divider {
+  width: 56rpx;
+  height: 4rpx;
+  background: #C9A96E;
+  border-radius: 2rpx;
+  margin: 18rpx auto 14rpx;
 }
 
 .header-subtitle {
   display: block;
-  margin-top: 8rpx;
   font-size: 22rpx;
-  letter-spacing: 4rpx;
-  color: #9CA3AF;
+  letter-spacing: 6rpx;
+  color: #8C6F47;
 }
 
 /* ─── 风格卡片列表 ─── */
 .style-list {
-  padding: 0 24rpx;
+  padding: 24rpx 24rpx 0;
 }
 
-.style-card {
-  position: relative;
+/* 单项 = 图片卡 + 错位文字小卡片；级联入场 */
+.style-item {
+  margin-bottom: 44rpx;
+  transition: transform 0.2s ease;
+  animation: item-in 0.45s ease-out both;
+}
+
+.style-item:active {
+  transform: scale(0.985);
+}
+
+@keyframes item-in {
+  from {
+    opacity: 0;
+    transform: translateY(24rpx);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.card-image-wrap {
   width: 100%;
-  height: 480rpx;
-  border-radius: 16rpx;
+  height: 440rpx;
+  border-radius: 20rpx;
   overflow: hidden;
-  border: 3rpx solid transparent;
-  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
-  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.06);
-  background: #ffffff;
-}
-
-/* 翻画册层叠感：后续卡片轻微上叠 */
-.style-card + .style-card {
-  margin-top: -16rpx;
-}
-
-.style-card.is-selected {
-  border-color: #C9A96E;
-  transform: translateY(-4rpx);
-  box-shadow: 0 8rpx 32rpx rgba(201, 169, 110, 0.35);
-  z-index: 1;
+  background: #f5f0e8;
+  box-shadow: 0 8rpx 28rpx rgba(61, 50, 38, 0.10);
 }
 
 .card-image {
   width: 100%;
   height: 100%;
   display: block;
-  background: #f5f0e8;
 }
 
-/* 底部渐变叠底：透明 → 米白 */
-.card-gradient {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 200rpx;
-  background: linear-gradient(to bottom, rgba(250, 248, 245, 0), #FAF8F5);
+/* 错位文字小卡片：叠压图片下缘，左右交替 */
+.info-chip {
+  position: relative;
+  margin-top: -56rpx;
+  margin-left: 24rpx;
+  width: 78%;
+  display: flex;
+  align-items: center;
+  background: #FFFFFF;
+  border-left: 6rpx solid #C9A96E;
+  border-radius: 16rpx;
+  padding: 24rpx 28rpx;
+  box-shadow: 0 8rpx 24rpx rgba(61, 50, 38, 0.12);
 }
 
-.card-info {
-  position: absolute;
-  left: 32rpx;
-  right: 32rpx;
-  bottom: 24rpx;
+.style-item.is-even .info-chip {
+  margin-left: auto;
+  margin-right: 24rpx;
+}
+
+.chip-text {
+  flex: 1;
+  min-width: 0;
 }
 
 .card-name {
   display: block;
-  font-size: 36rpx;
+  font-size: 32rpx;
   font-weight: 700;
-  color: #1A1A1A;
+  color: #3D3226;
 }
 
 .card-desc {
   display: block;
-  margin-top: 4rpx;
-  font-size: 24rpx;
+  margin-top: 6rpx;
+  font-size: 22rpx;
   color: #6B7280;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-/* 选中标记 */
-.selected-badge {
-  position: absolute;
-  top: 20rpx;
-  right: 20rpx;
-  width: 48rpx;
-  height: 48rpx;
+/* CSS 绘制的金色箭头（免图标资源） */
+.chip-arrow {
+  flex-shrink: 0;
+  width: 18rpx;
+  height: 18rpx;
+  margin-left: 20rpx;
+  border-top: 4rpx solid #C9A96E;
+  border-right: 4rpx solid #C9A96E;
+  transform: rotate(45deg);
 }
 
 /* ─── 空状态 ─── */
@@ -146,33 +171,4 @@
   border-radius: 40rpx;
   font-size: 26rpx;
   color: #C9A96E;
-}
-
-/* ─── 底部固定操作栏 ─── */
-.bottom-bar {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  padding: 16rpx 32rpx;
-  padding-bottom: calc(16rpx + env(safe-area-inset-bottom));
-  background: rgba(250, 248, 245, 0.95);
-  z-index: 10;
-}
-
-.start-btn {
-  height: 96rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #C9A96E, #B8944E);
-  border-radius: 48rpx;
-  font-size: 32rpx;
-  font-weight: 600;
-  color: #ffffff;
-  box-shadow: 0 8rpx 24rpx rgba(201, 169, 110, 0.4);
-}
-
-.start-btn:active {
-  opacity: 0.85;
 }
