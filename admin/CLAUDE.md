@@ -10,7 +10,7 @@ admin/src/
 ├── App.jsx             # AuthProvider + RouterProvider
 ├── index.css           # Tailwind, PingFang SC 字体
 ├── api/client.js       # Axios 实例（baseURL=/api/v1, Bearer 拦截器, 自动解包 .data）
-├── router/index.jsx    # 20 条路由
+├── router/index.jsx    # 26 条路由
 ├── contexts/AuthContext.jsx  # 认证上下文
 ├── hooks/useKeyboardNav.js   # Ctrl/Cmd 快捷键
 ├── components/
@@ -23,7 +23,7 @@ admin/src/
 │   ├── EmptyState.jsx  # 空状态（prop: description 不是 desc）
 │   ├── ErrorState.jsx  # 错误+重试
 │   └── Toast.jsx       # Toast 通知（useToast）
-└── pages/              # 18 个页面
+└── pages/              # 24 个页面
 ```
 
 ## 路由 + 菜单（MENU_ITEMS）
@@ -45,7 +45,15 @@ admin/src/
 | `/categories` | Categories | 分类字典 | 标签 |
 | `/images` | Images | 图片库 | 图片 |
 | `/settings` | Settings | 系统设置 | 齿轮 |
+| `/style-wizard/styles` | StyleWizardStyles | 风格管理 | 滚筒刷 |
+| `/style-wizard/categories` | StyleWizardCategories | 品类管理 | 标签 |
+| `/style-wizard/materials` | StyleWizardMaterials | 材料管理 | 立方体 |
+| `/style-wizard/doors` | StyleWizardDoors | 门系列管理 | 门 |
+| `/style-wizard/lighting` | StyleWizardLighting | 灯具套餐 | 灯泡 |
+| `/style-wizard/orders` | StyleWizardOrders | 选材单管理 | 清单 |
 | `/accounts` | 重定向到 /designers | — | — |
+
+`/style-wizard/*` 6 页在侧边栏归于菜单分组「风格选材」（二级子菜单）。
 
 ## 新增页面检查清单
 
@@ -136,3 +144,4 @@ admin/src/
 - Modal 必须显式传 `open`，否则不显示
 - EmptyState prop 是 `description`，不是 `desc`
 - React 中不用 `<text>`，用 `<span>`
+- HeaderBar 面包屑有 FULL_PATH_MAP（全路径优先于段名映射），`/style-wizard/categories` ≠ `/categories`

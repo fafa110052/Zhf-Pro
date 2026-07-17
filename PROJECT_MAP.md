@@ -9,9 +9,9 @@
 
 | 项目 | 入口文档 | 部署路径 | 用途 |
 |------|---------|---------|------|
-| 后端 | [server/CLAUDE.md](server/CLAUDE.md) | `server/src/` | Express 5 API，SQLite，19 路由模块，21 张表 |
-| 管理后台 | [admin/CLAUDE.md](admin/CLAUDE.md) | `admin/src/` | React 19 + Tailwind 4，18 个页面 |
-| 小程序 | [miniprogram/CLAUDE.md](miniprogram/CLAUDE.md) | `miniprogram/` | 微信原生，4 tab，26 个页面 |
+| 后端 | [server/CLAUDE.md](server/CLAUDE.md) | `server/src/` | Express 5 API，SQLite，20 路由模块，33 张表 |
+| 管理后台 | [admin/CLAUDE.md](admin/CLAUDE.md) | `admin/src/` | React 19 + Tailwind 4，24 个页面 |
+| 小程序 | [miniprogram/CLAUDE.md](miniprogram/CLAUDE.md) | `miniprogram/` | 微信原生，5 tab，30 个页面 |
 | 摇一摇抽奖 | [lottery_replica/CLAUDE.md](lottery_replica/CLAUDE.md) | `lottery_replica/lottery_clean/` | 静态 H5，托管于 `/lottery/` |
 
 ## 环境配置
@@ -61,6 +61,7 @@
 - **作品编辑**：后台 `PUT /admin/works/:id` 直接生效不重审；`designer_id`/`review_status` 不可改；删旧图在保存成功之后、被引用则跳过
 - **两套分类**：`categories`（作品分类）≠ `material_categories`（材料分类）
 - **VR 看房**：作品 `vr_url` 存酷家乐链接；小程序 `wx.navigateToMiniProgram("全景720")` 打开；web-view 中转不可行（微信拦截 iframe 内小程序跳转）
+- **风格选材向导**：独立于旧选材（`style-` 前缀路由+12张新表）；六风格→七步向导→草稿续选→优惠价总结提交；selections 经 `globalData.styleWizardHandoff` 交接
 
 ## 新增功能 — 文件修改检查清单
 

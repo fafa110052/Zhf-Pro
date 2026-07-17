@@ -11,13 +11,13 @@ server/src/
 ├── config/index.js     # JWT_SECRET, PORT(3000), uploadDir, wechat
 ├── db/
 │   ├── connection.js   # Knex + better-sqlite3 实例
-│   └── migrations/     # 14 个迁移文件（001–013，含两个 006）
+│   └── migrations/     # 15 个迁移文件（001–014，含两个 006）
 ├── middleware/
 │   ├── auth.js         # authenticate + requireRole + requirePersonnelType
 │   ├── upload.js       # Multer 配置（存储+过滤+文件命名）
 │   └── validate.js     # requireFields / idParam / pagination
-├── routes/             # 19 个路由模块
-└── services/           # 22 个 Service 文件
+├── routes/             # 20 个路由模块
+└── services/           # 24 个 Service 文件
 ```
 
 ## 中间件栈（app.js 顺序）
@@ -29,6 +29,7 @@ server/src/
 - **公开**：`/api/v1/<resource>`
 - **管理端**：`/api/v1/admin/<resource>` + `authenticate` + `requireRole('admin')`
 - **角色接口**：`/api/v1/designer/...` 或 `/api/v1/engineer/...` + `requirePersonnelType(...)`
+- 风格选材与旧系统重名路径加 `style-` 前缀：`/style-categories`、`/admin/style-materials`（旧 `/categories`、`/admin/materials` 被老路由占用）
 
 ### 路由文件速查
 
@@ -52,6 +53,7 @@ server/src/
 | `lottery.js` | `/api/v1` | 摇一摇抽奖：抽奖 + 中奖记录 + 配置 |
 | `design-team.js` | `/api/v1` | 设计团队展示 |
 | `reports.js` | `/api/v1` | 作品举报：公开提交 + 管理处理 |
+| `style-wizard.js` | `/api/v1` | 风格选材向导：风格/品类/材料/门系列/灯具套餐/草稿/选材单，公开+管理 |
 | `reviews.js` | — | 已弃用，空文件占位 |
 
 ## Service 规范
@@ -60,7 +62,7 @@ server/src/
 - 错误：`throw Object.assign(new Error('中文消息'), { status: 400 })`
 - SQLite 错误映射（app.js）：UNIQUE → "已存在"，FOREIGNKEY → "被引用无法删除"
 
-## 数据库（21 张表）
+## 数据库（33 张表）
 
 | 表 | 用途 |
 |---|------|
@@ -82,6 +84,10 @@ server/src/
 | `lottery_users/records/prizes/config` | 摇一摇抽奖（身份/记录/奖品/配置） |
 | `design_team` | 设计团队成员 |
 | `reports` | 作品举报 |
+| `styles / style_categories / style_subcategories / style_materials / material_styles` | 风格选材：风格、7品类、子品类、材料（JSON弹性属性）、材料-风格关联 |
+| `door_series / door_colors / door_materials` | 门系列→颜色→门材料（系列×颜色×风格） |
+| `lighting_packages / lighting_package_items` | 灯具套餐+5件明细 |
+| `selection_drafts / selection_orders` | 选材草稿（每用户一份）+选材单（items JSON快照） |
 
 ## 响应格式
 

@@ -2,7 +2,7 @@
 
 ## 技术栈
 
-微信原生框架，4 tab：首页 → 分类 → 在线选材 → 我的
+微信原生框架，5 tab：首页 → 作品 → 在线选材 → 风格选材 → 我的
 
 ```
 miniprogram/
@@ -10,8 +10,8 @@ miniprogram/
 ├── app.json            # 页面注册 + tabBar + 窗口配置 + navigateToMiniProgramAppIdList
 ├── app.wxss            # 全局样式
 ├── env.js              # BASE_URL（切换环境只改这个文件）
-├── pages/              # 26 个页面
-├── components/         # 4 个可用组件（swiper-banner/work-card/empty-state/loading-more）
+├── pages/              # 30 个页面
+├── components/         # 7 个可用组件（swiper-banner/work-card/empty-state/loading-more/accordion-card/progress-steps/image-lightbox）
 ├── utils/
 │   ├── constants.js    # BASE_URL + API 前缀 + 状态映射 + TEMPLATE_IDS
 │   ├── request.js      # HTTP 封装（auth/silent/loading）
@@ -20,11 +20,11 @@ miniprogram/
 └── images/             # tabBar 图标
 ```
 
-## Tab Bar（4 tab）
+## Tab Bar（5 tab）
 
-| 首页 | 分类 | 在线选材 | 我的 |
-|------|------|---------|------|
-| `pages/index/index` | `pages/category/index` | `pages/material-properties/index` | `pages/mine/index` |
+| 首页 | 作品 | 在线选材 | 风格选材 | 我的 |
+|------|------|---------|---------|------|
+| `pages/index/index` | `pages/category/index` | `pages/material-properties/index` | `pages/style-select/index` | `pages/mine/index` |
 
 导航栏：`#1e293b` 背景，白字，标题"住好房装修"。
 
@@ -118,6 +118,7 @@ URL = `BASE_URL + API_PREFIX + url`（如 `http://test.wzzhfservice.cloud/api/v1
 | 上传 | `uploadImage` / `uploadImages` | `/upload` |
 | 选材 | `getProperties` / `getPropertyMaterials` / `submitMaterialOrder` / `getMyMaterialOrders` / `getOwnerCheck` | `/properties*` `/material-orders*` |
 | 施工 | `getOrderPhases` / `getPhaseDetail` / `getDesignerPhases` / `uploadDesignImages` / `approveDesignDirector` / `getEngineerPhases` / `uploadConstructionImages` / `acceptPhase` / `disputePhase` 等 | `/construction-phases*` |
+| 风格选材 | `getStyles` / `getStyleCategories` / `getStyleMaterials` / `getDoorSeries` / `getDoorMaterials` / `getLightingPackages` / `saveDraft` / `getDraft` / `submitStyleOrder` / `getMyStyleOrders` | `/styles*` `/style-categories` `/door-*` `/lighting-packages` `/drafts` `/orders` |
 
 ## 状态映射（constants.js）
 
@@ -161,3 +162,5 @@ onTapVR() {
 - switchTab 不能传参 → 用 `app.globalData` 做一次性消息总线
 - 登录路由优先级：`role === 'owner'` 最先判断
 - 设计师中心 `loadProfile()` 必须包含 `personnel_type` 并设置 `app.globalData.personnelType`
+- `api.js` 函数返回已解包 payload（request.js 剥离 `{success,data}` envelope），不要再访问 `.data`
+- 卫生间门/沙发子品类按名称子串驱动锁向/贵妃交互，后台不可改名
