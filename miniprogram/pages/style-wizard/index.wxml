@@ -33,7 +33,10 @@
             bind:toggle="onToggleSub"
           >
             <view wx:if="{{loadingSubId === item.id}}" class="body-hint">加载中…</view>
-            <view wx:elif="{{errorSubId === item.id}}" class="body-retry" data-sub-id="{{item.id}}" catchtap="onRetryMaterials">加载失败，点此重试</view>
+            <block wx:elif="{{errorSubId === item.id}}">
+              <view class="body-retry" data-sub-id="{{item.id}}" catchtap="onRetryMaterials">加载失败，点此重试</view>
+              <view class="skip-btn" data-sub-id="{{item.id}}" catchtap="onSkipSub">此项不选</view>
+            </block>
             <block wx:else>
               <view wx:if="{{!materialsCache['s' + item.id].length}}" class="body-hint">暂无可选材料</view>
               <view wx:else class="material-grid">

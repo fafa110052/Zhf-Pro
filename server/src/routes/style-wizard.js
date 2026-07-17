@@ -109,13 +109,19 @@ router.delete('/admin/lighting-packages/:id', ...wrap(req => svc.deleteLightingP
 router.get('/admin/orders', ...wrap(req => svc.listOrders({ status: req.query.status }, { page: req.query.page, page_size: req.query.page_size }).then(ok)));
 router.get('/admin/orders/:id', ...wrap(req => svc.getOrder(Number(req.params.id)).then(ok)));
 router.put('/admin/orders/:id', ...wrap(async (req) => {
+  const id = Number(req.params.id);
+  const exists = await db('selection_orders').where('id', id).first('id');
+  if (!exists) throw Object.assign(new Error('订单不存在'), { status: 404 });
   const { status, designer_id, supervisor_id } = req.body;
+  if (status && !['pending', 'contacted', 'completed'].includes(status)) {
+    throw Object.assign(new Error('无效状态'), { status: 400 });
+  }
   const u = {};
   if (status) u.status = status;
   if (designer_id !== undefined) u.designer_id = designer_id;
   if (supervisor_id !== undefined) u.supervisor_id = supervisor_id;
   if (Object.keys(u).length === 0) return { success: true, message: '无变更' };
-  await db('selection_orders').where('id', Number(req.params.id)).update(u);
+  await db('selection_orders').where('id', id).update(u);
   return { success: true, message: '已更新' };
 }));
 
