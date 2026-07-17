@@ -9,6 +9,9 @@ const { authenticate, requireRole } = require('../middleware/auth');
 router.get('/styles', async (req, res, next) => {
   try { res.json({ success: true, data: await svc.listStyles() }); } catch (e) { next(e); }
 });
+router.get('/style-select-config', async (req, res, next) => {
+  try { res.json({ success: true, data: await svc.getSelectPageConfig() }); } catch (e) { next(e); }
+});
 router.get('/styles/:styleId/materials', async (req, res, next) => {
   try {
     const { subcategory_id } = req.query;
@@ -68,6 +71,7 @@ router.get('/admin/styles/:id', ...wrap(req => svc.getStyle(Number(req.params.id
 router.post('/admin/styles', ...wrap201(req => svc.createStyle(req.body)));
 router.put('/admin/styles/:id', ...wrap(req => svc.updateStyle(Number(req.params.id), req.body).then(() => ({ success: true, message: '已更新' }))));
 router.delete('/admin/styles/:id', ...wrap(req => svc.deleteStyle(Number(req.params.id)).then(() => ({ success: true, message: '已删除' }))));
+router.put('/admin/style-select-config', ...wrap(req => svc.updateSelectPageConfig(req.body || {}).then(ok)));
 
 // 品类+子品类
 router.get('/admin/style-categories', ...wrap(() => svc.listCategories().then(ok)));

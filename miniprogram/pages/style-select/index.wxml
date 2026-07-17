@@ -10,35 +10,37 @@
     </view>
 
     <block wx:else>
-      <!-- 卡片式页眉（居中） -->
+      <!-- 卡片式页眉（居中，支持后台配置背景图与文字） -->
       <view class="editorial-header">
-        <view class="header-card">
-          <text class="header-title">选择你的装修风格</text>
-          <view class="header-divider"></view>
-          <text class="header-subtitle">CHOOSE YOUR STYLE</text>
+        <view class="header-card {{header.image_url ? 'has-image' : ''}}">
+          <image wx:if="{{header.image_url}}" class="header-bg" src="{{header.image_url}}" mode="aspectFill" />
+          <view wx:if="{{header.image_url}}" class="header-scrim"></view>
+          <view class="header-content">
+            <text class="header-title">{{header.title}}</text>
+            <view class="header-divider"></view>
+            <text class="header-subtitle">{{header.subtitle}}</text>
+          </view>
         </view>
       </view>
 
-      <!-- 风格卡片列表：图片卡 + 错位文字小卡片，点击直接进入向导 -->
+      <!-- 风格卡片列表：图文一体杂志卡，点击直接进入向导 -->
       <view wx:if="{{styles.length > 0}}" class="style-list">
         <view
           wx:for="{{styles}}"
           wx:key="id"
-          class="style-item {{index % 2 === 1 ? 'is-even' : ''}}"
+          class="style-item"
           style="animation-delay: {{index * 60}}ms;"
           data-id="{{item.id}}"
           bindtap="onTapStyle"
         >
-          <view class="card-image-wrap">
-            <image class="card-image" src="{{item.cover_image}}" mode="aspectFill" lazy-load />
-          </view>
-          <!-- 错位文字小卡片 -->
-          <view class="info-chip">
-            <view class="chip-text">
+          <image class="card-image" src="{{item.cover_image}}" mode="aspectFill" lazy-load />
+          <!-- 贴合图片下缘的文字区 -->
+          <view class="card-band">
+            <view class="band-text">
               <text class="card-name">{{item.name}}</text>
               <text wx:if="{{item.description}}" class="card-desc">{{item.description}}</text>
             </view>
-            <view class="chip-arrow"></view>
+            <view class="band-arrow"></view>
           </view>
         </view>
       </view>

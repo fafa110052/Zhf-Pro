@@ -8,6 +8,7 @@ Page({
     loading: true,
     error: false,
     styles: [],
+    header: { image_url: '', title: '选择你的装修风格', subtitle: 'CHOOSE YOUR STYLE' },
   },
 
   onLoad() {
@@ -30,11 +31,20 @@ Page({
   async loadStyles(silent) {
     if (!silent) this.setData({ loading: true, error: false });
     try {
-      const res = await api.getStyles();
+      // 页眉配置失败不阻塞页面，保留默认文案
+      const [res, config] = await Promise.all([
+        api.getStyles(),
+        api.getStyleSelectConfig().catch(() => null),
+      ]);
       const styles = (res || []).map(s => Object.assign({}, s, {
         cover_image: util.fullImageUrl(s.cover_image),
       }));
-      const pageData = { styles, loading: false, error: false };
+      const header = {
+        image_url: config && config.image_url ? util.fullImageUrl(config.image_url) : '',
+        title: (config && config.title) || '选择你的装修风格',
+        subtitle: (config && config.subtitle) || 'CHOOSE YOUR STYLE',
+      };
+      const pageData = { styles, header, loading: false, error: false };
       if (this._readyFired) this.setData(Object.assign({ ready: true }, pageData));
       else this._pageData = pageData;
     } catch (err) {

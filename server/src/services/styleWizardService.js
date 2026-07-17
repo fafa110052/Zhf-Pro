@@ -54,6 +54,27 @@ const styleWizardService = {
     await db('styles').where('id', id).del();
   },
 
+  // ===== 风格选择页页眉配置（存 homepage_config，type=style_header 单行） =====
+  async getSelectPageConfig() {
+    const defaults = { image_url: null, title: '选择你的装修风格', subtitle: 'CHOOSE YOUR STYLE' };
+    const row = await db('homepage_config').where('config_type', 'style_header').first();
+    if (!row) return defaults;
+    let cv = row.config_value;
+    if (typeof cv === 'string') { try { cv = JSON.parse(cv); } catch { cv = {}; } }
+    return Object.assign({}, defaults, cv || {});
+  },
+  async updateSelectPageConfig({ image_url, title, subtitle }) {
+    const value = JSON.stringify({
+      image_url: image_url || null,
+      title: title || '选择你的装修风格',
+      subtitle: subtitle || 'CHOOSE YOUR STYLE',
+    });
+    const row = await db('homepage_config').where('config_type', 'style_header').first();
+    if (row) await db('homepage_config').where('id', row.id).update({ config_value: value });
+    else await db('homepage_config').insert({ config_type: 'style_header', config_value: value });
+    return this.getSelectPageConfig();
+  },
+
   // ===== 品类 + 子品类 =====
   async listCategories() {
     const cats = await db('style_categories').orderBy('page_number', 'asc');

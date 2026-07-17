@@ -8,17 +8,45 @@
   padding-bottom: 48rpx;
 }
 
-/* ─── 卡片式页眉（居中） ─── */
+/* ─── 卡片式页眉（居中，支持背景图） ─── */
 .editorial-header {
   padding: 32rpx 32rpx 16rpx;
 }
 
 .header-card {
+  position: relative;
   background: #FFFFFF;
   border-radius: 20rpx;
-  padding: 44rpx 32rpx 40rpx;
+  overflow: hidden;
   text-align: center;
   box-shadow: 0 6rpx 24rpx rgba(61, 50, 38, 0.06);
+}
+
+.header-bg {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* 背景图上的暗色渐变，保证文字可读 */
+.header-scrim {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to bottom, rgba(30, 24, 16, 0.30), rgba(30, 24, 16, 0.55));
+}
+
+.header-content {
+  position: relative;
+  padding: 44rpx 32rpx 40rpx;
+}
+
+.header-card.has-image .header-content {
+  padding: 56rpx 32rpx 52rpx;
 }
 
 .header-title {
@@ -28,6 +56,11 @@
   letter-spacing: 2rpx;
   color: #3D3226;
   line-height: 1.4;
+}
+
+.header-card.has-image .header-title {
+  color: #FFFFFF;
+  text-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.3);
 }
 
 .header-divider {
@@ -45,14 +78,22 @@
   color: #8C6F47;
 }
 
+.header-card.has-image .header-subtitle {
+  color: rgba(255, 255, 255, 0.85);
+}
+
 /* ─── 风格卡片列表 ─── */
 .style-list {
   padding: 24rpx 24rpx 0;
 }
 
-/* 单项 = 图片卡 + 错位文字小卡片；级联入场 */
+/* 图文一体杂志卡：图片 + 贴合下缘的文字区；级联入场 */
 .style-item {
-  margin-bottom: 44rpx;
+  margin-bottom: 40rpx;
+  background: #FFFFFF;
+  border-radius: 20rpx;
+  overflow: hidden;
+  box-shadow: 0 8rpx 28rpx rgba(61, 50, 38, 0.10);
   transition: transform 0.2s ease;
   animation: item-in 0.45s ease-out both;
 }
@@ -72,42 +113,22 @@
   }
 }
 
-.card-image-wrap {
-  width: 100%;
-  height: 440rpx;
-  border-radius: 20rpx;
-  overflow: hidden;
-  background: #f5f0e8;
-  box-shadow: 0 8rpx 28rpx rgba(61, 50, 38, 0.10);
-}
-
 .card-image {
   width: 100%;
-  height: 100%;
+  height: 420rpx;
   display: block;
+  background: #f5f0e8;
 }
 
-/* 错位文字小卡片：叠压图片下缘，左右交替 */
-.info-chip {
-  position: relative;
-  margin-top: -56rpx;
-  margin-left: 24rpx;
-  width: 78%;
+/* 贴合图片下缘的文字区（杂志式） */
+.card-band {
   display: flex;
   align-items: center;
-  background: #FFFFFF;
+  padding: 26rpx 28rpx;
   border-left: 6rpx solid #C9A96E;
-  border-radius: 16rpx;
-  padding: 24rpx 28rpx;
-  box-shadow: 0 8rpx 24rpx rgba(61, 50, 38, 0.12);
 }
 
-.style-item.is-even .info-chip {
-  margin-left: auto;
-  margin-right: 24rpx;
-}
-
-.chip-text {
+.band-text {
   flex: 1;
   min-width: 0;
 }
@@ -130,7 +151,7 @@
 }
 
 /* CSS 绘制的金色箭头（免图标资源） */
-.chip-arrow {
+.band-arrow {
   flex-shrink: 0;
   width: 18rpx;
   height: 18rpx;

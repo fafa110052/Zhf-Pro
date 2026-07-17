@@ -432,6 +432,9 @@ function submitMeasureAppointment(data) {
 function getStyles() {
   return http.get('/styles', {}, { auth: false, silent: true });
 }
+function getStyleSelectConfig() {
+  return http.get('/style-select-config', {}, { auth: false, silent: true });
+}
 function getStyleCategories() {
   return http.get('/style-categories', {}, { auth: false, silent: true });
 }
@@ -525,6 +528,7 @@ module.exports = {
   submitMeasureAppointment,
   // 风格选材向导（V2.0）
   getStyles,
+  getStyleSelectConfig,
   getStyleCategories,
   getStyleMaterials,
   getDoorSeries,

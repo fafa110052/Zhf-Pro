@@ -28,6 +28,32 @@ export default function StyleWizardStyles() {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [confirmAction, setConfirmAction] = useState(null);
 
+  // 小程序风格选择页页眉配置
+  const [headerForm, setHeaderForm] = useState({ image_url: '', title: '', subtitle: '' });
+  const [headerSaving, setHeaderSaving] = useState(false);
+
+  useEffect(() => {
+    client.get('/style-select-config')
+      .then((res) => {
+        const c = res.data || {};
+        setHeaderForm({ image_url: c.image_url || '', title: c.title || '', subtitle: c.subtitle || '' });
+      })
+      .catch(() => {});
+  }, []);
+
+  const handleHeaderSave = async () => {
+    setHeaderSaving(true);
+    try {
+      await client.put('/admin/style-select-config', {
+        image_url: headerForm.image_url.trim() || null,
+        title: headerForm.title.trim(),
+        subtitle: headerForm.subtitle.trim(),
+      });
+      toast.success('页眉配置已保存');
+    } catch (err) { toast.error(err?.message || '保存失败'); }
+    finally { setHeaderSaving(false); }
+  };
+
   const fetchList = useCallback(async () => {
     setLoading(true); setError('');
     try {
@@ -120,6 +146,45 @@ export default function StyleWizardStyles() {
             添加风格
           </button>
         </div>
+      </div>
+
+      {/* ─── 小程序页眉配置 ─── */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+        <div className="flex items-center justify-between mb-3">
+          <div>
+            <h3 className="text-sm font-bold text-gray-900">选材页页眉配置</h3>
+            <p className="text-xs text-gray-500 mt-0.5">小程序「风格选材」tab 顶部卡片的背景图与文字</p>
+          </div>
+          <button onClick={handleHeaderSave} disabled={headerSaving}
+            className="px-4 py-2 bg-slate-900 text-white text-sm rounded-lg hover:bg-slate-800 disabled:opacity-50 transition-colors">
+            {headerSaving ? '保存中...' : '保存配置'}
+          </button>
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">背景图 URL</label>
+            <input value={headerForm.image_url} onChange={(e) => setHeaderForm({ ...headerForm, image_url: e.target.value })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="留空则用纯白卡片" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">标题</label>
+            <input value={headerForm.title} onChange={(e) => setHeaderForm({ ...headerForm, title: e.target.value })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" maxLength={20} placeholder="选择你的装修风格" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">副标题</label>
+            <input value={headerForm.subtitle} onChange={(e) => setHeaderForm({ ...headerForm, subtitle: e.target.value })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" maxLength={40} placeholder="CHOOSE YOUR STYLE" />
+          </div>
+        </div>
+        {headerForm.image_url.trim() && (
+          <div className="mt-3">
+            <span className="block text-xs text-gray-500 mb-1">背景图预览</span>
+            <div className="w-64 h-24 rounded-lg overflow-hidden bg-gray-100">
+              <img src={headerForm.image_url} alt="" className="w-full h-full object-cover" />
+            </div>
+          </div>
+        )}
       </div>
 
       {/* ─── 错误提示 ─── */}
