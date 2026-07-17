@@ -241,6 +241,7 @@ export default function StyleWizardMaterials() {
     } else if (!form.name.trim()) {
       errs.name = '请输入材料名称';
     }
+    if (!form.image_url.trim()) errs.image_url = '请上传图片'; // 选材卡片以图为主，无图即破卡
     if (!tpl.keys && tpl.invalid && form.attr_raw.trim()) {
       try {
         const parsed = JSON.parse(form.attr_raw);
@@ -466,7 +467,7 @@ export default function StyleWizardMaterials() {
                   {formErrors.brand_logo && <p className="text-red-500 text-xs mt-1">{formErrors.brand_logo}</p>}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">图片 URL</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">图片 URL<span className="text-red-500"> *</span></label>
                   <div className="flex gap-2">
                     <input value={form.image_url} onChange={(e) => setForm({ ...form, image_url: e.target.value })} className={`${INPUT_CLS} flex-1`} placeholder="点击右侧按钮上传" />
                     <button type="button" onClick={() => imageFileRef.current?.click()} disabled={uploadingField === 'image_url'}
@@ -475,6 +476,7 @@ export default function StyleWizardMaterials() {
                     </button>
                     <input ref={imageFileRef} type="file" accept="image/jpeg,image/png,image/gif,image/webp" className="hidden" onChange={(e) => handleFileUpload(e, 'image_url', imageFileRef)} />
                   </div>
+                  {formErrors.image_url && <p className="text-red-500 text-xs mt-1">{formErrors.image_url}</p>}
                 </div>
                 {/* 瓷砖不展示价格，字段整体隐藏 */}
                 {!isTile && (
