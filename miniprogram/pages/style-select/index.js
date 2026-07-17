@@ -64,4 +64,18 @@ Page({
     if (!id) return;
     wx.navigateTo({ url: `/pages/style-wizard/index?style_id=${id}&step=1` });
   },
+
+  // VR 看房：跳转全景720小程序（与作品详情页一致）
+  onTapVR(e) {
+    const vrUrl = e.currentTarget.dataset.url;
+    if (!vrUrl) return;
+    wx.navigateToMiniProgram({
+      appId: 'wxc2d8d319dfc12a95',
+      path: 'pages/design-detail/pano/pano?url=' + encodeURIComponent(vrUrl),
+      envVersion: 'release',
+      fail() {
+        wx.showToast({ title: '打开失败，请稍后重试', icon: 'none' });
+      },
+    });
+  },
 });

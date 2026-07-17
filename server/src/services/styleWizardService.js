@@ -12,7 +12,7 @@ const styleWizardService = {
     if (!s) throw Object.assign(new Error('风格不存在'), { status: 404 });
     return s;
   },
-  async createStyle({ name, cover_image, description, sort_order, enabled }) {
+  async createStyle({ name, cover_image, description, sort_order, enabled, vr_url }) {
     if (!name) throw Object.assign(new Error('风格名称不能为空'), { status: 400 });
     const sort = sort_order !== undefined ? sort_order : 0;
     const id = await db.transaction(async (trx) => {
@@ -22,6 +22,7 @@ const styleWizardService = {
       const [newId] = await trx('styles').insert({
         name, cover_image: cover_image || null,
         description: description || null,
+        vr_url: vr_url || null,
         sort_order: sort,
         enabled: enabled !== undefined ? enabled : true,
       });
@@ -36,6 +37,7 @@ const styleWizardService = {
     if (fields.name !== undefined) u.name = fields.name;
     if (fields.cover_image !== undefined) u.cover_image = fields.cover_image;
     if (fields.description !== undefined) u.description = fields.description;
+    if (fields.vr_url !== undefined) u.vr_url = fields.vr_url || null;
     if (fields.sort_order !== undefined) u.sort_order = fields.sort_order;
     if (fields.enabled !== undefined) u.enabled = fields.enabled;
     await db.transaction(async (trx) => {

@@ -34,11 +34,15 @@
           bindtap="onTapStyle"
         >
           <image class="card-image" src="{{item.cover_image}}" mode="aspectFill" lazy-load />
-          <!-- 贴合图片下缘的文字区 -->
+          <!-- 错位悬浮文字卡：左右内收 + 上叠图片下缘 -->
           <view class="card-band">
             <view class="band-text">
               <text class="card-name">{{item.name}}</text>
               <text wx:if="{{item.description}}" class="card-desc">{{item.description}}</text>
+            </view>
+            <view wx:if="{{item.vr_url}}" class="band-vr" data-url="{{item.vr_url}}" catchtap="onTapVR">
+              <view class="vr-icon"></view>
+              <text class="vr-text">VR看房</text>
             </view>
             <view class="band-arrow"></view>
           </view>

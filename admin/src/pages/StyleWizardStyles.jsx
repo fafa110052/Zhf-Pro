@@ -6,7 +6,7 @@ import EmptyState from '../components/EmptyState';
 import ErrorState from '../components/ErrorState';
 import { useToast } from '../components/Toast';
 
-const EMPTY_FORM = { name: '', cover_image: '', description: '', sort_order: 0, enabled: 1 };
+const EMPTY_FORM = { name: '', cover_image: '', description: '', vr_url: '', sort_order: 0, enabled: 1 };
 
 /**
  * 风格选材 — 风格管理（CRUD）
@@ -73,6 +73,7 @@ export default function StyleWizardStyles() {
         name: style.name || '',
         cover_image: style.cover_image || '',
         description: style.description || '',
+        vr_url: style.vr_url || '',
         sort_order: style.sort_order ?? 0,
         enabled: style.enabled ? 1 : 0,
       });
@@ -98,6 +99,7 @@ export default function StyleWizardStyles() {
         name: form.name.trim(),
         cover_image: form.cover_image.trim() || null,
         description: form.description.trim() || null,
+        vr_url: form.vr_url.trim() || null,
         sort_order: Number(form.sort_order) || 0,
       };
       if (modalMode === 'add') {
@@ -263,6 +265,11 @@ export default function StyleWizardStyles() {
               <label className="block text-sm font-medium text-gray-700 mb-1">描述</label>
               <textarea rows={3} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none" placeholder="简要描述该风格的特点" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">VR 看房链接</label>
+              <input value={form.vr_url} onChange={(e) => setForm({ ...form, vr_url: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="酷家乐全景链接，填写后小程序卡片显示 VR 看房按钮" />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
