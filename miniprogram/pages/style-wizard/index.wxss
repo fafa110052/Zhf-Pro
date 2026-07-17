@@ -127,6 +127,40 @@
   color: #9CA3AF;
 }
 
+/* 编码行（老编码/新编码） */
+.mat-code {
+  font-size: 22rpx;
+  color: #6B7280;
+}
+
+/* 适用范围 ✓ 标签 */
+.mat-scopes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8rpx;
+  margin-top: 4rpx;
+}
+
+.scope-tag {
+  font-size: 20rpx;
+  color: #C9A96E;
+  border: 2rpx solid #C9A96E;
+  border-radius: 4rpx;
+  padding: 2rpx 8rpx;
+}
+
+/* 弹性属性键值行 */
+.mat-attrs {
+  display: flex;
+  flex-direction: column;
+  gap: 2rpx;
+}
+
+.attr-line {
+  font-size: 20rpx;
+  color: #6B7280;
+}
+
 /* ─── 价格行 ─── */
 .price-row {
   display: flex;

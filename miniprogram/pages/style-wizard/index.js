@@ -291,11 +291,26 @@ Page({
     this.setData({ loadingSubId: subId, errorSubId: null });
     try {
       const list = (await api.getStyleMaterials(this._styleId, subId)) || [];
-      const materials = list.map((m) => Object.assign({}, m, {
-        image_url: util.fullImageUrl(m.image_url),
-        brand_logo: util.fullImageUrl(m.brand_logo),
-        brand_model: [m.brand, m.model].filter(Boolean).join(' '),
-      }));
+      const materials = list.map((m) => {
+        // 弹性字段：适用范围（JSON 数组）与属性（JSON 对象）在加载时解析，WXML 直接消费
+        let scopes = [];
+        try { scopes = JSON.parse(m.applicable_scopes) || []; } catch (e) {}
+        if (!Array.isArray(scopes)) scopes = [];
+        let attrList = [];
+        try {
+          const attrs = JSON.parse(m.attributes);
+          if (attrs && typeof attrs === 'object' && !Array.isArray(attrs)) {
+            attrList = Object.keys(attrs).map((k) => ({ k, v: attrs[k] }));
+          }
+        } catch (e) {}
+        return Object.assign({}, m, {
+          image_url: util.fullImageUrl(m.image_url),
+          brand_logo: util.fullImageUrl(m.brand_logo),
+          brand_model: [m.brand, m.model].filter(Boolean).join(' '),
+          scopes,
+          attrList,
+        });
+      });
       const update = {};
       update['materialsCache.s' + subId] = materials;
       if (this.data.loadingSubId === subId) update.loadingSubId = null;

@@ -451,7 +451,7 @@ function getLightingPackageDetail(id) {
   return http.get(`/lighting-packages/${id}`, {}, { auth: false });
 }
 function saveDraft(data) {
-  return http.post('/drafts', data, { auth: true });
+  return http.post('/drafts', data, { auth: true, silent: true });
 }
 function getDraft() {
   return http.get('/drafts', {}, { auth: true, silent: true });

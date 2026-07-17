@@ -60,6 +60,14 @@
                     <text class="mat-name">{{mat.name}}</text>
                     <text wx:if="{{mat.brand_model}}" class="mat-brand">{{mat.brand_model}}</text>
                     <text wx:if="{{mat.specs}}" class="mat-specs">{{mat.specs}}</text>
+                    <text wx:if="{{mat.old_code}}" class="mat-code">老编码：{{mat.old_code}}</text>
+                    <text wx:if="{{mat.new_code}}" class="mat-code">新编码：{{mat.new_code}}</text>
+                    <view wx:if="{{mat.scopes.length}}" class="mat-scopes">
+                      <text class="scope-tag" wx:for="{{mat.scopes}}" wx:for-item="sc" wx:key="*this">✓ {{sc}}</text>
+                    </view>
+                    <view wx:if="{{mat.attrList.length}}" class="mat-attrs">
+                      <text class="attr-line" wx:for="{{mat.attrList}}" wx:for-item="attr" wx:key="k">{{attr.k}} {{attr.v}}</text>
+                    </view>
                     <view wx:if="{{mat.original_price != null || mat.discount_price != null}}" class="price-row">
                       <text wx:if="{{mat.original_price != null}}" class="price-original">¥{{mat.original_price}}</text>
                       <text wx:if="{{mat.discount_price != null}}" class="price-discount">¥{{mat.discount_price}}</text>
@@ -165,7 +173,7 @@
                 </view>
 
                 <view wx:if="{{expandedPackage === item.id}}" class="pkg-items">
-                  <view class="pkg-item" wx:for="{{item.items}}" wx:for-item="it" wx:key="index">
+                  <view class="pkg-item" wx:for="{{item.items}}" wx:for-item="it" wx:key="id">
                     <image class="item-image" src="{{it.image_url}}" mode="aspectFill" />
                     <view class="item-info">
                       <text class="item-name">{{it.room_type ? it.room_type + ' · ' : ''}}{{it.name}}</text>
