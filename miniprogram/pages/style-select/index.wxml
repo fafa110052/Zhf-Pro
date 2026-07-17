@@ -42,9 +42,8 @@
             </view>
             <view wx:if="{{item.vr_url}}" class="band-vr" data-url="{{item.vr_url}}" catchtap="onTapVR">
               <view class="vr-icon"></view>
-              <text class="vr-text">VR看房</text>
+              <text class="vr-text">VR</text>
             </view>
-            <view class="band-arrow"></view>
           </view>
         </view>
       </view>
