@@ -1,0 +1,176 @@
+/**
+ * 我的选材页样式 — 暖白奢华（与向导页同一套 token）
+ */
+.page {
+  min-height: 100vh;
+  background: #FAF8F5;
+  padding: 24rpx;
+  box-sizing: border-box;
+}
+
+/* ─── 空态 / 未登录 / 错误态 ─── */
+.page-empty {
+  padding: 200rpx 48rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24rpx;
+}
+
+.empty-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #1A1A1A;
+}
+
+.empty-desc {
+  font-size: 26rpx;
+  color: #6B7280;
+  text-align: center;
+  line-height: 1.6;
+}
+
+.empty-btn {
+  margin-top: 16rpx;
+  padding: 16rpx 64rpx;
+  border: 2rpx solid #C9A96E;
+  border-radius: 40rpx;
+  font-size: 26rpx;
+  color: #C9A96E;
+}
+
+.empty-btn:active {
+  background: rgba(201, 169, 110, 0.12);
+}
+
+/* ─── 订单卡片 ─── */
+.order-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+}
+
+.order-card {
+  padding: 28rpx;
+  background: #ffffff;
+  border-radius: 16rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
+}
+
+.card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+}
+
+.order-no {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #1A1A1A;
+}
+
+/* 状态徽标（圆角胶囊） */
+.status-badge {
+  flex-shrink: 0;
+  padding: 6rpx 20rpx;
+  border-radius: 24rpx;
+  font-size: 22rpx;
+}
+
+.status-badge.pending {
+  background: #FEF3C7;
+  color: #D97706;
+}
+
+.status-badge.contacted {
+  background: #DBEAFE;
+  color: #2563EB;
+}
+
+.status-badge.completed {
+  background: #DCFCE7;
+  color: #16A34A;
+}
+
+.card-meta {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  margin-top: 16rpx;
+}
+
+.style-tag {
+  padding: 4rpx 16rpx;
+  background: rgba(201, 169, 110, 0.12);
+  border-radius: 8rpx;
+  font-size: 22rpx;
+  color: #C9A96E;
+}
+
+.item-count {
+  font-size: 22rpx;
+  color: #6B7280;
+}
+
+.card-foot {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16rpx;
+  margin-top: 16rpx;
+}
+
+.card-prices {
+  display: flex;
+  align-items: baseline;
+  gap: 12rpx;
+}
+
+.p-orig {
+  font-size: 22rpx;
+  color: #9CA3AF;
+  text-decoration: line-through;
+}
+
+.p-disc {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #C9A96E;
+}
+
+.card-time {
+  font-size: 22rpx;
+  color: #9CA3AF;
+}
+
+/* ─── 明细展开 ─── */
+.card-items {
+  margin-top: 20rpx;
+  padding-top: 20rpx;
+  border-top: 2rpx solid #F3F0EA;
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.ci-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16rpx;
+}
+
+.ci-name {
+  flex: 1;
+  min-width: 0;
+  font-size: 24rpx;
+  color: #1A1A1A;
+}
+
+.ci-price {
+  flex-shrink: 0;
+  font-size: 24rpx;
+  font-weight: 600;
+  color: #C9A96E;
+}

@@ -1,0 +1,64 @@
+<!-- 我的选材页 -->
+<view class="page">
+  <block wx:if="{{ready}}">
+    <!-- 未登录 -->
+    <view wx:if="{{!loggedIn}}" class="page-empty">
+      <text class="empty-title">登录后查看选材记录</text>
+      <view class="empty-btn" bindtap="onGoLogin">去登录</view>
+    </view>
+
+    <!-- 加载失败 -->
+    <view wx:elif="{{error}}" class="page-empty">
+      <text class="empty-desc">加载失败，请检查网络后重试</text>
+      <view class="empty-btn" bindtap="onRetry">重新加载</view>
+    </view>
+
+    <!-- 空态 -->
+    <view wx:elif="{{!orders.length}}" class="page-empty">
+      <text class="empty-title">暂无选材记录</text>
+      <text class="empty-desc">完成风格选材并提交后，选材单会显示在这里</text>
+      <view class="empty-btn" bindtap="onGoStyle">去风格选材</view>
+    </view>
+
+    <!-- 订单列表 -->
+    <block wx:else>
+      <view class="order-list">
+        <view
+          class="order-card"
+          wx:for="{{orders}}"
+          wx:key="id"
+          data-id="{{item.id}}"
+          bindtap="onToggleOrder"
+        >
+          <view class="card-head">
+            <text class="order-no">{{item.order_no}}</text>
+            <view class="status-badge {{item.statusCls}}">{{item.statusLabel}}</view>
+          </view>
+
+          <view class="card-meta">
+            <view wx:if="{{item.style_name}}" class="style-tag">{{item.style_name}}</view>
+            <text class="item-count">共{{item.itemCount}}项</text>
+          </view>
+
+          <view class="card-foot">
+            <view class="card-prices">
+              <text class="p-orig">¥{{item.originalText}}</text>
+              <text class="p-disc">¥{{item.discountText}}</text>
+            </view>
+            <text class="card-time">{{item.submittedText}}</text>
+          </view>
+
+          <!-- 点卡片展开明细 -->
+          <view wx:if="{{expandedId === item.id}}" class="card-items">
+            <view class="ci-row" wx:for="{{item.itemsList}}" wx:for-item="it" wx:key="index">
+              <text class="ci-name">{{it.name}}</text>
+              <text wx:if="{{it.discountText}}" class="ci-price">¥{{it.discountText}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <loading-more loading="{{loadingMore}}" has-more="{{page < totalPages}}" count="{{orders.length}}" />
+    </block>
+  </block>
+</view>
