@@ -58,14 +58,12 @@
                   data-index="{{mIdx}}"
                   bindtap="onSelectMaterial"
                 >
-                  <image
-                    class="mat-image"
-                    src="{{mat.image_url}}"
-                    mode="aspectFill"
-                    data-sub-id="{{item.id}}"
-                    data-index="{{mIdx}}"
-                    catchtap="onZoomImage"
-                  />
+                  <image class="mat-image" src="{{mat.image_url}}" mode="aspectFill" />
+                  <!-- 放大改为独立按钮，图片区域点击即选中，避免误触 -->
+                  <view class="mat-zoom" data-sub-id="{{item.id}}" data-index="{{mIdx}}" catchtap="onZoomImage">
+                    <image class="mat-zoom-icon" src="/assets/icons/zoom-in.svg" mode="aspectFit" />
+                    <text>放大</text>
+                  </view>
                   <image wx:if="{{selections['sub_' + item.id].id === mat.id}}" class="mat-badge" src="/assets/icons/selected-mark.svg" mode="aspectFit" />
                   <view class="mat-info">
                     <!-- 有名称按名称展示；无名称（瓷砖类）标题行 = 品牌logo + 品牌名 -->
