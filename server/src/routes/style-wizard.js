@@ -113,6 +113,12 @@ router.get('/admin/door-materials', ...wrap(req => svc.listDoorMaterials(Number(
 router.post('/admin/door-materials', ...wrap201(req => svc.createDoorMaterial(req.body)));
 router.delete('/admin/door-materials/:id', ...wrap(req => svc.deleteDoorMaterial(Number(req.params.id)).then(() => ({ success: true, message: '已删除' }))));
 
+// 通用颜色库（系列添加颜色时从中挑选）
+router.get('/admin/door-color-library', ...wrap(() => svc.listColorLibrary().then(ok)));
+router.post('/admin/door-color-library', ...wrap201(req => svc.createLibraryColor(req.body)));
+router.put('/admin/door-color-library/:id', ...wrap(req => svc.updateLibraryColor(Number(req.params.id), req.body).then(() => ({ success: true, message: '已更新' }))));
+router.delete('/admin/door-color-library/:id', ...wrap(req => svc.deleteLibraryColor(Number(req.params.id)).then(() => ({ success: true, message: '已删除' }))));
+
 // 灯具套餐
 router.get('/admin/lighting-packages', ...wrap(() => svc.listLightingPackages().then(ok)));
 router.get('/admin/lighting-packages/:id', ...wrap(req => svc.getLightingPackage(Number(req.params.id)).then(ok)));

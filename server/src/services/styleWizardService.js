@@ -159,8 +159,38 @@ const styleWizardService = {
   },
   async createDoorColor({ series_id, name, image_url, sort_order }) {
     if (!series_id || !name) throw Object.assign(new Error('系列和颜色名称为必填'), { status: 400 });
+    const dup = await db('door_colors').where({ series_id, name }).first('id');
+    if (dup) throw Object.assign(new Error('该系列已有同名颜色'), { status: 400 });
     const [id] = await db('door_colors').insert({ series_id, name, image_url: image_url || null, sort_order: sort_order || 0 });
     return db('door_colors').where('id', id).first();
+  },
+
+  // ===== 通用颜色库（独立于系列，系列添加颜色时从中挑选） =====
+  async listColorLibrary() {
+    return db('door_color_library').orderBy('sort_order', 'asc').orderBy('id', 'asc');
+  },
+  async createLibraryColor({ name, image_url, sort_order }) {
+    // 颜色卡以色块图为主，名称与图片均必填
+    if (!name || !image_url) throw Object.assign(new Error('颜色名称和色块图为必填'), { status: 400 });
+    const dup = await db('door_color_library').where('name', name).first('id');
+    if (dup) throw Object.assign(new Error('颜色库已有同名颜色'), { status: 400 });
+    const [id] = await db('door_color_library').insert({ name, image_url, sort_order: sort_order || 0 });
+    return db('door_color_library').where('id', id).first();
+  },
+  async updateLibraryColor(id, fields) {
+    const ex = await db('door_color_library').where('id', id).first();
+    if (!ex) throw Object.assign(new Error('颜色不存在'), { status: 404 });
+    const u = {};
+    if (fields.name !== undefined) u.name = fields.name;
+    if (fields.image_url !== undefined) u.image_url = fields.image_url;
+    if (fields.sort_order !== undefined) u.sort_order = fields.sort_order;
+    if (u.name === '' || u.image_url === '') throw Object.assign(new Error('颜色名称和色块图为必填'), { status: 400 });
+    await db('door_color_library').where('id', id).update(u);
+    return db('door_color_library').where('id', id).first();
+  },
+  async deleteLibraryColor(id) {
+    // 系列中的颜色是入库时的副本，删除库颜色不影响已加入系列的颜色
+    await db('door_color_library').where('id', id).del();
   },
   async deleteDoorColor(id) {
     await db('door_materials').where('color_id', id).del();
@@ -179,6 +209,8 @@ const styleWizardService = {
     if (!series_id || !color_id || !style_id || !image_url) {
       throw Object.assign(new Error('系列、颜色、风格和图片为必填'), { status: 400 });
     }
+    const dup = await db('door_materials').where({ series_id, color_id, style_id }).first('id');
+    if (dup) throw Object.assign(new Error('该颜色已在此风格中'), { status: 400 });
     const [id] = await db('door_materials').insert({
       series_id, color_id, style_id,
       image_url,
