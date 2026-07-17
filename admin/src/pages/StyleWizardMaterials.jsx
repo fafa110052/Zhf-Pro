@@ -150,7 +150,8 @@ export default function StyleWizardMaterials() {
 
   useEffect(() => {
     fetchList({ page: 1, page_size: 20 });
-    client.get('/admin/style-categories').then((res) => setCategories(res.data || [])).catch(() => {});
+    // 室内木门（page_number=2）由「门系列管理」维护，材料管理不展示，避免两处入口冲突
+    client.get('/admin/style-categories').then((res) => setCategories((res.data || []).filter((c) => c.page_number !== 2))).catch(() => {});
     client.get('/admin/styles').then((res) => setStyles(res.data || [])).catch(() => {});
   }, [fetchList]);
 

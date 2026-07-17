@@ -175,9 +175,13 @@ const styleWizardService = {
       .orderBy('door_colors.sort_order', 'asc');
   },
   async createDoorMaterial({ series_id, color_id, style_id, image_url, original_price, discount_price, specs }) {
+    // 后台表单已简化：系列/颜色/风格/图片全部必填，价格与规格不再录入（历史数据仍可展示）
+    if (!series_id || !color_id || !style_id || !image_url) {
+      throw Object.assign(new Error('系列、颜色、风格和图片为必填'), { status: 400 });
+    }
     const [id] = await db('door_materials').insert({
       series_id, color_id, style_id,
-      image_url: image_url || null,
+      image_url,
       original_price: original_price ?? null,
       discount_price: discount_price ?? null,
       specs: specs || null,

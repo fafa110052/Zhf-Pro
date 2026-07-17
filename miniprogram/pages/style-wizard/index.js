@@ -64,6 +64,7 @@ Page({
     doorLoaded: false,
     doorLoading: false,
     doorError: false,
+    chosenSeriesId: null,   // 第 2 步已选门系列 id（先选系列，再选颜色）
     doorMaterialsCache: {}, // 门材料缓存，key: 's' + seriesId
 
     lightingPackages: [],
@@ -231,6 +232,8 @@ Page({
       heroImage: currentCategory && currentCategory.cover_image ? util.fullImageUrl(currentCategory.cover_image) : '',
       heroProgress: 0,
       expandedSub,
+      // 进入门步骤时，从已确认的选择恢复系列（草稿续选/回退查看时颜色区直接可见）
+      chosenSeriesId: stepType === 'door' && selections.door ? selections.door.series_id : null,
       pending: null,
       expandedPackage: null,
       loadingSubId: null,
@@ -247,8 +250,10 @@ Page({
   },
 
   loadStepBody(derived) {
-    if (derived.stepType === 'door') this.ensureDoorSeries();
-    else if (derived.stepType === 'lighting') this.ensureLightingPackages();
+    if (derived.stepType === 'door') {
+      this.ensureDoorSeries();
+      if (derived.chosenSeriesId) this.ensureDoorMaterials(derived.chosenSeriesId);
+    } else if (derived.stepType === 'lighting') this.ensureLightingPackages();
     else if (derived.expandedSub != null) this.ensureMaterials(derived.expandedSub);
   },
 
@@ -452,13 +457,13 @@ Page({
     this.ensureDoorSeries();
   },
 
-  onToggleSeries(e) {
+  /**
+   * 先选系列（单选）：切换查看不清已确认的选择，选中新颜色时才覆盖
+   */
+  onSelectSeries(e) {
     const id = e.currentTarget.dataset.id;
-    if (this.data.expandedSub === id) {
-      this.setData({ expandedSub: null });
-      return;
-    }
-    this.setData({ expandedSub: id });
+    if (this.data.chosenSeriesId === id) return;
+    this.setData({ chosenSeriesId: id });
     this.ensureDoorMaterials(id);
   },
 
@@ -487,7 +492,7 @@ Page({
   },
 
   onSelectDoor(e) {
-    const seriesId = e.currentTarget.dataset.seriesId;
+    const seriesId = this.data.chosenSeriesId;
     const id = e.currentTarget.dataset.id;
     const series = this.data.doorSeries.find((s) => s.id === seriesId);
     const dm = (this.data.doorMaterialsCache['s' + seriesId] || []).find((m) => m.id === id);

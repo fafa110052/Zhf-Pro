@@ -11,7 +11,7 @@ const SELECT_CLS = `${INPUT_CLS} bg-white`;
 
 const EMPTY_SERIES = { name: '', image_url: '', sort_order: 0 };
 const EMPTY_COLOR = { name: '', image_url: '', sort_order: 0 };
-const EMPTY_MATERIAL = { color_id: '', style_id: '', image_url: '', original_price: '', discount_price: '', specs: '' };
+const EMPTY_MATERIAL = { color_id: '', style_id: '', image_url: '' };
 
 /**
  * 风格选材 — 门系列管理（系列 + 颜色 + 门材料组合）
@@ -86,6 +86,7 @@ export default function StyleWizardDoors() {
   const validateSeries = () => {
     const e = {};
     if (!seriesForm.name.trim()) e.name = '请输入系列名称';
+    if (!seriesForm.image_url.trim()) e.image_url = '请填写系列主图'; // 小程序系列卡以主图为主，无图即破卡
     setSeriesErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -198,6 +199,7 @@ export default function StyleWizardDoors() {
     const e = {};
     if (!matForm.color_id) e.color_id = '请选择颜色';
     if (!matForm.style_id) e.style_id = '请选择风格';
+    if (!matForm.image_url.trim()) e.image_url = '请填写图片';
     setMatErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -211,10 +213,7 @@ export default function StyleWizardDoors() {
         series_id: matSeriesId,
         color_id: Number(matForm.color_id),
         style_id: Number(matForm.style_id),
-        image_url: matForm.image_url.trim() || null,
-        original_price: matForm.original_price === '' || matForm.original_price === null ? null : Number(matForm.original_price),
-        discount_price: matForm.discount_price === '' || matForm.discount_price === null ? null : Number(matForm.discount_price),
-        specs: matForm.specs.trim() || null,
+        image_url: matForm.image_url.trim(),
       });
       toast.success('门材料添加成功');
       closeMat();
@@ -361,7 +360,7 @@ export default function StyleWizardDoors() {
                 <table className="w-full text-xs">
                   <thead>
                     <tr className="border-b border-gray-100 bg-gray-50/50">
-                      {['颜色', '图片', '原价', '优惠价', '规格', '操作'].map((h) => (
+                      {['颜色', '图片', '操作'].map((h) => (
                         <th key={h} className="px-3 py-2 text-gray-500 font-medium text-left">{h}</th>
                       ))}
                     </tr>
@@ -377,9 +376,6 @@ export default function StyleWizardDoors() {
                             )}
                           </div>
                         </td>
-                        <td className="px-3 py-2 text-gray-500">{m.original_price != null ? `¥${m.original_price}` : '—'}</td>
-                        <td className="px-3 py-2 text-red-600 font-medium">{m.discount_price != null ? `¥${m.discount_price}` : '—'}</td>
-                        <td className="px-3 py-2 text-gray-400 max-w-[160px] truncate">{m.specs || '—'}</td>
                         <td className="px-3 py-2">
                           <button onClick={() => handleDeleteMat(m)} className="text-red-500 hover:bg-red-50 px-1.5 py-0.5 rounded">删除</button>
                         </td>
@@ -400,13 +396,14 @@ export default function StyleWizardDoors() {
         <Modal open={seriesModalOpen} size="md" title={seriesMode === 'add' ? '添加门系列' : '编辑门系列'} onClose={closeSeries}>
           <form onSubmit={handleSeriesSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">系列名称 *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">系列名称<span className="text-red-500"> *</span></label>
               <input value={seriesForm.name} onChange={(e) => setSeriesForm({ ...seriesForm, name: e.target.value })} className={INPUT_CLS} maxLength={64} placeholder="如：现代简约门系列" />
               {seriesErrors.name && <p className="text-red-500 text-xs mt-1">{seriesErrors.name}</p>}
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">系列主图 URL</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">系列主图 URL<span className="text-red-500"> *</span></label>
               <input value={seriesForm.image_url} onChange={(e) => setSeriesForm({ ...seriesForm, image_url: e.target.value })} className={INPUT_CLS} placeholder="https://... 或 /uploads/..." />
+              {seriesErrors.image_url && <p className="text-red-500 text-xs mt-1">{seriesErrors.image_url}</p>}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">排序号</label>
@@ -425,7 +422,7 @@ export default function StyleWizardDoors() {
         <Modal open={colorModalOpen} size="sm" title="添加颜色" onClose={closeColor}>
           <form onSubmit={handleColorSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">颜色名称 *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">颜色名称<span className="text-red-500"> *</span></label>
               <input value={colorForm.name} onChange={(e) => setColorForm({ ...colorForm, name: e.target.value })} className={INPUT_CLS} maxLength={32} placeholder="如：胡桃木色" />
               {colorErrors.name && <p className="text-red-500 text-xs mt-1">{colorErrors.name}</p>}
             </div>
@@ -451,7 +448,7 @@ export default function StyleWizardDoors() {
           <form onSubmit={handleMatSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">颜色 *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">颜色<span className="text-red-500"> *</span></label>
                 <select value={matForm.color_id} onChange={(e) => setMatForm({ ...matForm, color_id: e.target.value })} className={SELECT_CLS}>
                   <option value="">请选择颜色</option>
                   {seriesColors(series.find((s) => s.id === matSeriesId) || {}).map((c) => (
@@ -461,30 +458,18 @@ export default function StyleWizardDoors() {
                 {matErrors.color_id && <p className="text-red-500 text-xs mt-1">{matErrors.color_id}</p>}
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">风格 *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">风格<span className="text-red-500"> *</span></label>
                 <select value={matForm.style_id} onChange={(e) => setMatForm({ ...matForm, style_id: e.target.value })} className={SELECT_CLS}>
                   <option value="">请选择风格</option>
                   {styles.map((st) => <option key={st.id} value={st.id}>{st.name}</option>)}
                 </select>
                 {matErrors.style_id && <p className="text-red-500 text-xs mt-1">{matErrors.style_id}</p>}
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">图片 URL</label>
-                <input value={matForm.image_url} onChange={(e) => setMatForm({ ...matForm, image_url: e.target.value })} className={INPUT_CLS} placeholder="https://... 或 /uploads/..." />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">原价（元）</label>
-                <input type="number" step="0.01" min="0" value={matForm.original_price} onChange={(e) => setMatForm({ ...matForm, original_price: e.target.value })} className={INPUT_CLS} />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">优惠价（元）</label>
-                <input type="number" step="0.01" min="0" value={matForm.discount_price} onChange={(e) => setMatForm({ ...matForm, discount_price: e.target.value })} className={INPUT_CLS} />
-              </div>
-              <div></div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">规格说明</label>
-              <textarea rows={2} value={matForm.specs} onChange={(e) => setMatForm({ ...matForm, specs: e.target.value })} className={`${INPUT_CLS} resize-none`} placeholder="如：2100×900mm" />
+              <label className="block text-sm font-medium text-gray-700 mb-1">图片 URL<span className="text-red-500"> *</span></label>
+              <input value={matForm.image_url} onChange={(e) => setMatForm({ ...matForm, image_url: e.target.value })} className={INPUT_CLS} placeholder="https://... 或 /uploads/..." />
+              {matErrors.image_url && <p className="text-red-500 text-xs mt-1">{matErrors.image_url}</p>}
             </div>
             <div className="flex justify-end gap-3 pt-2">
               <button type="button" onClick={closeMat} className="px-4 py-2 text-sm text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">取消</button>

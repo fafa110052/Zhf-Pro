@@ -340,6 +340,81 @@
   opacity: 0.7;
 }
 
+/* ─── 门步骤：先选系列，再选颜色 ─── */
+.door-section-title {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin: 8rpx 0 20rpx;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #1A1A1A;
+}
+
+.series-grid + .door-section-title {
+  margin-top: 40rpx;
+}
+
+.door-section-num {
+  width: 36rpx;
+  height: 36rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #C9A96E;
+  font-size: 22rpx;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+/* 门系列单选卡（2 列，主图 + 系列名） */
+.series-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+
+.series-card {
+  position: relative;
+  width: calc((100% - 16rpx) / 2);
+  box-sizing: border-box;
+  background: #FAF8F5;
+  border: 3rpx solid transparent;
+  border-radius: 12rpx;
+  overflow: hidden;
+}
+
+.series-card.is-selected {
+  border-color: #C9A96E;
+}
+
+/* 门为竖构图，主图取 3:4 比例更显完整 */
+.series-image {
+  width: 100%;
+  height: 300rpx;
+  display: block;
+  background: #f0ece5;
+}
+
+.series-info {
+  padding: 12rpx 16rpx 16rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+
+.series-name {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #1A1A1A;
+}
+
+.series-chosen {
+  font-size: 22rpx;
+  color: #C9A96E;
+}
+
 /* ─── 门系列色块网格（3 列） ─── */
 .color-grid {
   display: flex;

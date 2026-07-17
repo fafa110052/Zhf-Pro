@@ -115,39 +115,55 @@
           </accordion-card>
         </block>
 
-        <!-- ─── 第 2 步：木门系列 ─── -->
+        <!-- ─── 第 2 步：木门系列（先选系列，再选颜色） ─── -->
         <block wx:elif="{{stepType === 'door'}}">
           <view wx:if="{{doorLoading}}" class="body-hint step-hint">加载中…</view>
           <view wx:elif="{{doorError}}" class="body-retry step-hint" bindtap="onRetryDoorSeries">加载失败，点此重试</view>
           <view wx:elif="{{!doorSeries.length}}" class="body-hint step-hint">暂无门系列</view>
           <block wx:else>
-            <accordion-card
-              wx:for="{{doorSeries}}"
-              wx:key="id"
-              number="{{index + 1}}"
-              title="{{item.name}}"
-              expanded="{{expandedSub === item.id}}"
-              completed="{{selections.door.series_id === item.id}}"
-              selected-label="{{selections.door.series_id === item.id ? selections.door.color_name : ''}}"
-              data-id="{{item.id}}"
-              bind:toggle="onToggleSeries"
-            >
-              <view wx:if="{{loadingSubId === item.id}}" class="body-hint">加载中…</view>
-              <view wx:elif="{{errorSubId === item.id}}" class="body-retry" data-series-id="{{item.id}}" catchtap="onRetryDoorMaterials">加载失败，点此重试</view>
+            <!-- 第一层：门系列单选（主图 + 系列名） -->
+            <view class="door-section-title">
+              <text class="door-section-num">1</text>
+              <text>选择门系列</text>
+            </view>
+            <view class="series-grid">
+              <view
+                wx:for="{{doorSeries}}"
+                wx:key="id"
+                class="series-card {{chosenSeriesId === item.id ? 'is-selected' : ''}}"
+                data-id="{{item.id}}"
+                bindtap="onSelectSeries"
+              >
+                <image class="series-image" src="{{item.image_url}}" mode="aspectFill" />
+                <image wx:if="{{chosenSeriesId === item.id}}" class="mat-badge" src="/assets/icons/selected-mark.svg" mode="aspectFit" />
+                <view class="series-info">
+                  <text class="series-name">{{item.name}}</text>
+                  <text wx:if="{{selections.door.series_id === item.id}}" class="series-chosen">已选：{{selections.door.color_name}}</text>
+                </view>
+              </view>
+            </view>
+
+            <!-- 第二层：所选系列下的颜色 -->
+            <block wx:if="{{chosenSeriesId}}">
+              <view class="door-section-title">
+                <text class="door-section-num">2</text>
+                <text>选择门的颜色</text>
+              </view>
+              <view wx:if="{{loadingSubId === chosenSeriesId}}" class="body-hint">加载中…</view>
+              <view wx:elif="{{errorSubId === chosenSeriesId}}" class="body-retry" data-series-id="{{chosenSeriesId}}" catchtap="onRetryDoorMaterials">加载失败，点此重试</view>
               <block wx:else>
-                <view wx:if="{{!doorMaterialsCache['s' + item.id].length}}" class="body-hint">该系列暂无此风格门型</view>
+                <view wx:if="{{!doorMaterialsCache['s' + chosenSeriesId].length}}" class="body-hint">该系列暂无此风格门型</view>
                 <view wx:else class="color-grid">
                   <view
-                    wx:for="{{doorMaterialsCache['s' + item.id]}}"
+                    wx:for="{{doorMaterialsCache['s' + chosenSeriesId]}}"
                     wx:for-item="dm"
                     wx:key="id"
-                    class="color-card {{selections.door.series_id === item.id && selections.door.color_id === dm.color_id ? 'is-selected' : ''}}"
-                    data-series-id="{{item.id}}"
+                    class="color-card {{selections.door.series_id === chosenSeriesId && selections.door.color_id === dm.color_id ? 'is-selected' : ''}}"
                     data-id="{{dm.id}}"
                     bindtap="onSelectDoor"
                   >
                     <image class="color-swatch" src="{{dm.image_url}}" mode="aspectFill" />
-                    <image wx:if="{{selections.door.series_id === item.id && selections.door.color_id === dm.color_id}}" class="color-badge" src="/assets/icons/selected-mark.svg" mode="aspectFit" />
+                    <image wx:if="{{selections.door.series_id === chosenSeriesId && selections.door.color_id === dm.color_id}}" class="color-badge" src="/assets/icons/selected-mark.svg" mode="aspectFit" />
                     <text class="color-name">{{dm.color_name}}</text>
                     <text wx:if="{{dm.specs}}" class="color-specs">{{dm.specs}}</text>
                     <view wx:if="{{dm.original_price != null || dm.discount_price != null}}" class="price-row price-center">
@@ -157,7 +173,7 @@
                   </view>
                 </view>
               </block>
-            </accordion-card>
+            </block>
           </block>
         </block>
 
