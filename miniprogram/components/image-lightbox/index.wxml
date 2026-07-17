@@ -1,8 +1,7 @@
 <!-- 图片放大预览 -->
 <view wx:if="{{visible}}" class="lightbox-mask" catchtap="onClose" catchtouchmove="noop">
-  <!-- 顶部：名称 + 计数 + 关闭 -->
+  <!-- 顶部：计数 + 关闭 -->
   <view class="lb-topbar" catchtap="noop">
-    <text class="lb-name">{{images[current].name}}</text>
     <text class="lb-counter">{{current + 1}}/{{images.length}}</text>
     <view class="lb-close-wrap" catchtap="onClose">
       <image class="lb-close" src="/assets/icons/close.svg" mode="aspectFit" />
@@ -16,8 +15,13 @@
     </swiper-item>
   </swiper>
 
-  <!-- 底部：选中按钮 -->
+  <!-- 底部：标题/型号/规格 + 选中按钮 -->
   <view class="lb-bottombar" catchtap="noop">
+    <view class="lb-info">
+      <text class="lb-name">{{images[current].name}}</text>
+      <text wx:if="{{images[current].model}}" class="lb-line">型号：{{images[current].model}}</text>
+      <text wx:if="{{images[current].specs}}" class="lb-line">规格：{{images[current].specs}}</text>
+    </view>
     <view wx:if="{{selectedId !== null && images[current].id === selectedId}}" class="lb-btn lb-btn-selected">
       <image class="lb-check" src="/assets/icons/check.svg" mode="aspectFit" />
       <text>已选中</text>

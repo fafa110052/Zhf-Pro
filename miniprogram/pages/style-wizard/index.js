@@ -567,7 +567,7 @@ Page({
     const sel = this.data.selections['sub_' + subId];
     this._lightboxSubId = subId;
     this.setData({
-      lightboxImages: mats.map((m) => ({ id: m.id, url: m.image_url, name: m.name || m.brand })),
+      lightboxImages: mats.map((m) => ({ id: m.id, url: m.image_url, name: m.name || m.brand, model: m.model, specs: m.specs })),
       lightboxIndex: index,
       lightboxSelectedId: sel && sel.kind === 'material' ? sel.id : null,
       lightboxVisible: true,
