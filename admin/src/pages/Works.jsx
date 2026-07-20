@@ -685,14 +685,14 @@ function WorkFormModal({ open, work, onClose, onSaved }) {
           {/* 预算 */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">预算下限 (元)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">预算下限 (万元)</label>
               <input type="number" value={budgetMin} onChange={e => setBudgetMin(e.target.value)}
-                className={`w-full ${inputClass}`} placeholder="100000" />
+                className={`w-full ${inputClass}`} placeholder="10" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">预算上限 (元)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">预算上限 (万元)</label>
               <input type="number" value={budgetMax} onChange={e => setBudgetMax(e.target.value)}
-                className={`w-full ${inputClass}`} placeholder="150000" />
+                className={`w-full ${inputClass}`} placeholder="15" />
             </div>
           </div>
 
