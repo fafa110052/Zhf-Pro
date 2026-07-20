@@ -196,6 +196,8 @@ export default function StyleWizardMaterials() {
   const isSofa = !!selectedSub?.name?.includes('沙发');
   const isDecoration = selectedCat?.name === '装饰定制';
   const isTile = selectedCat?.page_number === 1; // 瓷砖选材：标题行显示品牌+logo，名称非必填
+  // 页面级判断：URL 锁定到瓷砖品类时，列表和表单都隐藏价格字段
+  const isTilePage = !!lockedCategory && categories.some((c) => String(c.id) === String(lockedCategory) && c.page_number === 1);
 
   const openAdd = () => {
     setModalMode('add'); setEditingId(null);
@@ -278,8 +280,8 @@ export default function StyleWizardMaterials() {
         brand: form.brand.trim() || null,
         brand_logo: form.brand_logo.trim() || null,
         image_url: form.image_url.trim() || null,
-        original_price: isTile || form.original_price === '' || form.original_price === null ? null : Number(form.original_price),
-        discount_price: isTile || form.discount_price === '' || form.discount_price === null ? null : Number(form.discount_price),
+        original_price: (isTilePage || isTile) || form.original_price === '' || form.original_price === null ? null : Number(form.original_price),
+        discount_price: (isTilePage || isTile) || form.discount_price === '' || form.discount_price === null ? null : Number(form.discount_price),
         specs: form.specs.trim() || null,
         sort_order: Number(form.sort_order) || 0,
         has_chaise: isSofa && form.has_chaise ? 1 : 0,
@@ -394,7 +396,7 @@ export default function StyleWizardMaterials() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-gray-100 bg-gray-50/50">
-                    {['图片', '名称', '品牌', '型号', '品类', '子品类', '原价', '优惠价', '排序', '操作'].map((h) => (
+                    {['图片', '名称', '品牌', '型号', '品类', '子品类', ...(isTilePage ? [] : ['原价', '优惠价']), '排序', '操作'].map((h) => (
                       <th key={h} className={`${h === '排序' ? 'text-center' : 'text-left'} ${h === '操作' ? 'text-right' : ''} px-4 py-3 text-gray-500 font-medium text-xs whitespace-nowrap`}>{h}</th>
                     ))}
                   </tr>
@@ -414,8 +416,8 @@ export default function StyleWizardMaterials() {
                       <td className="px-4 py-3 text-gray-500 whitespace-nowrap">{m.model || '—'}</td>
                       <td className="px-4 py-3 text-gray-600 whitespace-nowrap">{m.category_name || '—'}</td>
                       <td className="px-4 py-3 text-gray-600 whitespace-nowrap">{m.subcategory_name || '—'}</td>
-                      <td className="px-4 py-3 text-gray-500 whitespace-nowrap">{m.original_price != null ? `¥${m.original_price}` : '—'}</td>
-                      <td className="px-4 py-3 text-red-600 font-medium whitespace-nowrap">{m.discount_price != null ? `¥${m.discount_price}` : '—'}</td>
+                      {!isTilePage && <td className="px-4 py-3 text-gray-500 whitespace-nowrap">{m.original_price != null ? `¥${m.original_price}` : '—'}</td>}
+                      {!isTilePage && <td className="px-4 py-3 text-red-600 font-medium whitespace-nowrap">{m.discount_price != null ? `¥${m.discount_price}` : '—'}</td>}
                       <td className="px-4 py-3 text-center text-gray-500">{m.sort_order}</td>
                       <td className="px-4 py-3 text-right">
                         <div className="flex items-center justify-end space-x-1">
@@ -499,7 +501,7 @@ export default function StyleWizardMaterials() {
                   {formErrors.image_url && <p className="text-red-500 text-xs mt-1">{formErrors.image_url}</p>}
                 </div>
                 {/* 瓷砖不展示价格，字段整体隐藏 */}
-                {!isTile && (
+                {!(isTilePage || isTile) && (
                   <>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">原价（元）</label>
