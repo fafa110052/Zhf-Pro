@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 
 /**
@@ -311,8 +311,29 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
   };
 
   // 子菜单展开/折叠（三级菜单，如材料管理→7品类）
-  const [expandedSubmenus, setExpandedSubmenus] = useState({});
+  const [expandedSubmenus, setExpandedSubmenus] = useState(() => {
+    const init = {};
+    MENU_GROUPS.forEach((g) => {
+      g.items.forEach((item) => {
+        if (item.children) {
+          init[item.path] = item.children.some((c) => location.pathname.startsWith(c.path));
+        }
+      });
+    });
+    return init;
+  });
   const toggleSubmenu = (key) => setExpandedSubmenus((prev) => ({ ...prev, [key]: !prev[key] }));
+
+  // 导航到子项时自动展开父级
+  useEffect(() => {
+    MENU_GROUPS.forEach((g) => {
+      g.items.forEach((item) => {
+        if (item.children && item.children.some((c) => location.pathname.startsWith(c.path))) {
+          setExpandedSubmenus((prev) => ({ ...prev, [item.path]: true }));
+        }
+      });
+    });
+  }, [location.pathname]);
 
   const isItemActive = (path) => {
     if (path === '/dashboard') return location.pathname === '/dashboard';
@@ -497,7 +518,7 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
                     collapsed
                       ? 'lg:block'
                       : isOpen
-                        ? 'max-h-64 opacity-100 pb-2 px-1'
+                        ? 'max-h-[40rem] opacity-100 pb-2 px-1'
                         : 'max-h-0 opacity-0'
                   }`}
                 >
@@ -521,7 +542,7 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
                           <span className={`shrink-0 transition-colors duration-200 ${childActive ? c.accentStrong : 'text-slate-500'}`}>
                             {ITEM_ICONS[item.path]}
                           </span>
-                          <span className="flex-1 text-left ml-2.5 text-[13px] font-medium whitespace-nowrap leading-tight">
+                          <span className="flex-1 text-left text-[13px] font-medium whitespace-nowrap leading-tight">
                             {item.label}
                           </span>
                           <svg className={`w-3 h-3 shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-90' : ''} ${childActive ? c.accent : 'text-slate-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
