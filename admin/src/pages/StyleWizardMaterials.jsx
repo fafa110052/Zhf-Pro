@@ -494,7 +494,7 @@ export default function StyleWizardMaterials() {
                   <label className="block text-sm font-medium text-gray-700 mb-1">子品类<span className="text-red-500"> *</span></label>
                   <select value={form.subcategory_id} onChange={(e) => setForm({ ...form, subcategory_id: e.target.value })} className={SELECT_CLS}>
                     <option value="">请选择子品类</option>
-                    {categories.map((cat) => (
+                    {(lockedCategory ? categories.filter((c) => String(c.id) === String(lockedCategory)) : categories).map((cat) => (
                       <optgroup key={cat.id} label={cat.name}>
                         {(cat.subcategories || []).map((sub) => <option key={sub.id} value={sub.id}>{sub.name}</option>)}
                       </optgroup>
