@@ -121,9 +121,15 @@ const MENU_GROUPS = [
     items: [
       { path: '/style-wizard/styles', label: '风格管理' },
       { path: '/style-wizard/categories', label: '品类管理' },
-      { path: '/style-wizard/materials', label: '材料管理' },
-      { path: '/style-wizard/doors', label: '门系列管理' },
-      { path: '/style-wizard/lighting', label: '灯具套餐' },
+      { path: '/style-wizard/materials', label: '材料管理', children: [
+        { path: '/style-wizard/materials/1', label: '瓷砖选材' },
+        { path: '/style-wizard/materials/2', label: '室内木门' },
+        { path: '/style-wizard/materials/3', label: '卫浴选材' },
+        { path: '/style-wizard/materials/4', label: '装饰定制' },
+        { path: '/style-wizard/materials/5', label: '沙发选材' },
+        { path: '/style-wizard/materials/6', label: '家具选材' },
+        { path: '/style-wizard/materials/7', label: '装饰灯具' },
+      ]},
       { path: '/style-wizard/orders', label: '选材单管理' },
     ],
   },
@@ -303,6 +309,10 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
   const toggleGroup = (key) => {
     setExpanded((prev) => ({ ...prev, [key]: !prev[key] }));
   };
+
+  // 子菜单展开/折叠（三级菜单，如材料管理→7品类）
+  const [expandedSubmenus, setExpandedSubmenus] = useState({});
+  const toggleSubmenu = (key) => setExpandedSubmenus((prev) => ({ ...prev, [key]: !prev[key] }));
 
   const isItemActive = (path) => {
     if (path === '/dashboard') return location.pathname === '/dashboard';
@@ -491,10 +501,56 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
                         : 'max-h-0 opacity-0'
                   }`}
                 >
-                  {group.items.map((item) => renderItem(item, {
-                    compact: collapsed,
-                    colorKey: group.colorKey,
-                  }))}
+                  {group.items.map((item) => {
+                  // 有子菜单：可展开的父级（收起模式下退化为普通项）
+                  if (item.children) {
+                    if (collapsed) {
+                      return renderItem(item, { compact: true, colorKey: group.colorKey });
+                    }
+                    const isOpen = !!expandedSubmenus[item.path];
+                    const childActive = item.children.some((c) => isItemActive(c.path));
+                    return (
+                      <div key={item.path}>
+                        <button
+                          onClick={() => toggleSubmenu(item.path)}
+                          className={`w-full flex items-center rounded-lg transition-all duration-200 pl-9 pr-3 h-8 relative ${childActive ? c.accentStrong : 'text-slate-600 hover:text-slate-800'}`}
+                        >
+                          {childActive && (
+                            <span className={`absolute left-0 top-1.5 bottom-1.5 w-0.5 rounded-r-full ${c.bg}`} />
+                          )}
+                          <span className={`shrink-0 transition-colors duration-200 ${childActive ? c.accentStrong : 'text-slate-500'}`}>
+                            {ITEM_ICONS[item.path]}
+                          </span>
+                          <span className="flex-1 text-left ml-2.5 text-[13px] font-medium whitespace-nowrap leading-tight">
+                            {item.label}
+                          </span>
+                          <svg className={`w-3 h-3 shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-90' : ''} ${childActive ? c.accent : 'text-slate-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
+                        </button>
+                        <div className={`overflow-hidden transition-all duration-200 ease-in-out ${isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
+                          <div className="space-y-0.5 pt-0.5 pb-1">
+                            {item.children.map((child) => {
+                              const active = isItemActive(child.path);
+                              return (
+                                <NavLink
+                                  key={child.path}
+                                  to={child.path}
+                                  onClick={onMobileClose}
+                                  className={`flex items-center rounded-lg transition-all duration-200 pl-12 pr-3 h-7 relative ${active ? `${c.bgLight} ${c.accentStrong}` : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700'}`}
+                                >
+                                  {active && <span className={`absolute left-8 top-1.5 bottom-1.5 w-0.5 rounded-r-full ${c.bg}`} />}
+                                  <span className="text-[12px] font-medium whitespace-nowrap leading-tight">{child.label}</span>
+                                </NavLink>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  }
+                  return renderItem(item, { compact: collapsed, colorKey: group.colorKey });
+                })}
                 </div>
               </div>
             );

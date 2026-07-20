@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { useParams } from 'react-router-dom';
 import client from '../api/client';
 import Modal from '../components/Modal';
 import ConfirmDialog from '../components/ConfirmDialog';
@@ -63,6 +64,8 @@ function Pagination({ page, totalPages, total, onPage }) {
  */
 export default function StyleWizardMaterials() {
   const toast = useToast();
+  const { categoryId } = useParams();
+  const lockedCategory = categoryId || '';
 
   const [categories, setCategories] = useState([]);
   const [styles, setStyles] = useState([]);
@@ -72,8 +75,8 @@ export default function StyleWizardMaterials() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // 筛选
-  const [filterCategory, setFilterCategory] = useState('');
+  // 筛选 — 若 URL 带品类参数则锁定
+  const [filterCategory, setFilterCategory] = useState(lockedCategory);
   const [filterSubcategory, setFilterSubcategory] = useState('');
   const [keyword, setKeyword] = useState('');
 
@@ -149,11 +152,21 @@ export default function StyleWizardMaterials() {
   };
 
   useEffect(() => {
-    fetchList({ page: 1, page_size: 20 });
+    const params = { page: 1, page_size: 20 };
+    if (lockedCategory) params.category_id = Number(lockedCategory);
+    fetchList(params);
     // 室内木门（page_number=2）由「门系列管理」维护，材料管理不展示，避免两处入口冲突
     client.get('/admin/style-categories').then((res) => setCategories((res.data || []).filter((c) => c.page_number !== 2))).catch(() => {});
     client.get('/admin/styles').then((res) => setStyles(res.data || [])).catch(() => {});
-  }, [fetchList]);
+  }, [fetchList, lockedCategory]);
+
+  // 品类间切换：同步 URL 参数到筛选状态
+  useEffect(() => {
+    if (lockedCategory) {
+      setFilterCategory(lockedCategory);
+      setFilterSubcategory('');
+    }
+  }, [lockedCategory]);
 
   const handleCategoryChange = (val) => {
     setFilterCategory(val); setFilterSubcategory('');
@@ -327,8 +340,8 @@ export default function StyleWizardMaterials() {
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-bold text-gray-900">材料管理</h2>
-            <p className="text-sm text-gray-500 mt-0.5">管理选材向导各品类下的材料/产品，可关联多个风格</p>
+            <h2 className="text-lg font-bold text-gray-900">{lockedCategory ? `${categories.find((c) => String(c.id) === String(lockedCategory))?.name || ''}材料` : '材料管理'}</h2>
+            <p className="text-sm text-gray-500 mt-0.5">{lockedCategory ? '管理当前品类下的材料/产品，可关联多个风格' : '管理选材向导各品类下的材料/产品，可关联多个风格'}</p>
           </div>
           <button onClick={openAdd} className="inline-flex items-center px-4 py-2 bg-slate-900 text-white text-sm font-medium rounded-lg hover:bg-slate-800 transition-colors">
             <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -338,11 +351,17 @@ export default function StyleWizardMaterials() {
           </button>
         </div>
         <form onSubmit={handleSearch} className="flex flex-wrap items-center gap-3 mt-4">
-          <select value={filterCategory} onChange={(e) => handleCategoryChange(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-            <option value="">全部品类</option>
-            {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-          </select>
+          {lockedCategory ? (
+            <span className="px-3 py-2 bg-slate-100 text-slate-700 rounded-lg text-sm font-medium">
+              {categories.find((c) => String(c.id) === String(lockedCategory))?.name || '加载中...'}
+            </span>
+          ) : (
+            <select value={filterCategory} onChange={(e) => handleCategoryChange(e.target.value)}
+              className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              <option value="">全部品类</option>
+              {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+            </select>
+          )}
           <select value={filterSubcategory} onChange={(e) => handleSubcategoryChange(e.target.value)} disabled={!filterCategory}
             className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-400">
             <option value="">全部子品类</option>
