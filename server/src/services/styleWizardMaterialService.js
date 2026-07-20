@@ -38,8 +38,8 @@ const styleWizardMaterialService = {
     const { subcategory_id, name, model, brand, brand_logo, image_url,
       original_price, discount_price, specs, attributes, has_chaise,
       old_code, new_code, applicable_scopes, sort_order, style_ids } = fields;
-    // 瓷砖类材料以品牌为标题、可不填名称，故名称与品牌至少一项
-    if (!subcategory_id || (!name && !brand)) throw Object.assign(new Error('子品类必填，名称与品牌至少填一项'), { status: 400 });
+    // 标题至少填一项（名称/品牌/型号）；瓷砖用品牌，卫浴用型号
+    if (!subcategory_id || (!name && !brand && !model)) throw Object.assign(new Error('子品类必填，名称、品牌或型号至少填一项'), { status: 400 });
     const sort = sort_order || 0;
     const id = await db.transaction(async (trx) => {
       // 排序值冲突时，同子品类内 >= 该值的材料整体后移一位（与风格管理一致）
@@ -74,7 +74,8 @@ const styleWizardMaterialService = {
     if (u.name === null) u.name = ''; // name 列非空，空标题存空串
     const finalName = u.name !== undefined ? u.name : ex.name;
     const finalBrand = u.brand !== undefined ? u.brand : ex.brand;
-    if (!finalName && !finalBrand) throw Object.assign(new Error('名称与品牌至少填一项'), { status: 400 });
+    const finalModel = u.model !== undefined ? u.model : ex.model;
+    if (!finalName && !finalBrand && !finalModel) throw Object.assign(new Error('名称、品牌或型号至少填一项'), { status: 400 });
     if (fields.subcategory_id !== undefined) u.subcategory_id = fields.subcategory_id;
     if (fields.original_price !== undefined) u.original_price = fields.original_price;
     if (fields.discount_price !== undefined) u.discount_price = fields.discount_price;
