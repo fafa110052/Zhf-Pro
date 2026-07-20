@@ -26,41 +26,67 @@ admin/src/
 └── pages/              # 24 个页面
 ```
 
-## 路由 + 菜单（MENU_ITEMS）
+## 路由 + 菜单
 
-| 路径 | 页面 | 菜单名 | 菜单图标 |
-|------|------|--------|---------|
-| `/dashboard` | Dashboard | 仪表盘 | 房子 |
-| `/works` | Works | 作品管理 | 文档 |
-| `/avatar-reviews` | AvatarReviews | 头像审核 | 用户 |
-| `/designers` | Designers | 人员管理 | 人群 |
-| `/properties` | Properties | 楼盘管理 | 建筑 |
-| `/material-categories` | MaterialCategories | 材料分类 | 标签 |
-| `/materials` | Materials | 材料管理 | 立方体 |
-| `/material-orders` | MaterialOrders | 工程管理 | 对勾 |
-| `/measurement-appointments` | MeasurementAppointments | 量房预约 | 日历 |
-| `/lottery` | LotteryConfig | 摇一摇抽奖 | 礼物 |
-| `/operation-data` | OperationData | 运营数据 | 图表 |
-| `/reports` | Reports | 举报管理 | 旗帜 |
-| `/categories` | Categories | 分类字典 | 标签 |
-| `/images` | Images | 图片库 | 图片 |
-| `/settings` | Settings | 系统设置 | 齿轮 |
-| `/style-wizard/styles` | StyleWizardStyles | 风格管理 | 滚筒刷 |
-| `/style-wizard/categories` | StyleWizardCategories | 品类管理 | 标签 |
-| `/style-wizard/materials` | StyleWizardMaterials | 材料管理 | 立方体 |
-| `/style-wizard/doors` | StyleWizardDoors | 门系列管理 | 门 |
-| `/style-wizard/lighting` | StyleWizardLighting | 灯具套餐 | 灯泡 |
-| `/style-wizard/orders` | StyleWizardOrders | 选材单管理 | 清单 |
-| `/accounts` | 重定向到 /designers | — | — |
+风格选材组（侧边栏「风格选材」）采用**三级菜单**：材料管理可展开为 7 个子品类。
 
-`/style-wizard/*` 6 页在侧边栏归于菜单分组「风格选材」（二级子菜单）。
+| 路径 | 页面 | 菜单层级 |
+|------|------|---------|
+| `/dashboard` | Dashboard | 一级 |
+| `/works` | Works | 一级 |
+| `/avatar-reviews` | AvatarReviews | 一级 |
+| `/designers` | Designers | 一级 |
+| `/properties` | Properties | 一级 |
+| `/material-categories` | MaterialCategories | 一级（装修选材组） |
+| `/materials` | Materials | 一级（装修选材组） |
+| `/material-orders` | MaterialOrders | 一级 |
+| `/measurement-appointments` | MeasurementAppointments | 一级 |
+| `/lottery` | LotteryConfig | 一级 |
+| `/operation-data` | OperationData | 一级 |
+| `/reports` | Reports | 一级 |
+| `/categories` | Categories | 一级 |
+| `/images` | Images | 一级 |
+| `/settings` | Settings | 一级 |
+| `/style-wizard/styles` | StyleWizardStyles | 二级 |
+| `/style-wizard/categories` | StyleWizardCategories | 二级 |
+| `/style-wizard/materials` | StyleWizardMaterials | **二级（可展开，不导航）** |
+| `/style-wizard/materials/1` | StyleWizardMaterials | └ 三级·瓷砖选材（隐藏价格列+表单） |
+| `/style-wizard/materials/2` | StyleWizardDoors | └ 三级·室内木门（门系列管理） |
+| `/style-wizard/materials/3` | StyleWizardMaterials | └ 三级·卫浴选材 |
+| `/style-wizard/materials/4` | StyleWizardMaterials | └ 三级·装饰定制 |
+| `/style-wizard/materials/5` | StyleWizardMaterials | └ 三级·沙发选材 |
+| `/style-wizard/materials/6` | StyleWizardMaterials | └ 三级·家具选材 |
+| `/style-wizard/materials/7` | StyleWizardLighting | └ 三级·装饰灯具（灯具套餐） |
+| `/style-wizard/orders` | StyleWizardOrders | 二级 |
+| `/style-wizard/doors` | → `/style-wizard/materials/2` | 重定向（兼容旧路径） |
+| `/style-wizard/lighting` | → `/style-wizard/materials/7` | 重定向（兼容旧路径） |
+| `/accounts` | → `/designers` | 重定向 |
+
+> **路由注册顺序**：`materials/2` 和 `materials/7` 必须在 `materials/:categoryId` 之前，否则被通配路由捕获。
 
 ## 新增页面检查清单
 
-1. `router/index.jsx` — 注册路由
-2. `Sidebar.jsx` — MENU_ITEMS 加一项
-3. `HeaderBar.jsx` — BREADCRUMB_MAP 加标题
+1. `router/index.jsx` — 注册路由（三级路由注意顺序：具体路径在动态 `:param` 前）
+2. `Sidebar.jsx` — MENU_GROUPS 对应分组的 `items[]` 加一项；若为三级子项，在父项 `children[]` 中添加
+3. `HeaderBar.jsx` — FULL_PATH_MAP 加路径→中文映射
 4. `cd admin && npx vite build` — 验证构建
+
+## 侧边栏三级子菜单
+
+`MENU_GROUPS[].items[]` 支持 `children` 字段：
+
+```js
+{ path: '/style-wizard/materials', label: '材料管理', children: [
+  { path: '/style-wizard/materials/1', label: '瓷砖选材' },
+  // ...
+]}
+```
+
+- 有 children 的项渲染为 `<button>`（toggle 展开/折叠），不导航
+- 展开状态：`expandedSubmenus[item.path]`（初始值 + useEffect 自动展开当前激活路由的父级）
+- 分组展开区 `max-h-[40rem]`（不用 `max-h-64`——含 children 展开后总高度远超 256px）
+- Tier 3 子项：`pl-12`，12px 字体，无图标
+- 子菜单父级按钮 icon-text 间距与 `renderItem`（Tier 2）一致，不加 `ml-2.5`
 
 ## 组件 API 契约
 
