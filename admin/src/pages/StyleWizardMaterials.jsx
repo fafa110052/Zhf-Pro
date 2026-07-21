@@ -222,7 +222,7 @@ export default function StyleWizardMaterials() {
   const { cat: selectedCat, sub: selectedSub } = findSub(form.subcategory_id);
   const tpl = parseTemplate(selectedSub);
   const isSofa = !!selectedSub?.name?.includes('沙发');
-  const isDecoration = selectedCat?.name === '装饰定制';
+  const isDecoration = selectedCat?.name === '装饰定制' || (isDecorationPage && !form.subcategory_id);
   const isTile = selectedCat?.page_number === 1; // 瓷砖选材：标题行显示品牌+logo，名称非必填
   // 页面级判断：URL 锁定到瓷砖品类时，列表和表单都隐藏价格字段
   const isTilePage = !!lockedCategory && categories.some((c) => String(c.id) === String(lockedCategory) && c.page_number === 1);
@@ -241,7 +241,7 @@ export default function StyleWizardMaterials() {
   // 非浴室柜的卫浴子品类（马桶/蹲厕/水箱/花洒/水龙头）
   const isBathOther = isBath && !isBathCabinet;
   // 装饰定制子品类分支
-  const isCabinetColor = isDecoration && subName.includes('柜体/柜门颜色');
+  const isCabinetColor = isDecoration && (subName.includes('柜体/柜门颜色') || !form.subcategory_id);
   const isCountertop = isDecoration && subName.includes('橱柜台面石');
   const isDecorationSimple = isCabinetColor || isCountertop;
 
@@ -593,7 +593,7 @@ export default function StyleWizardMaterials() {
                 {/* 瓷砖标题行 = 品牌，卫浴标题行 = 型号，均无需名称，字段整体隐藏 */}
                 {!(isTile || (isBath && !isShower && !isFaucet) || (isBathPage && !isShower && !isFaucet)) && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">材料名称<span className="text-red-500"> *</span></label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{isCabinetColor ? '颜色名称' : isCountertop ? '石材名称' : '材料名称'}<span className="text-red-500"> *</span></label>
                     <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className={INPUT_CLS} maxLength={128} placeholder="如：原木风三人沙发" />
                     {formErrors.name && <p className="text-red-500 text-xs mt-1">{formErrors.name}</p>}
                   </div>
