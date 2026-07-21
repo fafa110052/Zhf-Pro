@@ -269,6 +269,8 @@ export default function StyleWizardMaterials() {
         mirror_cabinet: attrValues['镜柜'] || '',
         main_cabinet: attrValues['主柜'] || '',
         countertop: attrValues['台面'] || '',
+        drainage_method: attrValues['排水方式'] || '',
+        wall_distance: attrValues['前出水墙距'] || '',
       });
     } catch (err) {
       toast.error(err?.message || '加载材料详情失败');
