@@ -289,13 +289,29 @@ export default function StyleWizardMaterials() {
       if (!form.brand_logo.trim()) errs.brand_logo = '请上传品牌 Logo';
       if (!form.model.trim()) errs.model = '请输入型号';
       if (!form.specs.trim()) errs.specs = '请输入规格';
-    } else if (isBath || isBathPage) {
-      // 卫浴：型号为主标题，镜柜/主柜/台面/图片均必填，无名称与价格
+    } else if (isBathCabinet) {
+      // 浴室柜组合：保持现有逻辑
       if (!form.model.trim()) errs.model = '请输入型号';
       if (!form.mirror_cabinet.trim()) errs.mirror_cabinet = '请输入镜柜规格';
       if (!form.main_cabinet.trim()) errs.main_cabinet = '请输入主柜规格';
       if (!form.countertop.trim()) errs.countertop = '请输入台面规格';
-      if (!form.image_url.trim()) errs.image_url = '请上传图片';
+    } else if (isToilet) {
+      if (!form.model.trim()) errs.model = '请输入型号';
+      if (!form.specs.trim()) errs.specs = '请输入规格';
+      if (!form.drainage_method.trim()) errs.drainage_method = '请输入排水方式';
+    } else if (isSquatToilet) {
+      if (!form.model.trim()) errs.model = '请输入型号';
+      if (!form.specs.trim()) errs.specs = '请输入规格';
+      if (!form.wall_distance.trim()) errs.wall_distance = '请输入前出水墙距';
+    } else if (isWaterTank) {
+      if (!form.model.trim()) errs.model = '请输入型号';
+      if (!form.specs.trim()) errs.specs = '请输入规格';
+    } else if (isShower) {
+      if (!form.name.trim()) errs.name = '请输入标题';
+      if (!form.model.trim()) errs.model = '请输入型号';
+    } else if (isFaucet) {
+      if (!form.name.trim()) errs.name = '请输入标题';
+      if (!form.model.trim()) errs.model = '请输入型号';
     } else if (!form.name.trim()) {
       errs.name = '请输入材料名称';
     }
