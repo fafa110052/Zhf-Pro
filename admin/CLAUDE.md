@@ -38,11 +38,11 @@ admin/src/
 | `/style-wizard/bathroom-doors` | StyleWizardBathroomDoors | └ 卫生间门 |
 | `/style-wizard/materials/3` | StyleWizardMaterials | └ 卫浴 |
 | `/style-wizard/materials/4` | StyleWizardMaterials | └ 装饰定制 |
-| `/style-wizard/materials/5` | StyleWizardMaterials | └ 家具（含沙发/床/餐桌餐椅/电视柜/茶几/床头柜） |
-| `/style-wizard/materials/6` | StyleWizardLighting | └ 灯具（套餐管理） |
+| `/style-wizard/materials/6` | StyleWizardMaterials | └ 家具（含沙发/床/餐桌餐椅/电视柜/茶几/床头柜） |
+| `/style-wizard/materials/7` | StyleWizardLighting | └ 灯具（套餐管理） |
 | `/style-wizard/orders` | StyleWizardOrders | 选材单 |
 
-> 路由顺序：`materials/2` 和 `materials/6` 必须在 `materials/:categoryId` 之前。
+> 路由顺序：`materials/2` 和 `materials/7` 必须在 `materials/:categoryId` 之前。
 
 ## 设计 Token
 
