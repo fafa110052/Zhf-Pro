@@ -331,9 +331,11 @@ export default function StyleWizardMaterials() {
     if (!validateForm()) return;
     setSubmitting(true);
     try {
+      const needsName = isShower || isFaucet;
+      const bathNoName = (isBath || isBathPage) && !needsName;
       const payload = {
         subcategory_id: Number(form.subcategory_id),
-        name: (isTile || isBath || isBathPage) ? '' : form.name.trim(), // 瓷砖/卫浴无名称
+        name: (isTile || bathNoName) ? '' : form.name.trim(),
         model: form.model.trim() || null,
         brand: form.brand.trim() || null,
         brand_logo: form.brand_logo.trim() || null,
@@ -345,13 +347,18 @@ export default function StyleWizardMaterials() {
         has_chaise: isSofa && form.has_chaise ? 1 : 0,
         style_ids: form.style_ids,
       };
-      if (isBath || isBathPage) {
-        // 卫浴：镜柜/主柜/台面存入 attributes JSON，不由子品类模板驱动
+      if (isBathCabinet) {
         payload.attributes = {
           '镜柜': form.mirror_cabinet.trim(),
           '主柜': form.main_cabinet.trim(),
           '台面': form.countertop.trim(),
         };
+      } else if (isToilet) {
+        payload.attributes = { '排水方式': form.drainage_method.trim() };
+      } else if (isSquatToilet) {
+        payload.attributes = { '前出水墙距': form.wall_distance.trim() };
+      } else if (isWaterTank || isShower || isFaucet) {
+        // 无 attributes — 不传
       } else if (tpl.keys) {
         const attrs = {};
         tpl.keys.forEach((k) => {
