@@ -138,7 +138,7 @@
                           <text class="scope-text">{{sc}}</text>
                         </view>
                       </block>
-                      <text wx:else class="scope-tag" wx:for="{{mat.scopes}}" wx:for-item="sc" wx:key="*this">✓ {{sc}}</text>
+                      <text wx:if="{{!item.isCabinetColor}}" class="scope-tag" wx:for="{{mat.scopes}}" wx:for-item="sc" wx:key="*this">✓ {{sc}}</text>
                     </view>
                     <view wx:if="{{mat.attrList.length && !item.isCabinetColor && !item.isCountertop}}" class="mat-attrs">
                       <text class="attr-line" wx:for="{{mat.attrList}}" wx:for-item="attr" wx:key="k">{{attr.k}} {{attr.v}}</text>
