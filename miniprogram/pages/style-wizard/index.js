@@ -120,7 +120,10 @@ Page({
         .slice()
         .sort((a, b) => a.page_number - b.page_number)
         .map((c) => Object.assign({}, c, {
-          subcategories: (c.subcategories || []).slice().sort((a, b) => a.sort_order - b.sort_order),
+          subcategories: (c.subcategories || []).slice().sort((a, b) => a.sort_order - b.sort_order)
+            .map((s) => Object.assign({}, s, {
+              isBathDoor: (s.name || '').indexOf('卫生间门') !== -1,
+            })),
         }));
 
       // 草稿续选：登录走服务端，未登录走本地缓存
@@ -376,7 +379,7 @@ Page({
    */
   pickMaterial(subId, mat) {
     const sub = this.findSub(subId);
-    if (sub && (sub.name || '').indexOf('卫生间门') !== -1) {
+    if (sub && sub.isBathDoor) {
       this.setData({
         pending: { subId, materialId: mat.id, type: 'lock', options: ['左锁右内开', '右锁左内开'] },
       });
@@ -543,7 +546,7 @@ Page({
   // ═══════════════════════════════════════════
 
   isBathDoorSub(sub) {
-    return sub && (sub.name || '').indexOf('卫生间门') !== -1;
+    return sub && sub.isBathDoor;
   },
 
   async ensureBathDoorSeries() {
