@@ -21,6 +21,7 @@ import StyleWizardStyles from '../pages/StyleWizardStyles';
 import StyleWizardCategories from '../pages/StyleWizardCategories';
 import StyleWizardMaterials from '../pages/StyleWizardMaterials';
 import StyleWizardDoors from '../pages/StyleWizardDoors';
+import StyleWizardBathroomDoors from '../pages/StyleWizardBathroomDoors';
 import StyleWizardLighting from '../pages/StyleWizardLighting';
 import StyleWizardOrders from '../pages/StyleWizardOrders';
 
@@ -50,6 +51,7 @@ const router = createBrowserRouter([
       { path: 'style-wizard/styles', element: <StyleWizardStyles /> },
       { path: 'style-wizard/categories', element: <StyleWizardCategories /> },
       { path: 'style-wizard/materials/2', element: <StyleWizardDoors /> },
+      { path: 'style-wizard/bathroom-doors', element: <StyleWizardBathroomDoors /> },
       { path: 'style-wizard/materials/7', element: <StyleWizardLighting /> },
       { path: 'style-wizard/materials/:categoryId', element: <StyleWizardMaterials /> },
       { path: 'style-wizard/materials', element: <StyleWizardMaterials /> },

@@ -33,7 +33,10 @@ router.get('/style-categories', async (req, res, next) => {
   try { res.json({ success: true, data: await svc.listCategories() }); } catch (e) { next(e); }
 });
 router.get('/door-series', async (req, res, next) => {
-  try { res.json({ success: true, data: await svc.listDoorSeries() }); } catch (e) { next(e); }
+  try {
+    const pageNumber = req.query.page_number ? Number(req.query.page_number) : undefined;
+    res.json({ success: true, data: await svc.listDoorSeries(pageNumber) });
+  } catch (e) { next(e); }
 });
 router.get('/door-materials', async (req, res, next) => {
   try {
@@ -101,7 +104,10 @@ router.put('/admin/style-materials/:id', ...wrap(req => matSvc.updateMaterial(Nu
 router.delete('/admin/style-materials/:id', ...wrap(req => matSvc.deleteMaterial(Number(req.params.id)).then(() => ({ success: true, message: '已删除' }))));
 
 // 门系列+颜色+门材料
-router.get('/admin/door-series', ...wrap(() => svc.listDoorSeries().then(ok)));
+router.get('/admin/door-series', ...wrap(req => {
+  const pageNumber = req.query.page_number ? Number(req.query.page_number) : undefined;
+  return svc.listDoorSeries(pageNumber).then(ok);
+}));
 router.get('/admin/door-series/:id', ...wrap(req => svc.getDoorSeries(Number(req.params.id)).then(ok)));
 router.post('/admin/door-series', ...wrap201(req => svc.createDoorSeries(req.body)));
 router.put('/admin/door-series/:id', ...wrap(req => svc.updateDoorSeries(Number(req.params.id), req.body).then(() => ({ success: true, message: '已更新' }))));

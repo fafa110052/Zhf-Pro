@@ -135,8 +135,10 @@ const styleWizardService = {
   },
 
   // ===== 门系列 + 颜色 + 门材料 =====
-  async listDoorSeries() {
-    const series = await db('door_series').orderBy('sort_order', 'asc');
+  async listDoorSeries(pageNumber) {
+    let q = db('door_series').orderBy('sort_order', 'asc');
+    if (pageNumber !== undefined) q = q.where('page_number', pageNumber);
+    const series = await q;
     for (const s of series) {
       s.colors = await db('door_colors').where('series_id', s.id).orderBy('sort_order', 'asc');
     }
@@ -148,14 +150,15 @@ const styleWizardService = {
     s.colors = await db('door_colors').where('series_id', id).orderBy('sort_order', 'asc');
     return s;
   },
-  async createDoorSeries({ name, image_url, sort_order }) {
+  async createDoorSeries({ name, image_url, sort_order, page_number }) {
     if (!name) throw Object.assign(new Error('系列名称不能为空'), { status: 400 });
     const sort = sort_order || 0;
+    const pn = page_number || 2;
     const id = await db.transaction(async (trx) => {
       // 排序值冲突时，>= 该值的系列整体后移一位
       const clash = await trx('door_series').where('sort_order', sort).first();
       if (clash) await trx('door_series').where('sort_order', '>=', sort).increment('sort_order', 1);
-      const [newId] = await trx('door_series').insert({ name, image_url: image_url || null, sort_order: sort });
+      const [newId] = await trx('door_series').insert({ name, image_url: image_url || null, sort_order: sort, page_number: pn });
       return newId;
     });
     return db('door_series').where('id', id).first();
@@ -167,6 +170,7 @@ const styleWizardService = {
     if (fields.name !== undefined) u.name = fields.name;
     if (fields.image_url !== undefined) u.image_url = fields.image_url;
     if (fields.sort_order !== undefined) u.sort_order = fields.sort_order;
+    if (fields.page_number !== undefined) u.page_number = fields.page_number;
     await db.transaction(async (trx) => {
       // 改到已被占用的排序值时，其余 >= 该值的系列整体后移一位
       if (u.sort_order !== undefined && u.sort_order !== ex.sort_order) {

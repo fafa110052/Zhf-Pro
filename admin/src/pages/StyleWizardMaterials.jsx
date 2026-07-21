@@ -20,6 +20,24 @@ const EMPTY_FORM = {
   mirror_cabinet: '', main_cabinet: '', countertop: '',
 };
 
+/** 品类颜色标签：按名称哈希分配，同一品类颜色稳定 */
+const CAT_COLORS = [
+  { bg: '#eff6ff', text: '#1d4ed8' },  // 蓝
+  { bg: '#f0fdf4', text: '#15803d' },  // 绿
+  { bg: '#fef3c7', text: '#b45309' },  // 琥珀
+  { bg: '#fce7f3', text: '#be185d' },  // 粉
+  { bg: '#ede9fe', text: '#6d28d9' },  // 紫
+  { bg: '#fff7ed', text: '#c2410c' },  // 橙
+  { bg: '#ecfeff', text: '#0e7490' },  // 青
+  { bg: '#f1f5f9', text: '#475569' },  // 灰
+];
+function categoryColor(name) {
+  if (!name) return CAT_COLORS[7]; // 灰色兜底
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) hash = (hash * 31 + name.charCodeAt(i)) | 0;
+  return CAT_COLORS[Math.abs(hash) % CAT_COLORS.length];
+}
+
 /** 解析子品类的属性模板：{ keys: string[]|null, invalid: boolean } */
 function parseTemplate(sub) {
   if (!sub?.attribute_template) return { keys: null, invalid: false };
@@ -457,7 +475,7 @@ export default function StyleWizardMaterials() {
                           <td className="px-4 py-3 text-gray-500 whitespace-nowrap">{m.model || '—'}</td>
                         </>
                       )}
-                      <td className="px-4 py-3 text-gray-600 whitespace-nowrap">{m.category_name || '—'}</td>
+                      <td className="px-4 py-3 whitespace-nowrap">{(() => { const c = categoryColor(m.category_name); return <span style={{background:c.bg,color:c.text,padding:'2px 8px',borderRadius:'4px',fontSize:'12px'}}>{m.category_name || '—'}</span>; })()}</td>
                       <td className="px-4 py-3 text-gray-600 whitespace-nowrap">{m.subcategory_name || '—'}</td>
                       {!isTilePage && !isBathPage && <td className="px-4 py-3 text-gray-500 whitespace-nowrap">{m.original_price != null ? `¥${m.original_price}` : '—'}</td>}
                       {!isTilePage && !isBathPage && <td className="px-4 py-3 text-red-600 font-medium whitespace-nowrap">{m.discount_price != null ? `¥${m.discount_price}` : '—'}</td>}

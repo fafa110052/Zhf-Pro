@@ -40,6 +40,76 @@
             data-id="{{item.id}}"
             bind:toggle="onToggleSub"
           >
+            <!-- 卫生间门：系列→颜色选择（复用门步骤模式） -->
+            <block wx:if="{{item.name.indexOf('卫生间门') !== -1}}">
+              <view wx:if="{{bathDoorLoading}}" class="body-hint">加载中…</view>
+              <view wx:elif="{{bathDoorError}}" class="body-retry" catchtap="onRetryBathDoorSeries">加载失败，点此重试</view>
+              <view wx:elif="{{!bathDoorSeries.length}}" class="body-hint">暂无卫生间门系列</view>
+              <block wx:else>
+                <view class="door-section-title">
+                  <text class="door-section-num">1</text>
+                  <text>选择门系列</text>
+                </view>
+                <view class="series-grid">
+                  <view
+                    wx:for="{{bathDoorSeries}}"
+                    wx:key="id"
+                    class="series-card {{bathDoorChosenSeriesId === item.id ? 'is-selected' : ''}}"
+                    data-id="{{item.id}}"
+                    bindtap="onSelectBathDoorSeries"
+                  >
+                    <image class="series-image" src="{{item.image_url}}" mode="aspectFill" />
+                    <image wx:if="{{bathDoorChosenSeriesId === item.id}}" class="mat-badge" src="/assets/icons/selected-mark.svg" mode="aspectFit" />
+                    <view class="series-info">
+                      <text class="series-name">{{item.name}}</text>
+                    </view>
+                  </view>
+                </view>
+                <block wx:if="{{bathDoorChosenSeriesId}}">
+                  <view class="door-section-title">
+                    <text class="door-section-num">2</text>
+                    <text>选择门的颜色</text>
+                  </view>
+                  <view wx:if="{{loadingSubId === bathDoorChosenSeriesId}}" class="body-hint">加载中…</view>
+                  <view wx:elif="{{errorSubId === bathDoorChosenSeriesId}}" class="body-retry" data-series-id="{{bathDoorChosenSeriesId}}" catchtap="onRetryBathDoorMaterials">加载失败，点此重试</view>
+                  <block wx:else>
+                    <view wx:if="{{!bathDoorMaterialsCache['s' + bathDoorChosenSeriesId].length}}" class="body-hint">该系列暂无此风格门型</view>
+                    <view wx:else class="color-grid">
+                      <view
+                        wx:for="{{bathDoorMaterialsCache['s' + bathDoorChosenSeriesId]}}"
+                        wx:for-item="dm"
+                        wx:key="id"
+                        class="color-card {{pending && pending.materialId === dm.id ? 'is-selected' : ''}}"
+                        data-id="{{dm.id}}"
+                        bindtap="onSelectBathDoorColor"
+                      >
+                        <image class="color-swatch" src="{{dm.image_url}}" mode="aspectFill" />
+                        <text class="color-name">{{dm.color_name}}</text>
+                        <text wx:if="{{dm.specs}}" class="color-specs">{{dm.specs}}</text>
+                      </view>
+                    </view>
+                  </block>
+                </block>
+                <!-- 锁向选择（复用现有 direction-chooser） -->
+                <view wx:if="{{pending && pending.subId === item.id}}" class="direction-chooser">
+                  <text class="chooser-title">请选择锁向</text>
+                  <view class="chooser-btns">
+                    <view
+                      class="chooser-btn"
+                      wx:for="{{pending.options}}"
+                      wx:for-item="opt"
+                      wx:key="*this"
+                      data-value="{{opt}}"
+                      catchtap="onChooseDirection"
+                    >{{opt}}</view>
+                  </view>
+                </view>
+                <view wx:if="{{!bathDoorSeries.length && bathDoorLoaded}}" class="skip-btn" data-sub-id="{{item.id}}" catchtap="onSkipSub">此项不选</view>
+              </block>
+            </block>
+
+            <!-- 普通子品类：材料网格 -->
+            <block wx:else>
             <view wx:if="{{loadingSubId === item.id}}" class="body-hint">加载中…</view>
             <block wx:elif="{{errorSubId === item.id}}">
               <view class="body-retry" data-sub-id="{{item.id}}" catchtap="onRetryMaterials">加载失败，点此重试</view>
@@ -110,7 +180,8 @@
                 </view>
               </view>
 
-              <view class="skip-btn" data-sub-id="{{item.id}}" catchtap="onSkipSub">此项不选</view>
+              <view wx:if="{{materialsCache['s' + item.id] && !materialsCache['s' + item.id].length}}" class="skip-btn" data-sub-id="{{item.id}}" catchtap="onSkipSub">此项不选</view>
+            </block>
             </block>
           </accordion-card>
         </block>
@@ -175,6 +246,7 @@
               </block>
             </block>
           </block>
+          <view wx:if="{{!doorSeries.length && doorLoaded}}" class="skip-btn" catchtap="onSkipDoor">此项不选</view>
         </block>
 
         <!-- ─── 第 7 步：灯具套餐 ─── -->
@@ -220,6 +292,7 @@
               </view>
             </view>
           </block>
+          <view wx:if="{{!lightingPackages.length && lightingLoaded}}" class="skip-btn" catchtap="onSkipLighting">此项不选</view>
         </block>
       </view>
       </view>

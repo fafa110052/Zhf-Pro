@@ -441,8 +441,10 @@ function getStyleCategories() {
 function getStyleMaterials(styleId, subcategoryId) {
   return http.get(`/styles/${styleId}/materials`, { subcategory_id: subcategoryId }, { auth: false });
 }
-function getDoorSeries() {
-  return http.get('/door-series', {}, { auth: false, silent: true });
+function getDoorSeries(pageNumber) {
+  const params = {};
+  if (pageNumber !== undefined) params.page_number = pageNumber;
+  return http.get('/door-series', params, { auth: false, silent: true });
 }
 function getDoorMaterials(seriesId, styleId) {
   return http.get('/door-materials', { series_id: seriesId, style_id: styleId }, { auth: false });

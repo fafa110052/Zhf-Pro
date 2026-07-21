@@ -33,6 +33,7 @@ const FULL_PATH_MAP = {
   '/style-wizard/materials': '材料管理',
   '/style-wizard/materials/1': '瓷砖选材',
   '/style-wizard/materials/2': '室内木门',
+  '/style-wizard/bathroom-doors': '卫生间门',
   '/style-wizard/materials/3': '卫浴选材',
   '/style-wizard/materials/4': '装饰定制',
   '/style-wizard/materials/5': '沙发选材',

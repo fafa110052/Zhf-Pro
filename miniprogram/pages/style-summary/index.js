@@ -172,6 +172,28 @@ Page({
               discountText: sel.discount_price != null ? formatMoney(sel.discount_price) : '',
               extra: [sel.lock_direction, sel.chaise_direction].filter(Boolean).join(' · '),
             }, submitItem));
+          } else if (sel && sel.kind === 'door') {
+            // 卫生间门：系列名 · 颜色名 + 锁向
+            const name = [sel.series_name, sel.color_name].filter(Boolean).join(' · ');
+            const submitItem = {
+              name,
+              subcategory_name: sub.name,
+              image_url: sel.image_url,
+              original_price: sel.original_price,
+              discount_price: sel.discount_price,
+              series_name: sel.series_name,
+              color_name: sel.color_name,
+            };
+            if (sel.lock_direction) submitItem.lock_direction = sel.lock_direction;
+            rows.push(addItem({
+              type: 'item',
+              name,
+              subLabel: sub.name,
+              image: util.fullImageUrl(sel.image_url),
+              originalText: sel.original_price != null ? formatMoney(sel.original_price) : '',
+              discountText: sel.discount_price != null ? formatMoney(sel.discount_price) : '',
+              extra: sel.lock_direction || '',
+            }, submitItem));
           } else {
             // 跳过或缺失都按"未选"展示
             rows.push({ type: 'skip', subLabel: sub.name });

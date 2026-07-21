@@ -67,6 +67,14 @@ Page({
     chosenSeriesId: null,   // 第 2 步已选门系列 id（先选系列，再选颜色）
     doorMaterialsCache: {}, // 门材料缓存，key: 's' + seriesId
 
+    // 卫生间门系列（step 3 卫生间门子品类）
+    bathDoorSeries: [],
+    bathDoorLoaded: false,
+    bathDoorLoading: false,
+    bathDoorError: false,
+    bathDoorChosenSeriesId: null,
+    bathDoorMaterialsCache: {},
+
     lightingPackages: [],
     lightingLoaded: false,
     lightingLoading: false,
@@ -298,12 +306,18 @@ Page({
 
   onToggleSub(e) {
     const id = e.currentTarget.dataset.id;
+    const sub = this.findSub(id);
     if (this.data.expandedSub === id) {
       this.setData({ expandedSub: null, pending: null });
       return;
     }
     this.setData({ expandedSub: id, pending: null });
-    this.ensureMaterials(id);
+    if (this.isBathDoorSub(sub)) {
+      this.ensureBathDoorSeries();
+      if (this.data.bathDoorChosenSeriesId) this.ensureBathDoorMaterials(this.data.bathDoorChosenSeriesId);
+    } else {
+      this.ensureMaterials(id);
+    }
   },
 
   async ensureMaterials(subId) {
@@ -380,6 +394,16 @@ Page({
     const value = e.currentTarget.dataset.value;
     const pending = this.data.pending;
     if (!pending) return;
+    const sub = this.findSub(pending.subId);
+    // 卫生间门走门系列完成路径
+    if (pending.type === 'lock' && this.isBathDoorSub(sub)) {
+      const seriesId = this.data.bathDoorChosenSeriesId;
+      const series = this.data.bathDoorSeries.find((s) => s.id === seriesId);
+      const dm = (this.data.bathDoorMaterialsCache['s' + seriesId] || []).find((m) => m.id === pending.materialId);
+      if (!dm || !series) return;
+      this.completeBathDoor(pending.subId, dm, series, value);
+      return;
+    }
     const mat = (this.data.materialsCache['s' + pending.subId] || []).find((m) => m.id === pending.materialId);
     if (!mat) return;
     const extra = pending.type === 'lock' ? { lock_direction: value } : { chaise_direction: value };
@@ -443,7 +467,7 @@ Page({
     if (this.data.doorLoaded || this.data.doorLoading) return;
     this.setData({ doorLoading: true, doorError: false });
     try {
-      const list = (await api.getDoorSeries()) || [];
+      const list = (await api.getDoorSeries(2)) || [];
       const doorSeries = list.map((s) => Object.assign({}, s, {
         image_url: util.fullImageUrl(s.image_url),
       }));
@@ -455,6 +479,10 @@ Page({
 
   onRetryDoorSeries() {
     this.ensureDoorSeries();
+  },
+
+  onSkipDoor() {
+    this.applySelection('door', { kind: 'skip' });
   },
 
   /**
@@ -510,6 +538,92 @@ Page({
   },
 
   // ═══════════════════════════════════════════
+  // 卫生间门系列（step 3 卫生间门子品类）
+  // ═══════════════════════════════════════════
+
+  isBathDoorSub(sub) {
+    return sub && (sub.name || '').indexOf('卫生间门') !== -1;
+  },
+
+  async ensureBathDoorSeries() {
+    if (this.data.bathDoorLoaded || this.data.bathDoorLoading) return;
+    this.setData({ bathDoorLoading: true, bathDoorError: false });
+    try {
+      const list = (await api.getDoorSeries(3)) || [];
+      const bathDoorSeries = list.map((s) => Object.assign({}, s, {
+        image_url: util.fullImageUrl(s.image_url),
+      }));
+      this.setData({ bathDoorSeries, bathDoorLoaded: true, bathDoorLoading: false });
+    } catch (e) {
+      this.setData({ bathDoorLoading: false, bathDoorError: true });
+    }
+  },
+
+  onRetryBathDoorSeries() {
+    this.setData({ bathDoorLoaded: false, bathDoorError: false });
+    this.ensureBathDoorSeries();
+  },
+
+  onSelectBathDoorSeries(e) {
+    const id = e.currentTarget.dataset.id;
+    if (this.data.bathDoorChosenSeriesId === id) return;
+    this.setData({ bathDoorChosenSeriesId: id });
+    this.ensureBathDoorMaterials(id);
+  },
+
+  async ensureBathDoorMaterials(seriesId) {
+    if (this.data.bathDoorMaterialsCache['s' + seriesId]) {
+      if (this.data.loadingSubId === seriesId) this.setData({ loadingSubId: null });
+      return;
+    }
+    this.setData({ loadingSubId: seriesId, errorSubId: null });
+    try {
+      const list = (await api.getDoorMaterials(seriesId, this._styleId)) || [];
+      const materials = list.map((m) => Object.assign({}, m, {
+        image_url: util.fullImageUrl(m.image_url),
+      }));
+      const update = {};
+      update['bathDoorMaterialsCache.s' + seriesId] = materials;
+      if (this.data.loadingSubId === seriesId) update.loadingSubId = null;
+      this.setData(update);
+    } catch (e) {
+      if (this.data.loadingSubId === seriesId) this.setData({ loadingSubId: null, errorSubId: seriesId });
+    }
+  },
+
+  onRetryBathDoorMaterials(e) {
+    this.ensureBathDoorMaterials(e.currentTarget.dataset.seriesId);
+  },
+
+  onSelectBathDoorColor(e) {
+    const seriesId = this.data.bathDoorChosenSeriesId;
+    const subId = this.data.expandedSub;
+    const id = e.currentTarget.dataset.id;
+    const series = this.data.bathDoorSeries.find((s) => s.id === seriesId);
+    const dm = (this.data.bathDoorMaterialsCache['s' + seriesId] || []).find((m) => m.id === id);
+    if (!series || !dm) return;
+    this.setData({
+      pending: { subId, materialId: dm.id, type: 'lock', options: ['左锁右内开', '右锁左内开'] },
+    });
+  },
+
+  completeBathDoor(subId, dm, series, lockDirection) {
+    const entry = {
+      kind: 'door',
+      series_id: series.id,
+      series_name: series.name,
+      color_id: dm.color_id,
+      color_name: dm.color_name,
+      image_url: dm.image_url,
+      original_price: dm.original_price,
+      discount_price: dm.discount_price,
+      lock_direction: lockDirection,
+      name: [series.name, dm.color_name].filter(Boolean).join(' · '),
+    };
+    this.applySelection('sub_' + subId, entry);
+  },
+
+  // ═══════════════════════════════════════════
   // 第 7 步：灯具套餐
   // ═══════════════════════════════════════════
 
@@ -539,6 +653,10 @@ Page({
 
   onRetryLighting() {
     this.ensureLightingPackages();
+  },
+
+  onSkipLighting() {
+    this.applySelection('lighting', { kind: 'skip' });
   },
 
   onTogglePackage(e) {
