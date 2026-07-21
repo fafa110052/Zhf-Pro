@@ -350,6 +350,9 @@ Page({
           brand_model: [m.brand, m.model].filter(Boolean).join(' '),
           scopes,
           attrList,
+          displayTitle: m.name || m.brand || m.model || '',
+          displaySubtitle: [m.model && !m.name && !m.brand ? '' : m.model, m.specs]
+            .filter(Boolean).join(' · ') || (m.name ? m.model : ''),
         });
       });
       const update = {};
@@ -375,16 +378,9 @@ Page({
 
   /**
    * 材料点选入口（卡片/放大预览共用）：
-   * 卫生间门先选锁向、带贵妃位沙发先选贵妃方向，其余直接完成
+   * 带贵妃位沙发先选贵妃方向，其余直接完成
    */
   pickMaterial(subId, mat) {
-    const sub = this.findSub(subId);
-    if (sub && sub.isBathDoor) {
-      this.setData({
-        pending: { subId, materialId: mat.id, type: 'lock', options: ['左锁右内开', '右锁左内开'] },
-      });
-      return;
-    }
     if (mat.has_chaise) {
       this.setData({
         pending: { subId, materialId: mat.id, type: 'chaise', options: ['左贵妃', '右贵妃'] },
@@ -398,19 +394,9 @@ Page({
     const value = e.currentTarget.dataset.value;
     const pending = this.data.pending;
     if (!pending) return;
-    const sub = this.findSub(pending.subId);
-    // 卫生间门走门系列完成路径
-    if (pending.type === 'lock' && this.isBathDoorSub(sub)) {
-      const seriesId = this.data.bathDoorChosenSeriesId;
-      const series = this.data.bathDoorSeries.find((s) => s.id === seriesId);
-      const dm = (this.data.bathDoorMaterialsCache['s' + seriesId] || []).find((m) => m.id === pending.materialId);
-      if (!dm || !series) return;
-      this.completeBathDoor(pending.subId, dm, series, value);
-      return;
-    }
     const mat = (this.data.materialsCache['s' + pending.subId] || []).find((m) => m.id === pending.materialId);
     if (!mat) return;
-    const extra = pending.type === 'lock' ? { lock_direction: value } : { chaise_direction: value };
+    const extra = { chaise_direction: value };
     this.completeMaterial(pending.subId, mat, extra);
   },
 
@@ -418,7 +404,7 @@ Page({
     const entry = Object.assign({
       kind: 'material',
       id: mat.id,
-      name: mat.name || mat.brand, // 瓷砖类无名称，回退品牌作标题（选中标签/总结页/快照共用）
+      name: mat.name || mat.brand || mat.model, // 无名称无品牌时以型号作标题（卫浴/浴室柜等）
       image_url: mat.image_url,
       brand: mat.brand,
       model: mat.model,
@@ -606,12 +592,6 @@ Page({
     const series = this.data.bathDoorSeries.find((s) => s.id === seriesId);
     const dm = (this.data.bathDoorMaterialsCache['s' + seriesId] || []).find((m) => m.id === id);
     if (!series || !dm) return;
-    this.setData({
-      pending: { subId, materialId: dm.id, type: 'lock', options: ['左锁右内开', '右锁左内开'] },
-    });
-  },
-
-  completeBathDoor(subId, dm, series, lockDirection) {
     const entry = {
       kind: 'door',
       series_id: series.id,
@@ -621,7 +601,6 @@ Page({
       image_url: dm.image_url,
       original_price: dm.original_price,
       discount_price: dm.discount_price,
-      lock_direction: lockDirection,
       name: [series.name, dm.color_name].filter(Boolean).join(' · '),
     };
     this.applySelection('sub_' + subId, entry);
@@ -694,7 +673,21 @@ Page({
     const sel = this.data.selections['sub_' + subId];
     this._lightboxSubId = subId;
     this.setData({
-      lightboxImages: mats.map((m) => ({ id: m.id, url: m.image_url, name: m.name || m.brand, model: m.model, specs: m.specs })),
+      lightboxImages: mats.map((m) => {
+        const lines = [];
+        // 如果 title 不等于 model，才把 model 放入 lines（避免重复）
+        const title = m.name || m.brand || m.model;
+        if (m.model && title !== m.model) lines.push({ label: '型号', value: m.model });
+        if (m.specs) lines.push({ label: '规格', value: m.specs });
+        // 浴室柜/卫浴 组合信息：镜柜/主柜/台面 从 attrList 提取
+        (m.attrList || []).forEach((a) => lines.push({ label: a.k, value: a.v }));
+        return {
+          id: m.id,
+          url: m.image_url,
+          title,
+          lines,
+        };
+      }),
       lightboxIndex: index,
       lightboxSelectedId: sel && sel.kind === 'material' ? sel.id : null,
       lightboxVisible: true,
