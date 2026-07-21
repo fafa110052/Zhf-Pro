@@ -244,16 +244,13 @@
           <block wx:else>
             <view
               wx:for="{{lightingPackages}}"
+              wx:for-index="pkgIdx"
               wx:key="id"
               class="pkg-card {{selections.lighting.package_id === item.id ? 'is-selected' : ''}}"
               data-id="{{item.id}}"
               bindtap="onSelectLighting"
             >
               <image class="pkg-image" src="{{item.image_url}}" mode="aspectFill" />
-              <view class="mat-zoom pkg-zoom" data-index="{{index}}" catchtap="onZoomLighting">
-                <image class="mat-zoom-icon" src="/assets/icons/zoom-in.svg" mode="aspectFit" />
-                <text>放大</text>
-              </view>
               <image wx:if="{{selections.lighting.package_id === item.id}}" class="pkg-badge" src="/assets/icons/selected-mark.svg" mode="aspectFit" />
               <view class="pkg-info">
                 <view class="pkg-title-row">
@@ -271,7 +268,7 @@
                 </view>
 
                 <view wx:if="{{expandedPackage === item.id}}" class="pkg-items">
-                  <view class="pkg-item" wx:for="{{item.items}}" wx:for-item="it" wx:key="id">
+                  <view class="pkg-item" wx:for="{{item.items}}" wx:for-item="it" wx:key="id" data-pkg-index="{{pkgIdx}}" data-item-index="{{index}}" catchtap="onZoomLightingItem">
                     <image class="item-image" src="{{it.image_url}}" mode="aspectFill" />
                     <view class="item-info">
                       <text class="item-name">{{it.room_type ? it.room_type + ' · ' : ''}}{{it.name}}</text>

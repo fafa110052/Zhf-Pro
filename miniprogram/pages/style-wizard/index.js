@@ -702,21 +702,24 @@ Page({
     });
   },
 
-  onZoomLighting(e) {
-    const index = e.currentTarget.dataset.index;
-    const pkg = this.data.lightingPackages[index];
+  onZoomLightingItem(e) {
+    const pkgIndex = Number(e.currentTarget.dataset.pkgIndex);
+    const itemIndex = Number(e.currentTarget.dataset.itemIndex);
+    const pkg = this.data.lightingPackages[pkgIndex];
     if (!pkg) return;
-    const items = pkg.items || [];
+    const it = (pkg.items || [])[itemIndex];
+    if (!it) return;
     const lines = [];
-    if (pkg.itemsSummary) lines.push({ label: '明细', value: pkg.itemsSummary });
-    items.forEach((it) => {
-      lines.push({ label: it.room_type ? it.room_type + ' · ' + it.name : it.name, value: it.attrsLine || '' });
-      if (it.retail_price != null) lines.push({ label: '零售价', value: '¥' + it.retail_price });
-    });
+    if (it.attrsLine) lines.push({ label: '规格', value: it.attrsLine });
+    if (it.retail_price != null) lines.push({ label: '零售价', value: '¥' + it.retail_price });
     this.setData({
-      lightboxImages: [{ id: pkg.id, url: pkg.image_url, title: pkg.name, lines }],
+      lightboxImages: [{
+        id: it.id || (pkg.id + '_' + itemIndex),
+        url: it.image_url,
+        title: (it.room_type ? it.room_type + ' · ' : '') + (it.name || ''),
+        lines,
+      }],
       lightboxIndex: 0,
-      lightboxSelectedId: this.data.selections.lighting && this.data.selections.lighting.package_id === pkg.id ? pkg.id : null,
       lightboxVisible: true,
     });
   },

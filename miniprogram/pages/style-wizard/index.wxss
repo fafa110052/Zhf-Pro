@@ -528,10 +528,6 @@
   background: #f0ece5;
 }
 
-.pkg-zoom {
-  top: 256rpx;
-}
-
 .pkg-badge {
   position: absolute;
   top: 16rpx;
