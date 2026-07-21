@@ -42,11 +42,21 @@ function categoryColor(name) {
   return CAT_COLORS[Math.abs(hash) % CAT_COLORS.length];
 }
 
-/** 属性摘要：卫浴材料表格的"关键属性"列 */
+/** 属性摘要：卫浴/家具材料表格的"关键属性"列 */
 function bathAttrSummary(attrs, material) {
   const parts = [];
   if (material.specs) parts.push(`规格：${material.specs}`);
-  Object.entries(attrs).forEach(([k, v]) => { if (v) parts.push(`${k}：${v}`); });
+  Object.entries(attrs).forEach(([k, v]) => {
+    if (!v) return;
+    if (k === 'type') return; // 茶几 type 字段不单独展示
+    if (k === 'units' && Array.isArray(v)) {
+      parts.push(v.map(u => `${u.shape || ''} ${u.spec || ''}`).join(' | '));
+    } else if (typeof v === 'object') {
+      parts.push(`${k}：${JSON.stringify(v)}`);
+    } else {
+      parts.push(`${k}：${v}`);
+    }
+  });
   return parts.join('  ') || '—';
 }
 

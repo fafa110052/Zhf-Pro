@@ -380,6 +380,7 @@ Page({
           displayTitle = '茶几' + (m.model || '');
           const units = Array.isArray(attrs.units) ? attrs.units : [];
           displaySubtitle = units.map((u) => (u.shape || '') + ' ' + (u.spec || '')).join(' | ');
+          attrList = attrList.filter(a => a.k !== 'type' && a.k !== 'units');
         } else if (subName.includes('床头柜')) {
           displayTitle = '床头柜' + (m.model || '');
           displaySubtitle = m.specs || '';
