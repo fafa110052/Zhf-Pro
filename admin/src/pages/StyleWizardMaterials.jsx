@@ -222,7 +222,6 @@ export default function StyleWizardMaterials() {
   const { cat: selectedCat, sub: selectedSub } = findSub(form.subcategory_id);
   const tpl = parseTemplate(selectedSub);
   const isSofa = !!selectedSub?.name?.includes('沙发');
-  const isDecoration = selectedCat?.name === '装饰定制' || (isDecorationPage && !form.subcategory_id);
   const isTile = selectedCat?.page_number === 1; // 瓷砖选材：标题行显示品牌+logo，名称非必填
   // 页面级判断：URL 锁定到瓷砖品类时，列表和表单都隐藏价格字段
   const isTilePage = !!lockedCategory && categories.some((c) => String(c.id) === String(lockedCategory) && c.page_number === 1);
@@ -231,6 +230,7 @@ export default function StyleWizardMaterials() {
   const isBathPage = !!lockedCategory && categories.some((c) => String(c.id) === String(lockedCategory) && c.page_number === 3);
   // 装饰定制（page_number=4）：子品类按名称分支
   const isDecorationPage = !!lockedCategory && categories.some((c) => String(c.id) === String(lockedCategory) && c.page_number === 4);
+  const isDecoration = selectedCat?.name === '装饰定制' || (isDecorationPage && !form.subcategory_id);
   const subName = selectedSub?.name || '';
   const isBathCabinet = subName.includes('浴室柜');
   const isToilet = subName.includes('马桶');
