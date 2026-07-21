@@ -978,15 +978,6 @@ export default function StyleWizardMaterials() {
                 </div>
               )}
 
-              {isBedsideTable && (
-                <div className="grid grid-cols-3 gap-4 mt-2">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">排序号</label>
-                    <input type="number" value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: e.target.value })} className={INPUT_CLS} />
-                  </div>
-                </div>
-              )}
-
               {/* 装饰定制专属 */}
               {isDecoration && (
                 <div className="border border-gray-100 rounded-lg p-3 bg-gray-50/50 space-y-3">
