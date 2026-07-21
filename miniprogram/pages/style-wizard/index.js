@@ -356,19 +356,25 @@ Page({
         let displayTitle = m.name || m.brand || m.model || '';
         let displaySubtitle = [m.model && !m.name && !m.brand ? '' : m.model, m.specs]
           .filter(Boolean).join(' · ') || (m.name ? m.model : '');
+        let displayFabric = ''; // 材质面料（红色展示）
         if (subName.includes('沙发')) {
           displayTitle = '沙发' + (m.model || '');
-          displaySubtitle = [attrs['材质面料'], m.specs].filter(Boolean).join(' · ');
+          displayFabric = attrs['材质面料'] || '';
+          displaySubtitle = m.specs || '';
+          attrList = attrList.filter(a => a.k !== '材质面料');
         } else if (subName.includes('床') && !subName.includes('床头柜')) {
           displayTitle = '床' + (m.model || '');
-          displaySubtitle = [attrs['材质面料'], m.specs].filter(Boolean).join(' · ');
+          displayFabric = attrs['材质面料'] || '';
+          displaySubtitle = m.specs || '';
+          attrList = attrList.filter(a => a.k !== '材质面料');
         } else if (subName.includes('餐桌')) {
           const dtModel = attrs['餐桌型号'] || m.model || '';
           const dcModel = attrs['餐椅型号'] || '';
-          displayTitle = '餐桌' + dtModel;
-          displaySubtitle = '餐椅' + dcModel;
+          displayTitle = '餐桌' + dtModel + '\n' + '餐椅' + dcModel;
+          displaySubtitle = m.specs || '';
+          attrList = attrList.filter(a => a.k !== '餐桌型号' && a.k !== '餐椅型号');
         } else if (subName.includes('电视柜')) {
-          displayTitle = m.name || '电视柜';
+          displayTitle = '电视柜' + (m.model || '');
           displaySubtitle = m.specs || '';
         } else if (subName.includes('茶几')) {
           displayTitle = '茶几' + (m.model || '');
@@ -386,6 +392,7 @@ Page({
           attrList,
           displayTitle,
           displaySubtitle,
+          displayFabric,
         });
       });
       const update = {};
@@ -735,11 +742,10 @@ Page({
         } else if (subName.includes('餐桌')) {
           const dtModel = attrs['餐桌型号'] || m.model || '';
           const dcModel = attrs['餐椅型号'] || '';
-          title = '餐桌' + dtModel;
-          lines.push({ label: '餐椅', value: '餐椅' + dcModel });
+          title = '餐桌' + dtModel + '\n' + '餐椅' + dcModel;
           if (m.specs) lines.push({ label: '规格', value: m.specs });
         } else if (subName.includes('电视柜')) {
-          title = m.name || '电视柜';
+          title = '电视柜' + (m.model || '');
           if (m.specs) lines.push({ label: '规格', value: m.specs });
         } else if (subName.includes('茶几')) {
           title = '茶几' + (m.model || '');

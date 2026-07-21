@@ -255,8 +255,8 @@ export default function StyleWizardMaterials() {
   const isTVCabinet = subName.includes('电视柜');
   const isCoffeeTable = subName.includes('茶几');
   const isBedsideTable = subName.includes('床头柜');
-  // 家具品类下隐藏名称（电视柜需要标题故除外）；未选子品类时保持原名称为必填
-  const furnitureNoName = isFurniture && form.subcategory_id && !isTVCabinet;
+  // 家具品类下隐藏名称；未选子品类时保持原名称为必填
+  const furnitureNoName = isFurniture && form.subcategory_id;
 
   const openAdd = () => {
     setModalMode('add'); setEditingId(null);
@@ -356,7 +356,6 @@ export default function StyleWizardMaterials() {
     } else if (isSofa) {
       if (!form.model.trim()) errs.model = '请输入型号';
       if (!form.material_fabric.trim()) errs.material_fabric = '请输入材质面料';
-      if (!form.specs.trim()) errs.specs = '请输入规格';
     } else if (isBed) {
       if (!form.model.trim()) errs.model = '请输入型号';
       if (!form.material_fabric.trim()) errs.material_fabric = '请输入材质面料';
@@ -366,7 +365,7 @@ export default function StyleWizardMaterials() {
       if (!form.dining_chair_model.trim()) errs.dining_chair_model = '请输入餐椅型号';
       if (!form.specs.trim()) errs.specs = '请输入规格';
     } else if (isTVCabinet) {
-      if (!form.name.trim()) errs.name = '请输入标题';
+      if (!form.model.trim()) errs.model = '请输入型号';
       if (!form.specs.trim()) errs.specs = '请输入规格';
     } else if (isCoffeeTable) {
       if (!form.model.trim()) errs.model = '请输入型号';
@@ -400,7 +399,7 @@ export default function StyleWizardMaterials() {
     if (!validateForm()) return;
     setSubmitting(true);
     try {
-      const needsName = isShower || isFaucet || isTVCabinet;
+      const needsName = isShower || isFaucet;
       const bathNoName = (isBath || isBathPage) && !needsName;
       const payload = {
         subcategory_id: Number(form.subcategory_id),
@@ -653,10 +652,10 @@ export default function StyleWizardMaterials() {
                   </select>
                   {formErrors.subcategory_id && <p className="text-red-500 text-xs mt-1">{formErrors.subcategory_id}</p>}
                 </div>
-                {/* 瓷砖/卫浴/家具（电视柜除外）无需名称 */}
+                {/* 瓷砖/卫浴/家具无需名称 */}
                 {!(isTile || (isBath && !isShower && !isFaucet) || (isBathPage && !isShower && !isFaucet) || furnitureNoName) && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">{isCabinetColor ? '颜色名称' : isCountertop ? '石材名称' : isTVCabinet ? '标题' : '材料名称'}<span className="text-red-500"> *</span></label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{isCabinetColor ? '颜色名称' : isCountertop ? '石材名称' : '材料名称'}<span className="text-red-500"> *</span></label>
                     <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className={INPUT_CLS} maxLength={128} placeholder="如：原木风三人沙发" />
                     {formErrors.name && <p className="text-red-500 text-xs mt-1">{formErrors.name}</p>}
                   </div>
@@ -671,7 +670,7 @@ export default function StyleWizardMaterials() {
                 )}
                 {!isDecorationSimple && !isDining && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">型号{(isTile || isBath || isBathPage || isSofa || isBed || isCoffeeTable || isBedsideTable) && <span className="text-red-500"> *</span>}</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">型号{(isTile || isBath || isBathPage || isSofa || isBed || isCoffeeTable || isBedsideTable || isTVCabinet) && <span className="text-red-500"> *</span>}</label>
                   <input value={form.model} onChange={(e) => setForm({ ...form, model: e.target.value })} className={INPUT_CLS} maxLength={128} placeholder={isTile ? '如：TB6023' : ''} />
                   {formErrors.model && <p className="text-red-500 text-xs mt-1">{formErrors.model}</p>}
                 </div>
@@ -720,7 +719,7 @@ export default function StyleWizardMaterials() {
               {!((isBath || isBathPage) && !isToilet && !isSquatToilet && !isWaterTank) && !isDecorationSimple && !isCoffeeTable && (
                 <div className="grid grid-cols-3 gap-4">
                   <div className="col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">规格说明{(isTile || (isBath && (isToilet || isSquatToilet || isWaterTank)) || (isBathPage && (isToilet || isSquatToilet || isWaterTank)) || isSofa || isBed || isDining || isTVCabinet || isBedsideTable) && <span className="text-red-500"> *</span>}</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">规格说明{(isTile || (isBath && (isToilet || isSquatToilet || isWaterTank)) || (isBathPage && (isToilet || isSquatToilet || isWaterTank)) || isBed || isDining || isTVCabinet || isBedsideTable) && <span className="text-red-500"> *</span>}</label>
                     <textarea rows={2} value={form.specs} onChange={(e) => setForm({ ...form, specs: e.target.value })} className={`${INPUT_CLS} resize-none`} placeholder={isTile ? '如：200X800' : '如：2400×950×850mm'} />
                     {formErrors.specs && <p className="text-red-500 text-xs mt-1">{formErrors.specs}</p>}
                   </div>
@@ -906,15 +905,6 @@ export default function StyleWizardMaterials() {
                       <label className="block text-sm font-medium text-gray-700 mb-1">排序号</label>
                       <input type="number" value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: e.target.value })} className={INPUT_CLS} />
                     </div>
-                  </div>
-                </div>
-              )}
-
-              {isTVCabinet && (
-                <div className="grid grid-cols-3 gap-4 mt-2">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">排序号</label>
-                    <input type="number" value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: e.target.value })} className={INPUT_CLS} />
                   </div>
                 </div>
               )}

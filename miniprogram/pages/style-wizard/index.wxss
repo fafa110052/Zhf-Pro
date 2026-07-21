@@ -226,6 +226,11 @@
   color: #6B7280;
 }
 
+.mat-fabric {
+  font-size: 22rpx;
+  color: #DC2626;
+}
+
 .mat-specs {
   font-size: 20rpx;
   color: #9CA3AF;
