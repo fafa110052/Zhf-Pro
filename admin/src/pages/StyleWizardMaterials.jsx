@@ -475,8 +475,8 @@ export default function StyleWizardMaterials() {
                           <td className="px-4 py-3 text-gray-500 whitespace-nowrap">{m.model || '—'}</td>
                         </>
                       )}
-                      <td className="px-4 py-3 whitespace-nowrap">{(() => { const c = categoryColor(m.category_name); return <span style={{background:c.bg,color:c.text,padding:'2px 8px',borderRadius:'4px',fontSize:'12px'}}>{m.category_name || '—'}</span>; })()}</td>
-                      <td className="px-4 py-3 text-gray-600 whitespace-nowrap">{m.subcategory_name || '—'}</td>
+                      <td className="px-4 py-3 text-gray-600 whitespace-nowrap">{m.category_name || '—'}</td>
+                      <td className="px-4 py-3 whitespace-nowrap">{(() => { const c = categoryColor(m.subcategory_name); return <span style={{background:c.bg,color:c.text,padding:'2px 8px',borderRadius:'4px',fontSize:'12px'}}>{m.subcategory_name || '—'}</span>; })()}</td>
                       {!isTilePage && !isBathPage && <td className="px-4 py-3 text-gray-500 whitespace-nowrap">{m.original_price != null ? `¥${m.original_price}` : '—'}</td>}
                       {!isTilePage && !isBathPage && <td className="px-4 py-3 text-red-600 font-medium whitespace-nowrap">{m.discount_price != null ? `¥${m.discount_price}` : '—'}</td>}
                       <td className="px-4 py-3 text-center text-gray-500">{m.sort_order}</td>

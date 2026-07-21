@@ -124,8 +124,9 @@ const MENU_GROUPS = [
       { path: '/style-wizard/materials', label: '材料管理', children: [
         { path: '/style-wizard/materials/1', label: '瓷砖选材' },
         { path: '/style-wizard/materials/2', label: '室内木门' },
-        { path: '/style-wizard/bathroom-doors', label: '卫生间门' },
-        { path: '/style-wizard/materials/3', label: '卫浴选材' },
+        { path: '/style-wizard/materials/3', label: '卫浴选材', children: [
+          { path: '/style-wizard/bathroom-doors', label: '卫生间门' },
+        ]},
         { path: '/style-wizard/materials/4', label: '装饰定制' },
         { path: '/style-wizard/materials/5', label: '沙发选材' },
         { path: '/style-wizard/materials/6', label: '家具选材' },
@@ -317,7 +318,16 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
     MENU_GROUPS.forEach((g) => {
       g.items.forEach((item) => {
         if (item.children) {
-          init[item.path] = item.children.some((c) => location.pathname.startsWith(c.path));
+          init[item.path] = item.children.some((c) =>
+            location.pathname.startsWith(c.path) ||
+            (c.children || []).some((gc) => location.pathname.startsWith(gc.path))
+          );
+          // 三级子项有四级 children 时也展开
+          item.children.forEach((child) => {
+            if (child.children) {
+              init[child.path] = child.children.some((gc) => location.pathname.startsWith(gc.path));
+            }
+          });
         }
       });
     });
@@ -331,6 +341,14 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
       g.items.forEach((item) => {
         if (item.children && item.children.some((c) => location.pathname.startsWith(c.path))) {
           setExpandedSubmenus((prev) => ({ ...prev, [item.path]: true }));
+        }
+        // 四级：三级子项有 children 且当前路径命中
+        if (item.children) {
+          item.children.forEach((child) => {
+            if (child.children && child.children.some((gc) => location.pathname.startsWith(gc.path))) {
+              setExpandedSubmenus((prev) => ({ ...prev, [item.path]: true, [child.path]: true }));
+            }
+          });
         }
       });
     });
@@ -530,7 +548,7 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
                       return renderItem(item, { compact: true, colorKey: group.colorKey });
                     }
                     const isOpen = !!expandedSubmenus[item.path];
-                    const childActive = item.children.some((c) => isItemActive(c.path));
+                    const childActive = item.children.some((c) => isItemActive(c.path) || (c.children || []).some((gc) => isItemActive(gc.path)));
                     return (
                       <div key={item.path}>
                         <button
@@ -553,6 +571,44 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
                         <div className={`overflow-hidden transition-all duration-200 ease-in-out ${isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
                           <div className="space-y-0.5 pt-0.5 pb-1">
                             {item.children.map((child) => {
+                              // 四级：三级子项自身有 children（如 卫浴选材 → 卫生间门）
+                              if (child.children) {
+                                const childOpen = !!expandedSubmenus[child.path];
+                                const gcActive = child.children.some((gc) => isItemActive(gc.path));
+                                return (
+                                  <div key={child.path}>
+                                    <button
+                                      onClick={() => toggleSubmenu(child.path)}
+                                      className={`w-full flex items-center rounded-lg transition-all duration-200 pl-12 pr-3 h-7 relative ${gcActive ? c.accentStrong : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700'}`}
+                                    >
+                                      {gcActive && <span className={`absolute left-8 top-1.5 bottom-1.5 w-0.5 rounded-r-full ${c.bg}`} />}
+                                      <span className="flex-1 text-left text-[12px] font-medium whitespace-nowrap leading-tight">{child.label}</span>
+                                      <svg className={`w-2.5 h-2.5 shrink-0 transition-transform duration-200 ${childOpen ? 'rotate-90' : ''} ${gcActive ? c.accent : 'text-slate-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                      </svg>
+                                    </button>
+                                    <div className={`overflow-hidden transition-all duration-200 ease-in-out ${childOpen ? 'max-h-48 opacity-100' : 'max-h-0 opacity-0'}`}>
+                                      <div className="space-y-0.5 pt-0.5 pb-1">
+                                        {child.children.map((grandchild) => {
+                                          const active = isItemActive(grandchild.path);
+                                          return (
+                                            <NavLink
+                                              key={grandchild.path}
+                                              to={grandchild.path}
+                                              onClick={onMobileClose}
+                                              className={`flex items-center rounded-lg transition-all duration-200 pl-14 pr-3 h-6 relative ${active ? `${c.bgLight} ${c.accentStrong}` : 'text-slate-400 hover:bg-slate-100 hover:text-slate-600'}`}
+                                            >
+                                              {active && <span className={`absolute left-10 top-1.5 bottom-1.5 w-0.5 rounded-r-full ${c.bg}`} />}
+                                              <span className="text-[11px] font-medium whitespace-nowrap leading-tight">{grandchild.label}</span>
+                                            </NavLink>
+                                          );
+                                        })}
+                                      </div>
+                                    </div>
+                                  </div>
+                                );
+                              }
+                              // 普通三级子项
                               const active = isItemActive(child.path);
                               return (
                                 <NavLink
