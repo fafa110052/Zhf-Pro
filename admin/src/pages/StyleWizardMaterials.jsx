@@ -547,7 +547,7 @@ export default function StyleWizardMaterials() {
                   {formErrors.subcategory_id && <p className="text-red-500 text-xs mt-1">{formErrors.subcategory_id}</p>}
                 </div>
                 {/* 瓷砖标题行 = 品牌，卫浴标题行 = 型号，均无需名称，字段整体隐藏 */}
-                {!(isTile || isBath || isBathPage) && (
+                {!(isTile || (isBath && !isShower && !isFaucet) || (isBathPage && !isShower && !isFaucet)) && (
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">材料名称<span className="text-red-500"> *</span></label>
                     <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className={INPUT_CLS} maxLength={128} placeholder="如：原木风三人沙发" />
@@ -607,11 +607,11 @@ export default function StyleWizardMaterials() {
                   </>
                 )}
               </div>
-              {/* 卫浴不展示通用规格说明，改用镜柜/主柜/台面专用字段 */}
-              {!(isBath || isBathPage) && (
+              {/* 卫浴仅马桶/蹲厕/水箱显示规格，花洒/水龙头/浴室柜隐藏 */}
+              {!((isBath || isBathPage) && !isToilet && !isSquatToilet && !isWaterTank) && (
                 <div className="grid grid-cols-3 gap-4">
                   <div className="col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">规格说明{isTile && <span className="text-red-500"> *</span>}</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">规格说明{(isTile || (isBath && (isToilet || isSquatToilet || isWaterTank)) || (isBathPage && (isToilet || isSquatToilet || isWaterTank))) && <span className="text-red-500"> *</span>}</label>
                     <textarea rows={2} value={form.specs} onChange={(e) => setForm({ ...form, specs: e.target.value })} className={`${INPUT_CLS} resize-none`} placeholder={isTile ? '如：200X800' : '如：2400×950×850mm'} />
                     {formErrors.specs && <p className="text-red-500 text-xs mt-1">{formErrors.specs}</p>}
                   </div>
@@ -622,8 +622,8 @@ export default function StyleWizardMaterials() {
                 </div>
               )}
 
-              {/* 卫浴专用字段：镜柜 / 主柜 / 台面 */}
-              {(isBath || isBathPage) && (
+              {/* 浴室柜：镜柜 / 主柜 / 台面 */}
+              {isBathCabinet && (
                 <div className="border border-gray-100 rounded-lg p-3 bg-gray-50/50 space-y-3">
                   <p className="text-sm font-medium text-gray-700">卫浴规格</p>
                   <div className="grid grid-cols-3 gap-4">
@@ -648,6 +648,66 @@ export default function StyleWizardMaterials() {
                       <label className="block text-sm font-medium text-gray-700 mb-1">排序号</label>
                       <input type="number" value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: e.target.value })} className={INPUT_CLS} />
                     </div>
+                  </div>
+                </div>
+              )}
+
+              {/* 马桶：型号 + 规格 + 排水方式 */}
+              {isToilet && (
+                <div className="border border-gray-100 rounded-lg p-3 bg-gray-50/50 space-y-3">
+                  <p className="text-sm font-medium text-gray-700">马桶规格</p>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">排水方式<span className="text-red-500"> *</span></label>
+                      <input value={form.drainage_method} onChange={(e) => setForm({ ...form, drainage_method: e.target.value })} className={INPUT_CLS} maxLength={64} placeholder="如：地排" />
+                      {formErrors.drainage_method && <p className="text-red-500 text-xs mt-1">{formErrors.drainage_method}</p>}
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">排序号</label>
+                      <input type="number" value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: e.target.value })} className={INPUT_CLS} />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* 蹲厕：前出水墙距 */}
+              {isSquatToilet && (
+                <div className="border border-gray-100 rounded-lg p-3 bg-gray-50/50 space-y-3">
+                  <p className="text-sm font-medium text-gray-700">蹲厕规格</p>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">前出水墙距<span className="text-red-500"> *</span></label>
+                      <input value={form.wall_distance} onChange={(e) => setForm({ ...form, wall_distance: e.target.value })} className={INPUT_CLS} maxLength={64} placeholder="如：300mm" />
+                      {formErrors.wall_distance && <p className="text-red-500 text-xs mt-1">{formErrors.wall_distance}</p>}
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">排序号</label>
+                      <input type="number" value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: e.target.value })} className={INPUT_CLS} />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* 水箱：仅排序号（型号+规格已在基础字段区） */}
+              {isWaterTank && (
+                <div className="grid grid-cols-3 gap-4 mt-2">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">排序号</label>
+                    <input type="number" value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: e.target.value })} className={INPUT_CLS} />
+                  </div>
+                </div>
+              )}
+
+              {/* 花洒 / 水龙头：仅排序号（标题+型号已在基础字段区，无 specs） */}
+              {(isShower || isFaucet) && (
+                <div className="grid grid-cols-3 gap-4 mt-2">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">排序号</label>
+                    <input type="number" value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: e.target.value })} className={INPUT_CLS} />
                   </div>
                 </div>
               )}
