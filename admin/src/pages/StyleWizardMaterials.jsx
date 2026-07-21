@@ -39,6 +39,14 @@ function categoryColor(name) {
   return CAT_COLORS[Math.abs(hash) % CAT_COLORS.length];
 }
 
+/** 属性摘要：卫浴材料表格的"关键属性"列 */
+function bathAttrSummary(attrs, material) {
+  const parts = [];
+  if (material.specs) parts.push(`规格：${material.specs}`);
+  Object.entries(attrs).forEach(([k, v]) => { if (v) parts.push(`${k}：${v}`); });
+  return parts.join('  ') || '—';
+}
+
 /** 解析子品类的属性模板：{ keys: string[]|null, invalid: boolean } */
 function parseTemplate(sub) {
   if (!sub?.attribute_template) return { keys: null, invalid: false };
@@ -408,7 +416,8 @@ export default function StyleWizardMaterials() {
     setConfirmOpen(true);
   };
 
-  const filterSubOptions = categories.find((c) => String(c.id) === String(filterCategory))?.subcategories || [];
+  const filterSubOptions = (categories.find((c) => String(c.id) === String(filterCategory))?.subcategories || [])
+    .filter(s => !(s.name || '').includes('卫生间门'));
 
   return (
     <div className="p-4 lg:p-6 space-y-4">
@@ -471,7 +480,7 @@ export default function StyleWizardMaterials() {
                 <thead>
                   <tr className="border-b border-gray-100 bg-gray-50/50">
                     {(isBathPage
-                      ? ['图片', '型号', '镜柜', '主柜', '台面', '品类', '子品类', '排序', '操作']
+                      ? ['图片', '标题/型号', '关键属性', '子品类', '排序', '操作']
                       : ['图片', '名称', '品牌', '型号', '品类', '子品类', ...(isTilePage ? [] : ['原价', '优惠价']), '排序', '操作']
                     ).map((h) => (
                       <th key={h} className={`${h === '排序' ? 'text-center' : 'text-left'} ${h === '操作' ? 'text-right' : ''} px-4 py-3 text-gray-500 font-medium text-xs whitespace-nowrap`}>{h}</th>
@@ -498,10 +507,8 @@ export default function StyleWizardMaterials() {
                       </td>
                       {isBathPage ? (
                         <>
-                          <td className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap">{m.model || '—'}</td>
-                          <td className="px-4 py-3 text-gray-600 whitespace-nowrap">{bathAttrs['镜柜'] || '—'}</td>
-                          <td className="px-4 py-3 text-gray-600 whitespace-nowrap">{bathAttrs['主柜'] || '—'}</td>
-                          <td className="px-4 py-3 text-gray-600 whitespace-nowrap">{bathAttrs['台面'] || '—'}</td>
+                          <td className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap">{m.name || m.model || '—'}</td>
+                          <td className="px-4 py-3 text-gray-600 max-w-48 truncate">{bathAttrSummary(bathAttrs, m)}</td>
                         </>
                       ) : (
                         <>
@@ -510,7 +517,7 @@ export default function StyleWizardMaterials() {
                           <td className="px-4 py-3 text-gray-500 whitespace-nowrap">{m.model || '—'}</td>
                         </>
                       )}
-                      <td className="px-4 py-3 text-gray-600 whitespace-nowrap">{m.category_name || '—'}</td>
+                      {!isBathPage && <td className="px-4 py-3 text-gray-600 whitespace-nowrap">{m.category_name || '—'}</td>}
                       <td className="px-4 py-3 whitespace-nowrap">{(() => { const c = categoryColor(m.subcategory_name); return <span style={{background:c.bg,color:c.text,padding:'2px 8px',borderRadius:'4px',fontSize:'12px'}}>{m.subcategory_name || '—'}</span>; })()}</td>
                       {!isTilePage && !isBathPage && <td className="px-4 py-3 text-gray-500 whitespace-nowrap">{m.original_price != null ? `¥${m.original_price}` : '—'}</td>}
                       {!isTilePage && !isBathPage && <td className="px-4 py-3 text-red-600 font-medium whitespace-nowrap">{m.discount_price != null ? `¥${m.discount_price}` : '—'}</td>}
@@ -549,7 +556,7 @@ export default function StyleWizardMaterials() {
                     <option value="">请选择子品类</option>
                     {(lockedCategory ? categories.filter((c) => String(c.id) === String(lockedCategory)) : categories).map((cat) => (
                       <optgroup key={cat.id} label={cat.name}>
-                        {(cat.subcategories || []).map((sub) => <option key={sub.id} value={sub.id}>{sub.name}</option>)}
+                        {(cat.subcategories || []).filter(s => !(s.name || '').includes('卫生间门')).map((sub) => <option key={sub.id} value={sub.id}>{sub.name}</option>)}
                       </optgroup>
                     ))}
                   </select>
