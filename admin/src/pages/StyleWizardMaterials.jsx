@@ -18,6 +18,7 @@ const EMPTY_FORM = {
   has_chaise: false, old_code: '', new_code: '', applicable_scopes: [], style_ids: [],
   attr_values: {}, attr_raw: '',
   mirror_cabinet: '', main_cabinet: '', countertop: '',
+  drainage_method: '', wall_distance: '',
 };
 
 /** 品类颜色标签：按名称哈希分配，同一品类颜色稳定 */
@@ -220,6 +221,15 @@ export default function StyleWizardMaterials() {
   // 卫浴（page_number=3）：表单以型号为主标题，额外显示镜柜/主柜/台面，隐藏价格
   const isBath = selectedCat?.page_number === 3;
   const isBathPage = !!lockedCategory && categories.some((c) => String(c.id) === String(lockedCategory) && c.page_number === 3);
+  const subName = selectedSub?.name || '';
+  const isBathCabinet = subName.includes('浴室柜');
+  const isToilet = subName.includes('马桶');
+  const isSquatToilet = subName.includes('蹲厕');
+  const isWaterTank = subName.includes('水箱');
+  const isShower = subName.includes('花洒');
+  const isFaucet = subName.includes('水龙头');
+  // 非浴室柜的卫浴子品类（马桶/蹲厕/水箱/花洒/水龙头）
+  const isBathOther = isBath && !isBathCabinet;
 
   const openAdd = () => {
     setModalMode('add'); setEditingId(null);
