@@ -87,7 +87,7 @@ Page({
 
   /**
    * selections → 分组展示模型 + 提交 items
-   * 第 2 步为 door、第 7 步为 lighting 特殊 key，其余按子品类 sub_{id}
+   * 第 2 步为 door、第 6 步为 lighting 特殊 key，其余按子品类 sub_{id}
    */
   buildModel(categories, selections) {
     const sections = [];
@@ -129,7 +129,7 @@ Page({
         } else {
           rows.push({ type: 'skip', subLabel: '门系列' });
         }
-      } else if (cat.page_number === 7) {
+      } else if (cat.page_number === 6) {
         const sel = selections.lighting;
         if (sel && sel.kind === 'lighting') {
           rows.push(addItem({

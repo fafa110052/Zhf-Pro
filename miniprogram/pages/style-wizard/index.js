@@ -8,9 +8,8 @@ const STEP_ENGLISH = {
   2: 'INTERIOR DOORS',
   3: 'BATHROOM',
   4: 'CUSTOM DECOR',
-  5: 'SOFA',
-  6: 'FURNITURE',
-  7: 'LIGHTING',
+  5: 'FURNITURE',
+  6: 'LIGHTING',
 };
 
 const DRAFT_STORAGE_KEY = 'style_wizard_draft';
@@ -89,7 +88,7 @@ Page({
 
   onLoad(options) {
     this._styleId = Number(options.style_id) || null;
-    this._entryStep = Math.min(7, Math.max(1, Number(options.step) || 1));
+    this._entryStep = Math.min(6, Math.max(1, Number(options.step) || 1));
     this._lightboxSubId = null;
     this.loadData();
   },
@@ -133,7 +132,7 @@ Page({
       let selections = {};
       const draft = await this.resolveDraft();
       if (draft) {
-        step = Math.min(7, Math.max(1, draft.step || 1));
+        step = Math.min(6, Math.max(1, draft.step || 1));
         selections = draft.selections || {};
       }
 
@@ -229,7 +228,7 @@ Page({
     const categories = categoriesArg || this.data.categories;
     const selections = selectionsArg || this.data.selections;
     const currentCategory = categories.find((c) => c.page_number === step) || categories[step - 1] || null;
-    const stepType = step === 2 ? 'door' : (step === 7 ? 'lighting' : 'generic');
+    const stepType = step === 2 ? 'door' : (step === 6 ? 'lighting' : 'generic');
 
     let expandedSub = null;
     if (stepType === 'generic' && currentCategory) {
@@ -273,7 +272,7 @@ Page({
   isStepComplete(step, selectionsArg, categoriesArg) {
     const selections = selectionsArg || this.data.selections;
     if (step === 2) return !!selections.door;
-    if (step === 7) return !!selections.lighting;
+    if (step === 6) return !!selections.lighting;
     const categories = categoriesArg || this.data.categories;
     const cat = categories.find((c) => c.page_number === step) || categories[step - 1];
     if (!cat || !(cat.subcategories || []).length) return true;
@@ -291,12 +290,12 @@ Page({
       wx.showToast({ title: '请先完成本步选择', icon: 'none' });
       return;
     }
-    if (this.data.step < 7) {
+    if (this.data.step < 6) {
       this.enterStep(this.data.step + 1);
       this.persistDraft();
       return;
     }
-    // 第 7 步完成 → 选材清单（selections 对象过大不走 URL，用 globalData 交接）
+    // 第 6 步完成 → 选材清单（selections 对象过大不走 URL，用 globalData 交接）
     const app = getApp();
     app.globalData.styleWizardHandoff = {
       style_id: this._styleId,
@@ -334,27 +333,59 @@ Page({
     this.setData({ loadingSubId: subId, errorSubId: null });
     try {
       const list = (await api.getStyleMaterials(this._styleId, subId)) || [];
+      // 查找子品类名用于家具标题格式化
+      let subName = '';
+      for (const cat of this.data.categories) {
+        const found = (cat.subcategories || []).find((s) => s.id == subId);
+        if (found) { subName = found.name; break; }
+      }
       const materials = list.map((m) => {
         // 弹性字段：适用范围（JSON 数组）与属性（JSON 对象）在加载时解析，WXML 直接消费
         let scopes = [];
         try { scopes = JSON.parse(m.applicable_scopes) || []; } catch (e) {}
         if (!Array.isArray(scopes)) scopes = [];
         let attrList = [];
+        let attrs = {};
         try {
-          const attrs = JSON.parse(m.attributes);
+          attrs = JSON.parse(m.attributes);
           if (attrs && typeof attrs === 'object' && !Array.isArray(attrs)) {
             attrList = Object.keys(attrs).map((k) => ({ k, v: attrs[k] }));
           }
         } catch (e) {}
+        // 家具子品类标题格式化
+        let displayTitle = m.name || m.brand || m.model || '';
+        let displaySubtitle = [m.model && !m.name && !m.brand ? '' : m.model, m.specs]
+          .filter(Boolean).join(' · ') || (m.name ? m.model : '');
+        if (subName.includes('沙发')) {
+          displayTitle = '沙发' + (m.model || '');
+          displaySubtitle = [attrs['材质面料'], m.specs].filter(Boolean).join(' · ');
+        } else if (subName.includes('床') && !subName.includes('床头柜')) {
+          displayTitle = '床' + (m.model || '');
+          displaySubtitle = [attrs['材质面料'], m.specs].filter(Boolean).join(' · ');
+        } else if (subName.includes('餐桌')) {
+          const dtModel = attrs['餐桌型号'] || m.model || '';
+          const dcModel = attrs['餐椅型号'] || '';
+          displayTitle = '餐桌' + dtModel;
+          displaySubtitle = '餐椅' + dcModel;
+        } else if (subName.includes('电视柜')) {
+          displayTitle = m.name || '电视柜';
+          displaySubtitle = m.specs || '';
+        } else if (subName.includes('茶几')) {
+          displayTitle = '茶几' + (m.model || '');
+          const units = Array.isArray(attrs.units) ? attrs.units : [];
+          displaySubtitle = units.map((u) => (u.shape || '') + ' ' + (u.spec || '')).join(' | ');
+        } else if (subName.includes('床头柜')) {
+          displayTitle = '床头柜' + (m.model || '');
+          displaySubtitle = m.specs || '';
+        }
         return Object.assign({}, m, {
           image_url: util.fullImageUrl(m.image_url),
           brand_logo: util.fullImageUrl(m.brand_logo),
           brand_model: [m.brand, m.model].filter(Boolean).join(' '),
           scopes,
           attrList,
-          displayTitle: m.name || m.brand || m.model || '',
-          displaySubtitle: [m.model && !m.name && !m.brand ? '' : m.model, m.specs]
-            .filter(Boolean).join(' · ') || (m.name ? m.model : ''),
+          displayTitle,
+          displaySubtitle,
         });
       });
       const update = {};
@@ -609,7 +640,7 @@ Page({
   },
 
   // ═══════════════════════════════════════════
-  // 第 7 步：灯具套餐
+  // 第 6 步：灯具套餐
   // ═══════════════════════════════════════════
 
   async ensureLightingPackages() {
@@ -675,16 +706,52 @@ Page({
     const sel = this.data.selections['sub_' + subId];
     this._lightboxSubId = subId;
 
-    // 查找子品类标记，用于按品类构建 lightbox 信息行
-    const cat = this.data.currentCategory;
-    const sub = cat ? (cat.subcategories || []).find(s => s.id == subId) : null;
+    // 查找子品类（跨所有品类搜索），用于按品类构建 lightbox 信息行
+    let sub = null;
+    for (const cat of this.data.categories) {
+      const found = (cat.subcategories || []).find(s => s.id == subId);
+      if (found) { sub = found; break; }
+    }
+    const subName = (sub && sub.name) || '';
 
     this.setData({
       lightboxImages: mats.map((m) => {
         const lines = [];
-        const title = m.name || m.brand || m.model;
+        let title = m.name || m.brand || m.model;
 
-        if (sub && sub.isCabinetColor) {
+        // 家具子品类 lightbox 标题
+        let attrs = {};
+        try { attrs = JSON.parse(m.attributes) || {}; } catch (e) {}
+        if (subName.includes('沙发')) {
+          title = '沙发' + (m.model || '');
+          if (m.model) lines.push({ label: '型号', value: m.model });
+          if (attrs['材质面料']) lines.push({ label: '材质面料', value: attrs['材质面料'] });
+          if (m.specs) lines.push({ label: '规格', value: m.specs });
+        } else if (subName.includes('床') && !subName.includes('床头柜')) {
+          title = '床' + (m.model || '');
+          if (m.model) lines.push({ label: '型号', value: m.model });
+          if (attrs['材质面料']) lines.push({ label: '材质面料', value: attrs['材质面料'] });
+          if (m.specs) lines.push({ label: '规格', value: m.specs });
+        } else if (subName.includes('餐桌')) {
+          const dtModel = attrs['餐桌型号'] || m.model || '';
+          const dcModel = attrs['餐椅型号'] || '';
+          title = '餐桌' + dtModel;
+          lines.push({ label: '餐椅', value: '餐椅' + dcModel });
+          if (m.specs) lines.push({ label: '规格', value: m.specs });
+        } else if (subName.includes('电视柜')) {
+          title = m.name || '电视柜';
+          if (m.specs) lines.push({ label: '规格', value: m.specs });
+        } else if (subName.includes('茶几')) {
+          title = '茶几' + (m.model || '');
+          const units = Array.isArray(attrs.units) ? attrs.units : [];
+          units.forEach((u, i) => {
+            lines.push({ label: '单元' + (i + 1), value: (u.shape || '') + ' ' + (u.spec || '') });
+          });
+        } else if (subName.includes('床头柜')) {
+          title = '床头柜' + (m.model || '');
+          if (m.model) lines.push({ label: '型号', value: m.model });
+          if (m.specs) lines.push({ label: '规格', value: m.specs });
+        } else if (sub && sub.isCabinetColor) {
           if (m.new_code) lines.push({ label: '编码', value: m.new_code });
           if (m.scopes && m.scopes.length) {
             lines.push({ label: '适用范围', value: m.scopes.join('、') });

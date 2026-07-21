@@ -235,7 +235,7 @@
           <view wx:if="{{!doorSeries.length && doorLoaded}}" class="skip-btn" catchtap="onSkipDoor">此项不选</view>
         </block>
 
-        <!-- ─── 第 7 步：灯具套餐 ─── -->
+        <!-- ─── 第 6 步：灯具套餐 ─── -->
         <block wx:elif="{{stepType === 'lighting'}}">
           <view wx:if="{{lightingLoading}}" class="body-hint step-hint">加载中…</view>
           <view wx:elif="{{lightingError}}" class="body-retry step-hint" bindtap="onRetryLighting">加载失败，点此重试</view>
@@ -286,7 +286,7 @@
       <!-- 底部操作栏 -->
       <view class="bottom-bar">
         <view wx:if="{{step > 1}}" class="prev-btn" bindtap="onPrevStep">上一步</view>
-        <view class="next-btn {{stepComplete ? '' : 'is-disabled'}}" bindtap="onNextStep">{{step === 7 ? '查看选材清单' : '下一步'}}</view>
+        <view class="next-btn {{stepComplete ? '' : 'is-disabled'}}" bindtap="onNextStep">{{step === 6 ? '查看选材清单' : '下一步'}}</view>
       </view>
 
       <!-- 图片放大预览 -->

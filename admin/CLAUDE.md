@@ -38,12 +38,11 @@ admin/src/
 | `/style-wizard/bathroom-doors` | StyleWizardBathroomDoors | └ 卫生间门 |
 | `/style-wizard/materials/3` | StyleWizardMaterials | └ 卫浴 |
 | `/style-wizard/materials/4` | StyleWizardMaterials | └ 装饰定制 |
-| `/style-wizard/materials/5` | StyleWizardMaterials | └ 沙发 |
-| `/style-wizard/materials/6` | StyleWizardMaterials | └ 家具 |
-| `/style-wizard/materials/7` | StyleWizardLighting | └ 灯具（套餐管理） |
+| `/style-wizard/materials/5` | StyleWizardMaterials | └ 家具（含沙发/床/餐桌餐椅/电视柜/茶几/床头柜） |
+| `/style-wizard/materials/6` | StyleWizardLighting | └ 灯具（套餐管理） |
 | `/style-wizard/orders` | StyleWizardOrders | 选材单 |
 
-> 路由顺序：`materials/2` 和 `materials/7` 必须在 `materials/:categoryId` 之前。
+> 路由顺序：`materials/2` 和 `materials/6` 必须在 `materials/:categoryId` 之前。
 
 ## 设计 Token
 
@@ -67,8 +66,11 @@ admin/src/
 页面级变量（`lockedCategory` = URL 参数）和表单级变量（`selectedSub` = 当前选中子品类）：
 
 ```
-isTilePage / isBathPage / isDecorationPage — URL 锁定品类时生效
-isTile / isBath / isDecoration / isCabinetColor / isCountertop / ... — 选中子品类后生效
+isTilePage / isBathPage / isDecorationPage / isFurniturePage — URL 锁定品类时生效
+isTile / isBath / isDecoration / isFurniture / isCabinetColor / isCountertop / ... — 选中子品类后生效
+isSofa / isBed / isDining / isTVCabinet / isCoffeeTable / isBedsideTable — 家具子品类
 ```
+
+家具品类（page_number=5）按子品类显示专属字段：沙发→材质面料+贵妃位；床→材质面料；餐桌餐椅→双型号；茶几→单/多体+形状规格；电视柜→标题；床头柜→型号+规格。
 
 新增子品类分支：加检测变量 → validateForm → handleSubmit → 表单 JSX → 表格列。

@@ -1,6 +1,7 @@
 /**
- * 风格选材向导 — 7 品类 + 20 子品类种子数据
+ * 风格选材向导 — 6 品类 + 20 子品类种子数据
  *
+ * 沙发已合并至家具选材（子品类），品类数量 7→6。
  * 幂等：style_categories 已有数据则整体跳过（不清空——生产环境可能有后台编辑过的数据）。
  * 显式指定 id，保证 style_subcategories.category_id 外键引用成立。
  *
@@ -12,9 +13,8 @@ const categories = [
   { id: 2, name: '室内木门', page_number: 2, sort_order: 0 },
   { id: 3, name: '卫浴选材', page_number: 3, sort_order: 0 },
   { id: 4, name: '装饰定制', page_number: 4, sort_order: 0 },
-  { id: 5, name: '沙发选材', page_number: 5, sort_order: 0 },
-  { id: 6, name: '家具选材', page_number: 6, sort_order: 0 },
-  { id: 7, name: '装饰灯具', page_number: 7, sort_order: 0 },
+  { id: 6, name: '家具选材', page_number: 5, sort_order: 0 },
+  { id: 7, name: '装饰灯具', page_number: 6, sort_order: 0 },
 ];
 
 const subcategories = [
@@ -31,7 +31,7 @@ const subcategories = [
   { id: 11, category_id: 3, name: '水龙头', sort_order: 7, layout_type: 'image_top_text_bottom', columns: 2 },
   { id: 12, category_id: 4, name: '柜体/柜门颜色', sort_order: 1, layout_type: 'image_top_text_bottom', columns: 2 },
   { id: 13, category_id: 4, name: '橱柜台面石', sort_order: 2, layout_type: 'image_top_text_bottom', columns: 2 },
-  { id: 14, category_id: 5, name: '沙发', sort_order: 1, layout_type: 'image_top_text_bottom', columns: 2 },
+  { id: 14, category_id: 6, name: '沙发', sort_order: 0, layout_type: 'image_top_text_bottom', columns: 2 },
   { id: 15, category_id: 6, name: '床', sort_order: 1, layout_type: 'image_top_text_bottom', columns: 2 },
   { id: 16, category_id: 6, name: '餐桌餐椅', sort_order: 2, layout_type: 'image_top_text_bottom', columns: 2 },
   { id: 17, category_id: 6, name: '电视柜', sort_order: 3, layout_type: 'image_top_text_bottom', columns: 2 },
@@ -48,5 +48,5 @@ exports.seed = async function (knex) {
   }
   await knex('style_categories').insert(categories);
   await knex('style_subcategories').insert(subcategories);
-  console.log('  ✓ 已插入 7 个品类 + 20 个子品类');
+  console.log('  ✓ 已插入 6 个品类 + 20 个子品类');
 };

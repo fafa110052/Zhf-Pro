@@ -19,6 +19,9 @@ const EMPTY_FORM = {
   attr_values: {}, attr_raw: '',
   mirror_cabinet: '', main_cabinet: '', countertop: '',
   drainage_method: '', wall_distance: '',
+  // 家具选材
+  material_fabric: '', dining_table_model: '', dining_chair_model: '',
+  coffee_table_type: 'single', coffee_table_units: [{ shape: '圆形', spec: '' }],
 };
 
 /** 品类颜色标签：按名称哈希分配，同一品类颜色稳定 */
@@ -220,8 +223,9 @@ export default function StyleWizardMaterials() {
     return { cat: null, sub: null };
   };
   const { cat: selectedCat, sub: selectedSub } = findSub(form.subcategory_id);
+  const subName = selectedSub?.name || '';
   const tpl = parseTemplate(selectedSub);
-  const isSofa = !!selectedSub?.name?.includes('沙发');
+  const isSofa = subName.includes('沙发');
   const isTile = selectedCat?.page_number === 1; // 瓷砖选材：标题行显示品牌+logo，名称非必填
   // 页面级判断：URL 锁定到瓷砖品类时，列表和表单都隐藏价格字段
   const isTilePage = !!lockedCategory && categories.some((c) => String(c.id) === String(lockedCategory) && c.page_number === 1);
@@ -231,7 +235,6 @@ export default function StyleWizardMaterials() {
   // 装饰定制（page_number=4）：子品类按名称分支
   const isDecorationPage = !!lockedCategory && categories.some((c) => String(c.id) === String(lockedCategory) && c.page_number === 4);
   const isDecoration = selectedCat?.name === '装饰定制' || (isDecorationPage && !form.subcategory_id);
-  const subName = selectedSub?.name || '';
   const isBathCabinet = subName.includes('浴室柜');
   const isToilet = subName.includes('马桶');
   const isSquatToilet = subName.includes('蹲厕');
@@ -244,6 +247,16 @@ export default function StyleWizardMaterials() {
   const isCabinetColor = isDecoration && (subName.includes('柜体/柜门颜色') || !form.subcategory_id);
   const isCountertop = isDecoration && subName.includes('橱柜台面石');
   const isDecorationSimple = isCabinetColor || isCountertop;
+  // 家具选材（page_number=5）：子品类按名称分支
+  const isFurniturePage = !!lockedCategory && categories.some((c) => String(c.id) === String(lockedCategory) && c.page_number === 5);
+  const isFurniture = selectedCat?.page_number === 5;
+  const isBed = subName.includes('床') && !subName.includes('床头柜');
+  const isDining = subName.includes('餐桌');
+  const isTVCabinet = subName.includes('电视柜');
+  const isCoffeeTable = subName.includes('茶几');
+  const isBedsideTable = subName.includes('床头柜');
+  // 家具品类下隐藏名称（电视柜需要标题故除外）；未选子品类时保持原名称为必填
+  const furnitureNoName = isFurniture && form.subcategory_id && !isTVCabinet;
 
   const openAdd = () => {
     setModalMode('add'); setEditingId(null);
@@ -285,6 +298,12 @@ export default function StyleWizardMaterials() {
         countertop: attrValues['台面'] || '',
         drainage_method: attrValues['排水方式'] || '',
         wall_distance: attrValues['前出水墙距'] || '',
+        // 家具选材
+        material_fabric: attrValues['材质面料'] || '',
+        dining_table_model: attrValues['餐桌型号'] || m.model || '',
+        dining_chair_model: attrValues['餐椅型号'] || '',
+        coffee_table_type: attrValues['type'] || 'single',
+        coffee_table_units: Array.isArray(attrValues['units']) ? attrValues['units'] : [{ shape: '圆形', spec: m.specs || '' }],
       });
     } catch (err) {
       toast.error(err?.message || '加载材料详情失败');
@@ -334,6 +353,34 @@ export default function StyleWizardMaterials() {
     } else if (isCountertop) {
       if (!form.name.trim()) errs.name = '请输入石材名称';
       if (!form.new_code.trim()) errs.new_code = '请输入编码';
+    } else if (isSofa) {
+      if (!form.model.trim()) errs.model = '请输入型号';
+      if (!form.material_fabric.trim()) errs.material_fabric = '请输入材质面料';
+      if (!form.specs.trim()) errs.specs = '请输入规格';
+    } else if (isBed) {
+      if (!form.model.trim()) errs.model = '请输入型号';
+      if (!form.material_fabric.trim()) errs.material_fabric = '请输入材质面料';
+      if (!form.specs.trim()) errs.specs = '请输入规格';
+    } else if (isDining) {
+      if (!form.dining_table_model.trim()) errs.dining_table_model = '请输入餐桌型号';
+      if (!form.dining_chair_model.trim()) errs.dining_chair_model = '请输入餐椅型号';
+      if (!form.specs.trim()) errs.specs = '请输入规格';
+    } else if (isTVCabinet) {
+      if (!form.name.trim()) errs.name = '请输入标题';
+      if (!form.specs.trim()) errs.specs = '请输入规格';
+    } else if (isCoffeeTable) {
+      if (!form.model.trim()) errs.model = '请输入型号';
+      if (form.coffee_table_type === 'multi') {
+        const units = form.coffee_table_units || [];
+        if (units.length < 2) errs.coffee_table_units = '多体茶几至少需要 2 个单元';
+        else units.forEach((u, i) => { if (!(u.spec || '').trim()) errs[`coffee_unit_spec_${i}`] = `请填写单元${i + 1}规格`; });
+      } else {
+        const firstUnit = (form.coffee_table_units || [])[0];
+        if (!(firstUnit?.spec || '').trim()) errs.coffee_table_single_spec = '请输入规格';
+      }
+    } else if (isBedsideTable) {
+      if (!form.model.trim()) errs.model = '请输入型号';
+      if (!form.specs.trim()) errs.specs = '请输入规格';
     } else if (!form.name.trim()) {
       errs.name = '请输入材料名称';
     }
@@ -353,11 +400,11 @@ export default function StyleWizardMaterials() {
     if (!validateForm()) return;
     setSubmitting(true);
     try {
-      const needsName = isShower || isFaucet;
+      const needsName = isShower || isFaucet || isTVCabinet;
       const bathNoName = (isBath || isBathPage) && !needsName;
       const payload = {
         subcategory_id: Number(form.subcategory_id),
-        name: (isTile || bathNoName) ? '' : form.name.trim(),
+        name: (isTile || bathNoName || furnitureNoName) ? '' : form.name.trim(),
         model: form.model.trim() || null,
         brand: form.brand.trim() || null,
         brand_logo: form.brand_logo.trim() || null,
@@ -381,6 +428,22 @@ export default function StyleWizardMaterials() {
         payload.attributes = { '前出水墙距': form.wall_distance.trim() };
       } else if (isWaterTank || isShower || isFaucet) {
         // 无 attributes — 不传
+      } else if (isSofa || isBed) {
+        payload.attributes = { '材质面料': form.material_fabric.trim() };
+      } else if (isDining) {
+        payload.attributes = {
+          '餐桌型号': form.dining_table_model.trim(),
+          '餐椅型号': form.dining_chair_model.trim(),
+        };
+        payload.model = form.dining_table_model.trim(); // 型号 = 餐桌型号
+      } else if (isCoffeeTable) {
+        const units = form.coffee_table_units || [];
+        payload.attributes = {
+          type: form.coffee_table_type,
+          units: units.map((u) => ({ shape: u.shape || '圆形', spec: (u.spec || '').trim() })),
+        };
+      } else if (isTVCabinet || isBedsideTable) {
+        // 电视柜/床头柜无额外 attributes
       } else if (tpl.keys) {
         const attrs = {};
         tpl.keys.forEach((k) => {
@@ -495,7 +558,7 @@ export default function StyleWizardMaterials() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-gray-100 bg-gray-50/50">
-                    {(isBathPage
+                    {(isBathPage || isFurniturePage
                       ? ['图片', '标题/型号', '关键属性', '子品类', '排序', '操作']
                       : isDecorationPage
                         ? ['图片', '名称', '编码', '适用范围', '子品类', '排序', '操作']
@@ -508,7 +571,7 @@ export default function StyleWizardMaterials() {
                 <tbody>
                   {list.map((m) => {
                     const bathAttrs = (() => {
-                      if (!isBathPage) return {};
+                      if (!isBathPage && !isFurniturePage) return {};
                       try {
                         const a = typeof m.attributes === 'string' ? JSON.parse(m.attributes) : (m.attributes || {});
                         return a && typeof a === 'object' && !Array.isArray(a) ? a : {};
@@ -523,7 +586,7 @@ export default function StyleWizardMaterials() {
                             : <div className="w-full h-full flex items-center justify-center text-gray-300">🧱</div>}
                         </div>
                       </td>
-                      {isBathPage ? (
+                      {isBathPage || isFurniturePage ? (
                         <>
                           <td className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap">{m.name || m.model || '—'}</td>
                           <td className="px-4 py-3 text-gray-600 max-w-48 truncate">{bathAttrSummary(bathAttrs, m)}</td>
@@ -545,10 +608,10 @@ export default function StyleWizardMaterials() {
                           <td className="px-4 py-3 text-gray-500 whitespace-nowrap">{m.model || '—'}</td>
                         </>
                       )}
-                      {!isBathPage && !isDecorationPage && <td className="px-4 py-3 text-gray-600 whitespace-nowrap">{m.category_name || '—'}</td>}
+                      {!isBathPage && !isDecorationPage && !isFurniturePage && <td className="px-4 py-3 text-gray-600 whitespace-nowrap">{m.category_name || '—'}</td>}
                       <td className="px-4 py-3 whitespace-nowrap">{(() => { const c = categoryColor(m.subcategory_name); return <span style={{background:c.bg,color:c.text,padding:'2px 8px',borderRadius:'4px',fontSize:'12px'}}>{m.subcategory_name || '—'}</span>; })()}</td>
-                      {!isTilePage && !isBathPage && !isDecorationPage && <td className="px-4 py-3 text-gray-500 whitespace-nowrap">{m.original_price != null ? `¥${m.original_price}` : '—'}</td>}
-                      {!isTilePage && !isBathPage && !isDecorationPage && <td className="px-4 py-3 text-red-600 font-medium whitespace-nowrap">{m.discount_price != null ? `¥${m.discount_price}` : '—'}</td>}
+                      {!isTilePage && !isBathPage && !isDecorationPage && !isFurniturePage && <td className="px-4 py-3 text-gray-500 whitespace-nowrap">{m.original_price != null ? `¥${m.original_price}` : '—'}</td>}
+                      {!isTilePage && !isBathPage && !isDecorationPage && !isFurniturePage && <td className="px-4 py-3 text-red-600 font-medium whitespace-nowrap">{m.discount_price != null ? `¥${m.discount_price}` : '—'}</td>}
                       <td className="px-4 py-3 text-center text-gray-500">{m.sort_order}</td>
                       <td className="px-4 py-3 text-right">
                         <div className="flex items-center justify-end space-x-1">
@@ -590,30 +653,30 @@ export default function StyleWizardMaterials() {
                   </select>
                   {formErrors.subcategory_id && <p className="text-red-500 text-xs mt-1">{formErrors.subcategory_id}</p>}
                 </div>
-                {/* 瓷砖标题行 = 品牌，卫浴标题行 = 型号，均无需名称，字段整体隐藏 */}
-                {!(isTile || (isBath && !isShower && !isFaucet) || (isBathPage && !isShower && !isFaucet)) && (
+                {/* 瓷砖/卫浴/家具（电视柜除外）无需名称 */}
+                {!(isTile || (isBath && !isShower && !isFaucet) || (isBathPage && !isShower && !isFaucet) || furnitureNoName) && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">{isCabinetColor ? '颜色名称' : isCountertop ? '石材名称' : '材料名称'}<span className="text-red-500"> *</span></label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{isCabinetColor ? '颜色名称' : isCountertop ? '石材名称' : isTVCabinet ? '标题' : '材料名称'}<span className="text-red-500"> *</span></label>
                     <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className={INPUT_CLS} maxLength={128} placeholder="如：原木风三人沙发" />
                     {formErrors.name && <p className="text-red-500 text-xs mt-1">{formErrors.name}</p>}
                   </div>
                 )}
-                {/* 卫浴/装饰定制简版不展示品牌/品牌Logo */}
-                {!(isBath || isBathPage || isDecorationSimple) && (
+                {/* 卫浴/装饰定制简版/家具不展示品牌/品牌Logo */}
+                {!(isBath || isBathPage || isDecorationSimple || isFurniture) && (
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">品牌{isTile && <span className="text-red-500"> *</span>}</label>
                     <input value={form.brand} onChange={(e) => setForm({ ...form, brand: e.target.value })} className={INPUT_CLS} maxLength={64} />
                     {formErrors.brand && <p className="text-red-500 text-xs mt-1">{formErrors.brand}</p>}
                   </div>
                 )}
-                {!isDecorationSimple && (
+                {!isDecorationSimple && !isDining && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">型号{(isTile || isBath || isBathPage) && <span className="text-red-500"> *</span>}</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">型号{(isTile || isBath || isBathPage || isSofa || isBed || isCoffeeTable || isBedsideTable) && <span className="text-red-500"> *</span>}</label>
                   <input value={form.model} onChange={(e) => setForm({ ...form, model: e.target.value })} className={INPUT_CLS} maxLength={128} placeholder={isTile ? '如：TB6023' : ''} />
                   {formErrors.model && <p className="text-red-500 text-xs mt-1">{formErrors.model}</p>}
                 </div>
                 )}
-                {!(isBath || isBathPage || isDecorationSimple) && (
+                {!(isBath || isBathPage || isDecorationSimple || isFurniture) && (
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">品牌 Logo{isTile && <span className="text-red-500"> *</span>}</label>
                     <div className="flex gap-2">
@@ -639,8 +702,8 @@ export default function StyleWizardMaterials() {
                   </div>
                   {formErrors.image_url && <p className="text-red-500 text-xs mt-1">{formErrors.image_url}</p>}
                 </div>
-                {/* 瓷砖/卫浴/装饰定制不展示价格 */}
-                {!(isTilePage || isTile || isBathPage || isBath || isDecorationSimple) && (
+                {/* 瓷砖/卫浴/装饰定制/家具不展示价格 */}
+                {!(isTilePage || isTile || isBathPage || isBath || isDecorationSimple || isFurniturePage || isFurniture) && (
                   <>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">原价（元）</label>
@@ -653,11 +716,11 @@ export default function StyleWizardMaterials() {
                   </>
                 )}
               </div>
-              {/* 卫浴仅马桶/蹲厕/水箱显示规格，花洒/水龙头/浴室柜隐藏；装饰定制简版不显示 */}
-              {!((isBath || isBathPage) && !isToilet && !isSquatToilet && !isWaterTank) && !isDecorationSimple && (
+              {/* 卫浴仅马桶/蹲厕/水箱显示规格，花洒/水龙头/浴室柜隐藏；装饰定制简版不显示；茶几用专属规格 */}
+              {!((isBath || isBathPage) && !isToilet && !isSquatToilet && !isWaterTank) && !isDecorationSimple && !isCoffeeTable && (
                 <div className="grid grid-cols-3 gap-4">
                   <div className="col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">规格说明{(isTile || (isBath && (isToilet || isSquatToilet || isWaterTank)) || (isBathPage && (isToilet || isSquatToilet || isWaterTank))) && <span className="text-red-500"> *</span>}</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">规格说明{(isTile || (isBath && (isToilet || isSquatToilet || isWaterTank)) || (isBathPage && (isToilet || isSquatToilet || isWaterTank)) || isSofa || isBed || isDining || isTVCabinet || isBedsideTable) && <span className="text-red-500"> *</span>}</label>
                     <textarea rows={2} value={form.specs} onChange={(e) => setForm({ ...form, specs: e.target.value })} className={`${INPUT_CLS} resize-none`} placeholder={isTile ? '如：200X800' : '如：2400×950×850mm'} />
                     {formErrors.specs && <p className="text-red-500 text-xs mt-1">{formErrors.specs}</p>}
                   </div>
@@ -785,13 +848,143 @@ export default function StyleWizardMaterials() {
                 </div>
               )}
 
-              {/* 沙发专属 */}
+              {/* 家具选材：按子品类显示专属字段 */}
               {isSofa && (
-                <label className="inline-flex items-center gap-2 text-sm text-gray-700">
-                  <input type="checkbox" checked={form.has_chaise} onChange={(e) => setForm({ ...form, has_chaise: e.target.checked })}
-                    className="w-4 h-4 rounded border-gray-300 text-slate-900 focus:ring-blue-500" />
-                  有贵妃（带贵妃榻）
-                </label>
+                <div className="border border-gray-100 rounded-lg p-3 bg-gray-50/50 space-y-3">
+                  <p className="text-sm font-medium text-gray-700">沙发信息</p>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">材质面料<span className="text-red-500"> *</span></label>
+                      <input value={form.material_fabric} onChange={(e) => setForm({ ...form, material_fabric: e.target.value })} className={INPUT_CLS} maxLength={64} placeholder="如：科技布" />
+                      {formErrors.material_fabric && <p className="text-red-500 text-xs mt-1">{formErrors.material_fabric}</p>}
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">排序号</label>
+                      <input type="number" value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: e.target.value })} className={INPUT_CLS} />
+                    </div>
+                  </div>
+                  <label className="inline-flex items-center gap-2 text-sm text-gray-700">
+                    <input type="checkbox" checked={form.has_chaise} onChange={(e) => setForm({ ...form, has_chaise: e.target.checked })}
+                      className="w-4 h-4 rounded border-gray-300 text-slate-900 focus:ring-blue-500" />
+                    有贵妃（带贵妃榻）
+                  </label>
+                </div>
+              )}
+
+              {isBed && (
+                <div className="border border-gray-100 rounded-lg p-3 bg-gray-50/50 space-y-3">
+                  <p className="text-sm font-medium text-gray-700">床信息</p>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">材质面料<span className="text-red-500"> *</span></label>
+                      <input value={form.material_fabric} onChange={(e) => setForm({ ...form, material_fabric: e.target.value })} className={INPUT_CLS} maxLength={64} placeholder="如：真皮" />
+                      {formErrors.material_fabric && <p className="text-red-500 text-xs mt-1">{formErrors.material_fabric}</p>}
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">排序号</label>
+                      <input type="number" value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: e.target.value })} className={INPUT_CLS} />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {isDining && (
+                <div className="border border-gray-100 rounded-lg p-3 bg-gray-50/50 space-y-3">
+                  <p className="text-sm font-medium text-gray-700">餐桌餐椅信息</p>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">餐桌型号<span className="text-red-500"> *</span></label>
+                      <input value={form.dining_table_model} onChange={(e) => setForm({ ...form, dining_table_model: e.target.value })} className={INPUT_CLS} maxLength={128} placeholder="如：CZ-101" />
+                      {formErrors.dining_table_model && <p className="text-red-500 text-xs mt-1">{formErrors.dining_table_model}</p>}
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">餐椅型号<span className="text-red-500"> *</span></label>
+                      <input value={form.dining_chair_model} onChange={(e) => setForm({ ...form, dining_chair_model: e.target.value })} className={INPUT_CLS} maxLength={128} placeholder="如：CY-202" />
+                      {formErrors.dining_chair_model && <p className="text-red-500 text-xs mt-1">{formErrors.dining_chair_model}</p>}
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">排序号</label>
+                      <input type="number" value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: e.target.value })} className={INPUT_CLS} />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {isTVCabinet && (
+                <div className="grid grid-cols-3 gap-4 mt-2">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">排序号</label>
+                    <input type="number" value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: e.target.value })} className={INPUT_CLS} />
+                  </div>
+                </div>
+              )}
+
+              {isCoffeeTable && (
+                <div className="border border-gray-100 rounded-lg p-3 bg-gray-50/50 space-y-3">
+                  <p className="text-sm font-medium text-gray-700">茶几规格</p>
+                  <div className="flex items-center gap-4">
+                    <label className="inline-flex items-center gap-1.5 text-sm text-gray-700">
+                      <input type="radio" name="coffee_table_type" checked={form.coffee_table_type === 'single'}
+                        onChange={() => setForm({ ...form, coffee_table_type: 'single', coffee_table_units: [{ shape: '圆形', spec: '' }] })}
+                        className="w-4 h-4 text-slate-900 focus:ring-blue-500" />
+                      单体
+                    </label>
+                    <label className="inline-flex items-center gap-1.5 text-sm text-gray-700">
+                      <input type="radio" name="coffee_table_type" checked={form.coffee_table_type === 'multi'}
+                        onChange={() => setForm({ ...form, coffee_table_type: 'multi', coffee_table_units: (form.coffee_table_units.length < 2 ? [{ shape: '圆形', spec: '' }, { shape: '圆形', spec: '' }] : form.coffee_table_units) })}
+                        className="w-4 h-4 text-slate-900 focus:ring-blue-500" />
+                      多体
+                    </label>
+                  </div>
+                  {(form.coffee_table_units || []).map((unit, i) => (
+                    <div key={i} className="flex items-center gap-3">
+                      <span className="text-xs text-gray-500 w-12 shrink-0">单元{i + 1}</span>
+                      <select value={unit.shape || '圆形'} onChange={(e) => {
+                        const units = [...(form.coffee_table_units || [])];
+                        units[i] = { ...units[i], shape: e.target.value };
+                        setForm({ ...form, coffee_table_units: units });
+                      }} className={`${SELECT_CLS} w-24`}>
+                        <option value="圆形">圆形</option>
+                        <option value="方形">方形</option>
+                      </select>
+                      <input value={unit.spec || ''} onChange={(e) => {
+                        const units = [...(form.coffee_table_units || [])];
+                        units[i] = { ...units[i], spec: e.target.value };
+                        setForm({ ...form, coffee_table_units: units });
+                      }} className={INPUT_CLS} placeholder="如：800mm 或 600×600mm" />
+                      {formErrors[`coffee_unit_spec_${i}`] && <p className="text-red-500 text-xs">{formErrors[`coffee_unit_spec_${i}`]}</p>}
+                      {form.coffee_table_type === 'multi' && (form.coffee_table_units || []).length > 2 && (
+                        <button type="button" onClick={() => {
+                          const units = (form.coffee_table_units || []).filter((_, idx) => idx !== i);
+                          setForm({ ...form, coffee_table_units: units });
+                        }} className="text-red-500 text-xs hover:text-red-700 shrink-0">删除</button>
+                      )}
+                    </div>
+                  ))}
+                  {formErrors.coffee_table_units && <p className="text-red-500 text-xs">{formErrors.coffee_table_units}</p>}
+                  {formErrors.coffee_table_single_spec && <p className="text-red-500 text-xs">{formErrors.coffee_table_single_spec}</p>}
+                  {form.coffee_table_type === 'multi' && (
+                    <button type="button" onClick={() => {
+                      const units = [...(form.coffee_table_units || []), { shape: '圆形', spec: '' }];
+                      setForm({ ...form, coffee_table_units: units });
+                    }} className="text-blue-600 text-xs hover:text-blue-800">+ 添加单元</button>
+                  )}
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">排序号</label>
+                      <input type="number" value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: e.target.value })} className={INPUT_CLS} />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {isBedsideTable && (
+                <div className="grid grid-cols-3 gap-4 mt-2">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">排序号</label>
+                    <input type="number" value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: e.target.value })} className={INPUT_CLS} />
+                  </div>
+                </div>
               )}
 
               {/* 装饰定制专属 */}
