@@ -7,8 +7,8 @@
       <text class="header-title">{{title}}</text>
     </view>
     <view class="header-right">
-      <text wx:if="{{completed && !expanded}}" class="selected-label">{{selectedLabel}}</text>
-      <text wx:elif="{{!completed && !expanded}}" class="placeholder-label">请选择</text>
+      <text wx:if="{{completed}}" class="selected-label">{{selectedLabel}}</text>
+      <text wx:elif="{{!expanded}}" class="placeholder-label">请选择</text>
       <image class="chevron {{expanded ? 'chevron-up' : ''}}" src="/assets/icons/chevron-down.svg" mode="aspectFit" />
     </view>
   </view>

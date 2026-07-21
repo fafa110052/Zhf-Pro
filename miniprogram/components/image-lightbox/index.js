@@ -2,7 +2,9 @@
  * 图片放大 lightbox 组件 — 全屏预览 + 左右滑切换 + 放大态选中
  *
  * Props:
- *   images — [{ id, url, name }]
+ *   images — [{ id, url, name?, title?, model?, specs?, lines?: [{label, value}] }]
+ *     title — 主标题（优先于 name）
+ *     lines — 动态信息行数组，每项 { label, value }；无 lines 时回退 model/specs
  *   currentIndex — 初始展示的图片下标
  *   visible — 是否显示
  *   selectedId — 已选中材料 id（当前图片命中时按钮显示"已选中"）

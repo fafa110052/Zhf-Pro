@@ -10,7 +10,7 @@ admin/src/
 ├── App.jsx             # AuthProvider + RouterProvider
 ├── index.css           # Tailwind, PingFang SC 字体
 ├── api/client.js       # Axios 实例（baseURL=/api/v1, Bearer 拦截器, 自动解包 .data）
-├── router/index.jsx    # 26 条路由
+├── router/index.jsx    # 27 条路由
 ├── contexts/AuthContext.jsx  # 认证上下文
 ├── hooks/useKeyboardNav.js   # Ctrl/Cmd 快捷键
 ├── components/
@@ -22,8 +22,9 @@ admin/src/
 │   ├── ConfirmDialog.jsx  # 确认对话框
 │   ├── EmptyState.jsx  # 空状态（prop: description 不是 desc）
 │   ├── ErrorState.jsx  # 错误+重试
-│   └── Toast.jsx       # Toast 通知（useToast）
-└── pages/              # 24 个页面
+│   ├── Toast.jsx       # Toast 通知（useToast）
+│   └── DoorSeriesManager.jsx  # 门系列管理通用组件（pageNumber prop）
+└── pages/              # 25 个页面
 ```
 
 ## 路由 + 菜单
@@ -52,6 +53,7 @@ admin/src/
 | `/style-wizard/materials` | StyleWizardMaterials | **二级（可展开，不导航）** |
 | `/style-wizard/materials/1` | StyleWizardMaterials | └ 三级·瓷砖选材（隐藏价格列+表单） |
 | `/style-wizard/materials/2` | StyleWizardDoors | └ 三级·室内木门（门系列管理） |
+| `/style-wizard/bathroom-doors` | StyleWizardBathroomDoors | └ 三级·卫生间门（门系列管理，共享颜色库） |
 | `/style-wizard/materials/3` | StyleWizardMaterials | └ 三级·卫浴选材 |
 | `/style-wizard/materials/4` | StyleWizardMaterials | └ 三级·装饰定制 |
 | `/style-wizard/materials/5` | StyleWizardMaterials | └ 三级·沙发选材 |

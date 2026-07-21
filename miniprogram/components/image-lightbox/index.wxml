@@ -15,12 +15,18 @@
     </swiper-item>
   </swiper>
 
-  <!-- 底部：标题/型号/规格 + 选中按钮 -->
+  <!-- 底部：标题 + 动态信息行 + 选中按钮 -->
   <view class="lb-bottombar" catchtap="noop">
     <view class="lb-info">
-      <text class="lb-name">{{images[current].name}}</text>
-      <text wx:if="{{images[current].model}}" class="lb-line">型号：{{images[current].model}}</text>
-      <text wx:if="{{images[current].specs}}" class="lb-line">规格：{{images[current].specs}}</text>
+      <text class="lb-name">{{images[current].title || images[current].name}}</text>
+      <!-- 优先 lines 动态行；无 lines 时回退 model/specs 兼容旧调用 -->
+      <block wx:if="{{images[current].lines && images[current].lines.length}}">
+        <text wx:for="{{images[current].lines}}" wx:key="label" class="lb-line">{{item.label}}：{{item.value}}</text>
+      </block>
+      <block wx:else>
+        <text wx:if="{{images[current].model}}" class="lb-line">型号：{{images[current].model}}</text>
+        <text wx:if="{{images[current].specs}}" class="lb-line">规格：{{images[current].specs}}</text>
+      </block>
     </view>
     <view wx:if="{{selectedId !== null && images[current].id === selectedId}}" class="lb-btn lb-btn-selected">
       <image class="lb-check" src="/assets/icons/check.svg" mode="aspectFit" />
