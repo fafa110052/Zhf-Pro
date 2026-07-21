@@ -702,6 +702,25 @@ Page({
     });
   },
 
+  onZoomLighting(e) {
+    const index = e.currentTarget.dataset.index;
+    const pkg = this.data.lightingPackages[index];
+    if (!pkg) return;
+    const items = pkg.items || [];
+    const lines = [];
+    if (pkg.itemsSummary) lines.push({ label: '明细', value: pkg.itemsSummary });
+    items.forEach((it) => {
+      lines.push({ label: it.room_type ? it.room_type + ' · ' + it.name : it.name, value: it.attrsLine || '' });
+      if (it.retail_price != null) lines.push({ label: '零售价', value: '¥' + it.retail_price });
+    });
+    this.setData({
+      lightboxImages: [{ id: pkg.id, url: pkg.image_url, title: pkg.name, lines }],
+      lightboxIndex: 0,
+      lightboxSelectedId: this.data.selections.lighting && this.data.selections.lighting.package_id === pkg.id ? pkg.id : null,
+      lightboxVisible: true,
+    });
+  },
+
   // ═══════════════════════════════════════════
   // 图片放大预览
   // ═══════════════════════════════════════════

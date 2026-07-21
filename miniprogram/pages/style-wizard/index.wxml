@@ -250,6 +250,10 @@
               bindtap="onSelectLighting"
             >
               <image class="pkg-image" src="{{item.image_url}}" mode="aspectFill" />
+              <view class="mat-zoom pkg-zoom" data-index="{{index}}" catchtap="onZoomLighting">
+                <image class="mat-zoom-icon" src="/assets/icons/zoom-in.svg" mode="aspectFit" />
+                <text>放大</text>
+              </view>
               <image wx:if="{{selections.lighting.package_id === item.id}}" class="pkg-badge" src="/assets/icons/selected-mark.svg" mode="aspectFit" />
               <view class="pkg-info">
                 <view class="pkg-title-row">
