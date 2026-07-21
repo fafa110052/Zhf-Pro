@@ -32,6 +32,6 @@
       <image class="lb-check" src="/assets/icons/check.svg" mode="aspectFit" />
       <text>已选中</text>
     </view>
-    <view wx:else class="lb-btn" catchtap="onSelect">选中此项</view>
+    <view wx:else class="lb-btn" catchtap="onSelect">{{selectLabel || '选中此项'}}</view>
   </view>
 </view>

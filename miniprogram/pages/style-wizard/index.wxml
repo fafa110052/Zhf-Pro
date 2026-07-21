@@ -297,6 +297,7 @@
         current-index="{{lightboxIndex}}"
         visible="{{lightboxVisible}}"
         selected-id="{{lightboxSelectedId}}"
+        select-label="{{lightboxSelectLabel}}"
         bind:close="onLightboxClose"
         bind:select="onLightboxSelect"
       />

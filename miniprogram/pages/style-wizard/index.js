@@ -84,6 +84,7 @@ Page({
     lightboxImages: [],
     lightboxIndex: 0,
     lightboxSelectedId: null,
+    lightboxSelectLabel: '',
   },
 
   onLoad(options) {
@@ -707,21 +708,25 @@ Page({
     const itemIndex = Number(e.currentTarget.dataset.itemIndex);
     const pkg = this.data.lightingPackages[pkgIndex];
     if (!pkg) return;
-    const it = (pkg.items || [])[itemIndex];
-    if (!it) return;
-    const lines = [];
-    if (it.attrsLine) lines.push({ label: '规格', value: it.attrsLine });
-    if (it.retail_price != null) lines.push({ label: '零售价', value: '¥' + it.retail_price });
+    const items = pkg.items || [];
     this.setData({
-      lightboxImages: [{
-        id: it.id || (pkg.id + '_' + itemIndex),
-        url: it.image_url,
-        title: (it.room_type ? it.room_type + ' · ' : '') + (it.name || ''),
-        lines,
-      }],
-      lightboxIndex: 0,
+      lightboxImages: items.map((it, i) => {
+        const lines = [];
+        if (it.attrsLine) lines.push({ label: '规格', value: it.attrsLine });
+        if (it.retail_price != null) lines.push({ label: '零售价', value: '¥' + it.retail_price });
+        return {
+          id: it.id || (pkg.id + '_' + i),
+          url: it.image_url,
+          title: (it.room_type ? it.room_type + ' · ' : '') + (it.name || ''),
+          lines,
+        };
+      }),
+      lightboxIndex: itemIndex,
+      lightboxSelectedId: null,
+      lightboxSelectLabel: '选中此套餐',
       lightboxVisible: true,
     });
+    this._lightboxPkgId = pkg.id;
   },
 
   // ═══════════════════════════════════════════
@@ -807,10 +812,29 @@ Page({
   },
 
   onLightboxClose() {
-    this.setData({ lightboxVisible: false });
+    this.setData({ lightboxVisible: false, lightboxSelectLabel: '' });
+    this._lightboxPkgId = null;
   },
 
   onLightboxSelect(e) {
+    // 灯具套餐 lightbox：选中整个套餐
+    if (this._lightboxPkgId != null) {
+      const pkgId = this._lightboxPkgId;
+      this._lightboxPkgId = null;
+      const pkg = this.data.lightingPackages.find((p) => p.id === pkgId);
+      this.setData({ lightboxVisible: false });
+      if (pkg) {
+        this.applySelection('lighting', {
+          kind: 'lighting',
+          package_id: pkg.id,
+          name: pkg.name,
+          image_url: pkg.image_url,
+          original_price: pkg.original_price,
+          discount_price: pkg.discount_price,
+        });
+      }
+      return;
+    }
     const subId = this._lightboxSubId;
     const mat = (this.data.materialsCache['s' + subId] || [])[e.detail.index];
     this.setData({ lightboxVisible: false });

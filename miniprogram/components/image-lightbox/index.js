@@ -19,6 +19,7 @@ Component({
     currentIndex: { type: Number, value: 0 },
     visible: { type: Boolean, value: false },
     selectedId: { type: null, value: null },
+    selectLabel: { type: String, value: '' },
   },
 
   data: {
