@@ -47,8 +47,9 @@
               <view wx:elif="{{!bathDoorSeries.length}}" class="body-hint">暂无卫生间门系列</view>
               <block wx:else>
                 <view class="door-section-title">
-                  <text class="door-section-num">1</text>
-                  <text>选择门系列</text>
+                  <text class="door-section-num is-active">1</text>
+                  <text class="door-section-label">选择门系列</text>
+                  <view class="door-section-line"></view>
                 </view>
                 <view class="series-grid">
                   <view
@@ -67,8 +68,9 @@
                 </view>
                 <block wx:if="{{bathDoorChosenSeriesId}}">
                   <view class="door-section-title">
-                    <text class="door-section-num">2</text>
-                    <text>选择门的颜色</text>
+                    <text class="door-section-num is-active">2</text>
+                    <text class="door-section-label">选择门的颜色</text>
+                    <view class="door-section-line"></view>
                   </view>
                   <view wx:if="{{loadingSubId === bathDoorChosenSeriesId}}" class="body-hint">加载中…</view>
                   <view wx:elif="{{errorSubId === bathDoorChosenSeriesId}}" class="body-retry" data-series-id="{{bathDoorChosenSeriesId}}" catchtap="onRetryBathDoorMaterials">加载失败，点此重试</view>
@@ -90,20 +92,6 @@
                     </view>
                   </block>
                 </block>
-                <!-- 锁向选择（复用现有 direction-chooser） -->
-                <view wx:if="{{pending && pending.subId === item.id}}" class="direction-chooser">
-                  <text class="chooser-title">请选择锁向</text>
-                  <view class="chooser-btns">
-                    <view
-                      class="chooser-btn"
-                      wx:for="{{pending.options}}"
-                      wx:for-item="opt"
-                      wx:key="*this"
-                      data-value="{{opt}}"
-                      catchtap="onChooseDirection"
-                    >{{opt}}</view>
-                  </view>
-                </view>
                 <view wx:if="{{!bathDoorSeries.length && bathDoorLoaded}}" class="skip-btn" data-sub-id="{{item.id}}" catchtap="onSkipSub">此项不选</view>
               </block>
             </block>
@@ -136,19 +124,11 @@
                   </view>
                   <image wx:if="{{selections['sub_' + item.id].id === mat.id}}" class="mat-badge" src="/assets/icons/selected-mark.svg" mode="aspectFit" />
                   <view class="mat-info">
-                    <!-- 有名称按名称展示；无名称（瓷砖类）标题行 = 品牌logo + 品牌名 -->
-                    <block wx:if="{{mat.name}}">
-                      <text class="mat-name">{{mat.name}}</text>
-                      <text wx:if="{{mat.brand_model}}" class="mat-brand">{{mat.brand_model}}</text>
-                    </block>
-                    <block wx:elif="{{mat.brand}}">
-                      <view class="mat-brand-row">
-                        <image wx:if="{{mat.brand_logo}}" class="mat-logo" src="{{mat.brand_logo}}" mode="aspectFit" />
-                        <text class="mat-name">{{mat.brand}}</text>
-                      </view>
-                      <text wx:if="{{mat.model}}" class="mat-brand">型号：{{mat.model}}</text>
-                    </block>
-                    <text wx:if="{{mat.specs}}" class="mat-specs">规格：{{mat.specs}}</text>
+                    <view wx:if="{{mat.brand_logo}}" class="mat-brand-row">
+                      <image class="mat-logo" src="{{mat.brand_logo}}" mode="aspectFit" />
+                    </view>
+                    <text class="mat-name">{{mat.displayTitle}}</text>
+                    <text wx:if="{{mat.displaySubtitle}}" class="mat-brand">{{mat.displaySubtitle}}</text>
                     <text wx:if="{{mat.old_code}}" class="mat-code">老编码：{{mat.old_code}}</text>
                     <text wx:if="{{mat.new_code}}" class="mat-code">新编码：{{mat.new_code}}</text>
                     <view wx:if="{{mat.scopes.length}}" class="mat-scopes">
@@ -165,9 +145,9 @@
                 </view>
               </view>
 
-              <!-- 方向选择：卫生间门锁向 / 沙发贵妃位 -->
+              <!-- 方向选择：沙发贵妃位 -->
               <view wx:if="{{pending && pending.subId === item.id}}" class="direction-chooser">
-                <text class="chooser-title">{{pending.type === 'lock' ? '请选择锁向' : '请选择贵妃位方向'}}</text>
+                <text class="chooser-title">请选择贵妃位方向</text>
                 <view class="chooser-btns">
                   <view
                     class="chooser-btn"
