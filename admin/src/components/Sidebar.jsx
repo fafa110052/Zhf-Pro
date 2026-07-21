@@ -125,6 +125,7 @@ const MENU_GROUPS = [
         { path: '/style-wizard/materials/1', label: '瓷砖选材' },
         { path: '/style-wizard/materials/2', label: '室内木门' },
         { path: '/style-wizard/materials/3', label: '卫浴选材', children: [
+          { path: '/style-wizard/materials/3', label: '卫浴材料' },
           { path: '/style-wizard/bathroom-doors', label: '卫生间门' },
         ]},
         { path: '/style-wizard/materials/4', label: '装饰定制' },
