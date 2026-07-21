@@ -123,6 +123,8 @@ Page({
           subcategories: (c.subcategories || []).slice().sort((a, b) => a.sort_order - b.sort_order)
             .map((s) => Object.assign({}, s, {
               isBathDoor: (s.name || '').indexOf('卫生间门') !== -1,
+              isCabinetColor: (s.name || '').indexOf('柜体/柜门颜色') !== -1,
+              isCountertop: (s.name || '').indexOf('橱柜台面石') !== -1,
             })),
         }));
 
@@ -672,15 +674,29 @@ Page({
     if (!mats.length) return;
     const sel = this.data.selections['sub_' + subId];
     this._lightboxSubId = subId;
+
+    // 查找子品类标记，用于按品类构建 lightbox 信息行
+    const cat = this.data.currentCategory;
+    const sub = cat ? (cat.subcategories || []).find(s => s.id == subId) : null;
+
     this.setData({
       lightboxImages: mats.map((m) => {
         const lines = [];
-        // 如果 title 不等于 model，才把 model 放入 lines（避免重复）
         const title = m.name || m.brand || m.model;
-        if (m.model && title !== m.model) lines.push({ label: '型号', value: m.model });
-        if (m.specs) lines.push({ label: '规格', value: m.specs });
-        // 浴室柜/卫浴 组合信息：镜柜/主柜/台面 从 attrList 提取
-        (m.attrList || []).forEach((a) => lines.push({ label: a.k, value: a.v }));
+
+        if (sub && sub.isCabinetColor) {
+          if (m.new_code) lines.push({ label: '编码', value: m.new_code });
+          if (m.scopes && m.scopes.length) {
+            lines.push({ label: '适用范围', value: m.scopes.join('、') });
+          }
+        } else if (sub && sub.isCountertop) {
+          if (m.new_code) lines.push({ label: '编码', value: m.new_code });
+        } else {
+          if (m.model && title !== m.model) lines.push({ label: '型号', value: m.model });
+          if (m.specs) lines.push({ label: '规格', value: m.specs });
+          (m.attrList || []).forEach((a) => lines.push({ label: a.k, value: a.v }));
+        }
+
         return {
           id: m.id,
           url: m.image_url,

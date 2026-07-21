@@ -81,7 +81,7 @@
                         wx:for="{{bathDoorMaterialsCache['s' + bathDoorChosenSeriesId]}}"
                         wx:for-item="dm"
                         wx:key="id"
-                        class="color-card {{pending && pending.materialId === dm.id ? 'is-selected' : ''}}"
+                        class="color-card {{(pending && pending.materialId === dm.id) || (selections['sub_' + item.id] && selections['sub_' + item.id].kind === 'door' && selections['sub_' + item.id].color_id === dm.color_id) ? 'is-selected' : ''}}"
                         data-id="{{dm.id}}"
                         bindtap="onSelectBathDoorColor"
                       >
@@ -128,16 +128,22 @@
                       <image class="mat-logo" src="{{mat.brand_logo}}" mode="aspectFit" />
                     </view>
                     <text class="mat-name">{{mat.displayTitle}}</text>
-                    <text wx:if="{{mat.displaySubtitle}}" class="mat-brand">{{mat.displaySubtitle}}</text>
-                    <text wx:if="{{mat.old_code}}" class="mat-code">老编码：{{mat.old_code}}</text>
-                    <text wx:if="{{mat.new_code}}" class="mat-code">新编码：{{mat.new_code}}</text>
-                    <view wx:if="{{mat.scopes.length}}" class="mat-scopes">
-                      <text class="scope-tag" wx:for="{{mat.scopes}}" wx:for-item="sc" wx:key="*this">✓ {{sc}}</text>
+                    <text wx:if="{{mat.displaySubtitle && !item.isCabinetColor && !item.isCountertop}}" class="mat-brand">{{mat.displaySubtitle}}</text>
+                    <text wx:if="{{mat.old_code && !item.isCabinetColor && !item.isCountertop}}" class="mat-code">老编码：{{mat.old_code}}</text>
+                    <text wx:if="{{mat.new_code}}" class="mat-code">{{item.isCabinetColor || item.isCountertop ? '编码' : '新编码'}}：{{mat.new_code}}</text>
+                    <view wx:if="{{mat.scopes.length && !item.isCountertop}}" class="mat-scopes">
+                      <block wx:if="{{item.isCabinetColor}}">
+                        <view class="scope-row" wx:for="{{mat.scopes}}" wx:for-item="sc" wx:key="*this">
+                          <image class="scope-check-icon" src="/assets/icons/check.svg" mode="aspectFit" />
+                          <text class="scope-text">{{sc}}</text>
+                        </view>
+                      </block>
+                      <text wx:else class="scope-tag" wx:for="{{mat.scopes}}" wx:for-item="sc" wx:key="*this">✓ {{sc}}</text>
                     </view>
-                    <view wx:if="{{mat.attrList.length}}" class="mat-attrs">
+                    <view wx:if="{{mat.attrList.length && !item.isCabinetColor && !item.isCountertop}}" class="mat-attrs">
                       <text class="attr-line" wx:for="{{mat.attrList}}" wx:for-item="attr" wx:key="k">{{attr.k}} {{attr.v}}</text>
                     </view>
-                    <view wx:if="{{mat.original_price != null || mat.discount_price != null}}" class="price-row">
+                    <view wx:if="{{(mat.original_price != null || mat.discount_price != null) && !item.isCabinetColor && !item.isCountertop}}" class="price-row">
                       <text wx:if="{{mat.original_price != null}}" class="price-original">¥{{mat.original_price}}</text>
                       <text wx:if="{{mat.discount_price != null}}" class="price-discount">¥{{mat.discount_price}}</text>
                     </view>

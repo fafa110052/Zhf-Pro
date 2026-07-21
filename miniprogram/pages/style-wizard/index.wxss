@@ -253,6 +253,24 @@
   padding: 2rpx 8rpx;
 }
 
+/* 适用范围 — check icon + text row（装饰定制·柜体/柜门颜色） */
+.scope-row {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.scope-check-icon {
+  width: 28rpx;
+  height: 28rpx;
+  flex-shrink: 0;
+}
+
+.scope-text {
+  font-size: 22rpx;
+  color: #4A4A4A;
+}
+
 /* 弹性属性键值行 */
 .mat-attrs {
   display: flex;

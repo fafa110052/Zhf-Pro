@@ -229,6 +229,8 @@ export default function StyleWizardMaterials() {
   // 卫浴（page_number=3）：表单以型号为主标题，额外显示镜柜/主柜/台面，隐藏价格
   const isBath = selectedCat?.page_number === 3;
   const isBathPage = !!lockedCategory && categories.some((c) => String(c.id) === String(lockedCategory) && c.page_number === 3);
+  // 装饰定制（page_number=4）：子品类按名称分支
+  const isDecorationPage = !!lockedCategory && categories.some((c) => String(c.id) === String(lockedCategory) && c.page_number === 4);
   const subName = selectedSub?.name || '';
   const isBathCabinet = subName.includes('浴室柜');
   const isToilet = subName.includes('马桶');
@@ -238,6 +240,10 @@ export default function StyleWizardMaterials() {
   const isFaucet = subName.includes('水龙头');
   // 非浴室柜的卫浴子品类（马桶/蹲厕/水箱/花洒/水龙头）
   const isBathOther = isBath && !isBathCabinet;
+  // 装饰定制子品类分支
+  const isCabinetColor = isDecoration && subName.includes('柜体/柜门颜色');
+  const isCountertop = isDecoration && subName.includes('橱柜台面石');
+  const isDecorationSimple = isCabinetColor || isCountertop;
 
   const openAdd = () => {
     setModalMode('add'); setEditingId(null);
@@ -322,6 +328,12 @@ export default function StyleWizardMaterials() {
     } else if (isFaucet) {
       if (!form.name.trim()) errs.name = '请输入标题';
       if (!form.model.trim()) errs.model = '请输入型号';
+    } else if (isCabinetColor) {
+      if (!form.name.trim()) errs.name = '请输入颜色名称';
+      if (!form.new_code.trim()) errs.new_code = '请输入编码';
+    } else if (isCountertop) {
+      if (!form.name.trim()) errs.name = '请输入石材名称';
+      if (!form.new_code.trim()) errs.new_code = '请输入编码';
     } else if (!form.name.trim()) {
       errs.name = '请输入材料名称';
     }
@@ -380,9 +392,13 @@ export default function StyleWizardMaterials() {
         payload.attributes = form.attr_raw.trim() ? JSON.parse(form.attr_raw) : {};
       }
       if (isDecoration) {
-        payload.old_code = form.old_code.trim() || null;
+        payload.old_code = isDecorationSimple ? null : (form.old_code.trim() || null);
         payload.new_code = form.new_code.trim() || null;
-        payload.applicable_scopes = form.applicable_scopes;
+        if (isCountertop) {
+          payload.applicable_scopes = [];
+        } else {
+          payload.applicable_scopes = form.applicable_scopes;
+        }
       }
       if (modalMode === 'add') {
         await client.post('/admin/style-materials', payload);
@@ -481,7 +497,9 @@ export default function StyleWizardMaterials() {
                   <tr className="border-b border-gray-100 bg-gray-50/50">
                     {(isBathPage
                       ? ['图片', '标题/型号', '关键属性', '子品类', '排序', '操作']
-                      : ['图片', '名称', '品牌', '型号', '品类', '子品类', ...(isTilePage ? [] : ['原价', '优惠价']), '排序', '操作']
+                      : isDecorationPage
+                        ? ['图片', '名称', '编码', '适用范围', '子品类', '排序', '操作']
+                        : ['图片', '名称', '品牌', '型号', '品类', '子品类', ...(isTilePage ? [] : ['原价', '优惠价']), '排序', '操作']
                     ).map((h) => (
                       <th key={h} className={`${h === '排序' ? 'text-center' : 'text-left'} ${h === '操作' ? 'text-right' : ''} px-4 py-3 text-gray-500 font-medium text-xs whitespace-nowrap`}>{h}</th>
                     ))}
@@ -510,6 +528,16 @@ export default function StyleWizardMaterials() {
                           <td className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap">{m.name || m.model || '—'}</td>
                           <td className="px-4 py-3 text-gray-600 max-w-48 truncate">{bathAttrSummary(bathAttrs, m)}</td>
                         </>
+                      ) : isDecorationPage ? (
+                        <>
+                          <td className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap">{m.name || '—'}</td>
+                          <td className="px-4 py-3 text-gray-600 whitespace-nowrap">{m.new_code || '—'}</td>
+                          <td className="px-4 py-3 text-gray-500 max-w-48 truncate">{(() => {
+                            let scopes = [];
+                            try { scopes = JSON.parse(m.applicable_scopes) || []; } catch {}
+                            return scopes.length ? scopes.join('、') : '—';
+                          })()}</td>
+                        </>
                       ) : (
                         <>
                           <td className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap">{m.name || m.brand || '—'}</td>
@@ -517,10 +545,10 @@ export default function StyleWizardMaterials() {
                           <td className="px-4 py-3 text-gray-500 whitespace-nowrap">{m.model || '—'}</td>
                         </>
                       )}
-                      {!isBathPage && <td className="px-4 py-3 text-gray-600 whitespace-nowrap">{m.category_name || '—'}</td>}
+                      {!isBathPage && !isDecorationPage && <td className="px-4 py-3 text-gray-600 whitespace-nowrap">{m.category_name || '—'}</td>}
                       <td className="px-4 py-3 whitespace-nowrap">{(() => { const c = categoryColor(m.subcategory_name); return <span style={{background:c.bg,color:c.text,padding:'2px 8px',borderRadius:'4px',fontSize:'12px'}}>{m.subcategory_name || '—'}</span>; })()}</td>
-                      {!isTilePage && !isBathPage && <td className="px-4 py-3 text-gray-500 whitespace-nowrap">{m.original_price != null ? `¥${m.original_price}` : '—'}</td>}
-                      {!isTilePage && !isBathPage && <td className="px-4 py-3 text-red-600 font-medium whitespace-nowrap">{m.discount_price != null ? `¥${m.discount_price}` : '—'}</td>}
+                      {!isTilePage && !isBathPage && !isDecorationPage && <td className="px-4 py-3 text-gray-500 whitespace-nowrap">{m.original_price != null ? `¥${m.original_price}` : '—'}</td>}
+                      {!isTilePage && !isBathPage && !isDecorationPage && <td className="px-4 py-3 text-red-600 font-medium whitespace-nowrap">{m.discount_price != null ? `¥${m.discount_price}` : '—'}</td>}
                       <td className="px-4 py-3 text-center text-gray-500">{m.sort_order}</td>
                       <td className="px-4 py-3 text-right">
                         <div className="flex items-center justify-end space-x-1">
@@ -570,20 +598,22 @@ export default function StyleWizardMaterials() {
                     {formErrors.name && <p className="text-red-500 text-xs mt-1">{formErrors.name}</p>}
                   </div>
                 )}
-                {/* 卫浴不展示品牌/品牌Logo，标题行用型号 */}
-                {!(isBath || isBathPage) && (
+                {/* 卫浴/装饰定制简版不展示品牌/品牌Logo */}
+                {!(isBath || isBathPage || isDecorationSimple) && (
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">品牌{isTile && <span className="text-red-500"> *</span>}</label>
                     <input value={form.brand} onChange={(e) => setForm({ ...form, brand: e.target.value })} className={INPUT_CLS} maxLength={64} />
                     {formErrors.brand && <p className="text-red-500 text-xs mt-1">{formErrors.brand}</p>}
                   </div>
                 )}
+                {!isDecorationSimple && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">型号{(isTile || isBath || isBathPage) && <span className="text-red-500"> *</span>}</label>
                   <input value={form.model} onChange={(e) => setForm({ ...form, model: e.target.value })} className={INPUT_CLS} maxLength={128} placeholder={isTile ? '如：TB6023' : ''} />
                   {formErrors.model && <p className="text-red-500 text-xs mt-1">{formErrors.model}</p>}
                 </div>
-                {!(isBath || isBathPage) && (
+                )}
+                {!(isBath || isBathPage || isDecorationSimple) && (
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">品牌 Logo{isTile && <span className="text-red-500"> *</span>}</label>
                     <div className="flex gap-2">
@@ -609,8 +639,8 @@ export default function StyleWizardMaterials() {
                   </div>
                   {formErrors.image_url && <p className="text-red-500 text-xs mt-1">{formErrors.image_url}</p>}
                 </div>
-                {/* 瓷砖/卫浴不展示价格 */}
-                {!(isTilePage || isTile || isBathPage || isBath) && (
+                {/* 瓷砖/卫浴/装饰定制不展示价格 */}
+                {!(isTilePage || isTile || isBathPage || isBath || isDecorationSimple) && (
                   <>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">原价（元）</label>
@@ -623,8 +653,8 @@ export default function StyleWizardMaterials() {
                   </>
                 )}
               </div>
-              {/* 卫浴仅马桶/蹲厕/水箱显示规格，花洒/水龙头/浴室柜隐藏 */}
-              {!((isBath || isBathPage) && !isToilet && !isSquatToilet && !isWaterTank) && (
+              {/* 卫浴仅马桶/蹲厕/水箱显示规格，花洒/水龙头/浴室柜隐藏；装饰定制简版不显示 */}
+              {!((isBath || isBathPage) && !isToilet && !isSquatToilet && !isWaterTank) && !isDecorationSimple && (
                 <div className="grid grid-cols-3 gap-4">
                   <div className="col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-1">规格说明{(isTile || (isBath && (isToilet || isSquatToilet || isWaterTank)) || (isBathPage && (isToilet || isSquatToilet || isWaterTank))) && <span className="text-red-500"> *</span>}</label>
@@ -767,30 +797,65 @@ export default function StyleWizardMaterials() {
               {/* 装饰定制专属 */}
               {isDecoration && (
                 <div className="border border-gray-100 rounded-lg p-3 bg-gray-50/50 space-y-3">
-                  <p className="text-sm font-medium text-gray-700">装饰定制信息</p>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs text-gray-500 mb-1">旧编码</label>
-                      <input value={form.old_code} onChange={(e) => setForm({ ...form, old_code: e.target.value })} className={INPUT_CLS} maxLength={64} />
-                    </div>
-                    <div>
-                      <label className="block text-xs text-gray-500 mb-1">新编码</label>
-                      <input value={form.new_code} onChange={(e) => setForm({ ...form, new_code: e.target.value })} className={INPUT_CLS} maxLength={64} />
-                    </div>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-500 mb-1.5">适用范围</p>
-                    <div className="flex flex-wrap gap-x-4 gap-y-2">
-                      {SCOPE_OPTIONS.map((scope) => (
-                        <label key={scope} className="inline-flex items-center gap-1.5 text-sm text-gray-700">
-                          <input type="checkbox" checked={form.applicable_scopes.includes(scope)}
-                            onChange={() => setForm({ ...form, applicable_scopes: toggleInArray(form.applicable_scopes, scope) })}
-                            className="w-4 h-4 rounded border-gray-300 text-slate-900 focus:ring-blue-500" />
-                          {scope}
-                        </label>
-                      ))}
-                    </div>
-                  </div>
+                  {isCabinetColor ? (
+                    <>
+                      <p className="text-sm font-medium text-gray-700">柜体/柜门颜色信息</p>
+                      <div>
+                        <label className="block text-xs text-gray-500 mb-1">编码<span className="text-red-500"> *</span></label>
+                        <input value={form.new_code} onChange={(e) => setForm({ ...form, new_code: e.target.value })} className={INPUT_CLS} maxLength={64} placeholder="输入编码" />
+                        {formErrors.new_code && <p className="text-red-500 text-xs mt-1">{formErrors.new_code}</p>}
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500 mb-1.5">适用范围</p>
+                        <div className="flex flex-wrap gap-x-4 gap-y-2">
+                          {SCOPE_OPTIONS.map((scope) => (
+                            <label key={scope} className="inline-flex items-center gap-1.5 text-sm text-gray-700">
+                              <input type="checkbox" checked={form.applicable_scopes.includes(scope)}
+                                onChange={() => setForm({ ...form, applicable_scopes: toggleInArray(form.applicable_scopes, scope) })}
+                                className="w-4 h-4 rounded border-gray-300 text-slate-900 focus:ring-blue-500" />
+                              {scope}
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                    </>
+                  ) : isCountertop ? (
+                    <>
+                      <p className="text-sm font-medium text-gray-700">橱柜台面石信息</p>
+                      <div>
+                        <label className="block text-xs text-gray-500 mb-1">编码<span className="text-red-500"> *</span></label>
+                        <input value={form.new_code} onChange={(e) => setForm({ ...form, new_code: e.target.value })} className={INPUT_CLS} maxLength={64} placeholder="输入编码" />
+                        {formErrors.new_code && <p className="text-red-500 text-xs mt-1">{formErrors.new_code}</p>}
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-sm font-medium text-gray-700">装饰定制信息</p>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-xs text-gray-500 mb-1">旧编码</label>
+                          <input value={form.old_code} onChange={(e) => setForm({ ...form, old_code: e.target.value })} className={INPUT_CLS} maxLength={64} />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-gray-500 mb-1">新编码</label>
+                          <input value={form.new_code} onChange={(e) => setForm({ ...form, new_code: e.target.value })} className={INPUT_CLS} maxLength={64} />
+                        </div>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500 mb-1.5">适用范围</p>
+                        <div className="flex flex-wrap gap-x-4 gap-y-2">
+                          {SCOPE_OPTIONS.map((scope) => (
+                            <label key={scope} className="inline-flex items-center gap-1.5 text-sm text-gray-700">
+                              <input type="checkbox" checked={form.applicable_scopes.includes(scope)}
+                                onChange={() => setForm({ ...form, applicable_scopes: toggleInArray(form.applicable_scopes, scope) })}
+                                className="w-4 h-4 rounded border-gray-300 text-slate-900 focus:ring-blue-500" />
+                              {scope}
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </div>
               )}
 
