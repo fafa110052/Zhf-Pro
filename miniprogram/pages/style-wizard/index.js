@@ -321,6 +321,7 @@ Page({
   },
 
   async ensureMaterials(subId) {
+    if (!this._styleId) return;
     if (this.data.materialsCache['s' + subId]) {
       if (this.data.loadingSubId === subId) this.setData({ loadingSubId: null });
       return;

@@ -180,7 +180,7 @@
                 </view>
               </view>
 
-              <view wx:if="{{materialsCache['s' + item.id] && !materialsCache['s' + item.id].length}}" class="skip-btn" data-sub-id="{{item.id}}" catchtap="onSkipSub">此项不选</view>
+              <view wx:if="{{!materialsCache['s' + item.id] || !materialsCache['s' + item.id].length}}" class="skip-btn" data-sub-id="{{item.id}}" catchtap="onSkipSub">此项不选</view>
             </block>
             </block>
           </accordion-card>
