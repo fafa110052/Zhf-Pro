@@ -308,7 +308,7 @@ Page({
   // ═══════════════════════════════════════════
 
   onToggleSub(e) {
-    const id = e.currentTarget.dataset.id;
+    const id = Number(e.currentTarget.dataset.id);
     const sub = this.findSub(id);
     if (this.data.expandedSub === id) {
       this.setData({ expandedSub: null, pending: null });
@@ -436,7 +436,7 @@ Page({
 
   findSub(subId) {
     const cat = this.data.currentCategory;
-    return cat ? (cat.subcategories || []).find((s) => s.id === subId) : null;
+    return cat ? (cat.subcategories || []).find((s) => s.id == subId) : null;
   },
 
   /**
@@ -493,7 +493,7 @@ Page({
    * 先选系列（单选）：切换查看不清已确认的选择，选中新颜色时才覆盖
    */
   onSelectSeries(e) {
-    const id = e.currentTarget.dataset.id;
+    const id = Number(e.currentTarget.dataset.id);
     if (this.data.chosenSeriesId === id) return;
     this.setData({ chosenSeriesId: id });
     this.ensureDoorMaterials(id);
@@ -525,7 +525,7 @@ Page({
 
   onSelectDoor(e) {
     const seriesId = this.data.chosenSeriesId;
-    const id = e.currentTarget.dataset.id;
+    const id = Number(e.currentTarget.dataset.id);
     const series = this.data.doorSeries.find((s) => s.id === seriesId);
     const dm = (this.data.doorMaterialsCache['s' + seriesId] || []).find((m) => m.id === id);
     if (!series || !dm) return;
@@ -569,7 +569,7 @@ Page({
   },
 
   onSelectBathDoorSeries(e) {
-    const id = e.currentTarget.dataset.id;
+    const id = Number(e.currentTarget.dataset.id);
     if (this.data.bathDoorChosenSeriesId === id) return;
     this.setData({ bathDoorChosenSeriesId: id });
     this.ensureBathDoorMaterials(id);
@@ -602,7 +602,7 @@ Page({
   onSelectBathDoorColor(e) {
     const seriesId = this.data.bathDoorChosenSeriesId;
     const subId = this.data.expandedSub;
-    const id = e.currentTarget.dataset.id;
+    const id = Number(e.currentTarget.dataset.id);
     const series = this.data.bathDoorSeries.find((s) => s.id === seriesId);
     const dm = (this.data.bathDoorMaterialsCache['s' + seriesId] || []).find((m) => m.id === id);
     if (!series || !dm) return;
@@ -664,12 +664,12 @@ Page({
   },
 
   onTogglePackage(e) {
-    const id = e.currentTarget.dataset.id;
+    const id = Number(e.currentTarget.dataset.id);
     this.setData({ expandedPackage: this.data.expandedPackage === id ? null : id });
   },
 
   onSelectLighting(e) {
-    const id = e.currentTarget.dataset.id;
+    const id = Number(e.currentTarget.dataset.id);
     const pkg = this.data.lightingPackages.find((p) => p.id === id);
     if (!pkg) return;
     this.applySelection('lighting', {
