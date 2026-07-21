@@ -1,98 +1,43 @@
-# 住好房展示平台 — 项目地图 v2.0
+# 住好房展示平台 — 项目地图
 
-> **用途**：快速定位子项目，具体文件清单见各项目 `CLAUDE.md`。
-> **原则**：只在需要访问某个子项目时才读取其 CLAUDE.md，不在会话开始就加载全部。
+> 首次对话只读本文件，按需打开子项目 CLAUDE.md。每子项目文档只写它独有的东西，不跨文件重复。
 
 ---
 
-## 子项目入口
+## 子项目
 
-| 项目 | 入口文档 | 部署路径 | 用途 |
-|------|---------|---------|------|
-| 后端 | [server/CLAUDE.md](server/CLAUDE.md) | `server/src/` | Express 5 API，SQLite，20 路由模块，33 张表 |
-| 管理后台 | [admin/CLAUDE.md](admin/CLAUDE.md) | `admin/src/` | React 19 + Tailwind 4，24 个页面 |
-| 小程序 | [miniprogram/CLAUDE.md](miniprogram/CLAUDE.md) | `miniprogram/` | 微信原生，5 tab，30 个页面 |
-| 摇一摇抽奖 | [lottery_replica/CLAUDE.md](lottery_replica/CLAUDE.md) | `lottery_replica/lottery_clean/` | 静态 H5，托管于 `/lottery/` |
+| 项目 | 入口 | 技术栈 | 一句话 |
+|------|------|--------|--------|
+| 后端 API | [server/](server/CLAUDE.md) | Express 5 + SQLite + Knex | 20 路由模块，33 表 |
+| 管理后台 | [admin/](admin/CLAUDE.md) | React 19 + Tailwind 4 + Vite | 24 页面，`/admin/` |
+| 小程序 | [miniprogram/](miniprogram/CLAUDE.md) | 微信原生 | 5 tab，30 页面 |
+| 摇一摇 H5 | [lottery_replica/](lottery_replica/CLAUDE.md) | 静态 HTML + jQuery | `/lottery/` |
 
-## 环境配置
+## 环境
 
-- **唯一入口**：根目录 `env.config.json`，`active` 字段切换环境（test/prod）
-- **小程序**：`constants.js` → `env.js`（`require()` 不能引用 miniprogram 外的文件）
-- **Admin**：相对路径 `/api/v1`，不依赖环境配置
-- **部署**：`./deploy.sh` = test，`./deploy.sh prod` = prod
+- **配置入口**：根目录 `env.config.json` → `active` 字段切 test/prod
+- **测试服务器**：`test.wzzhfservice.cloud`（`/root/Zhf-Pro-test/`，pm2: `zhf-server-test`）
+- **生产服务器**：`43.136.71.64`（`/root/Zhf-Pro/`，pm2: `zhf-server`）
+- **小程序 AppID**：`wx45a2339808c171aa`
+- **管理后台**：`test.wzzhfservice.cloud/admin/`（测试）/ `wzzhfservice.cloud/admin/`（生产）
 
-## 密钥同步（不经 git）
+## 日常操作
 
-密钥（`WECHAT_SECRET` / `JWT_SECRET` 等）**只存在于 `.env`，已 gitignore，不提交、不随部署覆盖**。
+```bash
+# 部署测试服务器（GitHub 不通时用 bundle）
+git bundle create /tmp/d.bundle <server-head>..HEAD
+scp /tmp/d.bundle root@test.wzzhfservice.cloud:/tmp/
+ssh root@test.wzzhfservice.cloud "cd /root/Zhf-Pro-test && git fetch /tmp/d.bundle HEAD && git merge FETCH_HEAD && cd admin && npm run build && pm2 restart zhf-server-test"
 
-- git 只同步代码；`.env.example` 仅是变量清单模板（占位值）。
-- 服务器 `.env` 手动放置一次：`server/.env`（生产 `/root/Zhf-Pro/server/.env`，测试 `/root/Zhf-Pro-test/server/.env`）。
-- 更新某个密钥：SSH 登录服务器 → 编辑该 `.env` → `pm2 restart zhf-server`（测试用 `zhf-server-test`）。
-- `git pull` / `deploy.sh` 不会碰 `.env`（它被 gitignore），所以部署不会覆盖服务器密钥。
+# 部署生产
+./deploy.sh prod
 
-## 用户体系（两维度）
-
-| 维度 | 字段 | 取值 |
-|------|------|------|
-| 角色 | `role` | `admin` / `designer`(员工) / `owner`(业主) / `guest`(游客) |
-| 人员类型 | `personnel_type` | `designer` / `design_director` / `engineer` / `engineering_director` |
-
-- `app.isDesigner()` = `role === 'designer'` → **所有员工**
-- `app.isDesignerPersonnel()` = `personnel_type === 'designer'` → 仅设计师岗位
-- 登录路由：`owner` 最先判断
-
-## 施工流程（V1.3）
-
-```
-派单 → 设计师提交整屋设计 → 设计总监审 → 管理员审 → 业主审
-→ 派工(工程师+工程总监) → 5阶段施工 → 每阶段业主验收 → 竣工
+# 密钥更新（不走 git）
+ssh root@<server> "vim /root/Zhf-Pro/server/.env"  # 编辑 → pm2 restart zhf-server
 ```
 
-5 阶段：打拆 → 水电 → 油工 → 主材安装 → 竣工
+## 红线
 
-## 关键业务规则
-
-- **订单号**：10 位 = YYYYMMDD(6) + property_code(2) + daily_sequence(2)
-- **手机号脱敏**：中间 4 位 `****`
-- **价格快照**：下单时存储于 `material_order_items.price_snapshot`
-- **图片库命名**：`设计师-作品名字-日期.扩展名`
-- **缩略图**：`cover_thumb`（400px 宽），优先回退原图
-- **作品图片上限**：作品 15 张（`WORK_UPLOAD_MAX_COUNT`）；施工上传仍 9 张（`UPLOAD_MAX_COUNT`，后端硬限）
-- **作品编辑**：后台 `PUT /admin/works/:id` 直接生效不重审；`designer_id`/`review_status` 不可改；删旧图在保存成功之后、被引用则跳过
-- **两套分类**：`categories`（作品分类）≠ `material_categories`（材料分类）
-- **VR 看房**：作品 `vr_url` 存酷家乐链接；小程序 `wx.navigateToMiniProgram("全景720")` 打开；web-view 中转不可行（微信拦截 iframe 内小程序跳转）
-- **风格选材向导**：独立于旧选材（`style-` 前缀路由+12张新表）；六风格→七步向导→草稿续选→优惠价总结提交；selections 经 `globalData.styleWizardHandoff` 交接
-- **向导品类身份**：`page_number===1`=瓷砖（无名称/价格，标题行=品牌logo+品牌名）、`===2`=室内木门（材料管理隐藏，只走「门系列管理」单入口）、`===3`=卫浴（无名称/价格，标题行=型号，五字段：型号/镜柜/主柜/台面/图片，镜柜等存 attributes JSON）；材料图片全品类必填；排序号冲突同子品类自动后移；材料校验允许型号作为标题字段（`!name && !brand && !model` 才报错）
-- **门选材流程**：小程序先选门系列（单选+主图卡）再选该系列颜色；门材料仅 颜色/风格/图片 三字段全必填（前后端双校验）；door_series 有 page_number 区分室内(2)/卫生间(3)；颜色库 door_color_library 全局共享
-- **卫生间门**（07-21）：page_number===3，后台独立页面 `/style-wizard/bathroom-doors`，小程序 step3 改为系列→颜色→锁向流程（复用 step2 模式）
-- **"此项不选"**（07-21）：有材料时隐藏，无材料时显示；step2(门)和 step7(灯具)也加了跳过按钮，解决无数据时向导死锁问题
-- **品类颜色标签**（07-21）：材料列表"品类"列用 8 色标签区分，按品类名哈希自动分配颜色，后期新增品类自动适配
-
-## 新增功能 — 文件修改检查清单
-
-### 需新建
-- [ ] 后端：`server/src/routes/<name>.js` + `server/src/services/<name>Service.js`
-- [ ] 后端：`server/src/db/migrations/<NNN>_<description>.js`（如需新表）
-- [ ] 管理后台：`admin/src/pages/<PageName>.jsx`
-- [ ] 小程序：`miniprogram/pages/<page-name>/` 四个文件
-
-### 需修改
-- [ ] `server/src/app.js` — 注册新路由
-- [ ] `admin/src/router/index.jsx` — 添加路由
-- [ ] `admin/src/components/Sidebar.jsx` — MENU_ITEMS
-- [ ] `admin/src/components/HeaderBar.jsx` — BREADCRUMB_MAP
-- [ ] `miniprogram/app.json` — 注册新页面
-- [ ] 对应子项目的 `CLAUDE.md` — 更新文件清单
-
-## 部署后访问地址
-
-| 环境 | 管理后台 | 抽奖 |
-|------|---------|------|
-| 测试 | `test.wzzhfservice.cloud/admin/` | `test.wzzhfservice.cloud/lottery/` |
-| 生产 | `wzzhfservice.cloud/admin/` | `wzzhfservice.cloud/lottery/` |
-
-## 生产服务器
-
-- IP：`43.136.71.64`
-- 服务管理：`pm2 restart zhf-server`（测试环境 `zhf-server-test`）
-- 部署脚本：`./deploy.sh [test|prod]`
+- **密钥不进 git**：真实密钥只存在于服务器 `.env`（已 gitignore）
+- **数据库不进 git**：`server/data/zhf.db` 绝不提交
+- **小程序 `require()` 不能引用 miniprogram 目录外的文件**

@@ -2,148 +2,80 @@
 
 ## 架构
 
-Express 5 + Knex.js + better-sqlite3 (SQLite)，三层模式：**routes（参数校验+响应格式化）→ services（业务逻辑）→ db（Knex 查询）**。
+Express 5 + Knex + better-sqlite3。三层：`routes → services → db`。
+启动：`cd server && npm run dev`（nodemon），监听 `0.0.0.0:3000`。
 
 ```
 server/src/
-├── app.js              # Express 应用 + 中间件 + 路由注册
-├── index.js            # 启动入口（0.0.0.0 监听，打印局域网 IP）
-├── config/index.js     # JWT_SECRET, PORT(3000), uploadDir, wechat
-├── db/
-│   ├── connection.js   # Knex + better-sqlite3 实例
-│   └── migrations/     # 15 个迁移文件（001–014，含两个 006）
-├── middleware/
-│   ├── auth.js         # authenticate + requireRole + requirePersonnelType
-│   ├── upload.js       # Multer 配置（存储+过滤+文件命名）
-│   └── validate.js     # requireFields / idParam / pagination
+├── app.js              # 中间件栈 + 路由注册
+├── index.js            # 启动入口
+├── config/index.js     # JWT_SECRET, PORT, uploadDir, wechat
+├── db/connection.js    # Knex + better-sqlite3
+├── db/migrations/      # 迁移文件
+├── middleware/          # auth, upload, validate
 ├── routes/             # 20 个路由模块
-└── services/           # 24 个 Service 文件
+└── services/           # 业务逻辑
 ```
 
-## 中间件栈（app.js 顺序）
+## 中间件栈
 
-`cors → express.json(10mb) → express.urlencoded → morgan → static(/uploads) → static(admin/dist) → 路由 → 404 → 全局错误处理`
+`cors → json → urlencoded → morgan → static(/uploads) → static(admin/dist) → 路由 → 404 → 全局错误`
 
-## 路由规范
+## 路由速查
 
-- **公开**：`/api/v1/<resource>`
-- **管理端**：`/api/v1/admin/<resource>` + `authenticate` + `requireRole('admin')`
-- **角色接口**：`/api/v1/designer/...` 或 `/api/v1/engineer/...` + `requirePersonnelType(...)`
-- 风格选材与旧系统重名路径加 `style-` 前缀：`/style-categories`、`/admin/style-materials`（旧 `/categories`、`/admin/materials` 被老路由占用）
-
-### 路由文件速查
-
-| 文件 | 挂载路径 | 主要功能 |
-|------|---------|---------|
-| `auth.js` | `/api/v1/auth` | 登录（admin/designer/dev/wechat-phone）、获取当前用户 |
-| `cases.js` | `/api/v1` | 公开作品列表+详情、设计师 CRUD、管理员审核+上下架+热门+VR链接 |
-| `categories.js` | `/api/v1` | 公开/管理分类（户型/部位/风格），含启用/禁用 |
-| `designers.js` | `/api/v1` | 人员管理、设计师 CRUD、头像审核、个人资料编辑 |
-| `images.js` | `/api/v1/admin` | 图片库列表+删除（force）+引用查询+批量删除 |
-| `upload.js` | `/api/v1` | 单/多文件上传，支持 work_name+uploaded_by |
-| `dashboard.js` | `/api/v1/admin` | 仪表盘概览/趋势/分布 |
-| `settings.js` | `/api/v1` | 首页配置（banner+热门推荐） |
-| `accounts.js` | `/api/v1/admin` | 账号列表+角色变更 |
-| `properties.js` | `/api/v1` | 楼盘管理+公开列表+材料查询+业主检查 |
-| `material-categories.js` | `/api/v1/admin` | 材料分类 CRUD |
+| 文件 | 路径 | 关键功能 |
+|------|------|---------|
+| `auth.js` | `/api/v1/auth` | 登录、获取用户 |
+| `cases.js` | `/api/v1` | 作品 CRUD、审核、VR |
+| `designers.js` | `/api/v1` | 人员管理、头像审核 |
+| `categories.js` | `/api/v1` | 分类管理 |
+| `images.js` | `/api/v1/admin` | 图片库 |
+| `upload.js` | `/api/v1` | 文件上传 |
+| `properties.js` | `/api/v1` | 楼盘、材料查询 |
 | `materials.js` | `/api/v1/admin` | 材料 CRUD |
-| `material-orders.js` | `/api/v1` | 选材申请：提交+我的列表+详情+管理审核+派单 |
-| `construction-phases.js` | `/api/v1` | 施工阶段：派单→设计审核→施工审核→业主验收，全流程 23 状态 |
-| `measurement-appointments.js` | `/api/v1` | 量房预约：提交 + 管理列表 |
-| `lottery.js` | `/api/v1` | 摇一摇抽奖：抽奖 + 中奖记录 + 配置 |
-| `design-team.js` | `/api/v1` | 设计团队展示 |
-| `reports.js` | `/api/v1` | 作品举报：公开提交 + 管理处理 |
-| `style-wizard.js` | `/api/v1` | 风格选材向导：风格/品类/材料/门系列/灯具套餐/草稿/选材单，公开+管理 |
-| `reviews.js` | — | 已弃用，空文件占位 |
+| `material-orders.js` | `/api/v1` | 选材申请流程 |
+| `construction-phases.js` | `/api/v1` | 施工 5 阶段 23 状态 |
+| `measurement-appointments.js` | `/api/v1` | 量房预约 |
+| `lottery.js` | `/api/v1` | 抽奖 |
+| `dashboard.js` | `/api/v1/admin` | 仪表盘 |
+| `settings.js` | `/api/v1` | 首页配置 |
+| `style-wizard.js` | `/api/v1` | 风格选材：品类/材料/门/灯具/草稿/选材单 |
+| `reports.js` | `/api/v1` | 作品举报 |
+| `design-team.js` | `/api/v1` | 设计团队 |
+| `accounts.js` | `/api/v1/admin` | 账号管理 |
 
-## Service 规范
+风格选材重名路径加 `style-` 前缀：`/style-categories`、`/admin/style-materials`。
 
-- 命名：`<resource>Service.js`，导出 `{ method1, method2 }`
-- 错误：`throw Object.assign(new Error('中文消息'), { status: 400 })`
-- SQLite 错误映射（app.js）：UNIQUE → "已存在"，FOREIGNKEY → "被引用无法删除"
-
-## 数据库（33 张表）
+## 数据库核心表
 
 | 表 | 用途 |
 |---|------|
-| `designers` | 统一用户表（含 role + personnel_type） |
-| `categories` | 分类字典（house_type/area/style） |
-| `image_library` | 全局图片库（original_name 格式：设计师-作品名-日期） |
-| `cases` | 装修作品（review_status 状态机，含 vr_url 酷家乐全景链接） |
-| `case_images` | 作品-图片关联 |
-| `homepage_config` | 首页配置（banner/hot_works） |
-| `properties` | 楼盘（property_code 2位唯一码） |
-| `material_categories` | 材料分类 |
-| `materials` | 材料（含库存 quantity） |
-| `material_orders` | 选材申请（order_no 10位生成规则） |
-| `material_order_items` | 申请材料项（价格快照） |
-| `material_order_logs` | 订单操作日志 |
-| `construction_phases` | 施工阶段（5阶段，23状态） |
-| `construction_phase_logs` | 阶段操作日志 |
-| `measurement_appointments` | 量房预约 |
-| `lottery_users/records/prizes/config` | 摇一摇抽奖（身份/记录/奖品/配置） |
-| `design_team` | 设计团队成员 |
-| `reports` | 作品举报 |
-| `styles / style_categories / style_subcategories / style_materials / material_styles` | 风格选材：风格、7品类、子品类、材料（JSON弹性属性）、材料-风格关联 |
-| `door_series / door_colors / door_materials` | 门系列→颜色→门材料（系列×颜色×风格） |
-| `lighting_packages / lighting_package_items` | 灯具套餐+5件明细 |
-| `selection_drafts / selection_orders` | 选材草稿（每用户一份）+选材单（items JSON快照） |
+| `designers` | 用户表（role + personnel_type） |
+| `cases` + `case_images` | 作品 + 图片关联 |
+| `properties` | 楼盘 |
+| `materials` + `material_categories` | 材料 + 分类 |
+| `material_orders` + `material_order_items` | 选材单 + 项目（价格快照） |
+| `construction_phases` | 施工阶段（5 阶段 23 状态） |
+| `styles` / `style_categories` / `style_subcategories` / `style_materials` | 风格选材核心 |
+| `door_series` / `door_colors` / `door_materials` | 门系列 × 颜色 × 风格 |
+| `lighting_packages` / `lighting_package_items` | 灯具套餐 |
+| `selection_drafts` / `selection_orders` | 选材草稿 + 选材单 |
 
-## 响应格式
+## Service 规范
 
-- 成功：`{ success: true, data }`
-- 分页：`{ list, pagination: { page, page_size, total, total_pages } }`
-- 错误：`{ error: { message, status } }`
+- 导出 `{ method1, method2 }`
+- 错误：`throw Object.assign(new Error('中文'), { status: 400 })`
+- 分页：默认 page=1, pageSize=20, 上限 50
+- 响应：`{ success: true, data }` 或 `{ list, pagination }`
 
-## 分页
+## 认证
 
-默认 page=1，pageSize=20，上限 50。
+- `authenticate` — JWT → req.user
+- `requireRole('admin')` — RBAC
+- `requirePersonnelType('designer')` — 人员类型
 
-## 认证中间件
+## 上传
 
-- `authenticate` — 从 `Authorization: Bearer <token>` 提取 JWT，查 designers 表，挂载 `req.user`
-- `requireRole(...roles)` — RBAC，传入角色数组
-- `requirePersonnelType(...types)` — 人员类型校验
-
-## 上传命名
-
-`original_name`：`{设计师名}-{作品名称}-{YYYYMMDD}.{ext}`（work_name 优先，category 备用）
-磁盘文件：`{设计师名}-{YYYYMMDD}-{8位随机hex}.{ext}`（存储于 uploads/originals/）
-缩略图：`thumb_{原文件名}`，宽度 400px（存储于 uploads/thumbnails/）
-
-## 开发
-
-```bash
-cd server && npm run dev   # nodemon 热重载
-```
-
-## 用户体系（两个独立维度）
-
-| 维度 | 字段 | 取值 |
-|------|------|------|
-| **角色** | `role` | `admin` / `designer`(员工) / `owner`(业主) / `guest`(游客) |
-| **人员类型** | `personnel_type` | `designer` / `design_director` / `engineer` / `engineering_director` |
-
-- `app.isDesigner()` = `role === 'designer'` → **所有员工**
-- `app.isDesignerPersonnel()` = `personnel_type === 'designer'` → 仅设计师岗位
-- `app.isOwner()` = `role === 'owner'` → 业主
-- 登录路由：`owner` 最先判断
-
-## 施工流程（V1.3 核心）
-
-打拆 → 水电 → 油工 → 主材安装 → 竣工
-
-```
-派单 → 设计师提交整屋设计 → 设计总监审 → 管理员审 → 业主审
-→ 派工(工程师+工程总监) → 5阶段施工 → 每阶段业主验收 → 竣工
-```
-
-- 设计阶段独立于施工；驳回只回退当前阶段
-- 角色分离：设计师≠设计总监，工程师≠工程总监
-
-## 关键业务规则
-
-- 订单号 10 位 = YYYYMMDD(6) + property_code(2) + daily_sequence(2)
-- 手机号脱敏：中间 4 位 `****`；价格快照下单时存储
-- 选材订单：pending → approved → completed / rejected
-- 图片库命名：`设计师-作品名字-日期.扩展名`
+- 磁盘：`uploads/originals/{设计师}-{日期}-{8hex}.{ext}`
+- 缩略图：`uploads/thumbnails/thumb_{原文件}`（400px 宽）
+- original_name：`{设计师}-{作品名}-{日期}.{ext}`
