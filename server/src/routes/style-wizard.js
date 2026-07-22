@@ -143,10 +143,10 @@ router.get('/admin/orders/export', authenticate, requireRole('admin'), async (re
       .select('order_no').whereIn('id', ids).orderBy('created_at', 'desc');
     let filename;
     if (orders.length === 1) {
-      filename = '风格选材_' + orders[0].order_no + '.xlsx';
+      filename = '风格选材' + orders[0].order_no + '.xlsx';
     } else {
       const now = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-      filename = '风格选材_' + now + '.xlsx';
+      filename = '风格选材' + now + '.xlsx';
     }
     res.set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     res.set('Content-Disposition', `attachment; filename="${encodeURIComponent(filename)}"`);

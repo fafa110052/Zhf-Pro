@@ -457,34 +457,48 @@ const styleWizardService = {
     headerRow.font = { bold: true };
     headerRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF0F0F0' } };
 
+    // 通用信息列（A-G 和 M）需要按订单组合并
+    const MERGE_COLS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'M'];
+
     for (const o of orders) {
       let items = [];
       try { items = typeof o.items === 'string' ? JSON.parse(o.items) : (o.items || []); } catch { /* ignore */ }
 
+      const rowStart = ws.rowCount + 1; // 此订单第一行（before add）
+      const common = {
+        order_no: o.order_no, owner_name: o.owner_name || '', owner_phone: o.owner_phone || '',
+        community: o.community || '', room_number: o.room_number || '',
+        style_name: o.style_name || '', status: STATUS_LABEL[o.status] || o.status,
+        submitted_at: o.submitted_at || '',
+      };
+
       if (items.length === 0) {
-        // 无明细时也保留订单行
-        ws.addRow({
-          order_no: o.order_no, owner_name: o.owner_name || '', owner_phone: o.owner_phone || '',
-          community: o.community || '', room_number: o.room_number || '',
-          style_name: o.style_name || '', status: STATUS_LABEL[o.status] || o.status,
-          category_name: '', subcategory_name: '', item_name: '（无明细）',
-          original_price: '', discount_price: '',
-          submitted_at: o.submitted_at || '',
-        });
+        ws.addRow({ ...common, category_name: '', subcategory_name: '', item_name: '（无明细）',
+          original_price: '', discount_price: '' });
       } else {
         for (const it of items) {
           const subName = it.subcategory_name || '';
           ws.addRow({
-            order_no: o.order_no, owner_name: o.owner_name || '', owner_phone: o.owner_phone || '',
-            community: o.community || '', room_number: o.room_number || '',
-            style_name: o.style_name || '', status: STATUS_LABEL[o.status] || o.status,
+            ...common,
             category_name: catMap[subName] || '',
             subcategory_name: subName,
             item_name: it.name || '',
             original_price: it.original_price ? Number(it.original_price) : '',
             discount_price: it.discount_price ? Number(it.discount_price) : '',
-            submitted_at: o.submitted_at || '',
           });
+        }
+      }
+
+      const rowEnd = ws.rowCount;
+      if (rowEnd > rowStart) {
+        for (const col of MERGE_COLS) {
+          ws.mergeCells(`${col}${rowStart}:${col}${rowEnd}`);
+        }
+        // 合并单元格垂直居中
+        for (let r = rowStart; r <= rowEnd; r++) {
+          for (const col of MERGE_COLS) {
+            ws.getCell(`${col}${r}`).alignment = { vertical: 'middle' };
+          }
         }
       }
     }
