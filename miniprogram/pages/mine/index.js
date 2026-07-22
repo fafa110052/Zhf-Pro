@@ -227,7 +227,12 @@ Page({
     });
   },
 
-  /** 跳转注销账号页 */
+  /** 跳转账号信息页 */
+  onGoAccountInfo() {
+    wx.navigateTo({ url: '/pages/account-info/index' });
+  },
+
+  /** 跳转注销账号页（旧入口，保留兼容） */
   onGoCancelAccount() {
     wx.navigateTo({ url: '/pages/account-cancel/index' });
   },

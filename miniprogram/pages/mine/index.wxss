@@ -313,11 +313,6 @@
   font-weight: 300;
 }
 
-.menu-value {
-  font-size: 26rpx;
-  color: var(--text-secondary);
-}
-
 /* ═══ 加载中 ═══ */
 .page-loading {
   padding: 100rpx 0;

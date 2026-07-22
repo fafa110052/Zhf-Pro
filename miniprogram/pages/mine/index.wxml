@@ -87,19 +87,23 @@
     </view>
 
     <view class="menu-section">
-      <view class="menu-group-title">账号信息</view>
-      <view wx:if="{{userInfo.phone}}" class="menu-item">
+      <view class="menu-group-title">其他</view>
+      <view class="menu-item" bindtap="onGoAccountInfo">
         <text class="menu-icon zhficon"></text>
-        <text class="menu-label">手机号</text>
-        <text class="menu-value">{{userInfo.phone}}</text>
+        <text class="menu-label">账号信息</text>
+        <text class="menu-arrow">›</text>
       </view>
-      <view class="menu-item menu-item-danger" bindtap="onGoCancelAccount">
-        <text class="menu-icon zhficon"></text>
-        <text class="menu-label menu-label-danger">注销账号</text>
+      <view class="menu-item" bindtap="onGoAgreement">
+        <text class="menu-icon zhficon"></text>
+        <text class="menu-label">用户协议</text>
+        <text class="menu-arrow">›</text>
+      </view>
+      <view class="menu-item" bindtap="onGoPrivacy">
+        <text class="menu-icon zhficon"></text>
+        <text class="menu-label">隐私政策</text>
         <text class="menu-arrow">›</text>
       </view>
     </view>
-
   </block>
 
   <!-- ═══ 已登录（业主）═══ -->
@@ -152,6 +156,11 @@
 
     <view class="menu-section">
       <view class="menu-group-title">其他</view>
+      <view class="menu-item" bindtap="onGoAccountInfo">
+        <text class="menu-icon zhficon"></text>
+        <text class="menu-label">账号信息</text>
+        <text class="menu-arrow">›</text>
+      </view>
       <view class="menu-item" bindtap="onContact">
         <text class="menu-icon zhficon"></text>
         <text class="menu-label">联系客服</text>
@@ -160,20 +169,6 @@
       <view class="menu-item menu-item-danger" bindtap="onLogout">
         <text class="menu-icon zhficon"></text>
         <text class="menu-label menu-label-danger">退出登录</text>
-        <text class="menu-arrow">›</text>
-      </view>
-    </view>
-
-    <view class="menu-section">
-      <view class="menu-group-title">账号信息</view>
-      <view wx:if="{{userInfo.phone}}" class="menu-item">
-        <text class="menu-icon zhficon"></text>
-        <text class="menu-label">手机号</text>
-        <text class="menu-value">{{userInfo.phone}}</text>
-      </view>
-      <view class="menu-item menu-item-danger" bindtap="onGoCancelAccount">
-        <text class="menu-icon zhficon"></text>
-        <text class="menu-label menu-label-danger">注销账号</text>
         <text class="menu-arrow">›</text>
       </view>
     </view>
@@ -244,6 +239,11 @@
 
     <view class="menu-section">
       <view class="menu-group-title">其他</view>
+      <view class="menu-item" bindtap="onGoAccountInfo">
+        <text class="menu-icon zhficon"></text>
+        <text class="menu-label">账号信息</text>
+        <text class="menu-arrow">›</text>
+      </view>
       <view class="menu-item" bindtap="onContact">
         <text class="menu-icon zhficon"></text>
         <text class="menu-label">联系客服</text>
@@ -252,20 +252,6 @@
       <view class="menu-item menu-item-danger" bindtap="onLogout">
         <text class="menu-icon zhficon"></text>
         <text class="menu-label menu-label-danger">退出登录</text>
-        <text class="menu-arrow">›</text>
-      </view>
-    </view>
-
-    <view class="menu-section">
-      <view class="menu-group-title">账号信息</view>
-      <view wx:if="{{userInfo.phone}}" class="menu-item">
-        <text class="menu-icon zhficon"></text>
-        <text class="menu-label">手机号</text>
-        <text class="menu-value">{{userInfo.phone}}</text>
-      </view>
-      <view class="menu-item menu-item-danger" bindtap="onGoCancelAccount">
-        <text class="menu-icon zhficon"></text>
-        <text class="menu-label menu-label-danger">注销账号</text>
         <text class="menu-arrow">›</text>
       </view>
     </view>
@@ -315,6 +301,11 @@
     </view>
     <view class="menu-section">
       <view class="menu-group-title">其他</view>
+      <view class="menu-item" bindtap="onGoAccountInfo">
+        <text class="menu-icon zhficon"></text>
+        <text class="menu-label">账号信息</text>
+        <text class="menu-arrow">›</text>
+      </view>
       <view class="menu-item" bindtap="onContact">
         <text class="menu-icon zhficon"></text>
         <text class="menu-label">联系客服</text>
@@ -323,20 +314,6 @@
       <view class="menu-item menu-item-danger" bindtap="onLogout">
         <text class="menu-icon zhficon"></text>
         <text class="menu-label menu-label-danger">退出登录</text>
-        <text class="menu-arrow">›</text>
-      </view>
-    </view>
-
-    <view class="menu-section">
-      <view class="menu-group-title">账号信息</view>
-      <view wx:if="{{userInfo.phone}}" class="menu-item">
-        <text class="menu-icon zhficon"></text>
-        <text class="menu-label">手机号</text>
-        <text class="menu-value">{{userInfo.phone}}</text>
-      </view>
-      <view class="menu-item menu-item-danger" bindtap="onGoCancelAccount">
-        <text class="menu-icon zhficon"></text>
-        <text class="menu-label menu-label-danger">注销账号</text>
         <text class="menu-arrow">›</text>
       </view>
     </view>
@@ -373,6 +350,11 @@
     </view>
     <view class="menu-section">
       <view class="menu-group-title">其他</view>
+      <view class="menu-item" bindtap="onGoAccountInfo">
+        <text class="menu-icon zhficon"></text>
+        <text class="menu-label">账号信息</text>
+        <text class="menu-arrow">›</text>
+      </view>
       <view class="menu-item" bindtap="onContact">
         <text class="menu-icon zhficon"></text>
         <text class="menu-label">联系客服</text>
@@ -381,20 +363,6 @@
       <view class="menu-item menu-item-danger" bindtap="onLogout">
         <text class="menu-icon zhficon"></text>
         <text class="menu-label menu-label-danger">退出登录</text>
-        <text class="menu-arrow">›</text>
-      </view>
-    </view>
-
-    <view class="menu-section">
-      <view class="menu-group-title">账号信息</view>
-      <view wx:if="{{userInfo.phone}}" class="menu-item">
-        <text class="menu-icon zhficon"></text>
-        <text class="menu-label">手机号</text>
-        <text class="menu-value">{{userInfo.phone}}</text>
-      </view>
-      <view class="menu-item menu-item-danger" bindtap="onGoCancelAccount">
-        <text class="menu-icon zhficon"></text>
-        <text class="menu-label menu-label-danger">注销账号</text>
         <text class="menu-arrow">›</text>
       </view>
     </view>
@@ -431,6 +399,11 @@
     </view>
     <view class="menu-section">
       <view class="menu-group-title">其他</view>
+      <view class="menu-item" bindtap="onGoAccountInfo">
+        <text class="menu-icon zhficon"></text>
+        <text class="menu-label">账号信息</text>
+        <text class="menu-arrow">›</text>
+      </view>
       <view class="menu-item" bindtap="onContact">
         <text class="menu-icon zhficon"></text>
         <text class="menu-label">联系客服</text>
@@ -439,20 +412,6 @@
       <view class="menu-item menu-item-danger" bindtap="onLogout">
         <text class="menu-icon zhficon"></text>
         <text class="menu-label menu-label-danger">退出登录</text>
-        <text class="menu-arrow">›</text>
-      </view>
-    </view>
-
-    <view class="menu-section">
-      <view class="menu-group-title">账号信息</view>
-      <view wx:if="{{userInfo.phone}}" class="menu-item">
-        <text class="menu-icon zhficon"></text>
-        <text class="menu-label">手机号</text>
-        <text class="menu-value">{{userInfo.phone}}</text>
-      </view>
-      <view class="menu-item menu-item-danger" bindtap="onGoCancelAccount">
-        <text class="menu-icon zhficon"></text>
-        <text class="menu-label menu-label-danger">注销账号</text>
         <text class="menu-arrow">›</text>
       </view>
     </view>

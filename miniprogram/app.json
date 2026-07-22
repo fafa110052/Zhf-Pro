@@ -16,6 +16,7 @@
     "pages/work-upload/index",
     "pages/agreement/index",
     "pages/privacy/index",
+    "pages/account-info/index",
     "pages/account-cancel/index",
     "pages/designer-tasks/index",
     "pages/designer-task-detail/index",

@@ -1,0 +1,24 @@
+<!-- 账号信息 -->
+<scroll-view scroll-y="true" class="page" wx:if="{{ready}}">
+  <view class="content">
+    <view class="avatar-wrap">
+      <text class="avatar-icon zhficon"></text>
+    </view>
+    <view class="page-title">账号信息</view>
+
+    <view class="card">
+      <view class="info-row">
+        <text class="info-label">手机号</text>
+        <text class="info-value">{{phone || '未绑定'}}</text>
+      </view>
+      <view class="info-row" wx:if="{{roleLabel}}">
+        <text class="info-label">账号角色</text>
+        <text class="info-value">{{roleLabel}}</text>
+      </view>
+    </view>
+
+    <view class="hint">如需注销账号，请点击下方按钮。注销后个人信息将被永久删除，无法恢复。</view>
+
+    <button class="btn-danger" bindtap="onGoCancelAccount">注销账号</button>
+  </view>
+</scroll-view>
