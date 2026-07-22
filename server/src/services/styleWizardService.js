@@ -440,6 +440,26 @@ const styleWizardService = {
       return '';
     }
 
+    // 预加载材料品牌/型号（兼容已有订单 items 中缺少 brand/model 的情况）
+    // 用 name 和 brand 都做索引，因为瓷砖材料 name 为空、brand 存的是品牌名
+    const allMats = await db('style_materials').select('name', 'brand', 'model');
+    const matLookup = {};
+    for (const m of allMats) {
+      const key = m.name || m.brand;
+      if (key) matLookup[key] = { brand: m.brand, model: m.model };
+    }
+
+    // 瓷砖选材品类下：品牌+型号；其他品类：材料名
+    function formatItemName(it, categoryName) {
+      if (categoryName === '瓷砖选材') {
+        const brand = it.brand || (matLookup[it.name] && matLookup[it.name].brand) || '';
+        const model = it.model || (matLookup[it.name] && matLookup[it.name].model) || '';
+        const parts = [brand, model].filter(Boolean);
+        if (parts.length > 0) return parts.join(' ');
+      }
+      return it.name || '';
+    }
+
     const wb = new ExcelJS.Workbook();
     const ws = wb.addWorksheet('风格选材');
 
@@ -485,11 +505,12 @@ const styleWizardService = {
       } else {
         for (const it of items) {
           const subName = it.subcategory_name || '';
+          const catName = resolveCategory(subName, it);
           ws.addRow({
             ...common,
-            category_name: resolveCategory(subName, it),
+            category_name: catName,
             subcategory_name: subName,
-            item_name: it.name || '',
+            item_name: formatItemName(it, catName),
             original_price: it.original_price ? Number(it.original_price) : '',
             discount_price: it.discount_price ? Number(it.discount_price) : '',
           });

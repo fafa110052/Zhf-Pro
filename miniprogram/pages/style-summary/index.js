@@ -160,6 +160,8 @@ Page({
               image_url: sel.image_url,
               original_price: sel.original_price,
               discount_price: sel.discount_price,
+              brand: sel.brand || null,
+              model: sel.model || null,
             };
             if (sel.lock_direction) submitItem.lock_direction = sel.lock_direction;
             if (sel.chaise_direction) submitItem.chaise_direction = sel.chaise_direction;
