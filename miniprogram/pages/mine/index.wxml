@@ -25,11 +25,6 @@
         <text class="menu-label">隐私政策</text>
         <text class="menu-arrow">›</text>
       </view>
-      <view class="menu-item" bindtap="onGoStyleOrders">
-        <text class="menu-icon zhficon"></text>
-        <text class="menu-label">风格选材订单</text>
-        <text class="menu-arrow">›</text>
-      </view>
       <view class="menu-item" bindtap="onContact">
         <text class="menu-icon zhficon"></text>
         <text class="menu-label">联系客服</text>
