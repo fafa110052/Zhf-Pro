@@ -23,7 +23,7 @@ const STATUS_TABS = [
 const fmtMoney = (v) => `¥${Number(v || 0).toLocaleString('zh-CN')}`;
 
 /**
- * 风格选材 — 选材单管理（状态筛选 + 详情 + 改状态）
+ * 风格选材 — 选材单管理（状态筛选 + 详情 + 改状态 + 导出Excel）
  */
 export default function StyleWizardOrders() {
   const toast = useToast();
@@ -40,6 +40,12 @@ export default function StyleWizardOrders() {
   const [detailLoading, setDetailLoading] = useState(false);
   const [nextStatus, setNextStatus] = useState('pending');
   const [statusSaving, setStatusSaving] = useState(false);
+
+  // 导出弹窗
+  const [exportOpen, setExportOpen] = useState(false);
+  const [exportOrders, setExportOrders] = useState([]);
+  const [exportLoading, setExportLoading] = useState(false);
+  const [selectedIds, setSelectedIds] = useState([]);
   const [exporting, setExporting] = useState(false);
 
   const fetchList = useCallback(async (params = {}) => {
@@ -87,13 +93,39 @@ export default function StyleWizardOrders() {
     finally { setStatusSaving(false); }
   };
 
+  // ─── 导出 ───
+  const openExport = async () => {
+    setExportOpen(true); setExportLoading(true); setSelectedIds([]);
+    try {
+      // 加载当前筛选条件下全部订单（不分页）
+      const res = await client.get('/admin/orders', { params: { status: statusFilter, page: 1, page_size: 1000 } });
+      setExportOrders(res.data.list || []);
+    } catch (err) {
+      toast.error(err?.message || '加载订单列表失败');
+      setExportOpen(false);
+    } finally { setExportLoading(false); }
+  };
+
+  const closeExport = () => { setExportOpen(false); };
+
+  const toggleSelect = (id) => {
+    setSelectedIds((prev) => prev.includes(id) ? prev.filter((v) => v !== id) : [...prev, id]);
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.length === exportOrders.length) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(exportOrders.map((o) => o.id));
+    }
+  };
+
   const handleExport = async () => {
+    if (selectedIds.length === 0) { toast.error('请至少选择一个订单'); return; }
     setExporting(true);
     try {
       const token = localStorage.getItem('admin_token');
-      const params = new URLSearchParams();
-      if (statusFilter) params.set('status', statusFilter);
-      const res = await fetch(`/api/v1/admin/orders/export?${params.toString()}`, {
+      const res = await fetch(`/api/v1/admin/orders/export?order_ids=${selectedIds.join(',')}`, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
       if (!res.ok) {
@@ -104,13 +136,16 @@ export default function StyleWizardOrders() {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      const now = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-      a.download = `风格选材_${now}.xlsx`;
+      // 从 Content-Disposition 取文件名
+      const disp = res.headers.get('Content-Disposition') || '';
+      const m = disp.match(/filename\*?=(?:UTF-8'')?([^;\s]+)/);
+      a.download = m ? decodeURIComponent(m[1]) : '风格选材.xlsx';
       document.body.appendChild(a);
       a.click();
       a.remove();
       window.URL.revokeObjectURL(url);
       toast.success('导出成功');
+      closeExport();
     } catch (err) {
       toast.error(err?.message || '导出失败');
     } finally {
@@ -130,24 +165,12 @@ export default function StyleWizardOrders() {
             <p className="text-sm text-gray-500 mt-0.5">业主在选材向导提交的选材单，联系跟进后更新状态</p>
           </div>
           <div className="flex items-center gap-3">
-            <button onClick={handleExport} disabled={exporting}
-              className="inline-flex items-center px-3 py-1.5 bg-green-600 text-white text-xs font-medium rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors">
-              {exporting ? (
-                <>
-                  <svg className="w-3.5 h-3.5 mr-1 animate-spin" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8z" />
-                  </svg>
-                  导出中...
-                </>
-              ) : (
-                <>
-                  <svg className="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                  导出Excel
-                </>
-              )}
+            <button onClick={openExport}
+              className="inline-flex items-center px-3 py-1.5 bg-green-600 text-white text-xs font-medium rounded-lg hover:bg-green-700 transition-colors">
+              <svg className="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              导出Excel
             </button>
             <div className="flex items-center space-x-1">
               {STATUS_TABS.map((t) => (
@@ -253,7 +276,6 @@ export default function StyleWizardOrders() {
             </div>
           ) : detail ? (
             <div className="space-y-4">
-              {/* 业主信息 */}
               <div className="grid grid-cols-2 gap-3 text-sm">
                 {[
                   { label: '业主姓名', value: detail.owner_name },
@@ -270,7 +292,6 @@ export default function StyleWizardOrders() {
                 ))}
               </div>
 
-              {/* 选材明细 */}
               <div>
                 <p className="text-xs text-gray-400 mb-2">选材明细（{items.length} 项）</p>
                 {items.length === 0 ? (
@@ -298,7 +319,6 @@ export default function StyleWizardOrders() {
                 )}
               </div>
 
-              {/* 合计 */}
               <div className="flex items-center justify-end space-x-4 bg-gray-50 rounded-lg px-4 py-3">
                 <span className="text-xs text-gray-500">合计</span>
                 <span className="text-sm text-gray-400 line-through">{fmtMoney(detail.original_total)}</span>
@@ -306,6 +326,52 @@ export default function StyleWizardOrders() {
               </div>
             </div>
           ) : null}
+        </Modal>
+      )}
+
+      {/* ─── 导出弹窗 ─── */}
+      {exportOpen && (
+        <Modal open={exportOpen} onClose={closeExport} title="导出选材单"
+          footer={
+            <div className="flex items-center justify-between w-full">
+              <span className="text-xs text-gray-400">已选 {selectedIds.length} 项</span>
+              <div className="flex items-center gap-2">
+                <button onClick={closeExport}
+                  className="px-4 py-2 text-sm text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">取消</button>
+                <button onClick={handleExport} disabled={exporting || selectedIds.length === 0}
+                  className="px-4 py-2 bg-slate-900 text-white text-sm rounded-lg hover:bg-slate-800 disabled:opacity-50 transition-colors">
+                  {exporting ? '导出中...' : '导出'}
+                </button>
+              </div>
+            </div>
+          }>
+          {exportLoading ? (
+            <div className="flex items-center justify-center py-16">
+              <div className="w-8 h-8 border-2 border-gray-200 border-t-slate-600 rounded-full animate-spin" />
+            </div>
+          ) : exportOrders.length === 0 ? (
+            <p className="text-sm text-gray-400 py-8 text-center">当前筛选条件下无订单</p>
+          ) : (
+            <div className="max-h-80 overflow-y-auto">
+              {/* 全选 */}
+              <label className="flex items-center px-3 py-2.5 hover:bg-gray-50 rounded-lg cursor-pointer border-b border-gray-100">
+                <input type="checkbox" checked={selectedIds.length === exportOrders.length} onChange={toggleSelectAll}
+                  className="w-4 h-4 text-slate-900 rounded border-gray-300 focus:ring-slate-500" />
+                <span className="ml-3 text-sm font-medium text-gray-700">全选（共 {exportOrders.length} 单）</span>
+              </label>
+              {exportOrders.map((o) => (
+                <label key={o.id} className="flex items-center px-3 py-2.5 hover:bg-gray-50 rounded-lg cursor-pointer">
+                  <input type="checkbox" checked={selectedIds.includes(o.id)} onChange={() => toggleSelect(o.id)}
+                    className="w-4 h-4 text-slate-900 rounded border-gray-300 focus:ring-slate-500 shrink-0" />
+                  <span className="ml-3 text-xs font-mono text-gray-500 w-[110px] shrink-0">{o.order_no}</span>
+                  <span className="text-sm text-gray-800 truncate">{o.owner_name || '—'}</span>
+                  <span className={`ml-auto inline-flex px-2 py-0.5 rounded-full text-xs font-medium shrink-0 ${STATUS_MAP[o.status]?.cls || 'bg-gray-100 text-gray-500'}`}>
+                    {STATUS_MAP[o.status]?.label || o.status}
+                  </span>
+                </label>
+              ))}
+            </div>
+          )}
         </Modal>
       )}
     </div>

@@ -418,15 +418,24 @@ const styleWizardService = {
   },
 
   // ===== Excel 导出 =====
-  async exportOrders(status) {
-    let q = db('selection_orders')
+  async exportOrders(orderIds) {
+    if (!orderIds || !orderIds.length) throw Object.assign(new Error('请选择要导出的订单'), { status: 400 });
+
+    const orders = await db('selection_orders')
       .select('selection_orders.*', 'styles.name as style_name')
-      .leftJoin('styles', 'selection_orders.style_id', 'styles.id');
-    if (status) q = q.where('selection_orders.status', status);
-    const rows = await q.orderBy('selection_orders.created_at', 'desc');
+      .leftJoin('styles', 'selection_orders.style_id', 'styles.id')
+      .whereIn('selection_orders.id', orderIds)
+      .orderBy('selection_orders.created_at', 'desc');
+
+    // 预加载子品类→品类映射
+    const subs = await db('style_subcategories')
+      .select('style_subcategories.name', 'style_categories.name as category_name')
+      .leftJoin('style_categories', 'style_subcategories.category_id', 'style_categories.id');
+    const catMap = {};
+    for (const s of subs) { catMap[s.name] = s.category_name || ''; }
 
     const wb = new ExcelJS.Workbook();
-    const ws = wb.addWorksheet('选材单');
+    const ws = wb.addWorksheet('风格选材');
 
     ws.columns = [
       { header: '订单号', key: 'order_no', width: 14 },
@@ -434,46 +443,54 @@ const styleWizardService = {
       { header: '联系电话', key: 'owner_phone', width: 14 },
       { header: '小区', key: 'community', width: 16 },
       { header: '房号', key: 'room_number', width: 10 },
-      { header: '选择风格', key: 'style_name', width: 12 },
+      { header: '风格', key: 'style_name', width: 10 },
       { header: '状态', key: 'status', width: 8 },
-      { header: '原价合计', key: 'original_total', width: 12 },
-      { header: '优惠合计', key: 'discount_total', width: 12 },
+      { header: '品类', key: 'category_name', width: 10 },
+      { header: '子品类', key: 'subcategory_name', width: 12 },
+      { header: '材料名称', key: 'item_name', width: 20 },
+      { header: '原价', key: 'original_price', width: 10 },
+      { header: '优惠价', key: 'discount_price', width: 10 },
       { header: '提交时间', key: 'submitted_at', width: 18 },
-      { header: '选材明细', key: 'items_detail', width: 50 },
     ];
 
-    // 表头样式
     const headerRow = ws.getRow(1);
     headerRow.font = { bold: true };
     headerRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF0F0F0' } };
 
-    for (const r of rows) {
-      let itemsDetail = '';
-      try {
-        const items = typeof r.items === 'string' ? JSON.parse(r.items) : (r.items || []);
-        itemsDetail = items.map((it, i) =>
-          `${i + 1}. ${it.subcategory_name || ''} — ${it.name || ''}  ¥${it.discount_price || it.original_price || 0}`
-        ).join('\n');
-      } catch { /* ignore malformed items */ }
+    for (const o of orders) {
+      let items = [];
+      try { items = typeof o.items === 'string' ? JSON.parse(o.items) : (o.items || []); } catch { /* ignore */ }
 
-      ws.addRow({
-        order_no: r.order_no,
-        owner_name: r.owner_name || '',
-        owner_phone: r.owner_phone || '',
-        community: r.community || '',
-        room_number: r.room_number || '',
-        style_name: r.style_name || '',
-        status: STATUS_LABEL[r.status] || r.status,
-        original_total: r.original_total ? Number(r.original_total) : 0,
-        discount_total: r.discount_total ? Number(r.discount_total) : 0,
-        submitted_at: r.submitted_at || '',
-        items_detail: itemsDetail,
-      });
+      if (items.length === 0) {
+        // 无明细时也保留订单行
+        ws.addRow({
+          order_no: o.order_no, owner_name: o.owner_name || '', owner_phone: o.owner_phone || '',
+          community: o.community || '', room_number: o.room_number || '',
+          style_name: o.style_name || '', status: STATUS_LABEL[o.status] || o.status,
+          category_name: '', subcategory_name: '', item_name: '（无明细）',
+          original_price: '', discount_price: '',
+          submitted_at: o.submitted_at || '',
+        });
+      } else {
+        for (const it of items) {
+          const subName = it.subcategory_name || '';
+          ws.addRow({
+            order_no: o.order_no, owner_name: o.owner_name || '', owner_phone: o.owner_phone || '',
+            community: o.community || '', room_number: o.room_number || '',
+            style_name: o.style_name || '', status: STATUS_LABEL[o.status] || o.status,
+            category_name: catMap[subName] || '',
+            subcategory_name: subName,
+            item_name: it.name || '',
+            original_price: it.original_price ? Number(it.original_price) : '',
+            discount_price: it.discount_price ? Number(it.discount_price) : '',
+            submitted_at: o.submitted_at || '',
+          });
+        }
+      }
     }
 
-    // 金额列格式
-    ws.getColumn('original_total').numFmt = '¥#,##0.00';
-    ws.getColumn('discount_total').numFmt = '¥#,##0.00';
+    ws.getColumn('original_price').numFmt = '¥#,##0.00';
+    ws.getColumn('discount_price').numFmt = '¥#,##0.00';
 
     return await wb.xlsx.writeBuffer();
   },

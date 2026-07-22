@@ -137,10 +137,19 @@ router.get('/admin/orders', ...wrap(req => svc.listOrders({ status: req.query.st
 // 导出 Excel — 必须放在 :id 之前，防止 "export" 被当作 id 参数
 router.get('/admin/orders/export', authenticate, requireRole('admin'), async (req, res, next) => {
   try {
-    const buf = await svc.exportOrders(req.query.status);
-    const now = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+    const ids = (req.query.order_ids || '').split(',').map(Number).filter(Boolean);
+    const buf = await svc.exportOrders(ids);
+    const orders = await require('../db/connection')('selection_orders')
+      .select('order_no').whereIn('id', ids).orderBy('created_at', 'desc');
+    let filename;
+    if (orders.length === 1) {
+      filename = '风格选材_' + orders[0].order_no + '.xlsx';
+    } else {
+      const now = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+      filename = '风格选材_' + now + '.xlsx';
+    }
     res.set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    res.set('Content-Disposition', `attachment; filename="${encodeURIComponent('风格选材_' + now + '.xlsx')}"`);
+    res.set('Content-Disposition', `attachment; filename="${encodeURIComponent(filename)}"`);
     res.send(Buffer.from(buf));
   } catch (e) { next(e); }
 });
