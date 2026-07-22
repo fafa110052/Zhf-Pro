@@ -168,6 +168,12 @@
   color: #1A1A1A;
 }
 
+.ci-subtitle {
+  flex-shrink: 0;
+  font-size: 22rpx;
+  color: #6B7280;
+}
+
 .ci-price {
   flex-shrink: 0;
   font-size: 24rpx;

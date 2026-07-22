@@ -237,6 +237,22 @@ Page({
     wx.navigateTo({ url: '/pages/material-orders/index' });
   },
 
+  /** 风格选材订单 */
+  onGoStyleOrders() {
+    if (!app.isLoggedIn()) {
+      wx.showModal({
+        title: '提示',
+        content: '请先登录后再查看风格选材订单',
+        confirmText: '去登录',
+        success: (r) => {
+          if (r.confirm) wx.navigateTo({ url: '/pages/designer-login/index' });
+        },
+      });
+      return;
+    }
+    wx.navigateTo({ url: '/pages/style-my-selections/index' });
+  },
+
   // V1.3 施工角色导航 — mode=active（进行中）/ mode=all（全部项目）
   onGoDesignerTasks() { wx.navigateTo({ url: '/pages/designer-tasks/index?mode=active' }); },
   onGoDesignDirectorReviews() { wx.navigateTo({ url: '/pages/design-director-reviews/index?mode=active' }); },

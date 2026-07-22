@@ -25,6 +25,7 @@ function decorateOrder(order) {
   return Object.assign({}, order, {
     itemsList: items.map((it) => ({
       name: it.name || '',
+      subcategory_name: it.subcategory_name || '',
       discountText: it.discount_price != null ? formatMoney(it.discount_price) : '',
     })),
     itemCount: items.length,

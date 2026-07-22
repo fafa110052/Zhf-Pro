@@ -266,7 +266,7 @@ Page({
       });
       // 服务端草稿在提交时已删除，这里清掉本地草稿
       try { wx.removeStorageSync(DRAFT_STORAGE_KEY); } catch (e) {}
-      wx.redirectTo({ url: '/pages/style-my-selections/index?submitted=1' });
+      wx.reLaunch({ url: '/pages/style-my-selections/index?submitted=1' });
     } catch (err) {
       // 错误 toast 由 request.js 统一弹出
       this.setData({ submitting: false });

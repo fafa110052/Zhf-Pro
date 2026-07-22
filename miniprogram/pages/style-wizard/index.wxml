@@ -29,9 +29,8 @@
       <view class="step-body">
         <!-- ─── 通用步骤（1/3/4/5/6）：子品类手风琴 ─── -->
         <block wx:if="{{stepType === 'generic'}}">
-          <accordion-card
-            wx:for="{{currentCategory.subcategories}}"
-            wx:key="id"
+          <block wx:for="{{currentCategory.subcategories}}" wx:key="id">
+            <accordion-card
             number="{{index + 1}}"
             title="{{item.name}}"
             expanded="{{expandedSub === item.id}}"
@@ -42,7 +41,10 @@
           >
             <!-- 卫生间门：系列→颜色选择（复用门步骤模式） -->
             <block wx:if="{{item.isBathDoor}}">
-              <view wx:if="{{bathDoorLoading}}" class="body-hint">加载中…</view>
+              <view wx:if="{{bathDoorLoading}}" class="loading-wrap">
+                <view class="spinner-ring"></view>
+                <text class="loading-text">加载中…</text>
+              </view>
               <view wx:elif="{{bathDoorError}}" class="body-retry" catchtap="onRetryBathDoorSeries">加载失败，点此重试</view>
               <view wx:elif="{{!bathDoorSeries.length}}" class="body-hint">暂无卫生间门系列</view>
               <block wx:else>
@@ -72,7 +74,10 @@
                     <text class="door-section-label">选择门的颜色</text>
                     <view class="door-section-line"></view>
                   </view>
-                  <view wx:if="{{loadingSubId === bathDoorChosenSeriesId}}" class="body-hint">加载中…</view>
+                  <view wx:if="{{loadingSubId === bathDoorChosenSeriesId}}" class="loading-wrap">
+                    <view class="spinner-ring"></view>
+                    <text class="loading-text">加载中…</text>
+                  </view>
                   <view wx:elif="{{errorSubId === bathDoorChosenSeriesId}}" class="body-retry" data-series-id="{{bathDoorChosenSeriesId}}" catchtap="onRetryBathDoorMaterials">加载失败，点此重试</view>
                   <block wx:else>
                     <view wx:if="{{!bathDoorMaterialsCache['s' + bathDoorChosenSeriesId].length}}" class="body-hint">该系列暂无此风格门型</view>
@@ -98,12 +103,11 @@
 
             <!-- 普通子品类：材料网格 -->
             <block wx:else>
-            <view wx:if="{{loadingSubId === item.id}}" class="body-hint">加载中…</view>
-            <block wx:elif="{{errorSubId === item.id}}">
+            <block wx:if="{{errorSubId === item.id}}">
               <view class="body-retry" data-sub-id="{{item.id}}" catchtap="onRetryMaterials">加载失败，点此重试</view>
               <view class="skip-btn" data-sub-id="{{item.id}}" catchtap="onSkipSub">此项不选</view>
             </block>
-            <block wx:else>
+            <block wx:elif="{{loadingSubId !== item.id}}">
               <view wx:if="{{!materialsCache['s' + item.id].length}}" class="body-hint">暂无可选材料</view>
               <view wx:else class="material-grid">
                 <view
@@ -171,11 +175,19 @@
             </block>
             </block>
           </accordion-card>
+          <view wx:if="{{loadingSubId === item.id && !item.isBathDoor}}" class="list-loading">
+            <view class="spinner-ring"></view>
+            <text class="loading-text">加载中…</text>
+          </view>
+          </block>
         </block>
 
         <!-- ─── 第 2 步：木门系列（先选系列，再选颜色） ─── -->
         <block wx:elif="{{stepType === 'door'}}">
-          <view wx:if="{{doorLoading}}" class="body-hint step-hint">加载中…</view>
+          <view wx:if="{{doorLoading}}" class="loading-wrap step-hint">
+            <view class="spinner-ring"></view>
+            <text class="loading-text">加载中…</text>
+          </view>
           <view wx:elif="{{doorError}}" class="body-retry step-hint" bindtap="onRetryDoorSeries">加载失败，点此重试</view>
           <view wx:elif="{{!doorSeries.length}}" class="body-hint step-hint">暂无门系列</view>
           <block wx:else>
@@ -207,7 +219,10 @@
                 <text class="door-section-num">2</text>
                 <text>选择门的颜色</text>
               </view>
-              <view wx:if="{{loadingSubId === chosenSeriesId}}" class="body-hint">加载中…</view>
+              <view wx:if="{{loadingSubId === chosenSeriesId}}" class="loading-wrap">
+                <view class="spinner-ring"></view>
+                <text class="loading-text">加载中…</text>
+              </view>
               <view wx:elif="{{errorSubId === chosenSeriesId}}" class="body-retry" data-series-id="{{chosenSeriesId}}" catchtap="onRetryDoorMaterials">加载失败，点此重试</view>
               <block wx:else>
                 <view wx:if="{{!doorMaterialsCache['s' + chosenSeriesId].length}}" class="body-hint">该系列暂无此风格门型</view>
@@ -238,7 +253,10 @@
 
         <!-- ─── 第 6 步：灯具套餐 ─── -->
         <block wx:elif="{{stepType === 'lighting'}}">
-          <view wx:if="{{lightingLoading}}" class="body-hint step-hint">加载中…</view>
+          <view wx:if="{{lightingLoading}}" class="loading-wrap step-hint">
+            <view class="spinner-ring"></view>
+            <text class="loading-text">加载中…</text>
+          </view>
           <view wx:elif="{{lightingError}}" class="body-retry step-hint" bindtap="onRetryLighting">加载失败，点此重试</view>
           <view wx:elif="{{!lightingPackages.length}}" class="body-hint step-hint">暂无灯具套餐</view>
           <block wx:else>

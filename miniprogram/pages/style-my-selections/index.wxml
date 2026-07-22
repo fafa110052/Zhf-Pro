@@ -51,6 +51,7 @@
           <!-- 点卡片展开明细 -->
           <view wx:if="{{expandedId === item.id}}" class="card-items">
             <view class="ci-row" wx:for="{{item.itemsList}}" wx:for-item="it" wx:key="index">
+              <text wx:if="{{it.subcategory_name}}" class="ci-subtitle">{{it.subcategory_name}}：</text>
               <text class="ci-name">{{it.name}}</text>
               <text wx:if="{{it.discountText}}" class="ci-price">¥{{it.discountText}}</text>
             </view>
