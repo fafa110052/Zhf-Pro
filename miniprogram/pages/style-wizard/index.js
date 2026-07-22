@@ -267,7 +267,14 @@ Page({
       this.ensureDoorSeries();
       if (derived.chosenSeriesId) this.ensureDoorMaterials(derived.chosenSeriesId);
     } else if (derived.stepType === 'lighting') this.ensureLightingPackages();
-    else if (derived.expandedSub != null) this.ensureMaterials(derived.expandedSub);
+    else if (derived.expandedSub != null) {
+      const sub = this.findSub(derived.expandedSub);
+      if (this.isBathDoorSub(sub)) {
+        this.ensureBathDoorSeries();
+      } else {
+        this.ensureMaterials(derived.expandedSub);
+      }
+    }
   },
 
   isStepComplete(step, selectionsArg, categoriesArg) {
@@ -318,6 +325,8 @@ Page({
     }
     this.setData({ expandedSub: id, pending: null });
     if (this.isBathDoorSub(sub)) {
+      // 每次展开都允许重新拉取系列，确保持久展示 loading 而非缓存空态
+      this.setData({ bathDoorLoaded: false });
       this.ensureBathDoorSeries();
       if (this.data.bathDoorChosenSeriesId) this.ensureBathDoorMaterials(this.data.bathDoorChosenSeriesId);
     } else {

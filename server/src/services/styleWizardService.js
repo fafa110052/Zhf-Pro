@@ -433,6 +433,12 @@ const styleWizardService = {
       .leftJoin('style_categories', 'style_subcategories.category_id', 'style_categories.id');
     const catMap = {};
     for (const s of subs) { catMap[s.name] = s.category_name || ''; }
+    // items 带 series_name 的是门系列，品类固定为室内木门
+    function resolveCategory(subName, item) {
+      if (catMap[subName]) return catMap[subName];
+      if (item.series_name) return '室内木门';
+      return '';
+    }
 
     const wb = new ExcelJS.Workbook();
     const ws = wb.addWorksheet('风格选材');
@@ -481,7 +487,7 @@ const styleWizardService = {
           const subName = it.subcategory_name || '';
           ws.addRow({
             ...common,
-            category_name: catMap[subName] || '',
+            category_name: resolveCategory(subName, it),
             subcategory_name: subName,
             item_name: it.name || '',
             original_price: it.original_price ? Number(it.original_price) : '',
@@ -522,6 +528,11 @@ const styleWizardService = {
 
     ws.getColumn('original_price').numFmt = '¥#,##0.00';
     ws.getColumn('discount_price').numFmt = '¥#,##0.00';
+
+    // 全部数据行自动换行
+    for (let r = 2; r <= ws.rowCount; r++) {
+      ws.getRow(r).alignment = { wrapText: true, vertical: 'middle' };
+    }
 
     return await wb.xlsx.writeBuffer();
   },
