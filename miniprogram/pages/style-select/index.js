@@ -9,7 +9,6 @@ Page({
     error: false,
     styles: [],
     header: { image_url: '', title: '选择你的装修风格', subtitle: 'CHOOSE YOUR STYLE' },
-    qrModal: { show: false, url: '' },
   },
 
   onLoad() {
@@ -66,7 +65,8 @@ Page({
     wx.navigateTo({ url: `/pages/style-wizard/index?style_id=${id}&step=1` });
   },
 
-  // VR 看房：酷家乐链接跳全景720小程序；其他平台链接展示二维码，长按识别打开
+  // VR 看房：酷家乐链接跳全景720小程序；其他平台链接用 wx.previewImage 打开二维码
+  //（只有 previewImage 的长按菜单才包含"识别图中二维码"，<image> 组件的 show-menu-by-longpress 不支持）
   onTapVR(e) {
     const { url: vrUrl, id } = e.currentTarget.dataset;
     if (!vrUrl) return;
@@ -81,13 +81,7 @@ Page({
       });
       return;
     }
-    // 非酷家乐链接：弹窗展示二维码，长按识别进入全景
-    this.setData({ qrModal: { show: true, url: util.fullImageUrl(`/api/v1/styles/${id}/vr-qrcode`) } });
+    // 非酷家乐链接：用 .png 后缀 URL 打开 previewImage，长按即可识别二维码
+    wx.previewImage({ urls: [util.fullImageUrl(`/api/v1/styles/${id}/vr-qrcode.png`)] });
   },
-
-  onCloseQr() {
-    this.setData({ 'qrModal.show': false });
-  },
-
-  noop() {},
 });

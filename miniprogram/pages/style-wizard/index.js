@@ -498,7 +498,13 @@ Page({
       const next = cat ? (cat.subcategories || []).find((s) => !selections['sub_' + s.id]) : null;
       update.expandedSub = next ? next.id : null;
       this.setData(update);
-      if (next) this.ensureMaterials(next.id);
+      if (next) {
+        if (this.isBathDoorSub(next)) {
+          this.ensureBathDoorSeries();
+        } else {
+          this.ensureMaterials(next.id);
+        }
+      }
     } else {
       update.expandedSub = null;
       this.setData(update);

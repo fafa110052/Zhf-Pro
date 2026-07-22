@@ -53,16 +53,6 @@
         <text class="empty-title">风格准备中，敬请期待</text>
       </view>
 
-      <!-- VR 二维码弹窗：长按识别进入全景 -->
-      <view wx:if="{{qrModal.show}}" class="qr-mask" catchtap="onCloseQr" catchtouchmove="noop">
-        <view class="qr-card" catchtap="noop">
-          <text class="qr-title">VR看房</text>
-          <view class="qr-divider"></view>
-          <image class="qr-img" src="{{qrModal.url}}" show-menu-by-longpress="{{true}}" />
-          <text class="qr-hint">长按识别二维码，进入VR全景看房</text>
-          <view class="qr-close-btn" catchtap="onCloseQr">知道了</view>
-        </view>
-      </view>
     </block>
   </block>
 </view>
