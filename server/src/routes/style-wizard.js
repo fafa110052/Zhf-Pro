@@ -134,6 +134,16 @@ router.delete('/admin/lighting-packages/:id', ...wrap(req => svc.deleteLightingP
 
 // 选材单管理
 router.get('/admin/orders', ...wrap(req => svc.listOrders({ status: req.query.status }, { page: req.query.page, page_size: req.query.page_size }).then(ok)));
+// 导出 Excel — 必须放在 :id 之前，防止 "export" 被当作 id 参数
+router.get('/admin/orders/export', authenticate, requireRole('admin'), async (req, res, next) => {
+  try {
+    const buf = await svc.exportOrders(req.query.status);
+    const now = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+    res.set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.set('Content-Disposition', `attachment; filename="${encodeURIComponent('风格选材_' + now + '.xlsx')}"`);
+    res.send(Buffer.from(buf));
+  } catch (e) { next(e); }
+});
 router.get('/admin/orders/:id', ...wrap(req => svc.getOrder(Number(req.params.id)).then(ok)));
 router.put('/admin/orders/:id', ...wrap(async (req) => {
   const id = Number(req.params.id);

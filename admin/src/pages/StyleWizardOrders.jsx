@@ -40,6 +40,7 @@ export default function StyleWizardOrders() {
   const [detailLoading, setDetailLoading] = useState(false);
   const [nextStatus, setNextStatus] = useState('pending');
   const [statusSaving, setStatusSaving] = useState(false);
+  const [exporting, setExporting] = useState(false);
 
   const fetchList = useCallback(async (params = {}) => {
     setLoading(true); setError('');
@@ -86,6 +87,37 @@ export default function StyleWizardOrders() {
     finally { setStatusSaving(false); }
   };
 
+  const handleExport = async () => {
+    setExporting(true);
+    try {
+      const token = localStorage.getItem('admin_token');
+      const params = new URLSearchParams();
+      if (statusFilter) params.set('status', statusFilter);
+      const res = await fetch(`/api/v1/admin/orders/export?${params.toString()}`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error?.message || '导出失败');
+      }
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      const now = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+      a.download = `风格选材_${now}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+      toast.success('导出成功');
+    } catch (err) {
+      toast.error(err?.message || '导出失败');
+    } finally {
+      setExporting(false);
+    }
+  };
+
   const items = Array.isArray(detail?.items) ? detail.items : [];
 
   return (
@@ -97,15 +129,36 @@ export default function StyleWizardOrders() {
             <h2 className="text-lg font-bold text-gray-900">选材单管理</h2>
             <p className="text-sm text-gray-500 mt-0.5">业主在选材向导提交的选材单，联系跟进后更新状态</p>
           </div>
-          <div className="flex items-center space-x-1">
-            {STATUS_TABS.map((t) => (
-              <button key={t.value} onClick={() => setStatusFilter(t.value)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                  statusFilter === t.value ? 'bg-slate-900 text-white' : 'text-gray-600 hover:bg-gray-100'
-                }`}>
-                {t.label}
-              </button>
-            ))}
+          <div className="flex items-center gap-3">
+            <button onClick={handleExport} disabled={exporting}
+              className="inline-flex items-center px-3 py-1.5 bg-green-600 text-white text-xs font-medium rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors">
+              {exporting ? (
+                <>
+                  <svg className="w-3.5 h-3.5 mr-1 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8z" />
+                  </svg>
+                  导出中...
+                </>
+              ) : (
+                <>
+                  <svg className="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  导出Excel
+                </>
+              )}
+            </button>
+            <div className="flex items-center space-x-1">
+              {STATUS_TABS.map((t) => (
+                <button key={t.value} onClick={() => setStatusFilter(t.value)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                    statusFilter === t.value ? 'bg-slate-900 text-white' : 'text-gray-600 hover:bg-gray-100'
+                  }`}>
+                  {t.label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>

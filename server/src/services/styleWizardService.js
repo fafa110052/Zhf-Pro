@@ -1,4 +1,7 @@
 const db = require('../db/connection');
+const ExcelJS = require('exceljs');
+
+const STATUS_LABEL = { pending: '待联系', contacted: '已联系', completed: '已完成' };
 
 const styleWizardService = {
   // ===== 风格 CRUD =====
@@ -412,6 +415,67 @@ const styleWizardService = {
     if (!order) throw Object.assign(new Error('选材单不存在'), { status: 404 });
     if (order.items) order.items = JSON.parse(order.items);
     return order;
+  },
+
+  // ===== Excel 导出 =====
+  async exportOrders(status) {
+    let q = db('selection_orders')
+      .select('selection_orders.*', 'styles.name as style_name')
+      .leftJoin('styles', 'selection_orders.style_id', 'styles.id');
+    if (status) q = q.where('selection_orders.status', status);
+    const rows = await q.orderBy('selection_orders.created_at', 'desc');
+
+    const wb = new ExcelJS.Workbook();
+    const ws = wb.addWorksheet('选材单');
+
+    ws.columns = [
+      { header: '订单号', key: 'order_no', width: 14 },
+      { header: '业主姓名', key: 'owner_name', width: 10 },
+      { header: '联系电话', key: 'owner_phone', width: 14 },
+      { header: '小区', key: 'community', width: 16 },
+      { header: '房号', key: 'room_number', width: 10 },
+      { header: '选择风格', key: 'style_name', width: 12 },
+      { header: '状态', key: 'status', width: 8 },
+      { header: '原价合计', key: 'original_total', width: 12 },
+      { header: '优惠合计', key: 'discount_total', width: 12 },
+      { header: '提交时间', key: 'submitted_at', width: 18 },
+      { header: '选材明细', key: 'items_detail', width: 50 },
+    ];
+
+    // 表头样式
+    const headerRow = ws.getRow(1);
+    headerRow.font = { bold: true };
+    headerRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF0F0F0' } };
+
+    for (const r of rows) {
+      let itemsDetail = '';
+      try {
+        const items = typeof r.items === 'string' ? JSON.parse(r.items) : (r.items || []);
+        itemsDetail = items.map((it, i) =>
+          `${i + 1}. ${it.subcategory_name || ''} — ${it.name || ''}  ¥${it.discount_price || it.original_price || 0}`
+        ).join('\n');
+      } catch { /* ignore malformed items */ }
+
+      ws.addRow({
+        order_no: r.order_no,
+        owner_name: r.owner_name || '',
+        owner_phone: r.owner_phone || '',
+        community: r.community || '',
+        room_number: r.room_number || '',
+        style_name: r.style_name || '',
+        status: STATUS_LABEL[r.status] || r.status,
+        original_total: r.original_total ? Number(r.original_total) : 0,
+        discount_total: r.discount_total ? Number(r.discount_total) : 0,
+        submitted_at: r.submitted_at || '',
+        items_detail: itemsDetail,
+      });
+    }
+
+    // 金额列格式
+    ws.getColumn('original_total').numFmt = '¥#,##0.00';
+    ws.getColumn('discount_total').numFmt = '¥#,##0.00';
+
+    return await wb.xlsx.writeBuffer();
   },
 };
 
