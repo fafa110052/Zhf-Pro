@@ -349,8 +349,9 @@ Page({
         let attrList = [];
         let attrs = {};
         try {
-          attrs = JSON.parse(m.attributes);
-          if (attrs && typeof attrs === 'object' && !Array.isArray(attrs)) {
+          const parsed = JSON.parse(m.attributes);
+          if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+            attrs = parsed;
             attrList = Object.keys(attrs).map((k) => ({ k, v: attrs[k] }));
           }
         } catch (e) {}
