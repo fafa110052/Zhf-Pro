@@ -149,7 +149,7 @@ router.get('/admin/orders/export', authenticate, requireRole('admin'), async (re
       filename = '风格选材' + now + '.xlsx';
     }
     res.set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    res.set('Content-Disposition', `attachment; filename="${encodeURIComponent(filename)}"`);
+    res.set('Content-Disposition', `attachment; filename*=UTF-8''${encodeURIComponent(filename)}`);
     res.send(Buffer.from(buf));
   } catch (e) { next(e); }
 });

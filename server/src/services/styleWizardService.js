@@ -457,14 +457,15 @@ const styleWizardService = {
     headerRow.font = { bold: true };
     headerRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF0F0F0' } };
 
-    // 通用信息列（A-G 和 M）需要按订单组合并
-    const MERGE_COLS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'M'];
+    // 通用信息列按订单组合并（A-G 订单号→状态，M 提交时间）
+    // 品类(H)和子品类(I)连续相同也合并
+    const ORDER_MERGE_COLS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'M'];
 
     for (const o of orders) {
       let items = [];
       try { items = typeof o.items === 'string' ? JSON.parse(o.items) : (o.items || []); } catch { /* ignore */ }
 
-      const rowStart = ws.rowCount + 1; // 此订单第一行（before add）
+      const rowStart = ws.rowCount + 1;
       const common = {
         order_no: o.order_no, owner_name: o.owner_name || '', owner_phone: o.owner_phone || '',
         community: o.community || '', room_number: o.room_number || '',
@@ -490,15 +491,31 @@ const styleWizardService = {
       }
 
       const rowEnd = ws.rowCount;
+      // 合并通用信息列
       if (rowEnd > rowStart) {
-        for (const col of MERGE_COLS) {
+        for (const col of ORDER_MERGE_COLS) {
           ws.mergeCells(`${col}${rowStart}:${col}${rowEnd}`);
         }
-        // 合并单元格垂直居中
         for (let r = rowStart; r <= rowEnd; r++) {
-          for (const col of MERGE_COLS) {
+          for (const col of ORDER_MERGE_COLS) {
             ws.getCell(`${col}${r}`).alignment = { vertical: 'middle' };
           }
+        }
+      }
+
+      // 合并连续的相同品类(H)和子品类(I)
+      if (rowEnd > rowStart) {
+        for (const col of ['H', 'I']) {
+          let segStart = rowStart;
+          for (let r = rowStart + 1; r <= rowEnd; r++) {
+            const prevVal = ws.getCell(`${col}${r - 1}`).value;
+            const curVal = ws.getCell(`${col}${r}`).value;
+            if (curVal !== prevVal) {
+              if (r - 1 > segStart) ws.mergeCells(`${col}${segStart}:${col}${r - 1}`);
+              segStart = r;
+            }
+          }
+          if (rowEnd > segStart) ws.mergeCells(`${col}${segStart}:${col}${rowEnd}`);
         }
       }
     }
