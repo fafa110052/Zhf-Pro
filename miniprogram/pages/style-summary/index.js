@@ -154,8 +154,10 @@ Page({
         (cat.subcategories || []).forEach((sub) => {
           const sel = selections['sub_' + sub.id];
           if (sel && sel.kind === 'material') {
+            // 瓷砖选材等有品牌+型号的品类，展示为"品牌 型号"
+            const displayName = [sel.brand, sel.model].filter(Boolean).join(' ') || sel.name;
             const submitItem = {
-              name: sel.name,
+              name: displayName,
               subcategory_name: sub.name,
               image_url: sel.image_url,
               original_price: sel.original_price,
@@ -167,7 +169,7 @@ Page({
             if (sel.chaise_direction) submitItem.chaise_direction = sel.chaise_direction;
             rows.push(addItem({
               type: 'item',
-              name: sel.name,
+              name: displayName,
               subLabel: sub.name,
               image: util.fullImageUrl(sel.image_url),
               originalText: sel.original_price != null ? formatMoney(sel.original_price) : '',
