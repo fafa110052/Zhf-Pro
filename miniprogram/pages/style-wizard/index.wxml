@@ -128,9 +128,6 @@
                   </view>
                   <image wx:if="{{selections['sub_' + item.id].id === mat.id}}" class="mat-badge" src="/assets/icons/selected-mark.svg" mode="aspectFit" />
                   <view class="mat-info">
-                    <view wx:if="{{mat.brand_logo}}" class="mat-brand-row">
-                      <image class="mat-logo" src="{{mat.brand_logo}}" mode="aspectFit" />
-                    </view>
                     <text class="mat-name">{{mat.displayTitle}}</text>
                     <text wx:if="{{mat.displayFabric}}"><text class="mat-brand">材质面料：</text><text class="mat-fabric">{{mat.displayFabric}}</text></text>
                     <text wx:if="{{mat.displaySubtitle && !item.isCabinetColor && !item.isCountertop}}" class="mat-brand">{{mat.displaySubtitle}}</text>

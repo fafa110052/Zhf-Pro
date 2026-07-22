@@ -13,8 +13,8 @@ const SELECT_CLS = `${INPUT_CLS} bg-white`;
 const SCOPE_OPTIONS = ['定制柜柜体', '定制柜柜门', '橱柜柜体', '橱柜柜门'];
 
 const EMPTY_FORM = {
-  subcategory_id: '', name: '', model: '', brand: '', brand_logo: '', image_url: '',
-  original_price: '', discount_price: '', specs: '', sort_order: 0,
+  subcategory_id: '', name: '', model: '', brand: '', image_url: '',
+  original_price: '', discount_price: '', specs: '', color: '', sort_order: 0,
   has_chaise: false, old_code: '', new_code: '', applicable_scopes: [], style_ids: [],
   attr_values: {}, attr_raw: '',
   mirror_cabinet: '', main_cabinet: '', countertop: '',
@@ -137,7 +137,6 @@ export default function StyleWizardMaterials() {
 
   // 图片本地上传（外链图床常有防盗链，自己服务器的图才稳定）
   const [uploadingField, setUploadingField] = useState('');
-  const logoFileRef = useRef(null);
   const imageFileRef = useRef(null);
 
   const handleFileUpload = async (e, field, ref) => {
@@ -236,7 +235,7 @@ export default function StyleWizardMaterials() {
   const subName = selectedSub?.name || '';
   const tpl = parseTemplate(selectedSub);
   const isSofa = subName.includes('沙发');
-  const isTile = selectedCat?.page_number === 1; // 瓷砖选材：标题行显示品牌+logo，名称非必填
+  const isTile = selectedCat?.page_number === 1; // 瓷砖选材：品牌/型号/规格/颜色必填，名称非必填
   // 页面级判断：URL 锁定到瓷砖品类时，列表和表单都隐藏价格字段
   const isTilePage = !!lockedCategory && categories.some((c) => String(c.id) === String(lockedCategory) && c.page_number === 1);
   // 卫浴（page_number=3）：表单以型号为主标题，额外显示镜柜/主柜/台面，隐藏价格
@@ -296,9 +295,9 @@ export default function StyleWizardMaterials() {
       setForm({
         subcategory_id: String(m.subcategory_id),
         name: m.name || '', model: m.model || '', brand: m.brand || '',
-        brand_logo: m.brand_logo || '', image_url: m.image_url || '',
+        image_url: m.image_url || '',
         original_price: m.original_price ?? '', discount_price: m.discount_price ?? '',
-        specs: m.specs || '', sort_order: m.sort_order ?? 0,
+        specs: m.specs || '', color: attrValues['颜色'] || '', sort_order: m.sort_order ?? 0,
         has_chaise: !!m.has_chaise, old_code: m.old_code || '', new_code: m.new_code || '',
         applicable_scopes: scopes,
         style_ids: (m.styles || []).map((s) => s.id),
@@ -329,11 +328,11 @@ export default function StyleWizardMaterials() {
     const errs = {};
     if (!form.subcategory_id) errs.subcategory_id = '请选择子品类';
     if (isTile) {
-      // 瓷砖：小程序标题行 = 品牌logo + 品牌名，品牌/logo/型号/规格必填，无名称与价格
+      // 瓷砖：品牌/型号/规格/颜色必填，无名称与价格
       if (!form.brand.trim()) errs.brand = '请输入品牌';
-      if (!form.brand_logo.trim()) errs.brand_logo = '请上传品牌 Logo';
       if (!form.model.trim()) errs.model = '请输入型号';
       if (!form.specs.trim()) errs.specs = '请输入规格';
+      if (!form.color.trim()) errs.color = '请输入颜色';
     } else if (isBathCabinet) {
       // 浴室柜组合：保持现有逻辑
       if (!form.model.trim()) errs.model = '请输入型号';
@@ -416,7 +415,6 @@ export default function StyleWizardMaterials() {
         name: (isTile || bathNoName || furnitureNoName) ? '' : form.name.trim(),
         model: form.model.trim() || null,
         brand: form.brand.trim() || null,
-        brand_logo: form.brand_logo.trim() || null,
         image_url: form.image_url.trim() || null,
         original_price: (isTilePage || isTile || isBathPage || isBath) || form.original_price === '' || form.original_price === null ? null : Number(form.original_price),
         discount_price: (isTilePage || isTile || isBathPage || isBath) || form.discount_price === '' || form.discount_price === null ? null : Number(form.discount_price),
@@ -425,7 +423,9 @@ export default function StyleWizardMaterials() {
         has_chaise: isSofa && form.has_chaise ? 1 : 0,
         style_ids: form.style_ids,
       };
-      if (isBathCabinet) {
+      if (isTile) {
+        payload.attributes = { '颜色': form.color.trim() };
+      } else if (isBathCabinet) {
         payload.attributes = {
           '镜柜': form.mirror_cabinet.trim(),
           '主柜': form.main_cabinet.trim(),
@@ -567,11 +567,13 @@ export default function StyleWizardMaterials() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-gray-100 bg-gray-50/50">
-                    {(isBathPage || isFurniturePage
-                      ? ['图片', '标题/型号', '关键属性', '子品类', '排序', '操作']
-                      : isDecorationPage
-                        ? ['图片', '名称', '编码', '适用范围', '子品类', '排序', '操作']
-                        : ['图片', '名称', '品牌', '型号', '品类', '子品类', ...(isTilePage ? [] : ['原价', '优惠价']), '排序', '操作']
+                    {(isTilePage
+                      ? ['图片', '品牌', '型号', '颜色', '规格', '品类', '子品类', '排序', '操作']
+                      : isBathPage || isFurniturePage
+                        ? ['图片', '标题/型号', '关键属性', '子品类', '排序', '操作']
+                        : isDecorationPage
+                          ? ['图片', '名称', '编码', '适用范围', '子品类', '排序', '操作']
+                          : ['图片', '名称', '品牌', '型号', '品类', '子品类', ...(isTilePage ? [] : ['原价', '优惠价']), '排序', '操作']
                     ).map((h) => (
                       <th key={h} className={`${h === '排序' ? 'text-center' : 'text-left'} ${h === '操作' ? 'text-right' : ''} px-4 py-3 text-gray-500 font-medium text-xs whitespace-nowrap`}>{h}</th>
                     ))}
@@ -595,7 +597,16 @@ export default function StyleWizardMaterials() {
                             : <div className="w-full h-full flex items-center justify-center text-gray-300">🧱</div>}
                         </div>
                       </td>
-                      {isBathPage || isFurniturePage ? (
+                      {isTilePage ? (
+                        <>
+                          <td className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap">{m.brand || '—'}</td>
+                          <td className="px-4 py-3 text-gray-600 whitespace-nowrap">{m.model || '—'}</td>
+                          <td className="px-4 py-3 text-gray-600 whitespace-nowrap">{(() => {
+                            try { const a = typeof m.attributes === 'string' ? JSON.parse(m.attributes) : (m.attributes || {}); return (a['颜色'] || '—'); } catch { return '—'; }
+                          })()}</td>
+                          <td className="px-4 py-3 text-gray-500 whitespace-nowrap">{m.specs || '—'}</td>
+                        </>
+                      ) : isBathPage || isFurniturePage ? (
                         <>
                           <td className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap">{m.name || m.model || '—'}</td>
                           <td className="px-4 py-3 text-gray-600 max-w-48 truncate">{bathAttrSummary(bathAttrs, m)}</td>
@@ -670,7 +681,7 @@ export default function StyleWizardMaterials() {
                     {formErrors.name && <p className="text-red-500 text-xs mt-1">{formErrors.name}</p>}
                   </div>
                 )}
-                {/* 卫浴/装饰定制简版/家具不展示品牌/品牌Logo */}
+                {/* 卫浴/装饰定制简版/家具不展示品牌 */}
                 {!(isBath || isBathPage || isDecorationSimple || isFurniture) && (
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">品牌{isTile && <span className="text-red-500"> *</span>}</label>
@@ -685,18 +696,11 @@ export default function StyleWizardMaterials() {
                   {formErrors.model && <p className="text-red-500 text-xs mt-1">{formErrors.model}</p>}
                 </div>
                 )}
-                {!(isBath || isBathPage || isDecorationSimple || isFurniture) && (
+                {isTile && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">品牌 Logo{isTile && <span className="text-red-500"> *</span>}</label>
-                    <div className="flex gap-2">
-                      <input value={form.brand_logo} onChange={(e) => setForm({ ...form, brand_logo: e.target.value })} className={`${INPUT_CLS} flex-1`} placeholder="点击右侧按钮上传" />
-                      <button type="button" onClick={() => logoFileRef.current?.click()} disabled={uploadingField === 'brand_logo'}
-                        className="px-3 py-2 bg-white border border-gray-300 text-gray-600 text-sm rounded-lg hover:bg-gray-50 disabled:opacity-50 transition-colors whitespace-nowrap">
-                        {uploadingField === 'brand_logo' ? '上传中...' : '本地上传'}
-                      </button>
-                      <input ref={logoFileRef} type="file" accept="image/jpeg,image/png,image/gif,image/webp" className="hidden" onChange={(e) => handleFileUpload(e, 'brand_logo', logoFileRef)} />
-                    </div>
-                    {formErrors.brand_logo && <p className="text-red-500 text-xs mt-1">{formErrors.brand_logo}</p>}
+                    <label className="block text-sm font-medium text-gray-700 mb-1">颜色<span className="text-red-500"> *</span></label>
+                    <input value={form.color} onChange={(e) => setForm({ ...form, color: e.target.value })} className={INPUT_CLS} maxLength={64} placeholder="如：米白色" />
+                    {formErrors.color && <p className="text-red-500 text-xs mt-1">{formErrors.color}</p>}
                   </div>
                 )}
                 <div>

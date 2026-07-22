@@ -334,11 +334,12 @@ Page({
     this.setData({ loadingSubId: subId, errorSubId: null });
     try {
       const list = (await api.getStyleMaterials(this._styleId, subId)) || [];
-      // 查找子品类名用于家具标题格式化
+      // 查找子品类名和品类页码用于格式化
       let subName = '';
+      let catPageNumber = 0;
       for (const cat of this.data.categories) {
         const found = (cat.subcategories || []).find((s) => s.id == subId);
-        if (found) { subName = found.name; break; }
+        if (found) { subName = found.name; catPageNumber = cat.page_number; break; }
       }
       const materials = list.map((m) => {
         // 弹性字段：适用范围（JSON 数组）与属性（JSON 对象）在加载时解析，WXML 直接消费
@@ -358,7 +359,13 @@ Page({
         let displaySubtitle = [m.model && !m.name && !m.brand ? '' : m.model, m.specs]
           .filter(Boolean).join(' · ') || (m.name ? m.model : '');
         let displayFabric = ''; // 材质面料（红色展示）
-        if (subName.includes('沙发')) {
+        // 瓷砖：标题 = 品牌 + 型号，内容 = 颜色 + 规格
+        if (catPageNumber === 1) {
+          displayTitle = [m.brand, m.model].filter(Boolean).join(' ');
+          const colorText = attrs['颜色'] || '';
+          displaySubtitle = [colorText, m.specs].filter(Boolean).join(' · ');
+          attrList = attrList.filter(a => a.k !== '颜色');
+        } else if (subName.includes('沙发')) {
           displayTitle = '沙发' + (m.model || '');
           displayFabric = attrs['材质面料'] || '';
           displaySubtitle = m.specs || '';
@@ -388,8 +395,6 @@ Page({
         }
         return Object.assign({}, m, {
           image_url: util.fullImageUrl(m.image_url),
-          brand_logo: util.fullImageUrl(m.brand_logo),
-          brand_model: [m.brand, m.model].filter(Boolean).join(' '),
           scopes,
           attrList,
           displayTitle,

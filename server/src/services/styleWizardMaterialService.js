@@ -35,7 +35,7 @@ const styleWizardMaterialService = {
   },
 
   async createMaterial(fields) {
-    const { subcategory_id, name, model, brand, brand_logo, image_url,
+    const { subcategory_id, name, model, brand, image_url,
       original_price, discount_price, specs, attributes, has_chaise,
       old_code, new_code, applicable_scopes, sort_order, style_ids } = fields;
     // 标题至少填一项（名称/品牌/型号）；瓷砖用品牌，卫浴用型号
@@ -47,7 +47,7 @@ const styleWizardMaterialService = {
       if (clash) await trx('style_materials').where('subcategory_id', subcategory_id).where('sort_order', '>=', sort).increment('sort_order', 1);
       const [newId] = await trx('style_materials').insert({
         subcategory_id, name: name || '', model: model || null, brand: brand || null,
-        brand_logo: brand_logo || null, image_url: image_url || null,
+        image_url: image_url || null,
         original_price: original_price ?? null, discount_price: discount_price ?? null,
         specs: specs || null,
         attributes: attributes ? JSON.stringify(attributes) : null,
@@ -68,7 +68,7 @@ const styleWizardMaterialService = {
     const ex = await db('style_materials').where('id', id).first();
     if (!ex) throw Object.assign(new Error('材料不存在'), { status: 404 });
     const u = {};
-    ['name', 'model', 'brand', 'brand_logo', 'image_url', 'specs', 'old_code', 'new_code'].forEach(f => {
+    ['name', 'model', 'brand', 'image_url', 'specs', 'old_code', 'new_code'].forEach(f => {
       if (fields[f] !== undefined) u[f] = fields[f];
     });
     if (u.name === null) u.name = ''; // name 列非空，空标题存空串
